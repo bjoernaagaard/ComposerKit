@@ -27,7 +27,8 @@ export const TipProvider = ({ children }: TipProviderProps) => children;
 // keyboard focus. The control keeps its own aria-label, so the tooltip
 // never carries the accessible name alone. The child must be one element
 // that accepts a ref, such as a button. It is centered on the control and
-// moves to the other side when there is no room.
+// moves to the other side when there is no room. A label too long for
+// one line ends in an ellipsis; the control's aria-label keeps it whole.
 export interface TipProps {
   label: string;
   side?: "top" | "right" | "bottom" | "left";
@@ -54,10 +55,10 @@ export const Tip = ({ label, side = "bottom", children }: TipProps) => (
         }
       >
         <Tooltip.Popup
-          className="bg-popover text-popover-foreground border-border z-50 flex h-(--size-tooltip-height) max-w-[min(--spacing(80),var(--available-width))] items-center truncate rounded-(--radius-tooltip) border-(length:--border-panel) px-(--space-tooltip-padding-x) text-(length:--text-caption-size) leading-(--text-caption-leading) shadow-(--shadow-menu)"
+          className="bg-popover text-popover-foreground border-border z-50 flex h-(--size-tooltip-height) max-w-[min(--spacing(80),var(--available-width))] items-center rounded-(--radius-tooltip) border-(length:--border-panel) px-(--space-tooltip-padding-x) text-(length:--text-caption-size) leading-(--text-caption-leading) shadow-(--shadow-menu)"
           data-slot="tooltip"
         >
-          {label}
+          <span className="min-w-0 truncate">{label}</span>
         </Tooltip.Popup>
       </Tooltip.Positioner>
     </Tooltip.Portal>
