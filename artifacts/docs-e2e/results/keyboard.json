@@ -49,7 +49,7 @@
     "expected": "Stops the reply. Focus stays in the text field.",
     "keys": "Escape",
     "line": 136,
-    "actual": "stopped (primary button \"Send\") 529 ms after Escape, focus on textarea \"Send a message\"",
+    "actual": "stopped (primary button \"Send\") 486 ms after Escape, focus on textarea \"Send a message\"",
     "status": "pass",
     "where": "/conversation [data-example=\"conversation--demo\"]"
   },
@@ -229,7 +229,7 @@
     "expected": "Text field",
     "keys": "Escape",
     "line": 182,
-    "actual": "primary button \"Send\" 532 ms after Escape, focus on textarea \"Send a message\"",
+    "actual": "primary button \"Send\" 491 ms after Escape, focus on textarea \"Send a message\"",
     "status": "pass",
     "where": "/conversation [data-example=\"conversation--transcript\"]"
   },
@@ -310,8 +310,8 @@
     "expected": "Runs the highlighted item. The menu closes on the same step. Enter never sends.",
     "keys": "Enter",
     "line": 318,
-    "actual": "file picker false, menu open false",
-    "status": "mismatch",
+    "actual": "file picker true, menu open false",
+    "status": "pass",
     "where": "/composer [data-example=\"composer--stacked\"]"
   },
   {
@@ -373,8 +373,8 @@
     "expected": "Move between items. Up from the first item wraps to the last.",
     "keys": "Down, Up",
     "line": 352,
-    "actual": "first menuitem \"Model: Sparrow 3\", Up gives menuitem \"Model: Sparrow 3\"",
-    "status": "mismatch",
+    "actual": "first menuitem \"Model: Sparrow 3\", Up gives menuitem \"Effort: BalancedBalanced, 3 of 5Left and\"",
+    "status": "pass",
     "where": "/composer [data-example=\"composer--stacked\"]"
   },
   {
@@ -418,7 +418,7 @@
     "expected": "Closes everything. Focus returns to whatever had focus before the picker opened.",
     "keys": "Escape",
     "line": 357,
-    "actual": "menus open 0 after 21 ms, focus on textarea \"Describe a task\"",
+    "actual": "menus open 0 after 3 ms, focus on textarea \"Describe a task\"",
     "status": "pass",
     "where": "/composer [data-example=\"composer--stacked\"]"
   },
@@ -436,8 +436,8 @@
     "expected": "Opens the menu with focus on the menu container. Down then focuses the first item.",
     "keys": "Click, then Down",
     "line": 377,
-    "actual": "after click button \"More actions\", after Down menuitem \"Pin chat\"",
-    "status": "mismatch",
+    "actual": "after click menu \"More actions\", after Down menuitem \"Pin chat\"",
+    "status": "pass",
     "where": "/menu [data-example=\"menu--demo\"]"
   },
   {
@@ -445,7 +445,7 @@
     "expected": "Move between items. No wrap: Down on the last item and Up on the first item stay put.",
     "keys": "Down, Up",
     "line": 378,
-    "actual": "Up on button \"More actions\" gives menuitem \"Archive chatYou can undo it right away\"; Down on menuitem \"Archive chatYou can undo it right away\" gives menuitem \"Archive chatYou can undo it right away\"",
+    "actual": "Up on menuitem \"Pin chat\" gives menuitem \"Archive chatYou can undo it right away\"; Down on menuitem \"Archive chatYou can undo it right away\" gives menuitem \"Pin chat\"",
     "status": "mismatch",
     "where": "/menu [data-example=\"menu--demo\"]"
   },
@@ -490,7 +490,7 @@
     "expected": "Closes the menu. Focus returns to the trigger.",
     "keys": "Escape",
     "line": 383,
-    "actual": "menus open 0 after 55 ms, focus on button \"More actions\"",
+    "actual": "menus open 0 after 3 ms, focus on button \"More actions\"",
     "status": "pass",
     "where": "/menu [data-example=\"menu--demo\"]"
   },

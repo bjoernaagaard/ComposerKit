@@ -22,11 +22,11 @@ Schemas fetched at run time from ui.shadcn.com. Validator: ajv 8 (draft-07), str
 
 ## 2. A new app installs every item with shadcn add, then type checks and builds
 
-The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-hlPZuc/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/tip.json, so registry dependencies also come from the local server.
+The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-p2R8ED/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/tip.json, so registry dependencies also come from the local server.
 
 | Command | Folder | Exit code | Seconds |
 | --- | --- | --- | --- |
-| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 18 |
+| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 21 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/theme.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/button.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/tip.json -y -o | consumer | 0 | 1 |
@@ -34,9 +34,9 @@ The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/compos
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/composer.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/conversation.json -y -o | consumer | 0 | 1 |
 | npx tsc --noEmit | consumer | 0 | 1 |
-| npx next build | consumer | 0 | 4 |
+| npx next build | consumer | 0 | 5 |
 
-Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-hlPZuc` (outside the repo).
+Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-p2R8ED` (outside the repo).
 
 ## 3. Accessibility, keyboard and sizes on the static export
 
@@ -78,7 +78,7 @@ Keyboard and size rows are listed, not gated. A mismatch does not fail the run; 
 
 | Rows | Pass | Mismatch | Not checkable |
 | ---- | ---- | -------- | ------------- |
-| 60   | 47   | 7        | 6             |
+| 60   | 50   | 4        | 6             |
 
 ### Size rows from spec/functional.md (about 1 px tolerance)
 
@@ -138,8 +138,152 @@ Baseline: 37 ids, light and dark, in `catalog-before/`. Docs screenshots in `doc
 
 | Step | Result | Detail |
 | --- | --- | --- |
-| npm run build --workspace @composerkit/docs | exit 0 | 3 s |
+| npm run build --workspace @composerkit/docs | exit 0 | 2 s |
 | next-validate-link on content/docs/*.mdx | no broken links | 8 files, 8 known URLs |
+
+## 6. Stress
+
+Listed, not gated. 4 rows below still show a flag or a break.
+
+### Every docs example at 320 and 1440 wide
+
+One image per example and width, light on the left and dark on the right, in `stress/render/`. A flag is sideways page scroll, a box wider than the window, text cut off with no ellipsis, text over other text, or a control pushed out of view. Content inside a box that scrolls sideways, such as a code block or the tab strip, counts as reachable.
+
+| Width | Examples | With a flag |
+| ----- | -------- | ----------- |
+| 320   | 44       | 0           |
+| 1440  | 44       | 0           |
+
+### Keyboard only, every docs page
+
+Tab from the top of the page to the end, then Shift+Tab back, with no mouse events. Each stop is checked for a visible change against its resting look. Every menu trigger and tooltip in the examples is opened, closed with Escape, and checked for focus back on its trigger. The full focus order of each page is in `results/stress-keyboard.json`.
+
+| Page | Stops | Walk ended | Trap | No visible focus | Not reachable by Tab | Shift+Tab gives the same order | Escape did not return focus |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| / | 30 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| /theme | 98 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| /button | 101 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| /tip | 64 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| /menu | 98 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| /composer | 320 | Tab left the last control and focus went back to the page | none | none | none | yes | menu on button "Add files and more": closed, focus went to a textarea (16 times) |
+| /conversation | 235 | Tab left the last control and focus went back to the page | none | none | button "Scroll to the newest message" (4 times) | yes | menu on button "Add files and more": closed, focus went to a textarea (4 times) |
+| /app-shell | 155 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+
+### A 200 character paste into every composer, then Enter
+
+Pasted through the clipboard. Images are in `stress/paste/`.
+
+| Example | Label | Pasted | After Enter | Flags | Images |
+| --- | --- | --- | --- | --- | --- |
+| composer--demo | spaces | 200 | field cleared, turns 0 then 0 | none | stress/paste/composer--demo--spaces--pasted.png, stress/paste/composer--demo--spaces--submitted.png |
+| composer--demo | word | 200 | field cleared, turns 0 then 0 | none | stress/paste/composer--demo--word--pasted.png, stress/paste/composer--demo--word--submitted.png |
+| composer--inline | spaces | 200 | field cleared, turns 0 then 0 | none | stress/paste/composer--inline--spaces--pasted.png, stress/paste/composer--inline--spaces--submitted.png |
+| composer--inline | word | 200 | field cleared, turns 0 then 0 | none | stress/paste/composer--inline--word--pasted.png, stress/paste/composer--inline--word--submitted.png |
+| composer--roomy | spaces | 200 | field cleared, turns 0 then 0 | none | stress/paste/composer--roomy--spaces--pasted.png, stress/paste/composer--roomy--spaces--submitted.png |
+| composer--roomy | word | 200 | field cleared, turns 0 then 0 | none | stress/paste/composer--roomy--word--pasted.png, stress/paste/composer--roomy--word--submitted.png |
+| composer--stacked | spaces | 200 | field cleared, turns 0 then 0 | none | stress/paste/composer--stacked--spaces--pasted.png, stress/paste/composer--stacked--spaces--submitted.png |
+| composer--stacked | word | 200 | field cleared, turns 0 then 0 | none | stress/paste/composer--stacked--word--pasted.png, stress/paste/composer--stacked--word--submitted.png |
+| composer-state--empty | spaces | 200 | field kept 200 characters, turns 0 then 0 | none | stress/paste/composer-state--empty--spaces--pasted.png, stress/paste/composer-state--empty--spaces--submitted.png |
+| composer-state--empty | word | 200 | field kept 200 characters, turns 0 then 0 | none | stress/paste/composer-state--empty--word--pasted.png, stress/paste/composer-state--empty--word--submitted.png |
+| composer-state--typing | spaces | 278 | field kept 278 characters, turns 0 then 0 | none | stress/paste/composer-state--typing--spaces--pasted.png, stress/paste/composer-state--typing--spaces--submitted.png |
+| composer-state--typing | word | 278 | field kept 278 characters, turns 0 then 0 | none | stress/paste/composer-state--typing--word--pasted.png, stress/paste/composer-state--typing--word--submitted.png |
+| composer-state--long-draft | spaces | 788 | field kept 788 characters, turns 0 then 0 | none | stress/paste/composer-state--long-draft--spaces--pasted.png, stress/paste/composer-state--long-draft--spaces--submitted.png |
+| composer-state--long-draft | word | 788 | field kept 788 characters, turns 0 then 0 | none | stress/paste/composer-state--long-draft--word--pasted.png, stress/paste/composer-state--long-draft--word--submitted.png |
+| composer-state--uploading | spaces | 229 | field kept 229 characters, turns 0 then 0 | none | stress/paste/composer-state--uploading--spaces--pasted.png, stress/paste/composer-state--uploading--spaces--submitted.png |
+| composer-state--uploading | word | 229 | field kept 229 characters, turns 0 then 0 | none | stress/paste/composer-state--uploading--word--pasted.png, stress/paste/composer-state--uploading--word--submitted.png |
+| composer-state--attached | spaces | 200 | field kept 200 characters, turns 0 then 0 | none | stress/paste/composer-state--attached--spaces--pasted.png, stress/paste/composer-state--attached--spaces--submitted.png |
+| composer-state--attached | word | 200 | field kept 200 characters, turns 0 then 0 | none | stress/paste/composer-state--attached--word--pasted.png, stress/paste/composer-state--attached--word--submitted.png |
+| composer-state--too-large | spaces | 243 | field kept 243 characters, turns 0 then 0 | none | stress/paste/composer-state--too-large--spaces--pasted.png, stress/paste/composer-state--too-large--spaces--submitted.png |
+| composer-state--too-large | word | 243 | field kept 243 characters, turns 0 then 0 | none | stress/paste/composer-state--too-large--word--pasted.png, stress/paste/composer-state--too-large--word--submitted.png |
+| composer-state--upload-offline | spaces | 200 | field kept 200 characters, turns 0 then 0 | none | stress/paste/composer-state--upload-offline--spaces--pasted.png, stress/paste/composer-state--upload-offline--spaces--submitted.png |
+| composer-state--upload-offline | word | 200 | field kept 200 characters, turns 0 then 0 | none | stress/paste/composer-state--upload-offline--word--pasted.png, stress/paste/composer-state--upload-offline--word--submitted.png |
+| composer-state--sending | spaces | 78 | field kept 78 characters, turns 0 then 0 | none | stress/paste/composer-state--sending--spaces--pasted.png, stress/paste/composer-state--sending--spaces--submitted.png |
+| composer-state--sending | word | 78 | field kept 78 characters, turns 0 then 0 | none | stress/paste/composer-state--sending--word--pasted.png, stress/paste/composer-state--sending--word--submitted.png |
+| composer-state--send-failed | spaces | 278 | field kept 278 characters, turns 0 then 0 | none | stress/paste/composer-state--send-failed--spaces--pasted.png, stress/paste/composer-state--send-failed--spaces--submitted.png |
+| composer-state--send-failed | word | 278 | field kept 278 characters, turns 0 then 0 | none | stress/paste/composer-state--send-failed--word--pasted.png, stress/paste/composer-state--send-failed--word--submitted.png |
+| composer-state--listening | spaces | 200 | field kept 200 characters, turns 0 then 0 | none | stress/paste/composer-state--listening--spaces--pasted.png, stress/paste/composer-state--listening--spaces--submitted.png |
+| composer-state--listening | word | 200 | field kept 200 characters, turns 0 then 0 | none | stress/paste/composer-state--listening--word--pasted.png, stress/paste/composer-state--listening--word--submitted.png |
+| composer-state--unsupported | spaces | 200 | field kept 200 characters, turns 0 then 0 | none | stress/paste/composer-state--unsupported--spaces--pasted.png, stress/paste/composer-state--unsupported--spaces--submitted.png |
+| composer-state--unsupported | word | 200 | field kept 200 characters, turns 0 then 0 | none | stress/paste/composer-state--unsupported--word--pasted.png, stress/paste/composer-state--unsupported--word--submitted.png |
+| composer-state--no-limits | spaces | 200 | field kept 200 characters, turns 0 then 0 | none | stress/paste/composer-state--no-limits--spaces--pasted.png, stress/paste/composer-state--no-limits--spaces--submitted.png |
+| composer-state--no-limits | word | 200 | field kept 200 characters, turns 0 then 0 | none | stress/paste/composer-state--no-limits--word--pasted.png, stress/paste/composer-state--no-limits--word--submitted.png |
+| composer-state--chat-mode | spaces | 233 | field kept 233 characters, turns 0 then 0 | none | stress/paste/composer-state--chat-mode--spaces--pasted.png, stress/paste/composer-state--chat-mode--spaces--submitted.png |
+| composer-state--chat-mode | word | 233 | field kept 233 characters, turns 0 then 0 | none | stress/paste/composer-state--chat-mode--word--pasted.png, stress/paste/composer-state--chat-mode--word--submitted.png |
+| conversation--demo | spaces | 200 | field cleared, turns 2 then 4 | none | stress/paste/conversation--demo--spaces--pasted.png, stress/paste/conversation--demo--spaces--submitted.png |
+| conversation--demo | word | 200 | field cleared, turns 2 then 4 | none | stress/paste/conversation--demo--word--pasted.png, stress/paste/conversation--demo--word--submitted.png |
+| conversation--bubbles | spaces | 200 | field cleared, turns 8 then 10 | none | stress/paste/conversation--bubbles--spaces--pasted.png, stress/paste/conversation--bubbles--spaces--submitted.png |
+| conversation--bubbles | word | 200 | field cleared, turns 8 then 10 | none | stress/paste/conversation--bubbles--word--pasted.png, stress/paste/conversation--bubbles--word--submitted.png |
+| conversation--document | spaces | 200 | field cleared, turns 8 then 10 | none | stress/paste/conversation--document--spaces--pasted.png, stress/paste/conversation--document--spaces--submitted.png |
+| conversation--document | word | 200 | field cleared, turns 8 then 10 | none | stress/paste/conversation--document--word--pasted.png, stress/paste/conversation--document--word--submitted.png |
+| conversation--transcript | spaces | 200 | field cleared, turns 8 then 10 | none | stress/paste/conversation--transcript--spaces--pasted.png, stress/paste/conversation--transcript--spaces--submitted.png |
+| conversation--transcript | word | 200 | field cleared, turns 8 then 10 | none | stress/paste/conversation--transcript--word--pasted.png, stress/paste/conversation--transcript--word--submitted.png |
+
+### 200 character labels in every part that shows one
+
+Rendered by the playground's dev-only stress page (`/states/stress`), which passes the label through each part's own props. demo is the normal label, spaces is a 200 character title with spaces, word is a 200 character link with nowhere to break. Images are in `stress/labels/`.
+
+| Part | Label | Width | Flags | Errors | Image |
+| --- | --- | --- | --- | --- | --- |
+| button | demo | 320 | none | none | stress/labels/button--demo--320.png |
+| button | spaces | 320 | page scrolls sideways: page is 1293 wide in a 320 viewport; control out of view: button[button] "Summarize the quarterly infrastructure review fr" spans 16 to 1293 in a 320 viewport | none | stress/labels/button--spaces--320.png |
+| button | word | 320 | page scrolls sideways: page is 1329 wide in a 320 viewport; control out of view: button[button] "https://northwind-industries-holdings.example.co" spans 16 to 1329 in a 320 viewport | none | stress/labels/button--word--320.png |
+| button | demo | 1440 | none | none | stress/labels/button--demo--1440.png |
+| button | spaces | 1440 | none | none | stress/labels/button--spaces--1440.png |
+| button | word | 1440 | none | none | stress/labels/button--word--1440.png |
+| icon-button | demo | 320 | none | none | stress/labels/icon-button--demo--320.png |
+| icon-button | spaces | 320 | none | none | stress/labels/icon-button--spaces--320.png |
+| icon-button | word | 320 | none | none | stress/labels/icon-button--word--320.png |
+| icon-button | demo | 1440 | none | none | stress/labels/icon-button--demo--1440.png |
+| icon-button | spaces | 1440 | none | none | stress/labels/icon-button--spaces--1440.png |
+| icon-button | word | 1440 | none | none | stress/labels/icon-button--word--1440.png |
+| tooltip | demo | 320 | none | none | stress/labels/tooltip--demo--320.png |
+| tooltip | spaces | 320 | none | none | stress/labels/tooltip--spaces--320.png |
+| tooltip | word | 320 | none | none | stress/labels/tooltip--word--320.png |
+| tooltip | demo | 1440 | none | none | stress/labels/tooltip--demo--1440.png |
+| tooltip | spaces | 1440 | none | none | stress/labels/tooltip--spaces--1440.png |
+| tooltip | word | 1440 | none | none | stress/labels/tooltip--word--1440.png |
+| menu | demo | 320 | none | none | stress/labels/menu--demo--320.png |
+| menu | spaces | 320 | none | none | stress/labels/menu--spaces--320.png |
+| menu | word | 320 | none | none | stress/labels/menu--word--320.png |
+| menu | demo | 1440 | none | none | stress/labels/menu--demo--1440.png |
+| menu | spaces | 1440 | none | none | stress/labels/menu--spaces--1440.png |
+| menu | word | 1440 | none | none | stress/labels/menu--word--1440.png |
+| tabs | demo | 320 | none | none | stress/labels/tabs--demo--320.png |
+| tabs | spaces | 320 | none | none | stress/labels/tabs--spaces--320.png |
+| tabs | word | 320 | none | none | stress/labels/tabs--word--320.png |
+| tabs | demo | 1440 | none | none | stress/labels/tabs--demo--1440.png |
+| tabs | spaces | 1440 | none | none | stress/labels/tabs--spaces--1440.png |
+| tabs | word | 1440 | none | none | stress/labels/tabs--word--1440.png |
+| row | demo | 320 | none | none | stress/labels/row--demo--320.png |
+| row | spaces | 320 | none | none | stress/labels/row--spaces--320.png |
+| row | word | 320 | none | none | stress/labels/row--word--320.png |
+| row | demo | 1440 | none | none | stress/labels/row--demo--1440.png |
+| row | spaces | 1440 | none | none | stress/labels/row--spaces--1440.png |
+| row | word | 1440 | none | none | stress/labels/row--word--1440.png |
+| turns | demo | 320 | none | none | stress/labels/turns--demo--320.png |
+| turns | spaces | 320 | none | none | stress/labels/turns--spaces--320.png |
+| turns | word | 320 | none | none | stress/labels/turns--word--320.png |
+| turns | demo | 1440 | none | none | stress/labels/turns--demo--1440.png |
+| turns | spaces | 1440 | none | none | stress/labels/turns--spaces--1440.png |
+| turns | word | 1440 | none | none | stress/labels/turns--word--1440.png |
+
+### Empty states
+
+Images are in `stress/empty/`.
+
+| Part | Attack | Verdict | What happened | Image |
+| --- | --- | --- | --- | --- |
+| turns | a conversation with zero turns | held up | the part shows: "Stress conversation New message Auto Brief effort, choose model". no errors | stress/empty/turns.png |
+| menu | a menu with zero items | held up | an open menu panel 193 x 39 with 1 item: "Nothing to show". no errors | stress/empty/menu.png |
+| sidebar | a sidebar with no projects and no chats | held up | the part shows: "ComposerKit , workspace Personal, change New chat Projects Recent No chats yet.". no errors | stress/empty/sidebar.png |
+| tabs | a tab strip with zero tabs | held up | the part shows: "No tabs". no errors | stress/empty/tabs.png |
+| composer--stacked | Enter with no text | held up | nothing was sent, field "", height 98 then 98 (spec: 98 for 1 line), primary button stays "Start voice chat" | stress/empty/composer--stacked--enter-empty.png |
+| composer--stacked | Enter with only spaces and a line break | held up | nothing was sent, field " \n ", height 98 then 98 (spec: 98 for 2 lines), primary button stays "Start voice chat" | stress/empty/composer--stacked--enter-whitespace.png |
+| composer--stacked | paste 200 characters, select all, delete, then Enter | held up | nothing was sent, field "", height 98 then 98 (spec: 98 for 1 line), primary button stays "Start voice chat" | stress/empty/composer--stacked--paste-delete.png |
+| conversation--demo | Enter with no text | held up | nothing was sent, field "", height 48 then 48 (spec: 48 for 1 line), primary button stays "Send" | stress/empty/conversation--demo--enter-empty.png |
+| conversation--demo | Enter with only spaces and a line break | held up | nothing was sent, field " \n ", height 48 then 98 (spec: 98 for 2 lines), primary button stays "Send" | stress/empty/conversation--demo--enter-whitespace.png |
+| conversation--demo | paste 200 characters, select all, delete, then Enter | held up | nothing was sent, field "", height 48 then 48 (spec: 48 for 1 line), primary button stays "Send" | stress/empty/conversation--demo--paste-delete.png |
+| composer-state--attached | remove the last attachment with the keyboard | held up | 2 attachments removed with Enter, 0 left; height 211 then 98; focus after each removal: button "Remove household budget by month and category (final version).xlsx", textarea "Describe a task" | stress/empty/composer-state--attached--remove-last.png |
 
 ## Every mismatch
 
@@ -153,10 +297,7 @@ None.
 | --- | --- | --- | --- | --- |
 | 140 | Tab, Tab order, one-row layout, starting from the add button | add button, text field, model picker, dictate, then the trailing button when it is enabled | button "Add files and more" → button "Project rules, change permissions" → textarea "Describe a task" → button "Sparrow 3 Balanced effort, choose model" → button "Dictate" | /composer [data-example="composer--inline"] |
 | 251 | Click on the jump button, After clicking jump to latest | Stays on the jump button | focus on the page (body), jump button still on the page: false | /conversation [data-example="conversation--document"] |
-| 318 | Enter, An item highlighted | Runs the highlighted item. The menu closes on the same step. Enter never sends. | file picker false, menu open false | /composer [data-example="composer--stacked"] |
-| 352 | Down, Up, Model picker | Move between items. Up from the first item wraps to the last. | first menuitem "Model: Sparrow 3", Up gives menuitem "Model: Sparrow 3" | /composer [data-example="composer--stacked"] |
-| 377 | Click, then Down, Click on the trigger | Opens the menu with focus on the menu container. Down then focuses the first item. | after click button "More actions", after Down menuitem "Pin chat" | /menu [data-example="menu--demo"] |
-| 378 | Down, Up, In the menu | Move between items. No wrap: Down on the last item and Up on the first item stay put. | Up on button "More actions" gives menuitem "Archive chatYou can undo it right away"; Down on menuitem "Archive chatYou can undo it right away" gives menuitem "Archive chatYou can undo it right away" | /menu [data-example="menu--demo"] |
+| 378 | Down, Up, In the menu | Move between items. No wrap: Down on the last item and Up on the first item stay put. | Up on menuitem "Pin chat" gives menuitem "Archive chatYou can undo it right away"; Down on menuitem "Archive chatYou can undo it right away" gives menuitem "Pin chat" | /menu [data-example="menu--demo"] |
 | 381 | Right, On a submenu item | Opens the submenu and focuses its first item. The parent item reports expanded. | focus on menuitemradio "Same length", parent aria-expanded=null | /menu [data-example="menu--demo"] |
 
 ### Size mismatches
