@@ -17,8 +17,12 @@ import {
 import type { SharedProps } from "fumadocs-ui/components/dialog/search";
 
 // Searches the index that /api/search writes at build time, in the browser.
+// Fumadocs reads the base path from Vite's import.meta.env, which Next does
+// not set, so the index URL names the base path itself.
+const SEARCH_INDEX = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/search`;
+
 const StaticSearchDialog = (props: SharedProps) => {
-  const search = useStaticSearch();
+  const search = useStaticSearch({ from: SEARCH_INDEX });
 
   return (
     <SearchDialog {...search} {...props}>
