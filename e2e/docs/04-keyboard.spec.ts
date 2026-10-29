@@ -775,21 +775,33 @@ walk(
     await openAddMenu(page, COMPOSER.example);
 
     const count = await options.count();
+    const firstText = await textOf(options.first());
+    const lastText = await textOf(options.last());
+    const first = firstText.slice(0, 20);
+    const last = lastText.slice(0, 20);
     const seen = [await highlighted(root)];
 
-    for (let step = 0; step < count; step += 1) {
+    // Walk down to the last item, then one more Down must land on the first
+    // item, and Up from there must land on the last one again.
+    for (let step = 0; step <= count && seen.at(-1) !== last; step += 1) {
       // oxlint-disable-next-line no-await-in-loop -- each key follows the one before
       await press(page, "ArrowDown");
       // oxlint-disable-next-line no-await-in-loop -- reads the highlight after each key
       seen.push(await highlighted(root));
     }
 
-    await press(page, "ArrowUp");
-    seen.push(await highlighted(root));
+    const reachedLast = seen.at(-1) === last;
 
-    const firstText = await textOf(options.first());
-    const first = firstText.slice(0, 20);
-    const wrapped = seen.includes(first ?? "") && seen.at(-2) !== seen.at(-1);
+    await press(page, "ArrowDown");
+    const afterDown = await highlighted(root);
+    seen.push(afterDown);
+
+    await press(page, "ArrowUp");
+    const afterUp = await highlighted(root);
+    seen.push(afterUp);
+
+    const wrapped =
+      count > 1 && reachedLast && afterDown === first && afterUp === last;
 
     return {
       actual: `${count} items, highlight: ${seen.join(" → ")}`,
