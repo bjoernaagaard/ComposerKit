@@ -52,7 +52,7 @@
     },
     "id": "composer--inline",
     "page": "/composer",
-    "ratio": 0.030760759842158394,
+    "ratio": 0.011764705882352941,
     "scheme": "light"
   },
   {
@@ -66,7 +66,7 @@
     },
     "id": "composer--roomy",
     "page": "/composer",
-    "ratio": 0.01657347192764115,
+    "ratio": 0.004986941050675735,
     "scheme": "light"
   },
   {
@@ -80,12 +80,12 @@
     },
     "id": "composer--stacked",
     "page": "/composer",
-    "ratio": 0.022121460397984266,
+    "ratio": 0.007194244604316547,
     "scheme": "light"
   },
   {
     "after": {
-      "height": 212,
+      "height": 213,
       "width": 641
     },
     "before": {
@@ -94,7 +94,7 @@
     },
     "id": "composer-state--attached",
     "page": "/composer",
-    "ratio": 0.00926471021104995,
+    "ratio": 0.017753949594603503,
     "scheme": "light"
   },
   {
@@ -108,7 +108,7 @@
     },
     "id": "composer-state--chat-mode",
     "page": "/composer",
-    "ratio": 0.027718684504955956,
+    "ratio": 0.016656423832710883,
     "scheme": "light"
   },
   {
@@ -122,7 +122,7 @@
     },
     "id": "composer-state--empty",
     "page": "/composer",
-    "ratio": 0.027356245764982114,
+    "ratio": 0.017428575930916023,
     "scheme": "light"
   },
   {
@@ -136,7 +136,7 @@
     },
     "id": "composer-state--listening",
     "page": "/composer",
-    "ratio": 0.025087064088624152,
+    "ratio": 0.017491608755259302,
     "scheme": "light"
   },
   {
@@ -150,7 +150,7 @@
     },
     "id": "composer-state--long-draft",
     "page": "/composer",
-    "ratio": 0.053326275908179184,
+    "ratio": 0.007170715400044573,
     "scheme": "light"
   },
   {
@@ -164,7 +164,7 @@
     },
     "id": "composer-state--no-limits",
     "page": "/composer",
-    "ratio": 0.026631368285034433,
+    "ratio": 0.017428575930916023,
     "scheme": "light"
   },
   {
@@ -178,7 +178,7 @@
     },
     "id": "composer-state--send-failed",
     "page": "/composer",
-    "ratio": 0.045289445165592884,
+    "ratio": 0.015064724726393636,
     "scheme": "light"
   },
   {
@@ -192,12 +192,12 @@
     },
     "id": "composer-state--sending",
     "page": "/composer",
-    "ratio": 0.042562914637797634,
+    "ratio": 0.016199435856222126,
     "scheme": "light"
   },
   {
     "after": {
-      "height": 156,
+      "height": 155,
       "width": 641
     },
     "before": {
@@ -206,7 +206,7 @@
     },
     "id": "composer-state--too-large",
     "page": "/composer",
-    "ratio": 0.011770470818832753,
+    "ratio": 0.005404861355744552,
     "scheme": "light"
   },
   {
@@ -220,7 +220,7 @@
     },
     "id": "composer-state--typing",
     "page": "/composer",
-    "ratio": 0.04276777131691328,
+    "ratio": 0.016577632802281788,
     "scheme": "light"
   },
   {
@@ -234,21 +234,7 @@
     },
     "id": "composer-state--unsupported",
     "page": "/composer",
-    "ratio": 0.02705683984935155,
-    "scheme": "light"
-  },
-  {
-    "after": {
-      "height": 155,
-      "width": 641
-    },
-    "before": {
-      "height": 155,
-      "width": 640
-    },
-    "id": "composer-state--upload-offline",
-    "page": "/composer",
-    "ratio": 0.005898042373307835,
+    "ratio": 0.017255235663972013,
     "scheme": "light"
   },
   {
@@ -260,9 +246,23 @@
       "height": 155,
       "width": 640
     },
+    "id": "composer-state--upload-offline",
+    "page": "/composer",
+    "ratio": 0.015260610424416976,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 155,
+      "width": 641
+    },
+    "before": {
+      "height": 155,
+      "width": 640
+    },
     "id": "composer-state--uploading",
     "page": "/composer",
-    "ratio": 0.02044081763270531,
+    "ratio": 0.006622716521564089,
     "scheme": "light"
   },
   {
@@ -276,7 +276,7 @@
     },
     "id": "conversation--bubbles",
     "page": "/conversation",
-    "ratio": 0.06233608039973773,
+    "ratio": 0.0685735038097176,
     "scheme": "light"
   },
   {
@@ -290,7 +290,7 @@
     },
     "id": "conversation--document",
     "page": "/conversation",
-    "ratio": 0.06340438400144702,
+    "ratio": 0.06375483280200774,
     "scheme": "light"
   },
   {
@@ -304,7 +304,7 @@
     },
     "id": "conversation--transcript",
     "page": "/conversation",
-    "ratio": 0.0690299351104479,
+    "ratio": 0.07005867191209388,
     "scheme": "light"
   },
   {
@@ -416,7 +416,7 @@
     },
     "id": "menu--compact",
     "page": "/menu",
-    "ratio": 0.17809912248176987,
+    "ratio": 0.04140402916821159,
     "scheme": "light"
   },
   {
@@ -430,7 +430,7 @@
     },
     "id": "menu--regular",
     "page": "/menu",
-    "ratio": 0.19508477805296248,
+    "ratio": 0.034482758620689655,
     "scheme": "light"
   },
   {
@@ -486,7 +486,7 @@
     },
     "id": "palette--swatches",
     "page": "/theme",
-    "ratio": 0.1113985738760013,
+    "ratio": 0.11657579756447654,
     "scheme": "light"
   },
   {
@@ -570,7 +570,7 @@
     },
     "id": "composer--inline",
     "page": "/composer",
-    "ratio": 0.028429843076075986,
+    "ratio": 0.011764705882352941,
     "scheme": "dark"
   },
   {
@@ -584,7 +584,7 @@
     },
     "id": "composer--roomy",
     "page": "/composer",
-    "ratio": 0.01587232028606987,
+    "ratio": 0.0056179775280898875,
     "scheme": "dark"
   },
   {
@@ -598,12 +598,12 @@
     },
     "id": "composer--stacked",
     "page": "/composer",
-    "ratio": 0.020471610231315728,
+    "ratio": 0.007194244604316547,
     "scheme": "dark"
   },
   {
     "after": {
-      "height": 212,
+      "height": 213,
       "width": 641
     },
     "before": {
@@ -612,7 +612,7 @@
     },
     "id": "composer-state--attached",
     "page": "/composer",
-    "ratio": 0.0047758514114149475,
+    "ratio": 0.017329143869980152,
     "scheme": "dark"
   },
   {
@@ -626,7 +626,7 @@
     },
     "id": "composer-state--chat-mode",
     "page": "/composer",
-    "ratio": 0.02704108164326573,
+    "ratio": 0.017601916197860036,
     "scheme": "dark"
   },
   {
@@ -640,7 +640,7 @@
     },
     "id": "composer-state--empty",
     "page": "/composer",
-    "ratio": 0.026426511605918784,
+    "ratio": 0.017192202839628738,
     "scheme": "dark"
   },
   {
@@ -654,7 +654,7 @@
     },
     "id": "composer-state--listening",
     "page": "/composer",
-    "ratio": 0.024346428402590648,
+    "ratio": 0.017239477457886194,
     "scheme": "dark"
   },
   {
@@ -668,7 +668,7 @@
     },
     "id": "composer-state--long-draft",
     "page": "/composer",
-    "ratio": 0.05161577891687096,
+    "ratio": 0.007109427234232226,
     "scheme": "dark"
   },
   {
@@ -682,7 +682,7 @@
     },
     "id": "composer-state--no-limits",
     "page": "/composer",
-    "ratio": 0.026111347484202397,
+    "ratio": 0.017192202839628738,
     "scheme": "dark"
   },
   {
@@ -696,7 +696,7 @@
     },
     "id": "composer-state--send-failed",
     "page": "/composer",
-    "ratio": 0.043884198116016244,
+    "ratio": 0.014838456133665193,
     "scheme": "dark"
   },
   {
@@ -710,12 +710,12 @@
     },
     "id": "composer-state--sending",
     "page": "/composer",
-    "ratio": 0.041349532769189554,
+    "ratio": 0.01615216123796467,
     "scheme": "dark"
   },
   {
     "after": {
-      "height": 156,
+      "height": 155,
       "width": 641
     },
     "before": {
@@ -724,7 +724,7 @@
     },
     "id": "composer-state--too-large",
     "page": "/composer",
-    "ratio": 0.01171046841873675,
+    "ratio": 0.005294147249760958,
     "scheme": "dark"
   },
   {
@@ -738,7 +738,7 @@
     },
     "id": "composer-state--typing",
     "page": "/composer",
-    "ratio": 0.041333774563103734,
+    "ratio": 0.01638853432925196,
     "scheme": "dark"
   },
   {
@@ -752,21 +752,7 @@
     },
     "id": "composer-state--unsupported",
     "page": "/composer",
-    "ratio": 0.02625317133897477,
-    "scheme": "dark"
-  },
-  {
-    "after": {
-      "height": 155,
-      "width": 641
-    },
-    "before": {
-      "height": 155,
-      "width": 640
-    },
-    "id": "composer-state--upload-offline",
-    "page": "/composer",
-    "ratio": 0.005817523023501585,
+    "ratio": 0.0171606864274571,
     "scheme": "dark"
   },
   {
@@ -778,9 +764,23 @@
       "height": 155,
       "width": 640
     },
+    "id": "composer-state--upload-offline",
+    "page": "/composer",
+    "ratio": 0.015070602824112964,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 155,
+      "width": 641
+    },
+    "before": {
+      "height": 155,
+      "width": 640
+    },
     "id": "composer-state--uploading",
     "page": "/composer",
-    "ratio": 0.020210808432337295,
+    "ratio": 0.006582456846660963,
     "scheme": "dark"
   },
   {
@@ -794,7 +794,7 @@
     },
     "id": "conversation--bubbles",
     "page": "/conversation",
-    "ratio": 0.06370820050193313,
+    "ratio": 0.06855654660969047,
     "scheme": "dark"
   },
   {
@@ -808,7 +808,7 @@
     },
     "id": "conversation--document",
     "page": "/conversation",
-    "ratio": 0.06329416220127065,
+    "ratio": 0.06364602410183363,
     "scheme": "dark"
   },
   {
@@ -822,7 +822,7 @@
     },
     "id": "conversation--transcript",
     "page": "/conversation",
-    "ratio": 0.0689211264102738,
+    "ratio": 0.069913122611861,
     "scheme": "dark"
   },
   {
@@ -934,7 +934,7 @@
     },
     "id": "menu--compact",
     "page": "/menu",
-    "ratio": 0.14509949326412064,
+    "ratio": 0.04090965270053146,
     "scheme": "dark"
   },
   {
@@ -948,7 +948,7 @@
     },
     "id": "menu--regular",
     "page": "/menu",
-    "ratio": 0.1630786816536483,
+    "ratio": 0.034482758620689655,
     "scheme": "dark"
   },
   {
@@ -1004,7 +1004,7 @@
     },
     "id": "palette--swatches",
     "page": "/theme",
-    "ratio": 0.11165034495531787,
+    "ratio": 0.11696647682548503,
     "scheme": "dark"
   },
   {

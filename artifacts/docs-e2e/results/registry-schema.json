@@ -33,6 +33,12 @@
     },
     {
       "errors": [],
+      "file": "apps/docs/public/r/sample-data.json",
+      "schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "valid": true
+    },
+    {
+      "errors": [],
       "file": "apps/docs/public/r/theme.json",
       "schema": "https://ui.shadcn.com/schema/registry-item.json",
       "valid": true

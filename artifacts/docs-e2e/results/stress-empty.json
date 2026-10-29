@@ -14,6 +14,27 @@
     "part": "menu"
   },
   {
+    "attack": "a menu whose only child is an empty fragment",
+    "broken": false,
+    "happened": "an open menu panel 193 x 39 with 1 item: \"Nothing to show\". no errors",
+    "image": "stress/empty/menu--fragment.png",
+    "part": "menu"
+  },
+  {
+    "attack": "a menu whose items are an empty list in a fragment",
+    "broken": false,
+    "happened": "an open menu panel 193 x 39 with 1 item: \"Nothing to show\". no errors",
+    "image": "stress/empty/menu--map.png",
+    "part": "menu"
+  },
+  {
+    "attack": "a menu with a radio group that has no items",
+    "broken": false,
+    "happened": "an open menu panel 193 x 39 with 1 item: \"Nothing to show\". no errors",
+    "image": "stress/empty/menu--radio-group.png",
+    "part": "menu"
+  },
+  {
     "attack": "a sidebar with no projects and no chats",
     "broken": false,
     "happened": "the part shows: \"ComposerKit , workspace Personal, change New chat Projects Recent No chats yet.\". no errors",

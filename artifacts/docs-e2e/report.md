@@ -17,26 +17,48 @@ Schemas fetched at run time from ui.shadcn.com. Validator: ajv 8 (draft-07), str
 | apps/docs/public/r/conversation.json | https://ui.shadcn.com/schema/registry-item.json | pass |  |
 | apps/docs/public/r/menu.json | https://ui.shadcn.com/schema/registry-item.json | pass |  |
 | apps/docs/public/r/registry.json | https://ui.shadcn.com/schema/registry.json | pass |  |
+| apps/docs/public/r/sample-data.json | https://ui.shadcn.com/schema/registry-item.json | pass |  |
 | apps/docs/public/r/theme.json | https://ui.shadcn.com/schema/registry-item.json | pass |  |
 | apps/docs/public/r/tip.json | https://ui.shadcn.com/schema/registry-item.json | pass |  |
 
-## 2. A new app installs every item with shadcn add, then type checks and builds
+## 2. A new app installs every item and the sample data, takes every example from its Code tab, then type checks and builds
 
-The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-ngJ8aQ/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/tip.json, so registry dependencies also come from the local server.
+The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-iA1cSH/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
 
 | Command | Folder | Exit code | Seconds |
 | --- | --- | --- | --- |
-| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 20 |
+| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 25 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/theme.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/button.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/tip.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/menu.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/composer.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/conversation.json -y -o | consumer | 0 | 1 |
-| npx tsc --noEmit | consumer | 0 | 1 |
-| npx next build | consumer | 0 | 5 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/sample-data.json -y -o | consumer | 0 | 1 |
+| npx tsc --noEmit | consumer | 0 | 2 |
+| npx next build | consumer | 0 | 6 |
 
-Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-ngJ8aQ` (outside the repo).
+Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-iA1cSH` (outside the repo).
+
+### Examples copied from the Code tab
+
+Every example file on the six item pages, copied with the docs' Copy button into `components/examples/` of the new app before tsc and next build. 13 files. Same as the file means the copied text equals the example file minus its license header.
+
+| Page | First example | File | Tab | Characters | Same as the file |
+| --- | --- | --- | --- | --- | --- |
+| /theme | theme--demo | theme-demo.tsx | Code | 806 | yes |
+| /theme | palette--swatches | palette.tsx | Code | 1141 | yes |
+| /button | button--demo | button-demo.tsx | Code | 468 | yes |
+| /button | button--default | button-row.tsx | Code | 772 | yes |
+| /button | icon-button--small | icon-button-pair.tsx | Code | 993 | yes |
+| /tip | tip--demo | tip-demo.tsx | Code | 476 | yes |
+| /tip | tip--icon-buttons | tip-icon-buttons.tsx | Code | 799 | yes |
+| /menu | menu--demo | menu-demo.tsx | Code | 1544 | yes |
+| /menu | menu--regular | menu-density.tsx | Code | 1421 | yes |
+| /composer | composer--demo | composer-layout.tsx | Code | 1142 | yes |
+| /composer | composer-state--empty | composer-state.tsx | Code | 1174 | yes |
+| /conversation | conversation--demo | conversation-demo.tsx | Code | 795 | yes |
+| /conversation | conversation--bubbles | conversation-layout.tsx | Code | 1146 | yes |
 
 ## 3. Accessibility, keyboard and sizes on the static export
 
@@ -99,25 +121,25 @@ Baseline: 37 ids, light and dark, in `catalog-before/`. Docs screenshots in `doc
 | button--default | /button | 1104 x 32 | 1059 x 33 | 6.9% | 6.9% |
 | button--ghost | /button | 1104 x 32 | 1059 x 33 | 6.9% | 6.9% |
 | button--outline | /button | 1104 x 32 | 1059 x 33 | 6.9% | 6.9% |
-| composer--inline | /composer | 641 x 84 | 641 x 85 | 3.1% | 2.8% |
-| composer--roomy | /composer | 641 x 177 | 641 x 178 | 1.7% | 1.6% |
-| composer--stacked | /composer | 641 x 138 | 641 x 139 | 2.2% | 2.0% |
-| composer-state--attached | /composer | 640 x 212 | 641 x 212 | 0.9% | 0.5% |
-| composer-state--chat-mode | /composer | 640 x 98 | 641 x 99 | 2.8% | 2.7% |
-| composer-state--empty | /composer | 640 x 98 | 641 x 99 | 2.7% | 2.6% |
-| composer-state--listening | /composer | 640 x 98 | 641 x 99 | 2.5% | 2.4% |
-| composer-state--long-draft | /composer | 640 x 279 | 641 x 280 | 5.3% | 5.2% |
-| composer-state--no-limits | /composer | 640 x 98 | 641 x 99 | 2.7% | 2.6% |
-| composer-state--send-failed | /composer | 640 x 130 | 641 x 131 | 4.5% | 4.4% |
-| composer-state--sending | /composer | 640 x 98 | 641 x 99 | 4.3% | 4.1% |
-| composer-state--too-large | /composer | 640 x 155 | 641 x 156 | 1.2% | 1.2% |
-| composer-state--typing | /composer | 640 x 98 | 641 x 99 | 4.3% | 4.1% |
-| composer-state--unsupported | /composer | 640 x 98 | 641 x 99 | 2.7% | 2.6% |
-| composer-state--upload-offline | /composer | 640 x 155 | 641 x 155 | 0.6% | 0.6% |
-| composer-state--uploading | /composer | 640 x 155 | 641 x 156 | 2.0% | 2.0% |
-| conversation--bubbles | /conversation | 1104 x 640 | 1059 x 641 | 6.2% | 6.4% |
-| conversation--document | /conversation | 1104 x 640 | 1059 x 641 | 6.3% | 6.3% |
-| conversation--transcript | /conversation | 1104 x 640 | 1059 x 641 | 6.9% | 6.9% |
+| composer--inline | /composer | 641 x 84 | 641 x 85 | 1.2% | 1.2% |
+| composer--roomy | /composer | 641 x 177 | 641 x 178 | 0.5% | 0.6% |
+| composer--stacked | /composer | 641 x 138 | 641 x 139 | 0.7% | 0.7% |
+| composer-state--attached | /composer | 640 x 212 | 641 x 213 | 1.8% | 1.7% |
+| composer-state--chat-mode | /composer | 640 x 98 | 641 x 99 | 1.7% | 1.8% |
+| composer-state--empty | /composer | 640 x 98 | 641 x 99 | 1.7% | 1.7% |
+| composer-state--listening | /composer | 640 x 98 | 641 x 99 | 1.7% | 1.7% |
+| composer-state--long-draft | /composer | 640 x 279 | 641 x 280 | 0.7% | 0.7% |
+| composer-state--no-limits | /composer | 640 x 98 | 641 x 99 | 1.7% | 1.7% |
+| composer-state--send-failed | /composer | 640 x 130 | 641 x 131 | 1.5% | 1.5% |
+| composer-state--sending | /composer | 640 x 98 | 641 x 99 | 1.6% | 1.6% |
+| composer-state--too-large | /composer | 640 x 155 | 641 x 155 | 0.5% | 0.5% |
+| composer-state--typing | /composer | 640 x 98 | 641 x 99 | 1.7% | 1.6% |
+| composer-state--unsupported | /composer | 640 x 98 | 641 x 99 | 1.7% | 1.7% |
+| composer-state--upload-offline | /composer | 640 x 155 | 641 x 156 | 1.5% | 1.5% |
+| composer-state--uploading | /composer | 640 x 155 | 641 x 155 | 0.7% | 0.7% |
+| conversation--bubbles | /conversation | 1104 x 640 | 1059 x 641 | 6.9% | 6.9% |
+| conversation--document | /conversation | 1104 x 640 | 1059 x 641 | 6.4% | 6.4% |
+| conversation--transcript | /conversation | 1104 x 640 | 1059 x 641 | 7.0% | 7.0% |
 | conversation-row--compact | /app-shell | 288 x 217 | 288 x 218 | 5.9% | 7.2% |
 | conversation-row--measured | /app-shell | 288 x 265 | 288 x 266 | 5.1% | 6.1% |
 | conversation-row--two-line | /app-shell | 288 x 377 | 288 x 378 | 4.4% | 5.1% |
@@ -125,12 +147,12 @@ Baseline: 37 ids, light and dark, in `catalog-before/`. Docs screenshots in `doc
 | icon-button--pill | /button | 87 x 28 | 87 x 29 | 4.3% | 3.9% |
 | icon-button--row | /button | 79 x 24 | 79 x 25 | 6.0% | 6.1% |
 | icon-button--small | /button | 94 x 28 | 94 x 29 | 3.4% | 3.4% |
-| menu--compact | /menu | 279 x 28 | 279 x 29 | 17.8% | 14.5% |
-| menu--regular | /menu | 181 x 28 | 181 x 29 | 19.5% | 16.3% |
+| menu--compact | /menu | 279 x 28 | 279 x 29 | 4.1% | 4.1% |
+| menu--regular | /menu | 181 x 28 | 181 x 29 | 3.4% | 3.4% |
 | mode-toggle--pill | /app-shell | 289 x 36 | 289 x 37 | 3.6% | 4.2% |
 | mode-toggle--segmented | /app-shell | 332 x 36 | 331 x 37 | 5.3% | 4.5% |
 | mode-toggle--underline | /app-shell | 283 x 36 | 283 x 37 | 6.0% | 4.9% |
-| palette--swatches | /theme | 1104 x 312 | 1059 x 313 | 11.1% | 11.2% |
+| palette--swatches | /theme | 1104 x 312 | 1059 x 313 | 11.7% | 11.7% |
 | title-bar-tabs--filled | /app-shell | 1104 x 78 | 1059 x 79 | 7.0% | 7.5% |
 | title-bar-tabs--underline | /app-shell | 1104 x 78 | 1059 x 79 | 7.5% | 7.6% |
 
@@ -161,12 +183,12 @@ Tab from the top of the page to the end, then Shift+Tab back, with no mouse even
 | Page | Stops | Walk ended | Trap | No visible focus | Not reachable by Tab | Shift+Tab gives the same order | Escape did not return focus |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | / | 30 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /theme | 98 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| /theme | 100 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
 | /button | 101 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
 | /tip | 64 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /menu | 98 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /composer | 320 | Tab left the last control and focus went back to the page | none | none | none | yes | menu on button "Add files and more": closed, focus went to a textarea (16 times) |
-| /conversation | 235 | Tab left the last control and focus went back to the page | none | none | button "Scroll to the newest message" (4 times) | yes | menu on button "Add files and more": closed, focus went to a textarea (4 times) |
+| /menu | 100 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| /composer | 322 | Tab left the last control and focus went back to the page | none | none | none | yes | menu on button "Add files and more": closed, focus went to a textarea (16 times) |
+| /conversation | 237 | Tab left the last control and focus went back to the page | none | none | button "Scroll to the newest message" (4 times) | yes | menu on button "Add files and more": closed, focus went to a textarea (4 times) |
 | /app-shell | 155 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
 
 ### A 200 character paste into every composer, then Enter
@@ -275,6 +297,9 @@ Images are in `stress/empty/`.
 | --- | --- | --- | --- | --- |
 | turns | a conversation with zero turns | held up | the part shows: "Stress conversation New message Auto Brief effort, choose model". no errors | stress/empty/turns.png |
 | menu | a menu with zero items | held up | an open menu panel 193 x 39 with 1 item: "Nothing to show". no errors | stress/empty/menu.png |
+| menu | a menu whose only child is an empty fragment | held up | an open menu panel 193 x 39 with 1 item: "Nothing to show". no errors | stress/empty/menu--fragment.png |
+| menu | a menu whose items are an empty list in a fragment | held up | an open menu panel 193 x 39 with 1 item: "Nothing to show". no errors | stress/empty/menu--map.png |
+| menu | a menu with a radio group that has no items | held up | an open menu panel 193 x 39 with 1 item: "Nothing to show". no errors | stress/empty/menu--radio-group.png |
 | sidebar | a sidebar with no projects and no chats | held up | the part shows: "ComposerKit , workspace Personal, change New chat Projects Recent No chats yet.". no errors | stress/empty/sidebar.png |
 | tabs | a tab strip with zero tabs | held up | the part shows: "No tabs". no errors | stress/empty/tabs.png |
 | composer--stacked | Enter with no text | held up | nothing was sent, field "", height 98 then 98 (spec: 98 for 1 line), primary button stays "Start voice chat" | stress/empty/composer--stacked--enter-empty.png |
@@ -323,7 +348,7 @@ None.
 | 260 | Heading before the composer | a level-4 heading marking the latest response | h2 "New message" | /conversation [data-example="conversation--bubbles"] |
 | 271 | Message action buttons | 27 x 26 (some 27 x 27, share 31 x 30) | Copy 27 x 26, Share 27 x 26, Edit 27 x 26, Helpful 27 x 26, This browser can’t read aloud 27 x 26, Write again 27 x 26, More 27 x 26 | /conversation [data-example="conversation--bubbles"] |
 | 277 | Sidebar row trailing buttons (more, pin) | 20 x 20 or 20 x 21 | 24 x 24, 24 x 24 | /app-shell [data-example="conversation-row--measured"] |
-| 365 | Row more menu placement | above the trigger, left edge 2 right of the trigger's, 4 gap | below, gap 4.5, left edge 0 right of the trigger's | /menu [data-example="menu--demo"] |
+| 365 | Row more menu placement | above the trigger, left edge 2 right of the trigger's, 4 gap | above, gap 3.9, left edge 0 right of the trigger's | /menu [data-example="menu--demo"] |
 | 367 | Row more menu items | 185 x 29 or 30 | Sent today at 09:41 183 x 29, Pin chat 183 x 29, Redo with 183 x 29, Archive chatYou can undo it right away 183 x 47.2 | /menu [data-example="menu--demo"] |
 | 369 | Row more submenu | opens right, left edge 5 right of the parent panel, top 3 above the parent item, 180 wide, items 172 x 29 or 30 | left edge 4 right of the parent, top 3 above the parent item, 180 wide, items 170 x 29, 170 x 29, 170 x 29 | /menu [data-example="menu--demo"] |
 | 434 | Chat row | 30 tall on a 31 pitch, 261 to 272 wide, 8 text inset, radius about 8; on hover two 20 pt buttons 8 apart | 30 tall, pitch 31, 270 wide, inset 8, radius 12.5, 2 trailing buttons 24 x 24 and 24 x 24 4 apart | /app-shell [data-example="conversation-row--measured"] |

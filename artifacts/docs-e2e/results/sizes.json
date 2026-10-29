@@ -611,7 +611,7 @@
     "expected": "above the trigger, right-aligned with it, about 4 gap",
     "line": 341,
     "part": "Model picker placement",
-    "actual": "above, gap 4.4, right edges 1142 and 1142",
+    "actual": "above, gap 3.9, right edges 1142 and 1142",
     "status": "pass",
     "where": "/conversation [data-example=\"conversation--bubbles\"]"
   },
@@ -643,7 +643,7 @@
     "expected": "above the trigger, left edge 2 right of the trigger's, 4 gap",
     "line": 365,
     "part": "Row more menu placement",
-    "actual": "below, gap 4.5, left edge 0 right of the trigger's",
+    "actual": "above, gap 3.9, left edge 0 right of the trigger's",
     "status": "mismatch",
     "where": "/menu [data-example=\"menu--demo\"]"
   },
