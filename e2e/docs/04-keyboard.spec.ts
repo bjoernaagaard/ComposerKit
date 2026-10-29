@@ -16,7 +16,9 @@ import {
   menusClosed,
   notCheckable,
   openMenu,
+  press,
   replyRunning,
+  settledInMenu,
   stoppedWithin,
   textOf,
   walk,
@@ -55,7 +57,7 @@ const openAddMenu = async (page: Page, name: string) => {
   const { add, listbox } = parts(page, name);
 
   await add.focus();
-  await page.keyboard.press("Enter");
+  await press(page, "Enter");
   await listbox.waitFor();
 };
 
@@ -72,7 +74,7 @@ walk(
   async (page) => {
     const field = await draft(page, COMPOSER.example, "Plan the trip");
 
-    await page.keyboard.press("Enter");
+    await press(page, "Enter");
     await page.waitForTimeout(SETTLE_MS);
 
     const value = await field.inputValue();
@@ -122,7 +124,7 @@ walk(
   async (page) => {
     const field = await draft(page, COMPOSER.example, "one");
 
-    await page.keyboard.press("Shift+Enter");
+    await press(page, "Shift+Enter");
     await page.keyboard.type("two");
 
     const value = await field.inputValue();
@@ -142,7 +144,7 @@ walk(
   async (page) => {
     const field = await draft(page, COMPOSER.example, "Plan the trip");
 
-    await page.keyboard.press("Escape");
+    await press(page, "Escape");
 
     const value = await field.inputValue();
 
@@ -165,14 +167,14 @@ walk(
     const root = example(page, CONVERSATION.example);
     const field = await draft(page, CONVERSATION.example, "one");
 
-    await page.keyboard.press("Shift+Enter");
+    await press(page, "Shift+Enter");
     await page.keyboard.type("two");
 
     const toggle = root.getByRole("button", { name: "Full height" });
 
     await toggle.click();
     await field.focus();
-    await page.keyboard.press("Escape");
+    await press(page, "Escape");
 
     const pressed = await toggle.getAttribute("aria-pressed");
 
@@ -195,9 +197,9 @@ walk(
     const { field, primary } = parts(page, CONVERSATION.example);
 
     await draft(page, CONVERSATION.example, "Tell me more");
-    await page.keyboard.press("Enter");
+    await press(page, "Enter");
     await replyRunning(page, primary);
-    await page.keyboard.press("Escape");
+    await press(page, "Escape");
 
     const stopped = await stoppedWithin(primary);
 
@@ -221,7 +223,7 @@ walk(
     const field = await draft(page, COMPOSER.example, "Plan the trip");
 
     await openAddMenu(page, COMPOSER.example);
-    await page.keyboard.press("Escape");
+    await press(page, "Escape");
 
     const open = await listbox.count();
     const value = await field.inputValue();
@@ -244,7 +246,7 @@ walk(
   async (page) => {
     const field = await draft(page, COMPOSER.example, "Plan the trip");
 
-    await page.keyboard.press("ArrowUp");
+    await press(page, "ArrowUp");
 
     const value = await field.inputValue();
 
@@ -268,7 +270,7 @@ walk(
     const { field } = composerParts(root);
 
     await root.getByRole("button", { name: "Copy" }).first().focus();
-    await page.keyboard.press("k");
+    await press(page, "k");
 
     return {
       actual: `field value "${await field.inputValue()}", focus on ${await focused(page)}`,
@@ -295,7 +297,7 @@ walk(
 
     for (let step = 0; step < 4; step += 1) {
       // oxlint-disable-next-line no-await-in-loop -- each Tab follows the one before
-      await page.keyboard.press("Tab");
+      await press(page, "Tab");
       // oxlint-disable-next-line no-await-in-loop -- reads focus after each Tab
       order.push(await focused(page));
     }
@@ -328,7 +330,7 @@ walk(
     const { field } = parts(page, LONG_DRAFT.example);
 
     await field.focus();
-    await page.keyboard.press("Tab");
+    await press(page, "Tab");
 
     const now = await focused(page);
 
@@ -373,7 +375,7 @@ const typeToFocus = (
 const landsInComposer = async (page: Page, letter: string) => {
   const { field } = parts(page, CONVERSATION.example);
 
-  await page.keyboard.press(letter);
+  await press(page, letter);
 
   const value = await field.inputValue();
   const menuOpen = (await page.getByRole("menu").count()) > 0;
@@ -457,12 +459,13 @@ walk(
       .getByRole("button", { name: "More" })
       .first()
       .focus();
-    await page.keyboard.press("Enter");
+    await press(page, "Enter");
+    await settledInMenu(page);
 
     const items = await openMenu(page).getByRole("menuitem").allTextContents();
     const target = items.at(-1)?.trim() ?? "";
 
-    await page.keyboard.press(target.charAt(0).toLowerCase());
+    await press(page, target.charAt(0).toLowerCase());
 
     const now = await focused(page);
 
@@ -489,8 +492,9 @@ walk(
       .getByRole("button", { name: "More" })
       .first()
       .focus();
-    await page.keyboard.press("Enter");
-    await page.keyboard.press("z");
+    await press(page, "Enter");
+    await settledInMenu(page);
+    await press(page, "z");
 
     const inMenu = await page.evaluate(
       () => document.activeElement?.closest('[role="menu"]') !== null
@@ -518,7 +522,8 @@ walk(
 
     await model.click();
     await openMenu(page).waitFor();
-    await page.keyboard.press("x");
+    await settledInMenu(page);
+    await press(page, "x");
 
     const inMenu = await page.evaluate(
       () => document.activeElement?.closest('[role="menu"]') !== null
@@ -556,7 +561,7 @@ walk(
     const { field } = parts(page, CONVERSATION.example);
 
     await other.focus();
-    await page.keyboard.press("w");
+    await press(page, "w");
 
     return {
       actual: `this field "${await other.inputValue()}", the demo's field "${await field.inputValue()}"`,
@@ -579,7 +584,7 @@ walk(
   async (page) => {
     const field = await draft(page, CONVERSATION.example, "Hello");
 
-    await page.keyboard.press("Enter");
+    await press(page, "Enter");
     await page.waitForTimeout(SETTLE_MS);
 
     return {
@@ -624,7 +629,7 @@ walk(
     const { field, primary } = parts(page, TRANSCRIPT.example);
 
     await draft(page, TRANSCRIPT.example, "Hello");
-    await page.keyboard.press("Enter");
+    await press(page, "Enter");
     await replyRunning(page, primary);
     await field.focus();
     await primary.click();
@@ -649,9 +654,9 @@ walk(
     const { field, primary } = parts(page, TRANSCRIPT.example);
 
     await draft(page, TRANSCRIPT.example, "Hello");
-    await page.keyboard.press("Enter");
+    await press(page, "Enter");
     await replyRunning(page, primary);
-    await page.keyboard.press("Escape");
+    await press(page, "Escape");
 
     const stopped = await stoppedWithin(primary);
 
@@ -674,7 +679,7 @@ walk(
     const { field } = parts(page, COMPOSER.example);
 
     await openAddMenu(page, COMPOSER.example);
-    await page.keyboard.press("Escape");
+    await press(page, "Escape");
 
     return {
       actual: `focus on ${await focused(page)}`,
@@ -709,7 +714,8 @@ walk(
     await field.focus();
     await model.click();
     await openMenu(page).waitFor();
-    await page.keyboard.press("Escape");
+    await settledInMenu(page);
+    await press(page, "Escape");
 
     return {
       actual: `focus on ${await focused(page)}`,
@@ -736,7 +742,7 @@ walk(
       // oxlint-disable-next-line no-await-in-loop -- one key, then the other
       await add.focus();
       // oxlint-disable-next-line no-await-in-loop -- one key, then the other
-      await page.keyboard.press(key);
+      await press(page, key);
       // oxlint-disable-next-line no-await-in-loop -- one key, then the other
       const open = (await listbox.count()) > 0;
       // oxlint-disable-next-line no-await-in-loop -- one key, then the other
@@ -744,7 +750,7 @@ walk(
 
       results.push(`${key}: menu open ${open}, focus in field ${inField}`);
       // oxlint-disable-next-line no-await-in-loop -- one key, then the other
-      await page.keyboard.press("Escape");
+      await press(page, "Escape");
     }
 
     return {
@@ -773,12 +779,12 @@ walk(
 
     for (let step = 0; step < count; step += 1) {
       // oxlint-disable-next-line no-await-in-loop -- each key follows the one before
-      await page.keyboard.press("ArrowDown");
+      await press(page, "ArrowDown");
       // oxlint-disable-next-line no-await-in-loop -- reads the highlight after each key
       seen.push(await highlighted(root));
     }
 
-    await page.keyboard.press("ArrowUp");
+    await press(page, "ArrowUp");
     seen.push(await highlighted(root));
 
     const firstText = await textOf(options.first());
@@ -804,14 +810,14 @@ walk(
     const root = example(page, COMPOSER.example);
 
     await openAddMenu(page, COMPOSER.example);
-    await page.keyboard.press("ArrowDown");
+    await press(page, "ArrowDown");
 
     const before = await highlighted(root);
 
-    await page.keyboard.press("Home");
+    await press(page, "Home");
     const afterHome = await highlighted(root);
 
-    await page.keyboard.press("End");
+    await press(page, "End");
     const afterEnd = await highlighted(root);
 
     return {
@@ -922,7 +928,7 @@ walk(
 
     await openAddMenu(page, COMPOSER.example);
     await page.keyboard.type("fil");
-    await page.keyboard.press("Escape");
+    await press(page, "Escape");
 
     return {
       actual: `menu open ${(await listbox.count()) > 0}, field "${await field.inputValue()}"`,
@@ -1011,6 +1017,7 @@ walk(
   async (page) => {
     await parts(page, COMPOSER.example).model.click();
     await openMenu(page).waitFor();
+    await settledInMenu(page);
 
     const now = await focused(page);
 
@@ -1032,7 +1039,7 @@ walk(
     const menu = openMenu(page);
 
     await menu.waitFor();
-    await page.keyboard.press("ArrowDown");
+    await press(page, "ArrowDown");
 
     const first = await menu
       .locator('[role^="menuitem"], [role="slider"]')
@@ -1057,11 +1064,12 @@ walk(
   async (page) => {
     await parts(page, COMPOSER.example).model.click();
     await openMenu(page).waitFor();
-    await page.keyboard.press("ArrowDown");
+    await settledInMenu(page);
+    await press(page, "ArrowDown");
 
     const first = await focused(page);
 
-    await page.keyboard.press("ArrowUp");
+    await press(page, "ArrowUp");
 
     const wrapped = await focused(page);
 
@@ -1084,8 +1092,9 @@ walk(
   async (page) => {
     await parts(page, COMPOSER.example).model.click();
     await openMenu(page).waitFor();
-    await page.keyboard.press("ArrowDown");
-    await page.keyboard.press("End");
+    await settledInMenu(page);
+    await press(page, "ArrowDown");
+    await press(page, "End");
 
     const atEnd = await menuItems(page)
       .last()
@@ -1093,7 +1102,7 @@ walk(
 
     const end = await focused(page);
 
-    await page.keyboard.press("Home");
+    await press(page, "Home");
 
     const atHome = await menuItems(page)
       .first()
@@ -1117,12 +1126,13 @@ walk(
   async (page) => {
     await parts(page, COMPOSER.example).model.click();
     await openMenu(page).waitFor();
-    await page.keyboard.press("ArrowDown");
+    await settledInMenu(page);
+    await press(page, "ArrowDown");
 
     const before = await focused(page);
     const menusBefore = await page.getByRole("menu").count();
 
-    await page.keyboard.press("ArrowRight");
+    await press(page, "ArrowRight");
 
     const after = await focused(page);
 
@@ -1144,8 +1154,9 @@ walk(
   async (page) => {
     await parts(page, COMPOSER.example).model.click();
     await openMenu(page).waitFor();
-    await page.keyboard.press("ArrowDown");
-    await page.keyboard.press("Enter");
+    await settledInMenu(page);
+    await press(page, "ArrowDown");
+    await press(page, "Enter");
     await page.waitForTimeout(SETTLE_MS);
 
     const checked = await page.evaluate(() =>
@@ -1174,12 +1185,13 @@ walk(
 
     await model.click();
     await openMenu(page).waitFor();
-    await page.keyboard.press("ArrowDown");
-    await page.keyboard.press("ArrowDown");
+    await settledInMenu(page);
+    await press(page, "ArrowDown");
+    await press(page, "ArrowDown");
 
     const on = await focused(page);
 
-    await page.keyboard.press("ArrowRight");
+    await press(page, "ArrowRight");
     await page.waitForTimeout(SETTLE_MS);
 
     const status = await openMenu(page)
@@ -1210,7 +1222,8 @@ walk(
     await field.focus();
     await model.click();
     await openMenu(page).waitFor();
-    await page.keyboard.press("Escape");
+    await settledInMenu(page);
+    await press(page, "Escape");
 
     const closed = await menusClosed(page);
 
@@ -1235,7 +1248,8 @@ walk(
   MENU,
   async (page) => {
     await trigger(page).focus();
-    await page.keyboard.press("Enter");
+    await press(page, "Enter");
+    await settledInMenu(page);
 
     const first = await openMenu(page)
       .getByRole("menuitem")
@@ -1258,10 +1272,11 @@ walk(
   async (page) => {
     await trigger(page).click();
     await openMenu(page).waitFor();
+    await settledInMenu(page);
 
     const container = await focused(page);
 
-    await page.keyboard.press("ArrowDown");
+    await press(page, "ArrowDown");
 
     const first = await openMenu(page)
       .getByRole("menuitem")
@@ -1286,19 +1301,20 @@ walk(
   MENU,
   async (page) => {
     await trigger(page).focus();
-    await page.keyboard.press("Enter");
+    await press(page, "Enter");
+    await settledInMenu(page);
 
     const first = await focused(page);
 
-    await page.keyboard.press("ArrowUp");
+    await press(page, "ArrowUp");
 
     const upFromFirst = await focused(page);
 
-    await page.keyboard.press("End");
+    await press(page, "End");
 
     const last = await focused(page);
 
-    await page.keyboard.press("ArrowDown");
+    await press(page, "ArrowDown");
 
     const downFromLast = await focused(page);
 
@@ -1319,12 +1335,13 @@ walk(
   MENU,
   async (page) => {
     await trigger(page).focus();
-    await page.keyboard.press("Enter");
-    await page.keyboard.press("End");
+    await press(page, "Enter");
+    await settledInMenu(page);
+    await press(page, "End");
 
     const end = await focused(page);
 
-    await page.keyboard.press("Home");
+    await press(page, "Home");
 
     const home = await focused(page);
 
@@ -1346,8 +1363,9 @@ walk(
   MENU,
   async (page) => {
     await trigger(page).focus();
-    await page.keyboard.press("Enter");
-    await page.keyboard.press("a");
+    await press(page, "Enter");
+    await settledInMenu(page);
+    await press(page, "a");
 
     const now = await focused(page);
 
@@ -1369,7 +1387,8 @@ walk(
   MENU,
   async (page) => {
     await trigger(page).focus();
-    await page.keyboard.press("Enter");
+    await press(page, "Enter");
+    await settledInMenu(page);
 
     // The parent menu by name: once the submenu opens, it is the last menu.
     const parent = page
@@ -1377,7 +1396,7 @@ walk(
       .getByRole("menuitem", { name: "Redo with" });
 
     await parent.focus();
-    await page.keyboard.press("ArrowRight");
+    await press(page, "ArrowRight");
     await page.waitForTimeout(SETTLE_MS);
 
     const now = await focused(page);
@@ -1400,11 +1419,12 @@ walk(
   MENU,
   async (page) => {
     await trigger(page).focus();
-    await page.keyboard.press("Enter");
+    await press(page, "Enter");
+    await settledInMenu(page);
     await page.getByRole("menuitem", { name: "Redo with" }).focus();
-    await page.keyboard.press("ArrowRight");
+    await press(page, "ArrowRight");
     await page.waitForTimeout(SETTLE_MS);
-    await page.keyboard.press("ArrowLeft");
+    await press(page, "ArrowLeft");
     await page.waitForTimeout(SETTLE_MS);
 
     const now = await focused(page);
@@ -1428,8 +1448,9 @@ walk(
   MENU,
   async (page) => {
     await trigger(page).focus();
-    await page.keyboard.press("Enter");
-    await page.keyboard.press("Escape");
+    await press(page, "Enter");
+    await settledInMenu(page);
+    await press(page, "Escape");
 
     const closed = await menusClosed(page);
 
@@ -1507,7 +1528,7 @@ walk(
         before.focus();
       }
     });
-    await page.keyboard.press("Tab");
+    await press(page, "Tab");
     await page.waitForTimeout(400);
 
     const ring = await button.evaluate((element) => {
@@ -1578,7 +1599,7 @@ walk(
         element.tabIndex = -1;
         element.focus();
       });
-    await page.keyboard.press("Tab");
+    await press(page, "Tab");
     await page.waitForTimeout(400);
 
     const tip = page.locator('[data-slot="tooltip"]');

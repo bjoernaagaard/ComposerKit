@@ -200,3 +200,27 @@ export const textOf = async (locator: Locator): Promise<string> => {
 
   return text?.trim() ?? "";
 };
+
+// Waits until focus has moved into an open menu, which happens a frame or
+// two after the menu appears.
+export const settledInMenu = (page: Page) =>
+  pollUntil(
+    () =>
+      page.evaluate(
+        () => document.activeElement?.closest('[role="menu"]') !== null
+      ),
+    (inside) => inside
+  );
+
+// Presses a key, then waits two frames: menus and lists move focus and
+// highlight in the frame after the key, so reading at once is a race.
+export const press = async (page: Page, key: string) => {
+  await page.keyboard.press(key);
+  await page.evaluate(
+    () =>
+      // oxlint-disable-next-line promise/avoid-new -- requestAnimationFrame has no promise form
+      new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      })
+  );
+};
