@@ -236,10 +236,12 @@ const Notices = ({
   state,
   dispatch,
   handlers,
+  onEmptied,
 }: {
   state: ComposerState;
   dispatch: (action: ComposerAction) => void;
   handlers: ComposerHandlers;
+  onEmptied: () => void;
 }) => {
   if (state.attachments.length === 0 && state.phase !== "failed") {
     return null;
@@ -250,6 +252,7 @@ const Notices = ({
       <ComposerAttachments
         attachments={state.attachments}
         dispatch={dispatch}
+        onEmptied={onEmptied}
         onRetry={handlers.handleRetryUpload}
       />
       {state.phase === "failed" ? (
@@ -725,7 +728,12 @@ export const Composer = ({
         }}
         ref={surface}
       >
-        <Notices dispatch={dispatch} handlers={handlers} state={state} />
+        <Notices
+          dispatch={dispatch}
+          handlers={handlers}
+          onEmptied={focusField}
+          state={state}
+        />
         <Arrangement
           field={textarea}
           leading={leadingControls}

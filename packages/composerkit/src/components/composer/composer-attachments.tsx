@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { FileIcon, RotateCwIcon, TriangleAlertIcon, XIcon } from "lucide-react";
+import { useRef } from "react";
 
 import { canRetry, MAX_UPLOAD_BYTES } from "@/components/composer/machine";
 import type { Attachment, ComposerAction } from "@/components/composer/machine";
@@ -46,11 +47,11 @@ export const failureNotice = (attachments: Attachment[]): string =>
 
 const AttachmentChip = ({
   attachment,
-  dispatch,
+  onRemove,
   onRetry,
 }: {
   attachment: Attachment;
-  dispatch: (action: ComposerAction) => void;
+  onRemove: (id: string) => void;
   onRetry: (id: string) => void;
 }) => {
   const failed = attachment.status === "failed";
@@ -100,41 +101,67 @@ const AttachmentChip = ({
         />
       ) : null}
       <IconButton
+        data-attachment-remove=""
         icon={XIcon}
         kind="small"
         label={`Remove ${attachment.name}`}
-        onClick={() =>
-          dispatch({ id: attachment.id, type: "attachmentRemoved" })
-        }
+        onClick={() => onRemove(attachment.id)}
       />
     </li>
   );
 };
 
+// Removing a file takes its chip, and the focused remove button, away. So
+// focus moves to the next chip's remove button, or the previous one after
+// the last chip, and back to the text field once no files are left.
 export const ComposerAttachments = ({
   attachments,
   dispatch,
   onRetry,
+  onEmptied,
 }: {
   attachments: Attachment[];
   dispatch: (action: ComposerAction) => void;
   onRetry: (id: string) => void;
+  onEmptied: () => void;
 }) => {
+  const list = useRef<HTMLUListElement>(null);
+
   if (attachments.length === 0) {
     return null;
   }
+
+  const remove = (id: string) => {
+    const removers = [
+      ...(list.current?.querySelectorAll<HTMLElement>(
+        "[data-attachment-remove]"
+      ) ?? []),
+    ];
+
+    const index = attachments.findIndex((item) => item.id === id);
+    const next = removers[index + 1] ?? removers[index - 1];
+
+    dispatch({ id, type: "attachmentRemoved" });
+
+    if (next) {
+      next.focus();
+    } else {
+      onEmptied();
+    }
+  };
 
   return (
     <ul
       aria-label="Attached files"
       className="flex flex-wrap gap-2 px-2 pt-2"
       data-slot="composer-attachments"
+      ref={list}
     >
       {attachments.map((attachment) => (
         <AttachmentChip
           attachment={attachment}
-          dispatch={dispatch}
           key={attachment.id}
+          onRemove={remove}
           onRetry={onRetry}
         />
       ))}
