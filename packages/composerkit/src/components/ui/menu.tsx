@@ -35,16 +35,20 @@ export type MenuWidth =
   | "submenu";
 
 // Menu widths from the size tokens. composer fits a permission menu with
-// descriptions and still leaves a margin on a phone.
+// descriptions and still leaves a margin on a phone. The more-actions menu
+// and its submenus have no outline, so their items fill the panel less its
+// padding.
+const BORDERLESS = "border-(length:--border-more-menu)";
+
 const POPUP_WIDTH: Record<MenuWidth, string> = {
-  actions: "w-(--size-more-menu-width)",
+  actions: `w-(--size-more-menu-width) ${BORDERLESS}`,
   composer:
     "w-[min(var(--size-composer-menu),100vw_-_var(--space-menu-viewport-inset))]",
   medium: "w-(--size-menu-medium)",
   model: "w-(--size-model-menu-width)",
   narrow: "w-(--size-menu-narrow)",
   regular: "w-(--size-menu-width)",
-  submenu: "w-(--size-submenu-width)",
+  submenu: `w-(--size-submenu-width) ${BORDERLESS}`,
   wide: "w-(--size-menu-wide)",
 };
 

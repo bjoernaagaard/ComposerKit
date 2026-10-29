@@ -1,7 +1,7 @@
 {
   "command": "npm run build --workspace @composerkit/docs",
-  "cwd": "/Volumes/stdNVMe/src/composerkit-public/",
+  "cwd": "/Volumes/stdNVMe/src/composerkit/",
   "exitCode": 0,
-  "outputTail": "✓ Generating static pages using 5 workers (12/12) in 1325ms\n  Finalizing page optimization ...\n\nRoute (app)\n┌ ○ /_not-found\n├   /[[...slug]]\n│ ├ ● /app-shell\n│ ├ ● /button\n│ ├ ● /composer\n│ └ ● [+6 more paths]\n└ ○ /api/search\n\n\n○  (Static)  prerendered as static content\n●  (SSG)     prerendered as static HTML (uses generateStaticParams)",
+  "outputTail": "✓ Generating static pages using 5 workers (12/12) in 1301ms\n  Finalizing page optimization ...\n\nRoute (app)\n┌ ○ /_not-found\n├   /[[...slug]]\n│ ├ ● /app-shell\n│ ├ ● /button\n│ ├ ● /composer\n│ └ ● [+6 more paths]\n└ ○ /api/search\n\n\n○  (Static)  prerendered as static content\n●  (SSG)     prerendered as static HTML (uses generateStaticParams)",
   "seconds": 3
 }

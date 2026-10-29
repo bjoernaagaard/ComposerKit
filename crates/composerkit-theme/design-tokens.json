@@ -194,7 +194,8 @@
     "toggleUnderlineWidth": 2,
     "toggleUnderlineOffset": 1,
     "railRule": 1,
-    "panel": 1
+    "panel": 1,
+    "moreMenu": 0
   },
   "shadow": {
     "toggleThumb": "0px 2px 4px -1px rgba(0, 0, 0, 0.08)",
