@@ -13,6 +13,7 @@ import type { MDXComponents } from "mdx/types";
 import type { ComponentProps } from "react";
 
 import { ComponentPreview, ComposerStatePreviews } from "./component-preview";
+import { SampleDataFiles, SampleDataPages } from "./sample-data";
 import { SpecSection } from "./spec-section";
 import { TokenTable } from "./token-table";
 
@@ -40,6 +41,8 @@ export const getMDXComponents = (components?: MDXComponents) =>
     ),
     ComponentPreview,
     ComposerStatePreviews,
+    SampleDataFiles,
+    SampleDataPages,
     SpecSection,
     TokenTable,
     ...components,
