@@ -700,14 +700,48 @@ const shotBoth = async (
   }
 };
 
+// shot names the image; query adds to part= and data=empty.
 const EMPTY_HARNESS = [
-  { attack: "a conversation with zero turns", part: "turns" },
-  { attack: "a menu with zero items", part: "menu" },
-  { attack: "a sidebar with no projects and no chats", part: "sidebar" },
-  { attack: "a tab strip with zero tabs", part: "tabs" },
+  {
+    attack: "a conversation with zero turns",
+    part: "turns",
+    query: "",
+    shot: "turns",
+  },
+  { attack: "a menu with zero items", part: "menu", query: "", shot: "menu" },
+  {
+    attack: "a menu whose only child is an empty fragment",
+    part: "menu",
+    query: "&empty=fragment",
+    shot: "menu--fragment",
+  },
+  {
+    attack: "a menu whose items are an empty list in a fragment",
+    part: "menu",
+    query: "&empty=map",
+    shot: "menu--map",
+  },
+  {
+    attack: "a menu with a radio group that has no items",
+    part: "menu",
+    query: "&empty=radio-group",
+    shot: "menu--radio-group",
+  },
+  {
+    attack: "a sidebar with no projects and no chats",
+    part: "sidebar",
+    query: "",
+    shot: "sidebar",
+  },
+  {
+    attack: "a tab strip with zero tabs",
+    part: "tabs",
+    query: "",
+    shot: "tabs",
+  },
 ] as const;
 
-for (const { attack, part } of EMPTY_HARNESS) {
+for (const { attack, part, query, shot } of EMPTY_HARNESS) {
   test(`empty state: ${attack}`, async ({ page }) => {
     const errors: string[] = [];
 
@@ -718,12 +752,12 @@ for (const { attack, part } of EMPTY_HARNESS) {
       }
     });
 
-    const image = path.join(STRESS, "empty", `${part}.png`);
+    const image = path.join(STRESS, "empty", `${shot}.png`);
 
     await shotBoth(
       page,
       async (scheme) => {
-        await openHarness(page, `part=${part}&data=empty`, scheme);
+        await openHarness(page, `part=${part}&data=empty${query}`, scheme);
         await showPart(page, part);
       },
       image
@@ -739,7 +773,11 @@ for (const { attack, part } of EMPTY_HARNESS) {
         ? await menu.boundingBox()
         : null;
 
-    const menuItems = await menu.getByRole("menuitem").allTextContents();
+    // Every kind of item: plain, checkbox and radio.
+    const menuItems = await menu
+      .locator('[role^="menuitem"]')
+      .allTextContents();
+
     const flags = await inspect(page, HARNESS_ROOTS);
 
     const shown = menuBox

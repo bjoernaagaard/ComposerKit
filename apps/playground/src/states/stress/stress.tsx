@@ -6,7 +6,9 @@
 // it: the demo data, a 200 character label with spaces, the same length as
 // one unbroken word, or nothing at all. ?part= picks the part and ?data=
 // the dataset; the switcher at the bottom changes the dataset by hand, and
-// ?bare hides it so screenshots show the part alone.
+// ?bare hides it so screenshots show the part alone. For an empty menu,
+// ?empty= picks how the app passes no items: nothing, an empty fragment,
+// a fragment around an empty list, or a radio group with no items.
 import { CopyIcon } from "lucide-react";
 import { useId, useState } from "react";
 import type { ReactNode } from "react";
@@ -74,6 +76,12 @@ type Part = (typeof PARTS)[number];
 
 const params = new URLSearchParams(window.location.search);
 
+const EMPTY_MENUS = ["nothing", "fragment", "map", "radio-group"] as const;
+
+type EmptyMenu = (typeof EMPTY_MENUS)[number];
+
+const NO_CHOICES: { id: string; label: string }[] = [];
+
 const pick = <T extends string>(
   options: readonly T[],
   value: string | null
@@ -111,9 +119,55 @@ const stressConversations = (data: Dataset): Conversation[] => {
   ];
 };
 
+// The ways an app hands a menu no items, as it would with an empty list.
+const EmptyMenuItems = ({ given }: { given: EmptyMenu }) => {
+  const [choice, setChoice] = useState("");
+
+  if (given === "fragment") {
+    // oxlint-disable-next-line react/jsx-no-useless-fragment -- the empty fragment is the case under test
+    return <></>;
+  }
+
+  if (given === "map") {
+    return (
+      <>
+        {NO_CHOICES.map((item) => (
+          <MenuItem key={item.id} label={item.label} />
+        ))}
+      </>
+    );
+  }
+
+  if (given === "radio-group") {
+    return (
+      <MenuRadioGroup onValueChange={setChoice} value={choice}>
+        {NO_CHOICES.map((item) => (
+          <MenuRadioItem key={item.id} label={item.label} value={item.id} />
+        ))}
+      </MenuRadioGroup>
+    );
+  }
+
+  return null;
+};
+
 const MenuPart = ({ data }: { data: Dataset }) => {
   const [style, setStyle] = useState("same");
   const label = labelFor(data, "Pin chat");
+  const emptyGiven = pick(EMPTY_MENUS, params.get("empty")) ?? "nothing";
+
+  if (data === "empty" && emptyGiven !== "nothing") {
+    return (
+      <MenuRoot defaultOpen>
+        <MenuTrigger
+          render={<Button variant="outline">Open the menu</Button>}
+        />
+        <MenuContent label="Stress menu" width="actions">
+          <EmptyMenuItems given={emptyGiven} />
+        </MenuContent>
+      </MenuRoot>
+    );
+  }
 
   return (
     <MenuRoot defaultOpen>
