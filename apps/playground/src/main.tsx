@@ -14,7 +14,6 @@ import { App } from "@/app/app";
 import { startDirection } from "@/designs/direction";
 import { startTheme } from "@/theme/apply";
 
-import { Catalog } from "./catalog/catalog";
 import { ComposerStates } from "./states/composer/composer-states";
 
 startTheme(document.documentElement);
@@ -27,10 +26,10 @@ if (!root) {
   throw new Error("index.html is missing the #root element");
 }
 
-// /catalog shows every component option; /states/composer is the
-// state-machine harness for the composer. Paths are read after the base
-// URL, so the demo also works under a subpath such as GitHub Pages, which
-// adds a trailing slash to each route.
+// /states/composer is the state-machine harness for the composer. The
+// component catalog now lives in the docs site (apps/docs). Paths are read
+// after the base URL, so the demo also works under a subpath such as GitHub
+// Pages, which adds a trailing slash to each route.
 const TRAILING_SLASH = /\/$/u;
 
 const route = window.location.pathname
@@ -38,10 +37,6 @@ const route = window.location.pathname
   .replace(TRAILING_SLASH, "");
 
 const page = (): ReactNode => {
-  if (route === "/catalog") {
-    return <Catalog />;
-  }
-
   if (route === "/states/composer") {
     return <ComposerStates />;
   }
