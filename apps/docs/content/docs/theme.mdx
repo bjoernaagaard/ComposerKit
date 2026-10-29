@@ -1,0 +1,82 @@
+---
+# SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+# SPDX-License-Identifier: MIT
+title: Theme
+description: The colors, sizes, type and motion every ComposerKit item uses, in a light and a dark scheme.
+full: true
+---
+
+## Install
+
+```bash
+npx shadcn@latest add https://bjoernaagaard.github.io/ComposerKit/r/theme.json
+```
+
+The theme is a set of CSS variables. shadcn writes them into your global CSS file: light values on `:root`, dark colors on `.dark`. Every other item installs it for you.
+
+## Demo
+
+<ComponentPreview name="theme--demo" />
+
+## Anatomy
+
+The theme has no components. It is three blocks of CSS variables:
+
+```css title="Anatomy"
+@theme inline {
+  --color-primary: var(--primary); /* Tailwind classes such as bg-primary */
+}
+
+:root {
+  --primary: #594fd7; /* light colors */
+  --size-composer-control: 28px; /* sizes, spacing, type and motion */
+}
+
+.dark {
+  --primary: #9095fd; /* dark colors */
+}
+```
+
+Add the `dark` class to the root element to switch to the dark scheme. These docs do that with their theme switch.
+
+## Examples
+
+### Palette
+
+<ComponentPreview name="palette--swatches" />
+
+## API reference
+
+The theme is generated from `crates/composerkit-theme/design-tokens.json` by `scripts/tokens.ts`. These tables are generated from the TypeScript types of that file.
+
+### Token file
+
+<AutoTypeTable path="../../scripts/token-variables.ts" name="Tokens" />
+
+### Color roles
+
+Each role is a step of a palette ramp, such as `neutral.900`.
+
+<AutoTypeTable
+  path="../../scripts/token-variables.ts"
+  name="ColorRoles"
+  type="(typeof import('../crates/composerkit-theme/design-tokens.json'))['color']['light']"
+/>
+
+## Keyboard
+
+The theme has no controls of its own. It sets the color and width of the keyboard focus ring (`--ring`, `--border-focus-width`, `--border-focus-offset`), which every other item draws on keyboard focus. The rule for that ring:
+
+<SpecSection section="3. Buttons and icon buttons > States" />
+
+## Accessibility
+
+<SpecSection section="6. App shell > Light and dark" />
+
+No WAI-ARIA Authoring Practices pattern covers a theme. Text and controls follow WCAG 2.2: [contrast (minimum)](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html) and [non-text contrast](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html).
+
+## Theming
+
+Every token the theme ships, with its light and dark value.
+
+<TokenTable item="theme" />

@@ -1,0 +1,76 @@
+---
+# SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+# SPDX-License-Identifier: MIT
+title: App shell
+description: The sidebar row, the mode toggle and the title bar tabs from the demo app. They are not registry items.
+full: true
+---
+
+These pieces live in `packages/composerkit/src/app` and build the demo app. The registry does not ship them, so there is no install command. Copy them from the repo if you want them.
+
+## Examples
+
+### Conversation row
+
+<ComponentPreview name="conversation-row--compact" />
+
+<ComponentPreview name="conversation-row--measured" />
+
+<ComponentPreview name="conversation-row--two-line" />
+
+### Mode toggle
+
+<ComponentPreview name="mode-toggle--pill" />
+
+<ComponentPreview name="mode-toggle--segmented" />
+
+<ComponentPreview name="mode-toggle--underline" />
+
+### Title bar tabs
+
+<ComponentPreview name="title-bar-tabs--filled" />
+
+<ComponentPreview name="title-bar-tabs--underline" />
+
+## API reference
+
+### ConversationRow
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/app/sidebar/conversation-row.tsx"
+  name="ConversationRowProps"
+/>
+
+### ModeToggle
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/app/mode-toggle.tsx"
+  name="ModeToggleProps"
+/>
+
+### TabStrip
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/app/title-bar.tsx"
+  name="TabStripProps"
+/>
+
+## Keyboard
+
+The title bar tabs follow the [WAI-ARIA Authoring Practices tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/): Left and Right move to the previous and next tab and open it, and Home and End go to the first and last. The mode toggle is two [toggle buttons](https://www.w3.org/WAI/ARIA/apg/patterns/button/), each reached with Tab and pressed with Enter or Space.
+
+## Accessibility
+
+<SpecSection section="6. App shell > Regions" />
+
+## Theming
+
+Tokens that these pieces use.
+
+<TokenTable
+  files={[
+    "src/app/sidebar/conversation-row.tsx",
+    "src/app/mode-toggle.tsx",
+    "src/app/title-bar.tsx",
+  ]}
+/>
