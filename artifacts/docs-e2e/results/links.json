@@ -3,7 +3,7 @@
   "build": {
     "command": "npm run build --workspace @composerkit/docs",
     "exitCode": 0,
-    "seconds": 7
+    "seconds": 5
   },
   "files": [
     "content/docs/app-shell.mdx",

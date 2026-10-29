@@ -23,22 +23,22 @@ Schemas fetched at run time from ui.shadcn.com. Validator: ajv 8 (draft-07), str
 
 ## 2. A new app installs every item and the sample data, takes every example from its Code tab, then type checks and builds
 
-The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-viu4mq/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
+The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-yRyR1v/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
 
 | Command | Folder | Exit code | Seconds |
 | --- | --- | --- | --- |
-| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 37 |
+| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 29 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/theme.json -y -o | consumer | 0 | 2 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/button.json -y -o | consumer | 0 | 2 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/tip.json -y -o | consumer | 0 | 3 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/menu.json -y -o | consumer | 0 | 3 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/tip.json -y -o | consumer | 0 | 2 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/menu.json -y -o | consumer | 0 | 2 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/composer.json -y -o | consumer | 0 | 3 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/conversation.json -y -o | consumer | 0 | 3 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/sample-data.json -y -o | consumer | 0 | 3 |
-| npx tsc --noEmit | consumer | 0 | 6 |
-| npx next build | consumer | 0 | 14 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/conversation.json -y -o | consumer | 0 | 2 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/sample-data.json -y -o | consumer | 0 | 2 |
+| npx tsc --noEmit | consumer | 0 | 2 |
+| npx next build | consumer | 0 | 8 |
 
-Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-viu4mq` (outside the repo).
+Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-yRyR1v` (outside the repo).
 
 ### Examples copied from the Code tab
 
@@ -112,7 +112,7 @@ Keyboard and size rows are listed, not gated. A mismatch does not fail the run; 
 
 | Rows | Pass | Mismatch | Not checkable |
 | ---- | ---- | -------- | ------------- |
-| 104  | 71   | 20       | 13            |
+| 104  | 78   | 13       | 13            |
 
 ## 4. Every old catalog screenshot has a docs example
 
@@ -166,7 +166,7 @@ Baseline: 37 ids, light and dark, in `catalog-before/`. Docs screenshots in `doc
 
 | Step | Result | Detail |
 | --- | --- | --- |
-| npm run build --workspace @composerkit/docs | exit 0 | 7 s |
+| npm run build --workspace @composerkit/docs | exit 0 | 5 s |
 | next-validate-link on content/docs/*.mdx | no broken links | 9 files, 9 known URLs |
 
 ## 6. Stress
@@ -338,20 +338,13 @@ None.
 | 50 | Gap from add button to text, empty chat | 4 | 38 | /composer [data-example="composer--inline"] |
 | 52 | Model picker, empty chat | 102 to 102 x 28 | 99.9 x 28 | /composer [data-example="composer--inline"] |
 | 52 | Model picker, docked | 102 to 103 x 28 | 66 x 28 | /conversation [data-example="conversation--bubbles"] |
-| 208 | Reply text | about 16 pt type, line pitch about 22.7 | 14 type, 20 pitch | /conversation [data-example="conversation--bubbles"] |
-| 215 | Prompt bubble alignment | about 5 short of the column's right edge | 0 | /conversation [data-example="conversation--bubbles"] |
-| 216 | Prompt bubble height with one line | 43 | 40, 40, 40 | /conversation [data-example="conversation--bubbles"] |
-| 217 | Prompt bubble padding | about 10 to 12 horizontal, about 13 vertical around a 17 pt glyph box | 16 horizontal, 11.5 vertical | /conversation [data-example="conversation--bubbles"] |
-| 218 | Prompt bubble radius | about 18 | 20 | /conversation [data-example="conversation--bubbles"] |
-| 220 | Prompt action row | right-aligned, 4 below the bubble; copy 27 x 26, share 31 x 30, edit 27 x 26 | 6 below, right edges 1222.5 and bubble 1222.5; copy 27 x 26, share 27 x 26, edit 27 x 26 | /conversation [data-example="conversation--bubbles"] |
-| 227 | Gap from prompt action row to reply text | about 11 | 27 | /conversation [data-example="conversation--bubbles"] |
-| 228 | Gap from prompt bubble bottom to reply text | about 49 | 63 | /conversation [data-example="conversation--bubbles"] |
-| 230 | Reply action row | about 6 below the last line; buttons 27 x 26 or 27 x 27 on a 28 pitch; share 31 x 30; more 25 x 25 | 17 below; Copy 27 x 26, Helpful 27 x 26, This browser can’t read aloud 27 x 26, Share 27 x 26, Write again 27 x 26, More 27 x 26; pitch 28, 28, 28, 28, 28 | /conversation [data-example="conversation--bubbles"] |
-| 232 | Gap from reply action row to the next prompt bubble | about 12 | 16 | /conversation [data-example="conversation--bubbles"] |
-| 258 | Heading at the start of each prompt turn | level 4, visually hidden | h2 "You said:", 1 wide | /conversation [data-example="conversation--bubbles"] |
-| 259 | Heading at the start of each reply turn | level 4, visually hidden | h2 "Assistant said:", 1 wide | /conversation [data-example="conversation--bubbles"] |
-| 260 | Heading before the composer | a level-4 heading marking the latest response | h2 "New message" | /conversation [data-example="conversation--bubbles"] |
-| 271 | Message action buttons | 27 x 26 (some 27 x 27, share 31 x 30) | Copy 27 x 26, Share 27 x 26, Edit 27 x 26, Helpful 27 x 26, This browser can’t read aloud 27 x 26, Write again 27 x 26, More 27 x 26 | /conversation [data-example="conversation--bubbles"] |
+| 220 | Prompt action row | right-aligned, 4 below the bubble; copy 27 x 26, share 31 x 30, edit 27 x 26 | 4 below, right edges 1217.5 and bubble 1217.5; copy 27 x 26, share 27 x 26, edit 27 x 26 | /conversation [data-example="conversation--document"] |
+| 228 | Gap from prompt bubble bottom to reply text | about 49 | 45 | /conversation [data-example="conversation--document"] |
+| 230 | Reply action row | about 6 below the last line; buttons 27 x 26 or 27 x 27 on a 28 pitch; share 31 x 30; more 25 x 25 | 6 below; Copy 27 x 26, Helpful 27 x 26, This browser can’t read aloud 27 x 26, Share 27 x 26, Write again 27 x 26, More 27 x 26; pitch 28, 28, 28, 28, 28 | /conversation [data-example="conversation--document"] |
+| 258 | Heading at the start of each prompt turn | level 4, visually hidden | h2 "You said:", 1 wide | /conversation [data-example="conversation--document"] |
+| 259 | Heading at the start of each reply turn | level 4, visually hidden | h2 "Assistant said:", 1 wide | /conversation [data-example="conversation--document"] |
+| 260 | Heading before the composer | a level-4 heading marking the latest response | h2 "New message" | /conversation [data-example="conversation--document"] |
+| 271 | Message action buttons | 27 x 26 (some 27 x 27, share 31 x 30) | Copy 27 x 26, Share 27 x 26, Edit 27 x 26, Helpful 27 x 26, This browser can’t read aloud 27 x 26, Write again 27 x 26, More 27 x 26 | /conversation [data-example="conversation--document"] |
 | 277 | Sidebar row trailing buttons (more, pin) | 20 x 20 or 20 x 21 | 24 x 24, 24 x 24 | /app-shell [data-example="conversation-row--measured"] |
 | 434 | Chat row | 30 tall on a 31 pitch, 261 to 272 wide, 8 text inset, radius about 8; on hover two 20 pt buttons 8 apart | 30 tall, pitch 31, 270 wide, inset 8, radius 12.5, 2 trailing buttons 24 x 24 and 24 x 24 4 apart | /app-shell [data-example="conversation-row--measured"] |
 | 435 | Mode switch, segmented variant | two 113 x 36 toggle buttons | 109 x 30, 109 x 30 | /app-shell [data-example="mode-toggle--segmented"] |
