@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: MIT
 
 // Turns crates/composerkit-theme/design-tokens.json into shadcn's CSS
-// variables. It writes them to src/theme/tokens.css for the demo app and to
-// the cssVars of the "theme" item in registry.json, so both always match the
-// token file. The Rust theme crate compiles in the same file.
+// variables. It writes them to packages/composerkit/src/theme/tokens.css and
+// to the cssVars of the "theme" item in packages/composerkit/registry.json, so
+// both always match the token file. The Rust theme crate compiles in the same file.
 //
 //   node scripts/tokens.ts
 
@@ -13,8 +13,8 @@ import { readFileSync, writeFileSync } from "node:fs";
 const ROOT = new URL("..", import.meta.url);
 const THEME_CRATE = new URL("crates/composerkit-theme/", ROOT);
 const TOKENS_PATH = new URL("design-tokens.json", THEME_CRATE);
-const CSS_PATH = new URL("src/theme/tokens.css", ROOT);
-const REGISTRY_PATH = new URL("registry.json", ROOT);
+const CSS_PATH = new URL("packages/composerkit/src/theme/tokens.css", ROOT);
+const REGISTRY_PATH = new URL("packages/composerkit/registry.json", ROOT);
 const THEME_ITEM = "theme";
 
 type Scheme = "light" | "dark";

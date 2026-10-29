@@ -54,7 +54,7 @@ import { DirectionSelector } from "@/designs/direction";
 import { SCHEMES, setScheme } from "@/theme/apply";
 import { useTheme } from "@/theme/use-theme";
 
-import tokens from "../../crates/composerkit-theme/design-tokens.json";
+import tokens from "../../../../crates/composerkit-theme/design-tokens.json";
 
 const ROW_SAMPLE_SIZE = 8;
 

@@ -15,7 +15,7 @@ import {
 import { Tip } from "@/components/ui/tip";
 import type { Conversation, Project } from "@/content/sample";
 
-import tokens from "../../../crates/composerkit-theme/design-tokens.json";
+import tokens from "../../../../../crates/composerkit-theme/design-tokens.json";
 
 export interface RowProps {
   conversation: Conversation;

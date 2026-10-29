@@ -16,7 +16,7 @@ export default defineConfig({
   },
   webServer: {
     command: `npx vite --port ${PORT} --strictPort --host 127.0.0.1`,
-    cwd: "../..",
+    cwd: "../../apps/playground",
     url: `http://127.0.0.1:${PORT}`,
     reuseExistingServer: false,
   },

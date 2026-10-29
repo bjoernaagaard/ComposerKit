@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 // SPDX-License-Identifier: MIT
 
-//! The open chat, the native twin of `src/components/conversation`.
+//! The open chat, the native twin of `packages/composerkit/src/components/conversation`.
 //!
 //! [`ConversationView`] shows a list of [`Turn`]s in a
 //! [`ConversationLayout`], with the composer under it. [`sample_turns`] is

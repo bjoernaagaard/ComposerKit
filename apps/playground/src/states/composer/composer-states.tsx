@@ -14,9 +14,8 @@ import { TipProvider } from "@/components/ui/tip";
 import { COMPOSER_OPTIONS } from "@/content/catalog";
 import { SAMPLE_PROJECTS } from "@/content/sample";
 import { DirectionSelector } from "@/designs/direction";
-
-import { FIXTURES } from "./fixtures";
-import type { StateFixture } from "./fixtures";
+import { FIXTURES } from "@/states/composer/fixtures";
+import type { StateFixture } from "@/states/composer/fixtures";
 
 const PARAM = "__state";
 

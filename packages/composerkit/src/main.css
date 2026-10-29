@@ -6,6 +6,9 @@
 @import "shadcn/tailwind.css";
 @import "./theme/tokens.css";
 
+/* Apps that load this file from another folder still get the library classes. */
+@source "./";
+
 @custom-variant dark (&:is(.dark *));
 
 @layer base {
