@@ -1,7 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 # SPDX-License-Identifier: MIT
 
-# Publishes the shadcn registry in public/r to GitHub Pages, so
+# Publishes the demo and the shadcn registry to GitHub Pages. The demo is at
+# https://bjoernaagaard.github.io/ComposerKit/ and the registry under /r, so
 # `npx shadcn add https://bjoernaagaard.github.io/ComposerKit/r/composer.json`
 # works. The build fails if the committed registry is out of date.
 name: Pages
@@ -33,10 +34,18 @@ jobs:
       - run: npx shadcn build
       - name: Registry matches registry.json
         run: git diff --exit-code -- public/r
+      - run: npx vite build --base=/ComposerKit/
+      # Pages has no rewrites, so each demo route gets its own copy of the page.
+      - name: Add the demo routes
+        run: |
+          for route in catalog states/composer; do
+            mkdir -p "dist/$route"
+            cp dist/index.html "dist/$route/index.html"
+          done
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: public
+          path: dist
 
   deploy:
     needs: build

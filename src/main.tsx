@@ -27,13 +27,21 @@ if (!root) {
 }
 
 // /catalog shows every component option; /states/composer is the
-// state-machine harness for the composer.
+// state-machine harness for the composer. Paths are read after the base
+// URL, so the demo also works under a subpath such as GitHub Pages, which
+// adds a trailing slash to each route.
+const TRAILING_SLASH = /\/$/u;
+
+const route = window.location.pathname
+  .slice(import.meta.env.BASE_URL.length - 1)
+  .replace(TRAILING_SLASH, "");
+
 const page = (): ReactNode => {
-  if (window.location.pathname === "/catalog") {
+  if (route === "/catalog") {
     return <Catalog />;
   }
 
-  if (window.location.pathname === "/states/composer") {
+  if (route === "/states/composer") {
     return <ComposerStates />;
   }
 

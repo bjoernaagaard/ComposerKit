@@ -562,7 +562,7 @@ export const Catalog = () => {
                 13 fixed states, such as an upload in progress or a failed send.{" "}
                 <a
                   className="text-foreground underline"
-                  href="/states/composer"
+                  href={`${import.meta.env.BASE_URL}states/composer`}
                 >
                   Open the composer states
                 </a>
