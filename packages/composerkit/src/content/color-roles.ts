@@ -1,0 +1,41 @@
+// SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+// SPDX-License-Identifier: MIT
+
+// Generated from crates/composerkit-theme/design-tokens.json by scripts/tokens.ts.
+// The color roles, each a CSS variable the theme sets in light and dark.
+export const COLOR_ROLES = [
+  "window",
+  "background",
+  "foreground",
+  "card",
+  "card-foreground",
+  "popover",
+  "popover-foreground",
+  "primary",
+  "primary-foreground",
+  "secondary",
+  "secondary-foreground",
+  "muted",
+  "muted-foreground",
+  "subtle-foreground",
+  "accent",
+  "accent-foreground",
+  "destructive",
+  "warning",
+  "success",
+  "border",
+  "input",
+  "ring",
+  "link",
+  "selection",
+  "avatar",
+  "avatar-foreground",
+  "sidebar",
+  "sidebar-foreground",
+  "sidebar-primary",
+  "sidebar-primary-foreground",
+  "sidebar-accent",
+  "sidebar-accent-foreground",
+  "sidebar-border",
+  "sidebar-ring",
+] as const;
