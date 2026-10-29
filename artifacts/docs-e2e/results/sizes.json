@@ -347,7 +347,7 @@
     "expected": "the pane less about 16 on each side",
     "line": 206,
     "part": "Message column in a narrow pane (viewport 820 wide)",
-    "actual": "pane 468, column 436 (expected 436)",
+    "actual": "pane 453, column 421 (expected 421)",
     "status": "pass",
     "where": "/conversation [data-example=\"conversation--document\"]"
   },
@@ -411,7 +411,7 @@
     "expected": "right-aligned, 4 below the bubble; copy 27 x 26, share 31 x 30, edit 27 x 26",
     "line": 220,
     "part": "Prompt action row",
-    "actual": "4 below, right edges 1217.5 and bubble 1217.5; copy 27 x 26, share 27 x 26, edit 27 x 26",
+    "actual": "4 below, right edges 1210 and bubble 1210; copy 27 x 26, share 27 x 26, edit 27 x 26",
     "status": "mismatch",
     "where": "/conversation [data-example=\"conversation--document\"]"
   },
@@ -611,7 +611,7 @@
     "expected": "above the trigger, right-aligned with it, about 4 gap",
     "line": 341,
     "part": "Model picker placement",
-    "actual": "above, gap 3.9, right edges 1150 and 1149.5",
+    "actual": "above, gap 3.9, right edges 1142 and 1142",
     "status": "pass",
     "where": "/conversation [data-example=\"conversation--bubbles\"]"
   },
@@ -635,7 +635,7 @@
     "expected": "replaces the panel in place; items 29 to 30 tall; 254 wide inside the border",
     "line": 344,
     "part": "Model picker submenu",
-    "actual": "1 menu open, left 894 then 894, inner width 254, items 29, 29, 29, 29, 29, panel 155 tall for 5 items",
+    "actual": "1 menu open, left 886 then 886, inner width 254, items 29, 29, 29, 29, 29, panel 155 tall for 5 items",
     "status": "pass",
     "where": "/conversation [data-example=\"conversation--bubbles\"]"
   },
@@ -747,7 +747,7 @@
     "expected": "two 113 x 36 toggle buttons",
     "line": 435,
     "part": "Mode switch, pill variant",
-    "actual": "112 x 36, 112 x 36",
+    "actual": "113 x 36, 113 x 36",
     "status": "pass",
     "where": "/app-shell [data-example=\"mode-toggle--pill\"]"
   },
@@ -755,15 +755,15 @@
     "expected": "two 113 x 36 toggle buttons",
     "line": 435,
     "part": "Mode switch, segmented variant",
-    "actual": "109 x 30, 109 x 30",
-    "status": "mismatch",
+    "actual": "113 x 36, 113 x 36",
+    "status": "pass",
     "where": "/app-shell [data-example=\"mode-toggle--segmented\"]"
   },
   {
     "expected": "two 113 x 36 toggle buttons",
     "line": 435,
     "part": "Mode switch, underline variant",
-    "actual": "112 x 35, 112 x 35",
+    "actual": "113 x 35, 113 x 35",
     "status": "pass",
     "where": "/app-shell [data-example=\"mode-toggle--underline\"]"
   },
