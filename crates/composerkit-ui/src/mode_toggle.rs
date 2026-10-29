@@ -139,7 +139,7 @@ impl RenderOnce for ModeToggle {
             ModeToggleAppearance::Pill | ModeToggleAppearance::Underline => (0., width / 2.),
             ModeToggleAppearance::Segmented => {
                 let inset = tokens.space.mode_toggle_inset;
-                (inset, (width - 2. * tokens.border.hairline) / 2. - inset)
+                (inset, width / 2. - inset)
             }
         };
         let left = px(inset + progress * thumb_width);
@@ -151,8 +151,7 @@ impl RenderOnce for ModeToggle {
             .h(px(tokens.size.mode_toggle_height));
         let track = match self.appearance {
             ModeToggleAppearance::Pill => track.rounded_full().bg(colors.secondary),
-            ModeToggleAppearance::Segmented => border_width(track, hairline)
-                .border_color(colors.border)
+            ModeToggleAppearance::Segmented => track
                 .rounded(px(tokens.radius.control))
                 .bg(colors.secondary),
             ModeToggleAppearance::Underline => {
@@ -161,6 +160,14 @@ impl RenderOnce for ModeToggle {
                 track
             }
         };
+
+        // The segmented track's edge is drawn over it, so it takes no room
+        // from the options, which fill their halves of the track.
+        let edge = (self.appearance == ModeToggleAppearance::Segmented).then(|| {
+            border_width(div().absolute().inset_0(), hairline)
+                .border_color(colors.border)
+                .rounded(px(tokens.radius.control))
+        });
 
         let thumb = div().absolute().left(left).w(px(thumb_width));
         let thumb = match self.appearance {
@@ -220,6 +227,6 @@ impl RenderOnce for ModeToggle {
             .role(Role::Group)
             .aria_label("Composer mode")
             .min_w_0()
-            .child(track.child(thumb).children(options))
+            .child(track.children(edge).child(thumb).children(options))
     }
 }
