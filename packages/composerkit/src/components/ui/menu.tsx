@@ -3,7 +3,7 @@
 
 import { Menu } from "@base-ui/react/menu";
 import { CheckIcon, ChevronRightIcon } from "lucide-react";
-import { Children } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import type { ComponentProps, ReactNode } from "react";
 
 import { usePopupLayer } from "@/components/ui/popup-layer";
@@ -124,6 +124,56 @@ export const MenuItem = ({
   </Menu.Item>
 );
 
+// Shows label as one dimmed item when the panel it sits in has no other
+// item. It counts the items the panel rendered, not the children passed
+// in, so an empty fragment, an empty list or a group with no items count
+// as empty too, and it counts again whenever items come or go. The hidden
+// marker finds the panel; the first count runs before paint, so a blank
+// panel never shows.
+const EmptyItem = ({ label }: { label: string }) => {
+  const marker = useRef<HTMLSpanElement>(null);
+  const [empty, setEmpty] = useState(false);
+
+  useLayoutEffect(() => {
+    const panel = marker.current?.closest('[role="menu"]');
+
+    if (!panel) {
+      return;
+    }
+
+    const count = () =>
+      setEmpty(
+        panel.querySelector('[role^="menuitem"]:not([data-menu-empty])') ===
+          null
+      );
+
+    count();
+
+    const observer = new MutationObserver(count);
+
+    observer.observe(panel, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <>
+      <span hidden ref={marker} />
+      {empty ? (
+        <Menu.Item
+          className={ITEM}
+          data-menu-empty=""
+          data-slot="menu-item"
+          disabled
+          label={label}
+        >
+          <ItemText label={label} />
+        </Menu.Item>
+      ) : null}
+    </>
+  );
+};
+
 // Items read the density from the panel, so callers set it once. A menu
 // with no items shows emptyLabel as one dimmed item, so the panel is never
 // a blank strip and focus still has somewhere to land.
@@ -157,12 +207,8 @@ export const MenuContent = ({
         data-slot="menu"
         finalFocus={finalFocus}
       >
-        {/* oxlint-disable-next-line react/no-react-children -- only counts what the app passed, to tell an empty list from a full one */}
-        {Children.toArray(children).length > 0 ? (
-          children
-        ) : (
-          <MenuItem disabled label={emptyLabel} />
-        )}
+        {children}
+        <EmptyItem label={emptyLabel} />
       </Menu.Popup>
     </Menu.Positioner>
   </Menu.Portal>
