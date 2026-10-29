@@ -347,7 +347,7 @@
     "expected": "the pane less about 16 on each side",
     "line": 206,
     "part": "Message column in a narrow pane (viewport 820 wide)",
-    "actual": "pane 453, column 421 (expected 421)",
+    "actual": "pane 468, column 436 (expected 436)",
     "status": "pass",
     "where": "/conversation [data-example=\"conversation--bubbles\"]"
   },
@@ -411,7 +411,7 @@
     "expected": "right-aligned, 4 below the bubble; copy 27 x 26, share 31 x 30, edit 27 x 26",
     "line": 220,
     "part": "Prompt action row",
-    "actual": "6 below, right edges 1215 and bubble 1215; copy 27 x 26, share 27 x 26, edit 27 x 26",
+    "actual": "6 below, right edges 1222.5 and bubble 1222.5; copy 27 x 26, share 27 x 26, edit 27 x 26",
     "status": "mismatch",
     "where": "/conversation [data-example=\"conversation--bubbles\"]"
   },
@@ -611,7 +611,7 @@
     "expected": "above the trigger, right-aligned with it, about 4 gap",
     "line": 341,
     "part": "Model picker placement",
-    "actual": "above, gap 3.9, right edges 1142 and 1142",
+    "actual": "above, gap 3.9, right edges 1150 and 1149.5",
     "status": "pass",
     "where": "/conversation [data-example=\"conversation--bubbles\"]"
   },
@@ -635,7 +635,7 @@
     "expected": "replaces the panel in place; items 29 to 30 tall; 254 wide inside the border",
     "line": 344,
     "part": "Model picker submenu",
-    "actual": "1 menu open, left 886 then 886, inner width 254, items 29, 29, 29, 29, 29, panel 155 tall for 5 items",
+    "actual": "1 menu open, left 894 then 894, inner width 254, items 29, 29, 29, 29, 29, panel 155 tall for 5 items",
     "status": "pass",
     "where": "/conversation [data-example=\"conversation--bubbles\"]"
   },
@@ -643,15 +643,15 @@
     "expected": "above the trigger, left edge 2 right of the trigger's, 4 gap",
     "line": 365,
     "part": "Row more menu placement",
-    "actual": "above, gap 3.9, left edge 0 right of the trigger's",
-    "status": "mismatch",
+    "actual": "above, gap 4.1, left edge 2 right of the trigger's",
+    "status": "pass",
     "where": "/menu [data-example=\"menu--demo\"]"
   },
   {
     "expected": "193 wide, items inset 4",
     "line": 366,
     "part": "Row more menu panel",
-    "actual": "193 wide, items inset 5",
+    "actual": "193 wide, items inset 4",
     "status": "pass",
     "where": "/menu [data-example=\"menu--demo\"]"
   },
@@ -659,8 +659,8 @@
     "expected": "185 x 29 or 30",
     "line": 367,
     "part": "Row more menu items",
-    "actual": "Sent today at 09:41 183 x 29, Pin chat 183 x 29, Redo with 183 x 29, Archive chatYou can undo it right away 183 x 47.2",
-    "status": "mismatch",
+    "actual": "Sent today at 09:41 185 x 29, Pin chat 185 x 29, Redo with 185 x 29, Archive chat 185 x 29",
+    "status": "pass",
     "where": "/menu [data-example=\"menu--demo\"]"
   },
   {
@@ -675,8 +675,8 @@
     "expected": "opens right, left edge 5 right of the parent panel, top 3 above the parent item, 180 wide, items 172 x 29 or 30",
     "line": 369,
     "part": "Row more submenu",
-    "actual": "left edge 4 right of the parent, top 3 above the parent item, 180 wide, items 170 x 29, 170 x 29, 170 x 29",
-    "status": "mismatch",
+    "actual": "left edge 5 right of the parent, top 3 above the parent item, 180 wide, items 172 x 29, 172 x 29, 172 x 29",
+    "status": "pass",
     "where": "/menu [data-example=\"menu--demo\"]"
   },
   {

@@ -49,7 +49,7 @@
     "expected": "Stops the reply. Focus stays in the text field.",
     "keys": "Escape",
     "line": 136,
-    "actual": "stopped (primary button \"Send\") 479 ms after Escape, focus on textarea \"Send a message\"",
+    "actual": "stopped (primary button \"Send\") 477 ms after Escape, focus on textarea \"Send a message\"",
     "status": "pass",
     "where": "/conversation [data-example=\"conversation--demo\"]"
   },
@@ -229,7 +229,7 @@
     "expected": "Text field",
     "keys": "Escape",
     "line": 182,
-    "actual": "primary button \"Send\" 476 ms after Escape, focus on textarea \"Send a message\"",
+    "actual": "primary button \"Send\" 473 ms after Escape, focus on textarea \"Send a message\"",
     "status": "pass",
     "where": "/conversation [data-example=\"conversation--transcript\"]"
   },
@@ -418,7 +418,7 @@
     "expected": "Closes everything. Focus returns to whatever had focus before the picker opened.",
     "keys": "Escape",
     "line": 357,
-    "actual": "menus open 0 after 3 ms, focus on textarea \"Describe a task\"",
+    "actual": "menus open 0 after 4 ms, focus on textarea \"Describe a task\"",
     "status": "pass",
     "where": "/composer [data-example=\"composer--stacked\"]"
   },
@@ -445,8 +445,8 @@
     "expected": "Move between items. No wrap: Down on the last item and Up on the first item stay put.",
     "keys": "Down, Up",
     "line": 378,
-    "actual": "Up on menuitem \"Pin chat\" gives menuitem \"Archive chatYou can undo it right away\"; Down on menuitem \"Archive chatYou can undo it right away\" gives menuitem \"Pin chat\"",
-    "status": "mismatch",
+    "actual": "Up on menuitem \"Pin chat\" gives menuitem \"Pin chat\"; Down on menuitem \"Archive chat\" gives menuitem \"Archive chat\"",
+    "status": "pass",
     "where": "/menu [data-example=\"menu--demo\"]"
   },
   {
@@ -454,7 +454,7 @@
     "expected": "First and last item",
     "keys": "Home, End",
     "line": 379,
-    "actual": "End: menuitem \"Archive chatYou can undo it right away\", Home: menuitem \"Pin chat\"",
+    "actual": "End: menuitem \"Archive chat\", Home: menuitem \"Pin chat\"",
     "status": "pass",
     "where": "/menu [data-example=\"menu--demo\"]"
   },
@@ -463,7 +463,7 @@
     "expected": "Typing a letter focuses the next item whose label starts with it",
     "keys": "Typeahead",
     "line": 380,
-    "actual": "pressed \"a\", focus on menuitem \"Archive chatYou can undo it right away\"",
+    "actual": "pressed \"a\", focus on menuitem \"Archive chat\"",
     "status": "pass",
     "where": "/menu [data-example=\"menu--demo\"]"
   },
@@ -490,7 +490,7 @@
     "expected": "Closes the menu. Focus returns to the trigger.",
     "keys": "Escape",
     "line": 383,
-    "actual": "menus open 0 after 3 ms, focus on button \"More actions\"",
+    "actual": "menus open 0 after 2 ms, focus on button \"More actions\"",
     "status": "pass",
     "where": "/menu [data-example=\"menu--demo\"]"
   },

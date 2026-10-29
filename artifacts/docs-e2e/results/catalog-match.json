@@ -2,7 +2,7 @@
   {
     "after": {
       "height": 33,
-      "width": 1059
+      "width": 1070
     },
     "before": {
       "height": 32,
@@ -10,13 +10,13 @@
     },
     "id": "button--default",
     "page": "/button",
-    "ratio": 0.0685935441370224,
+    "ratio": 0.05923364075537989,
     "scheme": "light"
   },
   {
     "after": {
       "height": 33,
-      "width": 1059
+      "width": 1070
     },
     "before": {
       "height": 32,
@@ -24,13 +24,13 @@
     },
     "id": "button--ghost",
     "page": "/button",
-    "ratio": 0.0685935441370224,
+    "ratio": 0.05923364075537989,
     "scheme": "light"
   },
   {
     "after": {
       "height": 33,
-      "width": 1059
+      "width": 1070
     },
     "before": {
       "height": 32,
@@ -38,7 +38,7 @@
     },
     "id": "button--outline",
     "page": "/button",
-    "ratio": 0.0685935441370224,
+    "ratio": 0.05923364075537989,
     "scheme": "light"
   },
   {
@@ -268,7 +268,7 @@
   {
     "after": {
       "height": 641,
-      "width": 1059
+      "width": 1070
     },
     "before": {
       "height": 640,
@@ -276,13 +276,13 @@
     },
     "id": "conversation--bubbles",
     "page": "/conversation",
-    "ratio": 0.0685735038097176,
+    "ratio": 0.05877224219403559,
     "scheme": "light"
   },
   {
     "after": {
       "height": 641,
-      "width": 1059
+      "width": 1070
     },
     "before": {
       "height": 640,
@@ -290,13 +290,13 @@
     },
     "id": "conversation--document",
     "page": "/conversation",
-    "ratio": 0.06375483280200774,
+    "ratio": 0.054046835786474935,
     "scheme": "light"
   },
   {
     "after": {
       "height": 641,
-      "width": 1059
+      "width": 1070
     },
     "before": {
       "height": 640,
@@ -304,7 +304,7 @@
     },
     "id": "conversation--transcript",
     "page": "/conversation",
-    "ratio": 0.07005867191209388,
+    "ratio": 0.060825476497320764,
     "scheme": "light"
   },
   {
@@ -478,7 +478,7 @@
   {
     "after": {
       "height": 313,
-      "width": 1059
+      "width": 1070
     },
     "before": {
       "height": 312,
@@ -486,13 +486,13 @@
     },
     "id": "palette--swatches",
     "page": "/theme",
-    "ratio": 0.11657579756447654,
+    "ratio": 0.09690292633236097,
     "scheme": "light"
   },
   {
     "after": {
       "height": 79,
-      "width": 1059
+      "width": 1070
     },
     "before": {
       "height": 78,
@@ -500,13 +500,13 @@
     },
     "id": "title-bar-tabs--filled",
     "page": "/app-shell",
-    "ratio": 0.07002155567785727,
+    "ratio": 0.06031003485598973,
     "scheme": "light"
   },
   {
     "after": {
       "height": 79,
-      "width": 1059
+      "width": 1070
     },
     "before": {
       "height": 78,
@@ -514,13 +514,13 @@
     },
     "id": "title-bar-tabs--underline",
     "page": "/app-shell",
-    "ratio": 0.07539900935608146,
+    "ratio": 0.06568748853421391,
     "scheme": "light"
   },
   {
     "after": {
       "height": 33,
-      "width": 1059
+      "width": 1070
     },
     "before": {
       "height": 32,
@@ -528,13 +528,13 @@
     },
     "id": "button--default",
     "page": "/button",
-    "ratio": 0.0685935441370224,
+    "ratio": 0.05923364075537989,
     "scheme": "dark"
   },
   {
     "after": {
       "height": 33,
-      "width": 1059
+      "width": 1070
     },
     "before": {
       "height": 32,
@@ -542,13 +542,13 @@
     },
     "id": "button--ghost",
     "page": "/button",
-    "ratio": 0.0685935441370224,
+    "ratio": 0.05923364075537989,
     "scheme": "dark"
   },
   {
     "after": {
       "height": 33,
-      "width": 1059
+      "width": 1070
     },
     "before": {
       "height": 32,
@@ -556,7 +556,7 @@
     },
     "id": "button--outline",
     "page": "/button",
-    "ratio": 0.0685935441370224,
+    "ratio": 0.05923364075537989,
     "scheme": "dark"
   },
   {
@@ -786,7 +786,7 @@
   {
     "after": {
       "height": 641,
-      "width": 1059
+      "width": 1070
     },
     "before": {
       "height": 640,
@@ -794,13 +794,13 @@
     },
     "id": "conversation--bubbles",
     "page": "/conversation",
-    "ratio": 0.06855654660969047,
+    "ratio": 0.058753871894006195,
     "scheme": "dark"
   },
   {
     "after": {
       "height": 641,
-      "width": 1059
+      "width": 1070
     },
     "before": {
       "height": 640,
@@ -808,13 +808,13 @@
     },
     "id": "conversation--document",
     "page": "/conversation",
-    "ratio": 0.06364602410183363,
+    "ratio": 0.0539648759863438,
     "scheme": "dark"
   },
   {
     "after": {
       "height": 641,
-      "width": 1059
+      "width": 1070
     },
     "before": {
       "height": 640,
@@ -822,7 +822,7 @@
     },
     "id": "conversation--transcript",
     "page": "/conversation",
-    "ratio": 0.069913122611861,
+    "ratio": 0.06072232019715571,
     "scheme": "dark"
   },
   {
@@ -996,7 +996,7 @@
   {
     "after": {
       "height": 313,
-      "width": 1059
+      "width": 1070
     },
     "before": {
       "height": 312,
@@ -1004,13 +1004,13 @@
     },
     "id": "palette--swatches",
     "page": "/theme",
-    "ratio": 0.11696647682548503,
+    "ratio": 0.09733122655924434,
     "scheme": "dark"
   },
   {
     "after": {
       "height": 79,
-      "width": 1059
+      "width": 1070
     },
     "before": {
       "height": 78,
@@ -1018,13 +1018,13 @@
     },
     "id": "title-bar-tabs--filled",
     "page": "/app-shell",
-    "ratio": 0.07546780407264722,
+    "ratio": 0.06575628325077967,
     "scheme": "dark"
   },
   {
     "after": {
       "height": 79,
-      "width": 1059
+      "width": 1070
     },
     "before": {
       "height": 78,
@@ -1032,7 +1032,7 @@
     },
     "id": "title-bar-tabs--underline",
     "page": "/app-shell",
-    "ratio": 0.07585764079985324,
+    "ratio": 0.0661461199779857,
     "scheme": "dark"
   }
 ]

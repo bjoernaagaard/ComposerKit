@@ -250,6 +250,7 @@
   --border-toggle-underline-offset: 1px;
   --border-rail-rule: 1px;
   --border-panel: 1px;
+  --border-more-menu: 0px;
   --shadow-toggle-thumb: 0px 2px 4px -1px rgba(0, 0, 0, 0.08);
   --shadow-menu: 0px 8px 16px -4px rgba(0, 0, 0, 0.12);
   --shadow-composer-light: 0px 0px 0px 1px rgba(0, 0, 0, 0.04), 0px 2px 8px 0px rgba(0, 0, 0, 0.04), 0px 4px 80px 8px rgba(0, 0, 0, 0.024);
