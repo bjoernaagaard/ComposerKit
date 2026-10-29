@@ -8,6 +8,14 @@ import { spawnSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 
+import type {
+  EmptyRow,
+  Flag,
+  KeyboardStressRow,
+  LabelRow,
+  PasteRow,
+  RenderRow,
+} from "./stress-support";
 import { ARTIFACTS, REPO, readManifest, readResult } from "./support";
 import type { CommandRun } from "./support";
 
@@ -308,6 +316,168 @@ const checkFive = (
     : []),
 ];
 
+const flagText = (flags: Flag[]) =>
+  flags.map((flag) => `${flag.kind}: ${flag.detail}`).join("; ");
+
+const flagged = <T extends { flags: Flag[] }>(rows: T[]) =>
+  rows.filter((row) => row.flags.length > 0);
+
+interface StressResults {
+  render: RenderRow[];
+  keyboard: KeyboardStressRow[];
+  paste: PasteRow[];
+  labels: LabelRow[];
+  empty: EmptyRow[];
+}
+
+const stressRender = (render: RenderRow[]) => [
+  "### Every docs example at 320 and 1440 wide",
+  "One image per example and width, light on the left and dark on the right, in `stress/render/`. A flag is sideways page scroll, a box wider than the window, text cut off with no ellipsis, text over other text, or a control pushed out of view. Content inside a box that scrolls sideways, such as a code block or the tab strip, counts as reachable.",
+  table(
+    ["Width", "Examples", "With a flag"],
+    [320, 1440].map((width) => {
+      const rows = render.filter((row) => row.width === width);
+
+      return [width, rows.length, flagged(rows).length];
+    })
+  ),
+  ...(flagged(render).length > 0
+    ? [
+        table(
+          ["Example", "Width", "Flags", "Image"],
+          flagged(render).map((row) => [
+            row.id,
+            row.width,
+            flagText(row.flags),
+            row.image,
+          ])
+        ),
+      ]
+    : []),
+];
+
+// The same finding on many examples of a page is one entry with a count.
+const grouped = (items: string[]) =>
+  [...Map.groupBy(items, (item) => item)]
+    .map(([item, all]) =>
+      all.length > 1 ? `${item} (${all.length} times)` : item
+    )
+    .join("; ");
+
+// The focused element's role or tag, without its label, so the same
+// field with a different placeholder counts as one place.
+const placeOf = (focus: string) => focus.split(" ")[0] ?? focus;
+
+const escapeText = (row: KeyboardStressRow) =>
+  grouped(
+    row.escapes.flatMap((escape) =>
+      escape.opened && escape.closed && escape.backOnTrigger
+        ? []
+        : [
+            `${escape.kind} on ${escape.stop}: ${escape.closed ? "closed" : "stayed open"}, focus went to a ${placeOf(escape.focusAfter)}`,
+          ]
+    )
+  );
+
+const stressKeyboard = (keyboard: KeyboardStressRow[]) => [
+  "### Keyboard only, every docs page",
+  "Tab from the top of the page to the end, then Shift+Tab back, with no mouse events. Each stop is checked for a visible change against its resting look. Every menu trigger and tooltip in the examples is opened, closed with Escape, and checked for focus back on its trigger. The full focus order of each page is in `results/stress-keyboard.json`.",
+  table(
+    [
+      "Page",
+      "Stops",
+      "Walk ended",
+      "Trap",
+      "No visible focus",
+      "Not reachable by Tab",
+      "Shift+Tab gives the same order",
+      "Escape did not return focus",
+    ],
+    keyboard.map((row) => [
+      row.page,
+      row.stops.length,
+      row.end,
+      row.trap ?? "none",
+      row.noIndicator.length === 0 ? "none" : row.noIndicator.join("; "),
+      row.unreachable.length === 0 ? "none" : grouped(row.unreachable),
+      row.reverseMatches ? "yes" : `no: ${row.reverseDifference}`,
+      escapeText(row) || "none",
+    ])
+  ),
+];
+
+const stressPaste = (paste: PasteRow[]) => [
+  "### A 200 character paste into every composer, then Enter",
+  "Pasted through the clipboard. Images are in `stress/paste/`.",
+  table(
+    ["Example", "Label", "Pasted", "After Enter", "Flags", "Images"],
+    paste.map((row) => [
+      row.id,
+      row.label,
+      row.pastedLength,
+      `${row.afterSubmit}, turns ${row.turnsBefore} then ${row.turnsAfter}`,
+      flagText([...row.flagsPasted, ...row.flagsSubmitted]) || "none",
+      `${row.pastedImage}, ${row.submittedImage}`,
+    ])
+  ),
+];
+
+const stressLabels = (labels: LabelRow[]) => [
+  "### 200 character labels in every part that shows one",
+  "Rendered by the playground's dev-only stress page (`/states/stress`), which passes the label through each part's own props. demo is the normal label, spaces is a 200 character title with spaces, word is a 200 character link with nowhere to break. Images are in `stress/labels/`.",
+  table(
+    ["Part", "Label", "Width", "Flags", "Errors", "Image"],
+    labels.map((row) => [
+      row.part,
+      row.data,
+      row.width,
+      flagText(row.flags) || "none",
+      row.errors.join("; ") || "none",
+      row.image,
+    ])
+  ),
+];
+
+const stressEmpty = (empty: EmptyRow[]) => [
+  "### Empty states",
+  "Images are in `stress/empty/`.",
+  table(
+    ["Part", "Attack", "Verdict", "What happened", "Image"],
+    empty.map((row) => [
+      row.part,
+      row.attack,
+      row.broken ? "BROKEN" : "held up",
+      row.happened,
+      row.image,
+    ])
+  ),
+];
+
+const stressSection = (stress: StressResults) => {
+  const breaks =
+    flagged(stress.render).length +
+    flagged(stress.labels).length +
+    stress.empty.filter((row) => row.broken).length +
+    stress.keyboard.filter(
+      (row) =>
+        row.trap !== null ||
+        row.noIndicator.length > 0 ||
+        row.unreachable.length > 0 ||
+        !row.reverseMatches ||
+        escapeText(row) !== ""
+    ).length;
+
+  return [
+    "## 6. Stress",
+    `Listed, not gated. ${breaks} row${breaks === 1 ? "" : "s"} below still show a flag or a break.`,
+    ...stressRender(stress.render),
+    ...stressKeyboard(stress.keyboard),
+    ...stressPaste(stress.paste),
+    ...stressLabels(stress.labels),
+    ...stressEmpty(stress.empty),
+  ];
+};
+
 const mismatchList = (
   axe: AxeResult[],
   keyboard: SpecResult[],
@@ -374,6 +544,14 @@ export const writeReport = (): void => {
   const matches = readResult<MatchResult[]>("catalog-match") ?? [];
   const links = readResult<LinksResult>("links");
 
+  const stress: StressResults = {
+    empty: readResult<EmptyRow[]>("stress-empty") ?? [],
+    keyboard: readResult<KeyboardStressRow[]>("stress-keyboard") ?? [],
+    labels: readResult<LabelRow[]>("stress-labels") ?? [],
+    paste: readResult<PasteRow[]>("stress-paste") ?? [],
+    render: readResult<RenderRow[]>("stress-render") ?? [],
+  };
+
   const report = [
     "<!-- SPDX-FileCopyrightText: 2026 Bjørn Aagaard -->",
     "<!-- SPDX-License-Identifier: MIT -->",
@@ -385,6 +563,7 @@ export const writeReport = (): void => {
     ...checkThree(axe, sections, keyboard, sizes),
     ...checkFour(matches),
     ...checkFive(build, links),
+    ...stressSection(stress),
     ...mismatchList(axe, keyboard, sizes),
   ].join("\n\n");
 

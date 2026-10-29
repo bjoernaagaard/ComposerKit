@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 // SPDX-License-Identifier: MIT
 
-// Builds the docs as a static export, serves it for the specs, and writes
-// the report when the run ends.
+// Builds the docs as a static export, serves it and the playground's dev
+// server (for the stress harness) for the specs, and writes the report when
+// the run ends.
 import { rmSync } from "node:fs";
 
 import { writeReport } from "./report";
@@ -13,6 +14,7 @@ import {
   RESULTS,
   run,
   serve,
+  servePlayground,
   writeResult,
 } from "./support";
 
@@ -32,10 +34,12 @@ const globalSetup = async () => {
     throw new Error(`next build failed:\n${build.outputTail}`);
   }
 
-  const stop = await serve(EXPORT_DIR, DOCS_PORT);
+  const stopDocs = await serve(EXPORT_DIR, DOCS_PORT);
+  const stopPlayground = await servePlayground();
 
   return () => {
-    stop();
+    stopDocs();
+    stopPlayground();
     writeReport();
   };
 };

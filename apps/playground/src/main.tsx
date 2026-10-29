@@ -6,7 +6,7 @@ import "@/designs/emil/emil.css";
 import "@/designs/apple/apple.css";
 import "@/designs/glass/glass.css";
 import "@/designs/taste/taste.css";
-import { StrictMode } from "react";
+import { lazy, StrictMode, Suspense } from "react";
 import type { ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 
@@ -15,6 +15,16 @@ import { startDirection } from "@/designs/direction";
 import { startTheme } from "@/theme/apply";
 
 import { ComposerStates } from "./states/composer/composer-states";
+
+// The stress harness is for the docs E2E only. In a production build the
+// condition is false, so the bundler drops the import.
+const Stress = import.meta.env.DEV
+  ? lazy(async () => {
+      const module = await import("./states/stress/stress");
+
+      return { default: module.Stress };
+    })
+  : null;
 
 startTheme(document.documentElement);
 
@@ -39,6 +49,14 @@ const route = window.location.pathname
 const page = (): ReactNode => {
   if (route === "/states/composer") {
     return <ComposerStates />;
+  }
+
+  if (Stress && route === "/states/stress") {
+    return (
+      <Suspense>
+        <Stress />
+      </Suspense>
+    );
   }
 
   return <App />;

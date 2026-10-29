@@ -23,6 +23,8 @@ export const SPEC_FILE = path.join(REPO, "spec/functional.md");
 export const DOCS_PORT = 4320;
 export const DOCS_URL = `http://127.0.0.1:${DOCS_PORT}`;
 export const LOCAL_REGISTRY_PORT = 4321;
+export const PLAYGROUND_PORT = 4330;
+export const PLAYGROUND_URL = `http://127.0.0.1:${PLAYGROUND_PORT}`;
 
 export const PUBLISHED_REGISTRY =
   "https://bjoernaagaard.github.io/ComposerKit/r/";
@@ -154,16 +156,14 @@ export const run = async (
   };
 };
 
-// Starts a static file server and resolves once it answers.
-export const serve = async (
-  directory: string,
+// Starts a server process and resolves once it answers on the port.
+const startServer = async (
+  command: string,
+  args: string[],
+  cwd: string,
   port: number
 ): Promise<() => void> => {
-  const child = spawn(
-    path.join(REPO, "node_modules/.bin/serve"),
-    ["--no-clipboard", "--no-port-switching", "-l", String(port), directory],
-    { stdio: "ignore" }
-  );
+  const child = spawn(command, args, { cwd, stdio: "ignore" });
 
   const url = `http://127.0.0.1:${port}/`;
   const deadline = Date.now() + 30 * MS_PER_SECOND;
@@ -185,5 +185,23 @@ export const serve = async (
   }
 
   child.kill();
-  throw new Error(`serve did not answer on ${url}`);
+  throw new Error(`the server did not answer on ${url}`);
 };
+
+// Serves a folder of static files.
+export const serve = (directory: string, port: number) =>
+  startServer(
+    path.join(REPO, "node_modules/.bin/serve"),
+    ["--no-clipboard", "--no-port-switching", "-l", String(port), directory],
+    REPO,
+    port
+  );
+
+// The playground's Vite dev server, for the dev-only stress harness.
+export const servePlayground = () =>
+  startServer(
+    path.join(REPO, "node_modules/.bin/vite"),
+    ["--port", String(PLAYGROUND_PORT), "--strictPort", "--host", "127.0.0.1"],
+    path.join(REPO, "apps/playground"),
+    PLAYGROUND_PORT
+  );
