@@ -68,7 +68,7 @@ You need an npm account with permission to publish `composerkit`. Run `npm whoam
    gh release create composerkit@0.2.0 --title "composerkit 0.2.0" --notes "<the changelog entry>"
    ```
 
-7. Check the result. Run `npm view composerkit version` to see the new version, and open <https://www.npmjs.com/package/composerkit> to see the README.
+7. Check the result. Run `npm view composerkit version` to see the new version, and open <https://www.npmjs.com/package/composerkit> to see the README. When you publish with two factor authentication, npm may also publish a placeholder version named `0.0.0-stage`. The placeholder is harmless, because the `latest` tag points at the real version.
 
 ## Test the package in an app before you publish
 
