@@ -12,7 +12,7 @@ import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import draft07 from "ajv/dist/refs/json-schema-draft-07.json" with { type: "json" };
 
-import { REGISTRY_DIR, writeResult } from "./support";
+import { REGISTRY_DIR, REPO, writeResult } from "./support";
 
 const REGISTRY_SCHEMA = "https://ui.shadcn.com/schema/registry.json";
 const ITEM_SCHEMA = "https://ui.shadcn.com/schema/registry-item.json";
@@ -70,6 +70,11 @@ test("every public/r file matches the published shadcn schema", async () => {
     rows,
   });
 
-  expect(rows.length).toBe(7);
+  // One file per item in the source registry, plus registry.json itself.
+  const source: { items: unknown[] } = JSON.parse(
+    readFileSync(path.join(REPO, "packages/composerkit/registry.json"), "utf-8")
+  );
+
+  expect(rows.length).toBe(source.items.length + 1);
   expect(rows.filter((row) => !row.valid)).toEqual([]);
 });
