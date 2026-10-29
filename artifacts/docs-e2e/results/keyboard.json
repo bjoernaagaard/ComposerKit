@@ -49,7 +49,7 @@
     "expected": "Stops the reply. Focus stays in the text field.",
     "keys": "Escape",
     "line": 136,
-    "actual": "stopped (primary button \"Send\") 477 ms after Escape, focus on textarea \"Send a message\"",
+    "actual": "stopped (primary button \"Send\") 495 ms after Escape, focus on textarea \"Send a message\"",
     "status": "pass",
     "where": "/conversation [data-example=\"conversation--demo\"]"
   },
@@ -229,7 +229,7 @@
     "expected": "Text field",
     "keys": "Escape",
     "line": 182,
-    "actual": "primary button \"Send\" 473 ms after Escape, focus on textarea \"Send a message\"",
+    "actual": "primary button \"Send\" 486 ms after Escape, focus on textarea \"Send a message\"",
     "status": "pass",
     "where": "/conversation [data-example=\"conversation--transcript\"]"
   },
@@ -418,7 +418,7 @@
     "expected": "Closes everything. Focus returns to whatever had focus before the picker opened.",
     "keys": "Escape",
     "line": 357,
-    "actual": "menus open 0 after 4 ms, focus on textarea \"Describe a task\"",
+    "actual": "menus open 0 after 3 ms, focus on textarea \"Describe a task\"",
     "status": "pass",
     "where": "/composer [data-example=\"composer--stacked\"]"
   },
@@ -490,7 +490,7 @@
     "expected": "Closes the menu. Focus returns to the trigger.",
     "keys": "Escape",
     "line": 383,
-    "actual": "menus open 0 after 2 ms, focus on button \"More actions\"",
+    "actual": "menus open 0 after 4 ms, focus on button \"More actions\"",
     "status": "pass",
     "where": "/menu [data-example=\"menu--demo\"]"
   },

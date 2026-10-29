@@ -23,22 +23,22 @@ Schemas fetched at run time from ui.shadcn.com. Validator: ajv 8 (draft-07), str
 
 ## 2. A new app installs every item and the sample data, takes every example from its Code tab, then type checks and builds
 
-The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-gx5mDx/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
+The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-viu4mq/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
 
 | Command | Folder | Exit code | Seconds |
 | --- | --- | --- | --- |
-| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 20 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/theme.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/button.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/tip.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/menu.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/composer.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/conversation.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/sample-data.json -y -o | consumer | 0 | 1 |
-| npx tsc --noEmit | consumer | 0 | 1 |
-| npx next build | consumer | 0 | 5 |
+| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 37 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/theme.json -y -o | consumer | 0 | 2 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/button.json -y -o | consumer | 0 | 2 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/tip.json -y -o | consumer | 0 | 3 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/menu.json -y -o | consumer | 0 | 3 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/composer.json -y -o | consumer | 0 | 3 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/conversation.json -y -o | consumer | 0 | 3 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/sample-data.json -y -o | consumer | 0 | 3 |
+| npx tsc --noEmit | consumer | 0 | 6 |
+| npx next build | consumer | 0 | 14 |
 
-Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-gx5mDx` (outside the repo).
+Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-viu4mq` (outside the repo).
 
 ### Examples copied from the Code tab
 
@@ -112,7 +112,7 @@ Keyboard and size rows are listed, not gated. A mismatch does not fail the run; 
 
 | Rows | Pass | Mismatch | Not checkable |
 | ---- | ---- | -------- | ------------- |
-| 104  | 70   | 21       | 13            |
+| 104  | 71   | 20       | 13            |
 
 ## 4. Every old catalog screenshot has a docs example
 
@@ -166,7 +166,7 @@ Baseline: 37 ids, light and dark, in `catalog-before/`. Docs screenshots in `doc
 
 | Step | Result | Detail |
 | --- | --- | --- |
-| npm run build --workspace @composerkit/docs | exit 0 | 3 s |
+| npm run build --workspace @composerkit/docs | exit 0 | 7 s |
 | next-validate-link on content/docs/*.mdx | no broken links | 9 files, 9 known URLs |
 
 ## 6. Stress
@@ -336,7 +336,6 @@ None.
 | Spec line | Part | Spec says | Measured | Where |
 | --- | --- | --- | --- | --- |
 | 50 | Gap from add button to text, empty chat | 4 | 38 | /composer [data-example="composer--inline"] |
-| 51 | Text box, docked | 36 tall | 20 tall | /conversation [data-example="conversation--bubbles"] |
 | 52 | Model picker, empty chat | 102 to 102 x 28 | 99.9 x 28 | /composer [data-example="composer--inline"] |
 | 52 | Model picker, docked | 102 to 103 x 28 | 66 x 28 | /conversation [data-example="conversation--bubbles"] |
 | 208 | Reply text | about 16 pt type, line pitch about 22.7 | 14 type, 20 pitch | /conversation [data-example="conversation--bubbles"] |

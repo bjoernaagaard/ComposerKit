@@ -155,8 +155,8 @@
     "expected": "36 tall",
     "line": 51,
     "part": "Text box, docked",
-    "actual": "20 tall",
-    "status": "mismatch",
+    "actual": "36 tall",
+    "status": "pass",
     "where": "/conversation [data-example=\"conversation--bubbles\"]"
   },
   {
