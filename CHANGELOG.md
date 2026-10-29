@@ -2,7 +2,7 @@
 
 The list below describes the changes in each version of the `composerkit` npm package. The shadcn registry on the docs site changes with every merge to `main`, so it has no versions.
 
-## 0.1.0 (unreleased)
+## 0.1.0 (2026-10-29)
 
 Version 0.1.0 is the first version on npm. It has the same components as the shadcn registry, compiled to JavaScript with type declarations.
 
