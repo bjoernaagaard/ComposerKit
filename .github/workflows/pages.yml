@@ -1,12 +1,12 @@
 # SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 # SPDX-License-Identifier: MIT
 
-# Publishes the demo and the shadcn registry to GitHub Pages. The demo is at
-# https://bjoernaagaard.github.io/ComposerKit/ and the registry under /r, so
+# Publishes the docs site, the demo and the shadcn registry to GitHub Pages.
+# The docs are at https://bjoernaagaard.github.io/ComposerKit/, the demo under
+# /playground and the registry under /r, so
 # `npx shadcn add https://bjoernaagaard.github.io/ComposerKit/r/composer.json`
 # works. The build fails if the committed registry is out of date.
-# Pull requests run the build only, and nothing is deployed for them. The
-# docs site in apps/docs is not published here.
+# Pull requests run the build only, and nothing is deployed for them.
 name: Pages
 
 on:
@@ -37,21 +37,27 @@ jobs:
       - run: npm run registry:build
       - name: Registry matches registry.json
         run: git diff --exit-code -- apps/docs/public/r
-      - run: npm run build --workspace @composerkit/playground -- --base=/ComposerKit/
-      # Pages has no rewrites, so the demo route gets its own copy of the page.
-      - name: Add the demo route
-        working-directory: apps/playground
+      # The docs export is the site root. Next copies public/r into it, so the
+      # registry keeps its /r URLs.
+      - run: npm run build --workspace @composerkit/docs
+        env:
+          NEXT_PUBLIC_BASE_PATH: /ComposerKit
+      - run: npm run build --workspace @composerkit/playground -- --base=/ComposerKit/playground/
+      # Pages has no rewrites, so each demo route gets its own copy of the
+      # page. /states/composer is the older link to the composer harness.
+      - name: Add the demo under /playground
         run: |
-          mkdir -p dist/states/composer
-          cp dist/index.html dist/states/composer/index.html
-      - name: Add the registry under /r
-        run: cp -R apps/docs/public/r apps/playground/dist/r
+          cp -R apps/playground/dist apps/docs/out/playground
+          for route in playground/states/composer states/composer; do
+            mkdir -p "apps/docs/out/$route"
+            cp apps/playground/dist/index.html "apps/docs/out/$route/index.html"
+          done
       - if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v6
       - if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
         with:
-          path: apps/playground/dist
+          path: apps/docs/out
 
   deploy:
     if: github.event_name != 'pull_request'
