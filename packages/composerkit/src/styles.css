@@ -1,0 +1,12 @@
+/* SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+   SPDX-License-Identifier: MIT */
+
+/* The stylesheet the npm package ships as composerkit/styles.css. Import it
+   after Tailwind. It adds the theme and tells Tailwind to scan the
+   components for the classes they use. */
+
+@import "./theme/tokens.css";
+
+@source "./components";
+
+@custom-variant dark (&:is(.dark *));
