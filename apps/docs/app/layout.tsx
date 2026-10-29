@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 const Layout = ({ children }: { children: ReactNode }) => (
   <html lang="en" suppressHydrationWarning>
-    <body className="flex min-h-screen flex-col">
+    <body className="flex min-h-screen flex-col" suppressHydrationWarning>
       <Provider>{children}</Provider>
     </body>
   </html>

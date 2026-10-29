@@ -78,6 +78,16 @@ interface LinksResult {
   urls: string[];
 }
 
+interface DesignResult {
+  page: string;
+  design: string;
+  scheme: string;
+  firstFrames: (string | null)[];
+  keptAfterNavigation: boolean;
+  consoleErrors: string[];
+  violations: AxeResult["violations"];
+}
+
 const MISSING = "No result. The spec did not run or stopped early.";
 
 // Table cells: pipes and line breaks would break the Markdown table.
@@ -504,6 +514,54 @@ const stressSection = (stress: StressResults) => {
   ];
 };
 
+// How many recorded frames already showed the design after the reload.
+const firstFrame = (row: DesignResult) => {
+  const inDesign = row.firstFrames.filter((frame) => frame === row.design);
+
+  if (row.firstFrames.length === 0) {
+    return "FAIL: no frame recorded";
+  }
+
+  const counts = `${inDesign.length} of ${row.firstFrames.length} frames`;
+
+  return inDesign.length === row.firstFrames.length
+    ? `pass, ${counts}`
+    : `FAIL, ${counts}`;
+};
+
+const checkSeven = (designs: DesignResult[]) => [
+  "## 7. Design directions",
+  "The Design picker in the docs sidebar footer, on the pages with the most examples, in light and dark. Each row picks the design through the real select, runs axe on the whole page, then reloads. First frame counts the animation frames before the load event that showed the page, and how many were already in the design, so a flash of the base look fails. Kept after navigation means a sidebar link click reached the next page with the design and without a document load. Screenshots are in `designs/`. Gated: axe, first frame, navigation and console errors.",
+  designs.length === 0
+    ? MISSING
+    : table(
+        [
+          "Page",
+          "Design",
+          "Scheme",
+          "axe violations",
+          "First frame",
+          "Kept after navigation",
+          "Console errors",
+        ],
+        designs.map((row) => [
+          row.page,
+          row.design,
+          row.scheme,
+          row.violations.length === 0
+            ? "none"
+            : row.violations
+                .map((violation) => `${violation.id} (${violation.nodes})`)
+                .join(", "),
+          firstFrame(row),
+          row.keptAfterNavigation ? "yes" : "NO",
+          row.consoleErrors.length === 0
+            ? "none"
+            : row.consoleErrors.join("; "),
+        ])
+      ),
+];
+
 const mismatchList = (
   axe: AxeResult[],
   keyboard: SpecResult[],
@@ -578,6 +636,18 @@ export const writeReport = (): void => {
     render: readResult<RenderRow[]>("stress-render") ?? [],
   };
 
+  const designs = readResult<DesignResult[]>("designs") ?? [];
+
+  // Design rows join the axe mismatch list with the design after the page.
+  const allAxe = [
+    ...axe,
+    ...designs.map((row) => ({
+      page: `${row.page} (${row.design})`,
+      scheme: row.scheme,
+      violations: row.violations,
+    })),
+  ];
+
   const report = [
     "<!-- SPDX-FileCopyrightText: 2026 Bjørn Aagaard -->",
     "<!-- SPDX-License-Identifier: MIT -->",
@@ -590,7 +660,8 @@ export const writeReport = (): void => {
     ...checkFour(matches),
     ...checkFive(build, links),
     ...stressSection(stress),
-    ...mismatchList(axe, keyboard, sizes),
+    ...checkSeven(designs),
+    ...mismatchList(allAxe, keyboard, sizes),
   ].join("\n\n");
 
   const file = path.join(ARTIFACTS, "report.md");
