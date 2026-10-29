@@ -56,6 +56,36 @@ const matchesFilter = (
   return true;
 };
 
+// What Recent shows with no rows. Only a filter that hides chats offers a
+// way back; with no filter the list is empty because there are no chats,
+// or because every chat is pinned above.
+const RecentsEmpty = ({
+  filtered,
+  pinned,
+  onShowAll,
+}: {
+  filtered: boolean;
+  pinned: boolean;
+  onShowAll: () => void;
+}) => {
+  if (!filtered) {
+    return (
+      <p className="text-muted-foreground px-2 py-2 text-(length:--text-body-size)">
+        {pinned ? "No other chats." : "No chats yet."}
+      </p>
+    );
+  }
+
+  return (
+    <div className="text-muted-foreground flex flex-col items-start gap-2 px-2 py-2 text-(length:--text-body-size)">
+      <p>No chats match this filter.</p>
+      <Button variant="ghost" onClick={onShowAll}>
+        Show all chats
+      </Button>
+    </div>
+  );
+};
+
 export interface SidebarProps {
   conversations: Conversation[];
   projects: Project[];
@@ -347,18 +377,14 @@ export const Sidebar = ({
                 {recents.map(renderRow)}
               </ul>
             ) : (
-              <div className="text-muted-foreground flex flex-col items-start gap-2 px-2 py-2 text-(length:--text-body-size)">
-                <p>No chats match this filter.</p>
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    setFilter("all");
-                    filterTrigger.current?.focus();
-                  }}
-                >
-                  Show all chats
-                </Button>
-              </div>
+              <RecentsEmpty
+                filtered={filter !== "all"}
+                onShowAll={() => {
+                  setFilter("all");
+                  filterTrigger.current?.focus();
+                }}
+                pinned={pinned.length > 0}
+              />
             )}
           </SidebarSection>
         ) : null}
