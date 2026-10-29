@@ -7,8 +7,10 @@ import {
 } from "fumadocs-typescript";
 import { AutoTypeTable } from "fumadocs-typescript/ui";
 import type { AutoTypeTableProps } from "fumadocs-typescript/ui";
+import { CodeBlock, Pre } from "fumadocs-ui/components/codeblock";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
+import type { ComponentProps } from "react";
 
 import { ComponentPreview, ComposerStatePreviews } from "./component-preview";
 import { SpecSection } from "./spec-section";
@@ -22,6 +24,17 @@ const generator = createGenerator({
 export const getMDXComponents = (components?: MDXComponents) =>
   ({
     ...defaultMdxComponents,
+    // Fumadocs makes each code block's scroll area a region with no name,
+    // which axe flags (landmark-unique). The block's title names it.
+    pre: ({ ref: _ref, title, ...props }: ComponentProps<"pre">) => (
+      <CodeBlock
+        {...props}
+        title={title}
+        viewportProps={{ "aria-label": title ?? "Command" }}
+      >
+        <Pre>{props.children}</Pre>
+      </CodeBlock>
+    ),
     AutoTypeTable: (props: Partial<AutoTypeTableProps>) => (
       <AutoTypeTable {...props} generator={generator} />
     ),

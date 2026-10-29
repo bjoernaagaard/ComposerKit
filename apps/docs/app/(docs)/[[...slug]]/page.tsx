@@ -29,7 +29,15 @@ const Page = async ({ params }: PageProps) => {
   const Content = page.data.body;
 
   return (
-    <DocsPage full={page.data.full} toc={page.data.toc}>
+    <DocsPage
+      full={page.data.full}
+      // Fumadocs draws the table of contents in a plain div, outside every
+      // landmark (axe region). As a named navigation it is reachable.
+      tableOfContent={{
+        container: { "aria-label": "On this page", role: "navigation" },
+      }}
+      toc={page.data.toc}
+    >
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>

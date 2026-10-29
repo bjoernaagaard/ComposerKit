@@ -3,11 +3,17 @@
 
 import { loader } from "fumadocs-core/source";
 import { metaSchema, pageSchema } from "fumadocs-core/source/schema";
+import { applyMdxPreset } from "fumadocs-mdx/config";
 import { defineDocs } from "fumadocs-mdx/macro";
+
+import { CODE_THEMES } from "./code-themes";
 
 const docs = defineDocs({
   dir: "content/docs",
-  docs: { schema: pageSchema },
+  docs: {
+    mdxOptions: applyMdxPreset({ rehypeCodeOptions: { themes: CODE_THEMES } }),
+    schema: pageSchema,
+  },
   meta: { schema: metaSchema },
 });
 

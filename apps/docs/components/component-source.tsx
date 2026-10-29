@@ -6,20 +6,33 @@ import path from "node:path";
 
 import { ServerCodeBlock } from "fumadocs-ui/components/codeblock.rsc";
 
+import { CODE_THEMES } from "../lib/code-themes";
+
 const LICENSE_HEADER = /^(?:\/\/ SPDX-[^\n]*\n)+\n?/u;
 
 const EXAMPLES_DIR = path.join(process.cwd(), "examples");
 
 // Reads an example file at build time and highlights it, as shadcn's
 // ComponentSource does. The license header is left out of what readers copy.
-export const ComponentSource = async ({ file }: { file: string }) => {
+// The scroll area is a region, so it gets a name that is unique on the page.
+export const ComponentSource = async ({
+  file,
+  label,
+}: {
+  file: string;
+  label: string;
+}) => {
   const code = await readFile(path.join(EXAMPLES_DIR, file), "utf-8");
 
   return (
     <ServerCodeBlock
       code={code.replace(LICENSE_HEADER, "").trimEnd()}
-      codeblock={{ title: `examples/${file}` }}
+      codeblock={{
+        title: `examples/${file}`,
+        viewportProps: { "aria-label": `Code for ${label}` },
+      }}
       lang="tsx"
+      themes={CODE_THEMES}
     />
   );
 };

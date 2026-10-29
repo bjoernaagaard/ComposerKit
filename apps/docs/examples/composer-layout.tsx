@@ -33,7 +33,7 @@ export const ComposerLayoutExample = ({
     <Composer
       dispatch={composer.dispatch}
       handlers={composer.handlers}
-      label={`Message, ${layout} layout`}
+      label={`Message, ${layout} layout, ${mode} mode`}
       layout={layout}
       mode={mode}
       options={COMPOSER_OPTIONS}

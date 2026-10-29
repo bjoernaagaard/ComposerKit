@@ -51,7 +51,7 @@ export const ComponentPreview = ({ name }: { name: string }) => {
         </div>
       </Tab>
       <Tab className="p-0" value="Code">
-        <ComponentSource file={example.file} />
+        <ComponentSource file={example.file} label={name} />
       </Tab>
     </Tabs>
   );
