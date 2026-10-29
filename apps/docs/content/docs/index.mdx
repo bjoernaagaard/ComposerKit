@@ -1,0 +1,35 @@
+---
+# SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+# SPDX-License-Identifier: MIT
+title: ComposerKit
+description: Composer and conversation components for React, built on shadcn and Base UI with Tailwind v4.
+---
+
+ComposerKit is a shadcn registry. You install each item into your own app with the shadcn CLI, and the code is yours to change.
+
+```bash
+npx shadcn@latest add https://bjoernaagaard.github.io/ComposerKit/r/composer.json
+```
+
+Each item brings the items it needs. The composer brings the theme, the button, the menu and the tip.
+
+## Registry items
+
+| Item | What it is |
+| --- | --- |
+| [Theme](/theme) | The colors, sizes, type and motion every item uses, in light and dark |
+| [Button](/button) | Text buttons and icon-only buttons |
+| [Tip](/tip) | A short label that shows on hover and keyboard focus |
+| [Menu](/menu) | A dropdown menu with items, choices and submenus |
+| [Composer](/composer) | The message box: text, attachments, model and access menus, send |
+| [Conversation](/conversation) | An open chat with its turns and the composer below |
+| [Sample data](/sample-data) | The data the examples import, so a copied example compiles. Not a component |
+
+The [App shell](/app-shell) page shows the sidebar row, the mode toggle and the title bar tabs from the demo app. They are not registry items.
+
+## How these pages are made
+
+- Examples are the variants the old catalog showed and the composer states in `src/states/composer/fixtures.ts`.
+- API reference tables are generated from the library's TypeScript types.
+- Keyboard and Accessibility quote `spec/functional.md` and link the matching WAI-ARIA Authoring Practices pattern.
+- Theming lists the tokens each item uses, read from `crates/composerkit-theme/design-tokens.json` when the site is built.

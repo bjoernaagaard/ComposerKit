@@ -1,0 +1,224 @@
+[
+  {
+    "id": "button--default",
+    "label": "variant=\"default\"",
+    "section": "Button",
+    "source": "catalog"
+  },
+  {
+    "id": "button--ghost",
+    "label": "variant=\"ghost\"",
+    "section": "Button",
+    "source": "catalog"
+  },
+  {
+    "id": "button--outline",
+    "label": "variant=\"outline\"",
+    "section": "Button",
+    "source": "catalog"
+  },
+  {
+    "id": "composer--inline",
+    "label": "layout=\"inline\"",
+    "section": "Composer",
+    "source": "catalog"
+  },
+  {
+    "id": "composer--roomy",
+    "label": "layout=\"roomy\"",
+    "section": "Composer",
+    "source": "catalog"
+  },
+  {
+    "id": "composer--stacked",
+    "label": "layout=\"stacked\"",
+    "section": "Composer",
+    "source": "catalog"
+  },
+  {
+    "id": "composer-state--attached",
+    "label": "Attached",
+    "section": "Composer states",
+    "source": "states"
+  },
+  {
+    "id": "composer-state--chat-mode",
+    "label": "Chat mode",
+    "section": "Composer states",
+    "source": "states"
+  },
+  {
+    "id": "composer-state--empty",
+    "label": "Empty",
+    "section": "Composer states",
+    "source": "states"
+  },
+  {
+    "id": "composer-state--listening",
+    "label": "Listening",
+    "section": "Composer states",
+    "source": "states"
+  },
+  {
+    "id": "composer-state--long-draft",
+    "label": "Long draft",
+    "section": "Composer states",
+    "source": "states"
+  },
+  {
+    "id": "composer-state--no-limits",
+    "label": "No limits",
+    "section": "Composer states",
+    "source": "states"
+  },
+  {
+    "id": "composer-state--send-failed",
+    "label": "Not sent",
+    "section": "Composer states",
+    "source": "states"
+  },
+  {
+    "id": "composer-state--sending",
+    "label": "Sending",
+    "section": "Composer states",
+    "source": "states"
+  },
+  {
+    "id": "composer-state--too-large",
+    "label": "Too large",
+    "section": "Composer states",
+    "source": "states"
+  },
+  {
+    "id": "composer-state--typing",
+    "label": "Typing",
+    "section": "Composer states",
+    "source": "states"
+  },
+  {
+    "id": "composer-state--unsupported",
+    "label": "Not supported",
+    "section": "Composer states",
+    "source": "states"
+  },
+  {
+    "id": "composer-state--upload-offline",
+    "label": "Upload interrupted",
+    "section": "Composer states",
+    "source": "states"
+  },
+  {
+    "id": "composer-state--uploading",
+    "label": "Uploading",
+    "section": "Composer states",
+    "source": "states"
+  },
+  {
+    "id": "conversation--bubbles",
+    "label": "layout=\"bubbles\"",
+    "section": "Conversation",
+    "source": "catalog"
+  },
+  {
+    "id": "conversation--document",
+    "label": "layout=\"document\"",
+    "section": "Conversation",
+    "source": "catalog"
+  },
+  {
+    "id": "conversation--transcript",
+    "label": "layout=\"transcript\"",
+    "section": "Conversation",
+    "source": "catalog"
+  },
+  {
+    "id": "conversation-row--compact",
+    "label": "density=\"compact\"",
+    "section": "Conversation row",
+    "source": "catalog"
+  },
+  {
+    "id": "conversation-row--measured",
+    "label": "density=\"measured\"",
+    "section": "Conversation row",
+    "source": "catalog"
+  },
+  {
+    "id": "conversation-row--two-line",
+    "label": "density=\"two-line\"",
+    "section": "Conversation row",
+    "source": "catalog"
+  },
+  {
+    "id": "icon-button--control",
+    "label": "kind=\"control\"",
+    "section": "Icon button",
+    "source": "catalog"
+  },
+  {
+    "id": "icon-button--pill",
+    "label": "kind=\"pill\"",
+    "section": "Icon button",
+    "source": "catalog"
+  },
+  {
+    "id": "icon-button--row",
+    "label": "kind=\"row\"",
+    "section": "Icon button",
+    "source": "catalog"
+  },
+  {
+    "id": "icon-button--small",
+    "label": "kind=\"small\"",
+    "section": "Icon button",
+    "source": "catalog"
+  },
+  {
+    "id": "menu--compact",
+    "label": "density=\"compact\"",
+    "section": "Menu",
+    "source": "catalog"
+  },
+  {
+    "id": "menu--regular",
+    "label": "density=\"regular\"",
+    "section": "Menu",
+    "source": "catalog"
+  },
+  {
+    "id": "mode-toggle--pill",
+    "label": "appearance=\"pill\"",
+    "section": "Mode toggle",
+    "source": "catalog"
+  },
+  {
+    "id": "mode-toggle--segmented",
+    "label": "appearance=\"segmented\"",
+    "section": "Mode toggle",
+    "source": "catalog"
+  },
+  {
+    "id": "mode-toggle--underline",
+    "label": "appearance=\"underline\"",
+    "section": "Mode toggle",
+    "source": "catalog"
+  },
+  {
+    "id": "palette--swatches",
+    "label": "swatches",
+    "section": "Palette",
+    "source": "catalog"
+  },
+  {
+    "id": "title-bar-tabs--filled",
+    "label": "tabAppearance=\"filled\"",
+    "section": "Title bar tabs",
+    "source": "catalog"
+  },
+  {
+    "id": "title-bar-tabs--underline",
+    "label": "tabAppearance=\"underline\"",
+    "section": "Title bar tabs",
+    "source": "catalog"
+  }
+]

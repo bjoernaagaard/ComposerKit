@@ -5,11 +5,14 @@
 # https://bjoernaagaard.github.io/ComposerKit/ and the registry under /r, so
 # `npx shadcn add https://bjoernaagaard.github.io/ComposerKit/r/composer.json`
 # works. The build fails if the committed registry is out of date.
+# Pull requests run the build only, and nothing is deployed for them. The
+# docs site in apps/docs is not published here.
 name: Pages
 
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -18,8 +21,8 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: ${{ github.event_name == 'pull_request' && format('pages-pr-{0}', github.ref) || 'pages' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
@@ -31,23 +34,27 @@ jobs:
           node-version: 26
           cache: npm
       - run: npm ci
-      - run: npx shadcn build
+      - run: npm run registry:build
       - name: Registry matches registry.json
-        run: git diff --exit-code -- public/r
-      - run: npx vite build --base=/ComposerKit/
-      # Pages has no rewrites, so each demo route gets its own copy of the page.
-      - name: Add the demo routes
+        run: git diff --exit-code -- apps/docs/public/r
+      - run: npm run build --workspace @composerkit/playground -- --base=/ComposerKit/
+      # Pages has no rewrites, so the demo route gets its own copy of the page.
+      - name: Add the demo route
+        working-directory: apps/playground
         run: |
-          for route in catalog states/composer; do
-            mkdir -p "dist/$route"
-            cp dist/index.html "dist/$route/index.html"
-          done
-      - uses: actions/configure-pages@v6
-      - uses: actions/upload-pages-artifact@v5
+          mkdir -p dist/states/composer
+          cp dist/index.html dist/states/composer/index.html
+      - name: Add the registry under /r
+        run: cp -R apps/docs/public/r apps/playground/dist/r
+      - if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v6
+      - if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v5
         with:
-          path: dist
+          path: apps/playground/dist
 
   deploy:
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     environment:

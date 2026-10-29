@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 // SPDX-License-Identifier: MIT
 
-//! The message composer, the native twin of `src/components/composer`.
+//! The message composer, the native twin of `packages/composerkit/src/components/composer`.
 //!
 //! [`ComposerState`] and [`ComposerAction`] are a pure reducer with the web
 //! machine's states. [`Composer`] renders a state in one of three layouts

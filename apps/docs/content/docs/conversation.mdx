@@ -1,0 +1,94 @@
+---
+# SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+# SPDX-License-Identifier: MIT
+title: Conversation
+description: An open chat. The turns scroll above the composer, and replies stream in.
+full: true
+---
+
+## Install
+
+```bash
+npx shadcn@latest add https://bjoernaagaard.github.io/ComposerKit/r/conversation.json
+```
+
+This adds `components/conversation/`, with the theme, the button, the tip and the composer.
+
+The examples below also import sample data: options, projects and chats. To run one exactly as the Code tab shows it, add that too:
+
+```bash title="Add the sample data"
+npx shadcn@latest add https://bjoernaagaard.github.io/ComposerKit/r/sample-data.json
+```
+
+[Sample data](/sample-data) lists the files it adds and where they go.
+
+## Demo
+
+<ComponentPreview name="conversation--demo" />
+
+## Anatomy
+
+```tsx title="Anatomy"
+import { ConversationView } from "@/components/conversation/conversation-view";
+
+<ConversationView
+  turns={turns}
+  reply={(message, style) => blocks}
+  options={options}
+  projects={projects}
+  layout="document"
+  title="Weekend plans"
+/>;
+// region "Weekend plans"
+//   each turn: a hidden level 4 heading, the message, its actions
+//   jump to the newest message
+//   the composer
+```
+
+## Examples
+
+### Bubbles
+
+<ComponentPreview name="conversation--bubbles" />
+
+### Document
+
+<ComponentPreview name="conversation--document" />
+
+### Transcript
+
+<ComponentPreview name="conversation--transcript" />
+
+## API reference
+
+### ConversationView
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/conversation/conversation-view.tsx"
+  name="ConversationViewProps"
+/>
+
+### Turn
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/conversation/types.ts"
+  name="Turn"
+/>
+
+## Keyboard
+
+Every action under a message is a button you reach with Tab, and the composer keeps its own keys (see [Composer](/composer)). The jump to the newest message:
+
+<SpecSection section="2. Conversation > Scroll and jump-to-latest" />
+
+## Accessibility
+
+The conversation is a labelled region, one of the [WAI-ARIA Authoring Practices landmark regions](https://www.w3.org/WAI/ARIA/apg/practices/landmark-regions/). Hidden level 4 headings let screen reader users move from turn to turn.
+
+<SpecSection section="2. Conversation > What assistive technology gets" />
+
+## Theming
+
+Tokens that the conversation's files use.
+
+<TokenTable item="conversation" />

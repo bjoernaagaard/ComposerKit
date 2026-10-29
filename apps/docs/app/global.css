@@ -1,0 +1,100 @@
+/* SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+   SPDX-License-Identifier: MIT */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+/* Fumadocs' shadcn preset reads the shadcn variables, so the ComposerKit
+   theme colors the docs too, and the .dark class switches both. */
+@import "fumadocs-ui/css/shadcn.css";
+@import "fumadocs-ui/css/preset.css";
+@import "../../../packages/composerkit/src/theme/tokens.css";
+@import "../../../packages/composerkit/src/designs/emil/emil.css";
+@import "../../../packages/composerkit/src/designs/apple/apple.css";
+@import "../../../packages/composerkit/src/designs/glass/glass.css";
+@import "../../../packages/composerkit/src/designs/taste/taste.css";
+
+@source "../../../packages/composerkit/src";
+@source "../components";
+@source "../examples";
+
+@custom-variant dark (&:is(.dark *));
+
+html {
+  scrollbar-gutter: stable;
+}
+
+/* The base styles the playground sets on its whole page, kept to the
+   previews so the docs chrome stays Fumadocs'. */
+@layer base {
+  [data-slot="preview"] {
+    font-family: var(--font-ui);
+    font-size: var(--text-body-size);
+    line-height: var(--text-body-leading);
+    font-weight: var(--weight-regular);
+    -webkit-font-smoothing: antialiased;
+
+    & *,
+    & *::before,
+    & *::after {
+      @apply border-border outline-ring/50;
+    }
+
+    & :focus-visible {
+      outline: var(--border-focus-width) solid var(--ring);
+      outline-offset: var(--border-focus-offset);
+    }
+
+    & button:not(:disabled),
+    & [role="button"],
+    & [role="menuitem"],
+    & [role="menuitemradio"],
+    & [role="menuitemcheckbox"] {
+      cursor: default;
+    }
+  }
+}
+
+@layer components {
+  .marquee-track {
+    display: inline-block;
+    white-space: nowrap;
+    transition: translate 0s;
+  }
+
+  .group:hover .marquee-track[data-overflowing="true"],
+  .group:focus-within .marquee-track[data-overflowing="true"] {
+    translate: calc(var(--overflow) * -1) 0;
+    transition: translate calc(var(--overflow-ms) * 1ms) linear
+      var(--motion-marquee-delay);
+  }
+
+  .marquee-mask[data-overflowing="true"] {
+    mask-image: linear-gradient(
+      to right,
+      black calc(100% - var(--space-fade-end)),
+      transparent
+    );
+  }
+
+  .group:hover .marquee-mask[data-overflowing="true"],
+  .group:focus-within .marquee-mask[data-overflowing="true"] {
+    mask-image: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="preview"] *,
+  [data-slot="preview"] *::before,
+  [data-slot="preview"] *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+
+  .group:hover .marquee-track,
+  .group:focus-within .marquee-track {
+    translate: none;
+    white-space: normal;
+  }
+}

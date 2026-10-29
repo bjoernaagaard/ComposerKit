@@ -1,0 +1,220 @@
+{
+  "copied": [
+    {
+      "characters": 806,
+      "example": "theme--demo",
+      "file": "theme-demo.tsx",
+      "matchesRepoFile": true,
+      "page": "/theme",
+      "tab": "Code"
+    },
+    {
+      "characters": 1141,
+      "example": "palette--swatches",
+      "file": "palette.tsx",
+      "matchesRepoFile": true,
+      "page": "/theme",
+      "tab": "Code"
+    },
+    {
+      "characters": 468,
+      "example": "button--demo",
+      "file": "button-demo.tsx",
+      "matchesRepoFile": true,
+      "page": "/button",
+      "tab": "Code"
+    },
+    {
+      "characters": 772,
+      "example": "button--default",
+      "file": "button-row.tsx",
+      "matchesRepoFile": true,
+      "page": "/button",
+      "tab": "Code"
+    },
+    {
+      "characters": 993,
+      "example": "icon-button--small",
+      "file": "icon-button-pair.tsx",
+      "matchesRepoFile": true,
+      "page": "/button",
+      "tab": "Code"
+    },
+    {
+      "characters": 476,
+      "example": "tip--demo",
+      "file": "tip-demo.tsx",
+      "matchesRepoFile": true,
+      "page": "/tip",
+      "tab": "Code"
+    },
+    {
+      "characters": 799,
+      "example": "tip--icon-buttons",
+      "file": "tip-icon-buttons.tsx",
+      "matchesRepoFile": true,
+      "page": "/tip",
+      "tab": "Code"
+    },
+    {
+      "characters": 1544,
+      "example": "menu--demo",
+      "file": "menu-demo.tsx",
+      "matchesRepoFile": true,
+      "page": "/menu",
+      "tab": "Code"
+    },
+    {
+      "characters": 1421,
+      "example": "menu--regular",
+      "file": "menu-density.tsx",
+      "matchesRepoFile": true,
+      "page": "/menu",
+      "tab": "Code"
+    },
+    {
+      "characters": 1142,
+      "example": "composer--demo",
+      "file": "composer-layout.tsx",
+      "matchesRepoFile": true,
+      "page": "/composer",
+      "tab": "Code"
+    },
+    {
+      "characters": 1174,
+      "example": "composer-state--empty",
+      "file": "composer-state.tsx",
+      "matchesRepoFile": true,
+      "page": "/composer",
+      "tab": "Code"
+    },
+    {
+      "characters": 795,
+      "example": "conversation--demo",
+      "file": "conversation-demo.tsx",
+      "matchesRepoFile": true,
+      "page": "/conversation",
+      "tab": "Code"
+    },
+    {
+      "characters": 1146,
+      "example": "conversation--bubbles",
+      "file": "conversation-layout.tsx",
+      "matchesRepoFile": true,
+      "page": "/conversation",
+      "tab": "Code"
+    }
+  ],
+  "expected": [
+    {
+      "files": ["theme-demo.tsx", "palette.tsx"],
+      "page": "/theme"
+    },
+    {
+      "files": ["button-demo.tsx", "button-row.tsx", "icon-button-pair.tsx"],
+      "page": "/button"
+    },
+    {
+      "files": ["tip-demo.tsx", "tip-icon-buttons.tsx"],
+      "page": "/tip"
+    },
+    {
+      "files": ["menu-demo.tsx", "menu-density.tsx"],
+      "page": "/menu"
+    },
+    {
+      "files": ["composer-layout.tsx", "composer-state.tsx"],
+      "page": "/composer"
+    },
+    {
+      "files": ["conversation-layout.tsx", "conversation-demo.tsx"],
+      "page": "/conversation"
+    }
+  ],
+  "extra": [],
+  "missing": [],
+  "localRegistry": "http://127.0.0.1:4321/r/",
+  "note": "The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-YaJbRc/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.",
+  "rewritten": [
+    "r/button.json",
+    "r/composer.json",
+    "r/conversation.json",
+    "r/menu.json",
+    "r/registry.json",
+    "r/sample-data.json",
+    "r/tip.json"
+  ],
+  "steps": [
+    {
+      "command": "npx -y shadcn@latest init -d -y -n consumer --no-monorepo",
+      "cwd": "/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-YaJbRc",
+      "exitCode": 0,
+      "outputTail": "\u001b[32m✔\u001b[39m Checking registry.\n- Installing dependencies.\n- Installing dependencies.\n\u001b[32m✔\u001b[39m Installing dependencies.\n- Updating fonts.\n\u001b[32m✔\u001b[39m Updating fonts.\n- Updating files.\n\u001b[32m✔\u001b[39m Created 2 files:\n  - components/ui/button.tsx\n  - lib/utils.ts\n- Updating \u001b[36mapp/globals.css\u001b[39m\n\u001b[32m✔\u001b[39m Updating \u001b[36mapp/globals.css\u001b[39m\n\nProject initialization completed.\nYou may now add components.",
+      "seconds": 25
+    },
+    {
+      "command": "npx -y shadcn@latest add http://127.0.0.1:4321/r/theme.json -y -o",
+      "cwd": "/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-YaJbRc/consumer",
+      "exitCode": 0,
+      "outputTail": "- Checking registry.\n\u001b[32m✔\u001b[39m Checking registry.\n- Updating \u001b[36mapp/globals.css\u001b[39m\n\u001b[32m✔\u001b[39m Updating \u001b[36mapp/globals.css\u001b[39m",
+      "seconds": 1
+    },
+    {
+      "command": "npx -y shadcn@latest add http://127.0.0.1:4321/r/button.json -y -o",
+      "cwd": "/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-YaJbRc/consumer",
+      "exitCode": 0,
+      "outputTail": "- Checking registry.\n\u001b[32m✔\u001b[39m Checking registry.\n- Updating files.\n\u001b[32m✔\u001b[39m Created 4 files:\n  - components/ui/tip.tsx\n  - components/ui/theme-value.ts\n  - components/ui/popup-layer.tsx\n  - components/ui/icon-button.tsx\n\u001b[34mℹ\u001b[39m Updated 1 file:\n  - components/ui/button.tsx\n\u001b[34mℹ\u001b[39m Skipped 1 file: (files might be identical, use --overwrite to overwrite)\n  - lib/utils.ts\n- Updating \u001b[36mapp/globals.css\u001b[39m\n\u001b[32m✔\u001b[39m Updating \u001b[36mapp/globals.css\u001b[39m",
+      "seconds": 1
+    },
+    {
+      "command": "npx -y shadcn@latest add http://127.0.0.1:4321/r/tip.json -y -o",
+      "cwd": "/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-YaJbRc/consumer",
+      "exitCode": 0,
+      "outputTail": "- Checking registry.\n\u001b[32m✔\u001b[39m Checking registry.\n- Updating files.\n\u001b[34mℹ\u001b[39m Skipped 4 files: (files might be identical, use --overwrite to overwrite)\n  - lib/utils.ts\n  - components/ui/tip.tsx\n  - components/ui/theme-value.ts\n  - components/ui/popup-layer.tsx\n- Updating \u001b[36mapp/globals.css\u001b[39m\n\u001b[32m✔\u001b[39m Updating \u001b[36mapp/globals.css\u001b[39m",
+      "seconds": 1
+    },
+    {
+      "command": "npx -y shadcn@latest add http://127.0.0.1:4321/r/menu.json -y -o",
+      "cwd": "/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-YaJbRc/consumer",
+      "exitCode": 0,
+      "outputTail": "- Checking registry.\n\u001b[32m✔\u001b[39m Checking registry.\n- Updating files.\n\u001b[32m✔\u001b[39m Created 1 file:\n  - components/ui/menu.tsx\n\u001b[34mℹ\u001b[39m Skipped 3 files: (files might be identical, use --overwrite to overwrite)\n  - lib/utils.ts\n  - components/ui/theme-value.ts\n  - components/ui/popup-layer.tsx\n- Updating \u001b[36mapp/globals.css\u001b[39m\n\u001b[32m✔\u001b[39m Updating \u001b[36mapp/globals.css\u001b[39m",
+      "seconds": 1
+    },
+    {
+      "command": "npx -y shadcn@latest add http://127.0.0.1:4321/r/composer.json -y -o",
+      "cwd": "/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-YaJbRc/consumer",
+      "exitCode": 0,
+      "outputTail": "  - components/composer/composer-tray.tsx\n  - components/composer/composer-hooks.ts\n  - components/composer/composer-primary.tsx\n  - components/composer/composer-add-menu.tsx\n  - components/composer/composer.tsx\n\u001b[34mℹ\u001b[39m Skipped 7 files: (files might be identical, use --overwrite to overwrite)\n  - lib/utils.ts\n  - components/ui/tip.tsx\n  - components/ui/theme-value.ts\n  - components/ui/popup-layer.tsx\n  - components/ui/menu.tsx\n  - components/ui/button.tsx\n  - components/ui/icon-button.tsx\n- Updating \u001b[36mapp/globals.css\u001b[39m\n\u001b[32m✔\u001b[39m Updating \u001b[36mapp/globals.css\u001b[39m",
+      "seconds": 1
+    },
+    {
+      "command": "npx -y shadcn@latest add http://127.0.0.1:4321/r/conversation.json -y -o",
+      "cwd": "/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-YaJbRc/consumer",
+      "exitCode": 0,
+      "outputTail": "  - components/ui/menu.tsx\n  - components/ui/button.tsx\n  - components/ui/icon-button.tsx\n  - components/composer/options.ts\n  - components/composer/machine.ts\n  - components/composer/use-composer-controller.ts\n  - components/composer/composer-attachments.tsx\n  - components/composer/composer-menus.tsx\n  - components/composer/composer-tray.tsx\n  - components/composer/composer-hooks.ts\n  - components/composer/composer-primary.tsx\n  - components/composer/composer-add-menu.tsx\n  - components/composer/composer.tsx\n- Updating \u001b[36mapp/globals.css\u001b[39m\n\u001b[32m✔\u001b[39m Updating \u001b[36mapp/globals.css\u001b[39m",
+      "seconds": 1
+    },
+    {
+      "command": "npx -y shadcn@latest add http://127.0.0.1:4321/r/sample-data.json -y -o",
+      "cwd": "/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-YaJbRc/consumer",
+      "exitCode": 0,
+      "outputTail": "  - components/composer/machine.ts\n  - components/composer/use-composer-controller.ts\n  - components/composer/composer-attachments.tsx\n  - components/composer/composer-menus.tsx\n  - components/composer/composer-tray.tsx\n  - components/composer/composer-hooks.ts\n  - components/composer/composer-primary.tsx\n  - components/composer/composer-add-menu.tsx\n  - components/composer/composer.tsx\n  - components/conversation/types.ts\n  - components/conversation/parts.tsx\n  - components/conversation/layouts.tsx\n  - components/conversation/conversation-view.tsx\n- Updating \u001b[36mapp/globals.css\u001b[39m\n\u001b[32m✔\u001b[39m Updating \u001b[36mapp/globals.css\u001b[39m",
+      "seconds": 1
+    },
+    {
+      "command": "npx tsc --noEmit",
+      "cwd": "/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-YaJbRc/consumer",
+      "exitCode": 0,
+      "outputTail": "",
+      "seconds": 1
+    },
+    {
+      "command": "npx next build",
+      "cwd": "/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-YaJbRc/consumer",
+      "exitCode": 0,
+      "outputTail": "\u001b[37m\u001b[1m \u001b[22m\u001b[39m Collecting page data using 6 workers ...\n\u001b[37m\u001b[1m \u001b[22m\u001b[39m Generating static pages using 6 workers (0/5) ...\n\u001b[37m\u001b[1m \u001b[22m\u001b[39m Generating static pages using 6 workers (1/5) \r\n\u001b[37m\u001b[1m \u001b[22m\u001b[39m Generating static pages using 6 workers (2/5) \r\n\u001b[37m\u001b[1m \u001b[22m\u001b[39m Generating static pages using 6 workers (3/5) \r\n\u001b[32m\u001b[1m✓\u001b[22m\u001b[39m Generating static pages using 6 workers (5/5) in 177ms\n\u001b[37m\u001b[1m \u001b[22m\u001b[39m Finalizing page optimization ...\n\n\u001b[4mRoute (app)\u001b[24m\n┌ ○ /\n├ ○ /_not-found\n└ ○ /examples\n\n\n○  (Static)  prerendered as static content",
+      "seconds": 5
+    }
+  ],
+  "tempFolder": "/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-YaJbRc"
+}

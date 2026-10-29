@@ -1,0 +1,16 @@
+{
+  "title": "ComposerKit",
+  "pages": [
+    "index",
+    "---Registry items---",
+    "theme",
+    "button",
+    "tip",
+    "menu",
+    "composer",
+    "conversation",
+    "sample-data",
+    "---Not in the registry---",
+    "app-shell"
+  ]
+}

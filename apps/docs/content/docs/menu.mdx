@@ -1,0 +1,133 @@
+---
+# SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+# SPDX-License-Identifier: MIT
+title: Menu
+description: A dropdown menu with items, one-of-several choices and submenus, on Base UI's Menu.
+full: true
+---
+
+## Install
+
+```bash
+npx shadcn@latest add https://bjoernaagaard.github.io/ComposerKit/r/menu.json
+```
+
+This adds `components/ui/menu.tsx`, `components/ui/popup-layer.tsx` and `components/ui/theme-value.ts`, with the theme.
+
+The density examples import sample options. To run one exactly as the Code tab shows it, add that too:
+
+```bash title="Add the sample data"
+npx shadcn@latest add https://bjoernaagaard.github.io/ComposerKit/r/sample-data.json
+```
+
+[Sample data](/sample-data) lists the files it adds and where they go.
+
+## Demo
+
+<ComponentPreview name="menu--demo" />
+
+## Anatomy
+
+```tsx title="Anatomy"
+import {
+  MenuContent,
+  MenuInfoGroup,
+  MenuItem,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuRoot,
+  MenuSeparator,
+  MenuSubmenu,
+  MenuTrigger,
+} from "@/components/ui/menu";
+
+<MenuRoot>
+  <MenuTrigger />
+  <MenuContent label="More actions">
+    <MenuInfoGroup info="Sent today at 09:41">
+      <MenuItem label="Pin chat" />
+    </MenuInfoGroup>
+    <MenuSeparator />
+    <MenuRadioGroup label="Effort" value={effort} onValueChange={setEffort}>
+      <MenuRadioItem value="low" label="Low" />
+    </MenuRadioGroup>
+    <MenuSubmenu label="Redo with">
+      <MenuItem label="Shorter" />
+    </MenuSubmenu>
+  </MenuContent>
+</MenuRoot>;
+```
+
+## Examples
+
+### Regular
+
+<ComponentPreview name="menu--regular" />
+
+### Compact
+
+<ComponentPreview name="menu--compact" />
+
+## API reference
+
+`MenuRoot` and `MenuTrigger` are Base UI's [Menu.Root and Menu.Trigger](https://base-ui.com/react/components/menu#api-reference), with all of their props.
+
+### MenuContent
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/ui/menu.tsx"
+  name="MenuContentProps"
+/>
+
+### MenuItem
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/ui/menu.tsx"
+  name="MenuItemProps"
+/>
+
+### MenuInfoGroup
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/ui/menu.tsx"
+  name="MenuInfoGroupProps"
+/>
+
+### MenuRadioGroup
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/ui/menu.tsx"
+  name="MenuRadioGroupProps"
+/>
+
+### MenuRadioItem
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/ui/menu.tsx"
+  name="MenuRadioItemProps"
+/>
+
+### MenuSubmenu
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/ui/menu.tsx"
+  name="MenuSubmenuProps"
+/>
+
+## Keyboard
+
+The menu follows the [WAI-ARIA Authoring Practices menu button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/) and the [menu pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menubar/). The spec's row more menu is the closest match:
+
+<SpecSection section="4. Menus > C. Row more menu (reply more-actions)" />
+
+## Accessibility
+
+The trigger is a menu button with `aria-haspopup` and `aria-expanded`. The panel is a `menu` named by `label`, items are `menuitem`, and choices are `menuitemradio` with `aria-checked`, as in the [menu pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menubar/). The spec's model picker uses the same radio items:
+
+<SpecSection section="4. Menus > B. Model picker" />
+
+## Theming
+
+Tokens that the menu's files use.
+
+<TokenTable item="menu" />
