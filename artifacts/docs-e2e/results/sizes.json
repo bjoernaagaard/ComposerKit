@@ -341,7 +341,7 @@
     "part": "Message column width",
     "actual": "737",
     "status": "pass",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "the pane less about 16 on each side",
@@ -349,7 +349,7 @@
     "part": "Message column in a narrow pane (viewport 820 wide)",
     "actual": "pane 468, column 436 (expected 436)",
     "status": "pass",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "32",
@@ -357,15 +357,15 @@
     "part": "Space above the first turn",
     "actual": "32",
     "status": "pass",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "about 16 pt type, line pitch about 22.7",
     "line": 208,
     "part": "Reply text",
-    "actual": "14 type, 20 pitch",
-    "status": "mismatch",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "actual": "16 type, 22.7 pitch",
+    "status": "pass",
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "about 16",
@@ -373,79 +373,79 @@
     "part": "Space between paragraphs in a reply",
     "actual": "16",
     "status": "pass",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "about 5 short of the column's right edge",
     "line": 215,
     "part": "Prompt bubble alignment",
-    "actual": "0",
-    "status": "mismatch",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "actual": "5",
+    "status": "pass",
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "43",
     "line": 216,
     "part": "Prompt bubble height with one line",
-    "actual": "40, 40, 40",
-    "status": "mismatch",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "actual": "42.7, 42.7, 42.7",
+    "status": "pass",
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "about 10 to 12 horizontal, about 13 vertical around a 17 pt glyph box",
     "line": 217,
     "part": "Prompt bubble padding",
-    "actual": "16 horizontal, 11.5 vertical",
-    "status": "mismatch",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "actual": "12 horizontal, 12.9 vertical",
+    "status": "pass",
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "about 18",
     "line": 218,
     "part": "Prompt bubble radius",
-    "actual": "20",
-    "status": "mismatch",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "actual": "18",
+    "status": "pass",
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "right-aligned, 4 below the bubble; copy 27 x 26, share 31 x 30, edit 27 x 26",
     "line": 220,
     "part": "Prompt action row",
-    "actual": "6 below, right edges 1222.5 and bubble 1222.5; copy 27 x 26, share 27 x 26, edit 27 x 26",
+    "actual": "4 below, right edges 1217.5 and bubble 1217.5; copy 27 x 26, share 27 x 26, edit 27 x 26",
     "status": "mismatch",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "about 11",
     "line": 227,
     "part": "Gap from prompt action row to reply text",
-    "actual": "27",
-    "status": "mismatch",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "actual": "11",
+    "status": "pass",
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "about 49",
     "line": 228,
     "part": "Gap from prompt bubble bottom to reply text",
-    "actual": "63",
+    "actual": "45",
     "status": "mismatch",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "about 6 below the last line; buttons 27 x 26 or 27 x 27 on a 28 pitch; share 31 x 30; more 25 x 25",
     "line": 230,
     "part": "Reply action row",
-    "actual": "17 below; Copy 27 x 26, Helpful 27 x 26, This browser can’t read aloud 27 x 26, Share 27 x 26, Write again 27 x 26, More 27 x 26; pitch 28, 28, 28, 28, 28",
+    "actual": "6 below; Copy 27 x 26, Helpful 27 x 26, This browser can’t read aloud 27 x 26, Share 27 x 26, Write again 27 x 26, More 27 x 26; pitch 28, 28, 28, 28, 28",
     "status": "mismatch",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "about 12",
     "line": 232,
     "part": "Gap from reply action row to the next prompt bubble",
-    "actual": "16",
-    "status": "mismatch",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "actual": "12",
+    "status": "pass",
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "33 x 32 (AX frame), round, 1 pt outline",
@@ -453,7 +453,7 @@
     "part": "Jump-to-latest control",
     "actual": "32 x 32, radius 33554400, border 1, ring 0",
     "status": "pass",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "about 24",
@@ -461,7 +461,7 @@
     "part": "Jump-to-latest bottom edge above the composer's top edge",
     "actual": "24",
     "status": "pass",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "level 4, visually hidden",
@@ -469,7 +469,7 @@
     "part": "Heading at the start of each prompt turn",
     "actual": "h2 \"You said:\", 1 wide",
     "status": "mismatch",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "level 4, visually hidden",
@@ -477,7 +477,7 @@
     "part": "Heading at the start of each reply turn",
     "actual": "h2 \"Assistant said:\", 1 wide",
     "status": "mismatch",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "a level-4 heading marking the latest response",
@@ -485,7 +485,7 @@
     "part": "Heading before the composer",
     "actual": "h2 \"New message\"",
     "status": "mismatch",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "27 x 26 (some 27 x 27, share 31 x 30)",
@@ -493,7 +493,7 @@
     "part": "Message action buttons",
     "actual": "Copy 27 x 26, Share 27 x 26, Edit 27 x 26, Helpful 27 x 26, This browser can’t read aloud 27 x 26, Write again 27 x 26, More 27 x 26",
     "status": "mismatch",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "29 x 28",
@@ -549,7 +549,7 @@
     "part": "Jump-to-latest button size",
     "actual": "32 x 32",
     "status": "pass",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "2 pt solid, just outside with no gap, spanning about 31 to 32 on a 27 to 29 button",
@@ -557,7 +557,7 @@
     "part": "Focus ring on a message action",
     "actual": "focus-visible true, 2 solid, offset 0, span 31 on a 27 button",
     "status": "pass",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "ring outer edge 1 outside the button (631 for a button at 632)",
@@ -565,7 +565,7 @@
     "part": "Focus ring position",
     "actual": "outer edge 2 outside",
     "status": "pass",
-    "where": "/conversation [data-example=\"conversation--bubbles\"]"
+    "where": "/conversation [data-example=\"conversation--document\"]"
   },
   {
     "expected": "directly above, same width as the composer (737), 4 gap",

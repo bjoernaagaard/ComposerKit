@@ -22,6 +22,14 @@ const DOCKED: Where = {
   url: "/conversation",
 };
 
+// The spec's conversation: the prompt in a bubble and the reply as plain
+// text on the page, which is the document layout. The bubbles layout puts
+// the reply in an outlined bubble too, with its own spacing.
+const CONVERSATION: Where = {
+  example: "conversation--document",
+  url: "/conversation",
+};
+
 const MENU: Where = { example: "menu--demo", url: "/menu" };
 const TIP: Where = { example: "tip--demo", url: "/tip" };
 const TABS: Where = { example: "title-bar-tabs--filled", url: "/app-shell" };
@@ -691,14 +699,14 @@ const PROMPT = 0;
 const REPLY = 1;
 const NEXT_PROMPT = 2;
 
-const conversation = (page: Page) => example(page, DOCKED.example);
+const conversation = (page: Page) => example(page, CONVERSATION.example);
 
 const turnAt = (page: Page, index: number) =>
   conversation(page).locator('[data-slot="turn"]').nth(index);
 
 measure(
   { expected: "737", line: 205, part: "Message column width" },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     const box = await rect(
       conversation(page).locator('[data-slot="turn"]').first()
@@ -714,7 +722,7 @@ measure(
     line: 206,
     part: "Message column in a narrow pane (viewport 820 wide)",
   },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     await page.setViewportSize({ height: 900, width: 820 });
     await settle(page);
@@ -738,7 +746,7 @@ measure(
 
 measure(
   { expected: "32", line: 207, part: "Space above the first turn" },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     const scroller = conversation(page).locator(
       '[data-slot="message-scroller"]'
@@ -774,7 +782,7 @@ measure(
     line: 208,
     part: "Reply text",
   },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     const text = conversation(page)
       .locator('[data-slot="turn"]')
@@ -798,7 +806,7 @@ measure(
     line: 209,
     part: "Space between paragraphs in a reply",
   },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     const second = conversation(page)
       .locator('[data-slot="rich-text"] p + p')
@@ -823,7 +831,7 @@ measure(
     line: 215,
     part: "Prompt bubble alignment",
   },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     const turn = turnAt(page, PROMPT);
 
@@ -837,7 +845,7 @@ measure(
 
 measure(
   { expected: "43", line: 216, part: "Prompt bubble height with one line" },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     const heights = await conversation(page)
       .locator('[data-slot="bubble"]')
@@ -868,7 +876,7 @@ measure(
     line: 217,
     part: "Prompt bubble padding",
   },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     const bubble = conversation(page).locator('[data-slot="bubble"]').first();
     const text = bubble.locator('[data-slot="rich-text"]');
@@ -888,7 +896,7 @@ measure(
 
 measure(
   { expected: "about 18", line: 218, part: "Prompt bubble radius" },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     const radius = await cssNumber(
       conversation(page).locator('[data-slot="bubble"]').first(),
@@ -906,7 +914,7 @@ measure(
     line: 220,
     part: "Prompt action row",
   },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     const turn = turnAt(page, PROMPT);
     const bubble = await rect(turn.locator('[data-slot="bubble"]'));
@@ -937,7 +945,7 @@ measure(
     line: 227,
     part: "Gap from prompt action row to reply text",
   },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     const row = await rect(
       turnAt(page, PROMPT).locator('[data-slot="turn-actions"]')
@@ -959,7 +967,7 @@ measure(
     line: 228,
     part: "Gap from prompt bubble bottom to reply text",
   },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     const bubble = await rect(
       turnAt(page, PROMPT).locator('[data-slot="bubble"]')
@@ -982,7 +990,7 @@ measure(
     line: 230,
     part: "Reply action row",
   },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     const turn = turnAt(page, REPLY);
     const text = await rect(turn.locator('[data-slot="rich-text"]').last());
@@ -1031,7 +1039,7 @@ measure(
     line: 232,
     part: "Gap from reply action row to the next prompt bubble",
   },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     const row = await rect(
       turnAt(page, REPLY).locator('[data-slot="turn-actions"]')
@@ -1067,7 +1075,7 @@ measure(
     line: 247,
     part: "Jump-to-latest control",
   },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     await scrollToTop(page);
 
@@ -1093,12 +1101,12 @@ measure(
     line: 248,
     part: "Jump-to-latest bottom edge above the composer's top edge",
   },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     await scrollToTop(page);
 
     const gap =
-      (await sideOf(surfaceOf(page, DOCKED), "top")) -
+      (await sideOf(surfaceOf(page, CONVERSATION), "top")) -
       (await sideOf(jumpOf(page), "bottom"));
 
     return { actual: fmt(gap), pass: near(gap, 24) };
@@ -1125,7 +1133,7 @@ for (const heading of HEADINGS) {
       line: heading.line,
       part: heading.part,
     },
-    DOCKED,
+    CONVERSATION,
     async (page) => {
       const found = await conversation(page)
         .locator('[data-slot="turn"]')
@@ -1158,9 +1166,9 @@ measure(
     line: 260,
     part: "Heading before the composer",
   },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
-    const found = await surfaceOf(page, DOCKED).evaluate((surface) => {
+    const found = await surfaceOf(page, CONVERSATION).evaluate((surface) => {
       // Every element in document order, so "before the composer" is an
       // index comparison.
       const all = [
@@ -1195,7 +1203,7 @@ measure(
     line: 271,
     part: "Message action buttons",
   },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     const buttons = await conversation(page)
       .locator('[data-slot="turn-actions"]')
@@ -1336,7 +1344,7 @@ measure(
 
 measure(
   { expected: "32 x 32", line: 278, part: "Jump-to-latest button size" },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     await scrollToTop(page);
 
@@ -1380,7 +1388,7 @@ measure(
     line: 288,
     part: "Focus ring on a message action",
   },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     const ring = await ringOn(page);
     const span = ring.x + 2 * (ring.width + ring.offset);
@@ -1403,7 +1411,7 @@ measure(
     line: 292,
     part: "Focus ring position",
   },
-  DOCKED,
+  CONVERSATION,
   async (page) => {
     const ring = await ringOn(page);
     const outside = ring.width + ring.offset;
@@ -1418,7 +1426,7 @@ measure(
 // --- 4. Menus > A. Add menu ----------------------------------------------
 
 const openAdd = async (page: Page) => {
-  const { add, listbox } = composerParts(conversation(page));
+  const { add, listbox } = composerParts(example(page, DOCKED.example));
 
   await add.click();
   await listbox.waitFor();
@@ -1540,7 +1548,7 @@ measure(
 // --- 4. Menus > B. Model picker ------------------------------------------
 
 const openModel = async (page: Page) => {
-  const { model } = composerParts(conversation(page));
+  const { model } = composerParts(example(page, DOCKED.example));
 
   await model.click();
 
