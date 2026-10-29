@@ -1,9 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 // SPDX-License-Identifier: MIT
 
-// Builds the docs as a static export, serves it and the playground's dev
-// server (for the stress harness) for the specs, and writes the report when
-// the run ends.
+// Rebuilds the registry files from the library source, builds the docs as
+// a static export, serves it and the playground's dev server (for the
+// stress harness) for the specs, and writes the report when the run ends.
+// The registry is rebuilt first so checks 1 and 2 test the components as
+// they are now, not the last committed copy.
 import { rmSync } from "node:fs";
 
 import { writeReport } from "./report";
@@ -20,6 +22,12 @@ import {
 
 const globalSetup = async () => {
   rmSync(RESULTS, { force: true, recursive: true });
+
+  const registry = await run("npm", ["run", "registry:build"], REPO);
+
+  if (registry.exitCode !== 0) {
+    throw new Error(`registry:build failed:\n${registry.outputTail}`);
+  }
 
   const build = await run(
     "npm",
