@@ -27,6 +27,14 @@ import { TipOnIconButtons } from "./tip-icon-buttons";
 // variants and the composer states from src/states/composer/fixtures.ts;
 // the E2E finds each one by its data-example attribute. Labels and notes
 // are the captions the catalog printed. file is shown on the Code tab.
+// Example files that use the demo app's own parts in src/app. No registry
+// item installs those, so their Code tab says the code is repo code.
+export const REPO_ONLY_FILES = new Set([
+  "conversation-rows.tsx",
+  "mode-toggle.tsx",
+  "tab-strip.tsx",
+]);
+
 export interface Example {
   element: ReactElement;
   file: string;

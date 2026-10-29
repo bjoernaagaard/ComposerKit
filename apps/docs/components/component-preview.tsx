@@ -3,13 +3,18 @@
 
 import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 
-import { COMPOSER_STATE_NAMES, EXAMPLES } from "../examples/registry";
+import {
+  COMPOSER_STATE_NAMES,
+  EXAMPLES,
+  REPO_ONLY_FILES,
+} from "../examples/registry";
 import { ComponentSource } from "./component-source";
 import { PreviewFrame } from "./preview-frame";
 
 // A live example with its source on a second tab, modeled on shadcn's
 // ComponentPreview. The caption is the prop the example shows and a note,
-// as the old catalog printed them.
+// as the old catalog printed them. An example built on the demo app's own
+// parts gets a Repo code tab that says shadcn add does not install them.
 export const ComponentPreview = ({ name }: { name: string }) => {
   const example = EXAMPLES.get(name);
 
@@ -35,8 +40,11 @@ export const ComponentPreview = ({ name }: { name: string }) => {
     </figure>
   );
 
+  const repoOnly = REPO_ONLY_FILES.has(example.file);
+  const codeTab = repoOnly ? "Repo code" : "Code";
+
   return (
-    <Tabs items={["Preview", "Code"]}>
+    <Tabs items={["Preview", codeTab]}>
       <Tab className="p-0" value="Preview">
         <div
           // oxlint-disable-next-line shadcn/no-unknown-classes -- not-prose is the typography plugin's opt-out marker and has no CSS of its own
@@ -50,7 +58,15 @@ export const ComponentPreview = ({ name }: { name: string }) => {
           )}
         </div>
       </Tab>
-      <Tab className="p-0" value="Code">
+      <Tab className="p-0" value={codeTab}>
+        {repoOnly ? (
+          <p className="text-muted-foreground px-4 pt-3 text-(length:--text-caption-size) leading-(--text-caption-leading)">
+            Repo code, not installable. This example uses the demo app&apos;s
+            own parts in <code>packages/composerkit/src/app</code>, which no
+            registry item ships, so <code>shadcn add</code> does not install
+            them.
+          </p>
+        ) : null}
         <ComponentSource file={example.file} label={name} />
       </Tab>
     </Tabs>
