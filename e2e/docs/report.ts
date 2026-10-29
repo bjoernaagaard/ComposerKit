@@ -5,7 +5,7 @@
 // leave in artifacts/docs-e2e/results. One short table per check, then
 // every mismatch in full.
 import { spawnSync } from "node:child_process";
-import { writeFileSync } from "node:fs";
+import { readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 import type {
@@ -16,7 +16,7 @@ import type {
   PasteRow,
   RenderRow,
 } from "./stress-support";
-import { ARTIFACTS, REPO, readManifest, readResult } from "./support";
+import { ARTIFACTS, REPO, RESULTS, readManifest, readResult } from "./support";
 import type { CommandRun, CopiedExample } from "./support";
 
 interface SchemaResult {
@@ -596,7 +596,12 @@ export const writeReport = (): void => {
   const file = path.join(ARTIFACTS, "report.md");
 
   writeFileSync(file, `${report}\n`);
-  // The repo's formatter lines up the tables, so the committed report
-  // passes ultracite check like every other file.
-  spawnSync(path.join(REPO, "node_modules/.bin/oxfmt"), [file], { cwd: REPO });
+  // The repo's formatter lines up the tables and lays out the result
+  // files, so the committed report and results pass ultracite check like
+  // every other file.
+  spawnSync(
+    path.join(REPO, "node_modules/.bin/oxfmt"),
+    [file, ...readdirSync(RESULTS).map((result) => path.join(RESULTS, result))],
+    { cwd: REPO }
+  );
 };
