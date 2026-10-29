@@ -21,7 +21,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 
 import { expect, test } from "@playwright/test";
-import type { Browser, Locator, Page } from "@playwright/test";
+import type { Browser, Page } from "@playwright/test";
 
 import {
   DOCS_APP,
@@ -141,13 +141,12 @@ export default function Page() {
 }
 `;
 
-// Opens one preview's Code tab and copies it with the docs' Copy button.
-const copyFromTab = async (page: Page, preview: Locator) => {
-  const name =
-    (await preview
-      .locator("[data-example]")
-      .first()
-      .getAttribute("data-example")) ?? "";
+// Opens one example's Code tab and copies it with the docs' Copy button.
+const copyFromTab = async (page: Page, name: string) => {
+  const preview = page
+    .locator('[role="tablist"]')
+    .locator("..")
+    .filter({ has: page.locator(`[data-example="${name}"]`) });
 
   const tab = preview.getByRole("tab", { name: /code/iu });
   const tabLabel = (await tab.textContent()) ?? "";
@@ -165,7 +164,7 @@ const copyFromTab = async (page: Page, preview: Locator) => {
 
   const text = await page.evaluate(() => navigator.clipboard.readText());
 
-  return { file: path.basename(title), name, tabLabel, text };
+  return { file: path.basename(title), tabLabel, text };
 };
 
 // Every example file on the six item pages, copied once each.
@@ -188,20 +187,17 @@ const copyExamples = async (
     // oxlint-disable-next-line no-await-in-loop -- one page at a time
     await openPage(page, `${DOCS_URL}/${item}`, "light");
 
-    const previews = page
-      .locator('[role="tablist"]')
-      .locator("..")
-      .filter({ has: page.locator("[data-example]") });
-
-    // oxlint-disable-next-line no-await-in-loop -- counts this page's previews
-    const count = await previews.count();
-
-    for (let index = 0; index < count; index += 1) {
-      // oxlint-disable-next-line no-await-in-loop -- one Code tab at a time
-      const { file, name, tabLabel, text } = await copyFromTab(
-        page,
-        previews.nth(index)
+    // Read first: a clicked Code tab takes its preview off the page.
+    // oxlint-disable-next-line no-await-in-loop -- reads this page's examples
+    const names = await page
+      .locator('[data-slot="preview"] [data-example]')
+      .evaluateAll((elements) =>
+        elements.map((element) => element.dataset.example ?? "")
       );
+
+    for (const name of names) {
+      // oxlint-disable-next-line no-await-in-loop -- one Code tab at a time
+      const { file, tabLabel, text } = await copyFromTab(page, name);
 
       if (!copied.some((entry) => entry.file === file)) {
         const repoFile = readFileSync(
