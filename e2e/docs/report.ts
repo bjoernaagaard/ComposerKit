@@ -187,6 +187,7 @@ const checkThree = (
         ])
       ),
   "### Page sections in order",
+  "Only the six component items have the eight sections. The home page, Sample data and App shell are short pages without them, so this check skips them; axe, the link check and the stress keyboard walk cover every page.",
   sections.length === 0
     ? MISSING
     : table(
