@@ -54,7 +54,7 @@ export const Tip = ({ label, side = "bottom", children }: TipProps) => (
         }
       >
         <Tooltip.Popup
-          className="bg-popover text-popover-foreground border-border z-50 flex h-(--size-tooltip-height) max-w-80 items-center truncate rounded-(--radius-tooltip) border-(length:--border-panel) px-(--space-tooltip-padding-x) text-(length:--text-caption-size) leading-(--text-caption-leading) shadow-(--shadow-menu)"
+          className="bg-popover text-popover-foreground border-border z-50 flex h-(--size-tooltip-height) max-w-[min(--spacing(80),var(--available-width))] items-center truncate rounded-(--radius-tooltip) border-(length:--border-panel) px-(--space-tooltip-padding-x) text-(length:--text-caption-size) leading-(--text-caption-leading) shadow-(--shadow-menu)"
           data-slot="tooltip"
         >
           {label}
