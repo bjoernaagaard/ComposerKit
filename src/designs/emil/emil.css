@@ -1,0 +1,85 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+body[data-design="emil"] {
+  --radius-small: 5px;
+  --radius-control: 7px;
+  --radius-menu: 10px;
+  --radius-menu-item: 6px;
+  --radius-tab: 7px;
+  --radius-composer: 12px;
+  --radius-tray: 8px;
+  --blur-menu: 0px;
+  --motion-duration: 100ms;
+  --motion-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --shadow-menu: 0 12px 32px rgb(0 0 0 / 0.14), 0 2px 6px rgb(0 0 0 / 0.08);
+  --shadow-toggle-thumb: 0 1px 2px rgb(0 0 0 / 0.12);
+}
+
+body[data-design="emil"] [data-slot="title-bar"] {
+  border-bottom: 1px solid var(--border);
+}
+
+body[data-design="emil"] [data-slot="sidebar"] {
+  border-right: 1px solid var(--border);
+}
+
+body[data-design="emil"] [data-slot="button"] {
+  border-radius: var(--radius-control);
+}
+
+body[data-design="emil"] [data-slot="mode-toggle-thumb"] {
+  transition: none;
+}
+
+body[data-design="emil"] [data-slot="composer"] > div:first-child {
+  border: 1px solid var(--input);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.06);
+}
+
+body[data-design="emil"] [data-slot="composer-tray"] {
+  border-radius: 0 0 var(--radius-tray) var(--radius-tray);
+}
+
+body[data-design="emil"] [data-slot="menu"] {
+  border: 1px solid var(--border);
+  background: var(--card);
+  transform-origin: var(--transform-origin);
+}
+
+body[data-design="emil"] [data-slot="tooltip"] {
+  border-radius: 5px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body[data-design="emil"][data-emil-input="pointer"] [data-slot="button"],
+  body[data-design="emil"][data-emil-input="pointer"]
+    [data-slot="icon-button"] {
+    transition:
+      transform 120ms cubic-bezier(0.23, 1, 0.32, 1),
+      color 100ms,
+      background-color 100ms;
+  }
+
+  body[data-design="emil"][data-emil-input="pointer"]
+    [data-slot="button"]:active:not(:disabled):not([aria-disabled="true"]),
+  body[data-design="emil"][data-emil-input="pointer"]
+    [data-slot="icon-button"]:active:not(:disabled):not(
+      [aria-disabled="true"]
+    ) {
+    transform: scale(0.97);
+  }
+
+  body[data-design="emil"][data-emil-input="pointer"] [data-slot="menu"] {
+    transition:
+      opacity 150ms cubic-bezier(0.23, 1, 0.32, 1),
+      transform 150ms cubic-bezier(0.23, 1, 0.32, 1);
+    @starting-style {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+  }
+}

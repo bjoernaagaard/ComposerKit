@@ -1,0 +1,488 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "composerkit",
+  "homepage": "https://github.com/bjoernaagaard/ComposerKit",
+  "items": [
+    {
+      "name": "theme",
+      "type": "registry:theme",
+      "title": "ComposerKit theme",
+      "description": "ComposerKit's palette, sizes, spacing, radii and motion as shadcn CSS variables, for a light and a dark scheme.",
+      "cssVars": {
+        "dark": {
+          "window": "#0a0b0d",
+          "background": "#17181c",
+          "foreground": "#f2f4f6",
+          "card": "#24262b",
+          "card-foreground": "#f2f4f6",
+          "popover": "#24262b",
+          "popover-foreground": "#f2f4f6",
+          "primary": "#9095fd",
+          "primary-foreground": "#0a0b0d",
+          "secondary": "#2d2f34",
+          "secondary-foreground": "#f2f4f6",
+          "muted": "#1d1f23",
+          "muted-foreground": "#babec5",
+          "subtle-foreground": "#9a9ea7",
+          "accent": "#2d2f34",
+          "accent-foreground": "#f2f4f6",
+          "destructive": "#f98f87",
+          "warning": "#fda85d",
+          "success": "#67d283",
+          "border": "#2d2f34",
+          "input": "#737780",
+          "ring": "#9095fd",
+          "link": "#b1b7fd",
+          "selection": "#353086",
+          "avatar": "#594fd7",
+          "avatar-foreground": "#fdfdff",
+          "sidebar": "#101214",
+          "sidebar-foreground": "#f2f4f6",
+          "sidebar-primary": "#9095fd",
+          "sidebar-primary-foreground": "#0a0b0d",
+          "sidebar-accent": "#2d2f34",
+          "sidebar-accent-foreground": "#f2f4f6",
+          "sidebar-border": "#2d2f34",
+          "sidebar-ring": "#9095fd",
+          "shadow-composer": "inset 0px 0px 1px 0px rgba(255, 255, 255, 0.2)"
+        },
+        "light": {
+          "window": "#f2f4f6",
+          "background": "#fdfdff",
+          "foreground": "#17181c",
+          "card": "#fdfdff",
+          "card-foreground": "#17181c",
+          "popover": "#fdfdff",
+          "popover-foreground": "#17181c",
+          "primary": "#594fd7",
+          "primary-foreground": "#fdfdff",
+          "secondary": "#e5e7eb",
+          "secondary-foreground": "#17181c",
+          "muted": "#edeef2",
+          "muted-foreground": "#4c5058",
+          "subtle-foreground": "#61656d",
+          "accent": "#e5e7eb",
+          "accent-foreground": "#17181c",
+          "destructive": "#b51e26",
+          "warning": "#8f5214",
+          "success": "#137738",
+          "border": "#e5e7eb",
+          "input": "#888c94",
+          "ring": "#716ff1",
+          "link": "#483eb5",
+          "selection": "#d0d4fc",
+          "avatar": "#594fd7",
+          "avatar-foreground": "#fdfdff",
+          "sidebar": "#f8f9fb",
+          "sidebar-foreground": "#17181c",
+          "sidebar-primary": "#594fd7",
+          "sidebar-primary-foreground": "#fdfdff",
+          "sidebar-accent": "#e5e7eb",
+          "sidebar-accent-foreground": "#17181c",
+          "sidebar-border": "#e5e7eb",
+          "sidebar-ring": "#716ff1",
+          "shadow-composer": "0px 0px 0px 1px rgba(0, 0, 0, 0.04), 0px 2px 8px 0px rgba(0, 0, 0, 0.04), 0px 4px 80px 8px rgba(0, 0, 0, 0.024)",
+          "radius": "12.5px",
+          "font-ui": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+          "weight-regular": "430",
+          "weight-medium": "500",
+          "weight-semibold": "600",
+          "text-caption-size": "13px",
+          "text-caption-leading": "18px",
+          "text-label-size": "13px",
+          "text-label-leading": "18.5714px",
+          "text-body-size": "14px",
+          "text-body-leading": "20px",
+          "text-heading-size": "14px",
+          "text-heading-leading": "21px",
+          "text-brand-size": "18px",
+          "text-brand-leading": "24px",
+          "text-hero-size": "28px",
+          "text-hero-leading": "34px",
+          "text-composer-size": "16px",
+          "text-composer-leading": "20px",
+          "text-message-size": "16px",
+          "text-message-leading": "22.7px",
+          "text-footnote-size": "12px",
+          "text-footnote-leading": "16px",
+          "radius-small": "9.375px",
+          "radius-tab": "6px",
+          "radius-control": "12.5px",
+          "radius-menu-item": "15px",
+          "radius-tray": "20px",
+          "radius-menu": "14px",
+          "radius-composer": "22px",
+          "radius-pill": "9999px",
+          "radius-menu-compact": "14px",
+          "radius-menu-item-compact": "10px",
+          "radius-user-bubble": "18px",
+          "radius-conversation-composer": "22px",
+          "radius-add-menu": "18px",
+          "radius-action": "8px",
+          "radius-tooltip": "10px",
+          "size-titlebar": "44px",
+          "size-rail": "52px",
+          "size-rail-button": "36px",
+          "size-rail-icon": "20px",
+          "size-sidebar": "288px",
+          "size-sidebar-header": "90px",
+          "size-row": "30px",
+          "size-row-gap": "1px",
+          "size-section-heading": "25px",
+          "size-tab-width": "231px",
+          "size-tab-height": "32px",
+          "size-icon-button": "28px",
+          "size-row-action": "20px",
+          "size-icon": "16px",
+          "size-icon-small": "14px",
+          "size-mode-toggle-width": "224px",
+          "size-mode-toggle-height": "36px",
+          "size-composer-width": "641px",
+          "size-composer-min-height": "98px",
+          "size-composer-control": "28px",
+          "size-tray-height": "44px",
+          "size-tray-tuck": "20px",
+          "size-menu-width": "254px",
+          "size-row-compact": "24px",
+          "size-row-two-line": "44px",
+          "size-button-small": "24px",
+          "size-button-medium": "28px",
+          "size-button-large": "32px",
+          "size-composer-inline-min-height": "44px",
+          "size-composer-roomy-text-min-height": "80px",
+          "size-message-column": "737px",
+          "size-conversation-composer-min-height": "48px",
+          "size-menu-narrow": "200px",
+          "size-menu-medium": "220px",
+          "size-menu-wide": "240px",
+          "size-composer-menu": "417px",
+          "size-textarea-max-height": "320px",
+          "size-catalog-grid-item-min": "180px",
+          "size-suggestion-row": "40px",
+          "size-suggestion-icon": "16px",
+          "size-header-action": "24px",
+          "size-composer-control-width": "29px",
+          "size-composer-max-height": "279px",
+          "size-composer-two-row-text-min-height": "44px",
+          "size-composer-expand-width": "33px",
+          "size-composer-expand-height": "32px",
+          "size-action-button-width": "27px",
+          "size-action-button-height": "26px",
+          "size-turn-action-row": "30px",
+          "size-jump-button": "32px",
+          "size-tooltip-height": "30px",
+          "size-menu-item": "29px",
+          "size-add-menu-item": "28.6px",
+          "size-add-menu-max-height": "320px",
+          "size-model-menu-width": "256px",
+          "size-model-menu-header": "36px",
+          "size-model-menu-slider": "32px",
+          "size-more-menu-width": "193px",
+          "size-submenu-width": "180px",
+          "space-rail-padding": "8px",
+          "space-rail-gap": "8px",
+          "space-sidebar-padding": "8px",
+          "space-row-padding-x": "8px",
+          "space-row-padding-y": "5px",
+          "space-hero-padding-top": "24px",
+          "space-hero-padding-bottom": "22px",
+          "space-composer-padding-x": "12px",
+          "space-composer-footer-padding": "8px",
+          "space-menu-padding": "4px",
+          "space-menu-item-padding-x": "8px",
+          "space-menu-item-padding-y": "5px",
+          "space-menu-item-padding-y-compact": "3px",
+          "space-menu-item-padding-x-compact": "6px",
+          "space-user-bubble-padding-x": "12px",
+          "space-user-bubble-padding-y": "10px",
+          "space-tray-inset": "13px",
+          "space-menu-viewport-inset": "16px",
+          "space-sidebar-fade-start": "12px",
+          "space-fade-end": "24px",
+          "space-mode-toggle-inset": "2px",
+          "space-conversation-list-padding": "32px",
+          "space-bubble-padding-y": "10px",
+          "space-document-action-inset": "6px",
+          "space-transcript-action-inset": "2px",
+          "space-transcript-gutter": "88px",
+          "space-composer-focus-offset": "2px",
+          "space-home-bottom": "40px",
+          "space-suggestion-inset": "12px",
+          "space-suggestion-gap": "24px",
+          "space-suggestion-icon-gap": "11px",
+          "space-suggestion-narrow-inset": "17px",
+          "space-suggestion-native-inset": "13px",
+          "space-suggestion-web-narrow-offset": "-5px",
+          "space-suggestion-web-wide-offset": "17px",
+          "space-suggestion-native-offset": "8px",
+          "space-suggestion-native-narrow-offset": "-8px",
+          "space-composer-add-gap": "4px",
+          "space-composer-trailing-gap": "7px",
+          "space-composer-two-row-top": "14px",
+          "space-composer-row-gap": "4px",
+          "space-composer-expand-inset": "10px",
+          "space-composer-expanded-top": "110px",
+          "space-composer-bottom": "16px",
+          "space-disclaimer-gap": "9px",
+          "space-conversation-gutter": "16px",
+          "space-paragraph-gap": "16px",
+          "space-bubble-end-inset": "5px",
+          "space-prompt-action-gap": "4px",
+          "space-reply-action-gap": "6px",
+          "space-prompt-to-reply": "11px",
+          "space-reply-to-prompt": "12px",
+          "space-turn-action-gap": "1px",
+          "space-jump-offset": "24px",
+          "space-menu-offset": "4px",
+          "space-add-menu-padding": "5px",
+          "space-submenu-gap": "5px",
+          "space-submenu-align-offset": "-3px",
+          "space-more-menu-align-offset": "2px",
+          "space-model-menu-row-gap": "8px",
+          "space-tooltip-offset": "2px",
+          "space-tooltip-padding-x": "12px",
+          "space-composer-expand-reserve": "28px",
+          "space-conversation-composer-padding-y": "10px",
+          "border-hairline": "0.5px",
+          "border-focus-width": "2px",
+          "border-focus-offset": "0px",
+          "border-toggle-underline-width": "2px",
+          "border-toggle-underline-offset": "1px",
+          "border-rail-rule": "1px",
+          "border-panel": "1px",
+          "shadow-toggle-thumb": "0px 2px 4px -1px rgba(0, 0, 0, 0.08)",
+          "shadow-menu": "0px 8px 16px -4px rgba(0, 0, 0, 0.12)",
+          "shadow-composer-light": "0px 0px 0px 1px rgba(0, 0, 0, 0.04), 0px 2px 8px 0px rgba(0, 0, 0, 0.04), 0px 4px 80px 8px rgba(0, 0, 0, 0.024)",
+          "shadow-composer-dark-edge": "inset 0px 0px 1px 0px rgba(255, 255, 255, 0.2)",
+          "blur-menu": "8px",
+          "motion-duration": "150ms",
+          "motion-ease-out": "cubic-bezier(0, 0, 0.2, 1)",
+          "motion-ease-enter": "cubic-bezier(0.19, 1, 0.22, 1)",
+          "motion-marquee-delay": "400ms",
+          "motion-jump-duration": "0ms",
+          "motion-tooltip-delay": "200ms",
+          "motion-tooltip-close-delay": "0ms",
+          "motion-stop-settle": "500ms"
+        },
+        "theme": {
+          "color-window": "var(--window)",
+          "color-background": "var(--background)",
+          "color-foreground": "var(--foreground)",
+          "color-card": "var(--card)",
+          "color-card-foreground": "var(--card-foreground)",
+          "color-popover": "var(--popover)",
+          "color-popover-foreground": "var(--popover-foreground)",
+          "color-primary": "var(--primary)",
+          "color-primary-foreground": "var(--primary-foreground)",
+          "color-secondary": "var(--secondary)",
+          "color-secondary-foreground": "var(--secondary-foreground)",
+          "color-muted": "var(--muted)",
+          "color-muted-foreground": "var(--muted-foreground)",
+          "color-subtle-foreground": "var(--subtle-foreground)",
+          "color-accent": "var(--accent)",
+          "color-accent-foreground": "var(--accent-foreground)",
+          "color-destructive": "var(--destructive)",
+          "color-warning": "var(--warning)",
+          "color-success": "var(--success)",
+          "color-border": "var(--border)",
+          "color-input": "var(--input)",
+          "color-ring": "var(--ring)",
+          "color-link": "var(--link)",
+          "color-selection": "var(--selection)",
+          "color-avatar": "var(--avatar)",
+          "color-avatar-foreground": "var(--avatar-foreground)",
+          "color-sidebar": "var(--sidebar)",
+          "color-sidebar-foreground": "var(--sidebar-foreground)",
+          "color-sidebar-primary": "var(--sidebar-primary)",
+          "color-sidebar-primary-foreground": "var(--sidebar-primary-foreground)",
+          "color-sidebar-accent": "var(--sidebar-accent)",
+          "color-sidebar-accent-foreground": "var(--sidebar-accent-foreground)",
+          "color-sidebar-border": "var(--sidebar-border)",
+          "color-sidebar-ring": "var(--sidebar-ring)",
+          "font-sans": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+          "font-mono": "ui-monospace, \"SFMono-Regular\", \"SF Mono\", menlo, consolas, monospace",
+          "radius-sm": "calc(var(--radius) * 0.6)",
+          "radius-md": "calc(var(--radius) * 0.8)",
+          "radius-lg": "var(--radius)",
+          "radius-xl": "calc(var(--radius) * 1.4)"
+        }
+      }
+    },
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "title": "Button",
+      "description": "shadcn's base button with ComposerKit variants, plus an icon-only button that shows its name in a tooltip.",
+      "dependencies": [
+        "@base-ui/react",
+        "class-variance-authority",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "utils",
+        "https://bjoernaagaard.github.io/ComposerKit/r/theme.json",
+        "https://bjoernaagaard.github.io/ComposerKit/r/tip.json"
+      ],
+      "files": [
+        {
+          "path": "src/components/ui/button.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/icon-button.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "tip",
+      "type": "registry:ui",
+      "title": "Tip",
+      "description": "A short tooltip on Base UI. Wrap the app in TipProvider once.",
+      "dependencies": [
+        "@base-ui/react"
+      ],
+      "registryDependencies": [
+        "utils",
+        "https://bjoernaagaard.github.io/ComposerKit/r/theme.json"
+      ],
+      "files": [
+        {
+          "path": "src/components/ui/tip.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/theme-value.ts",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/popup-layer.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "menu",
+      "type": "registry:ui",
+      "title": "Menu",
+      "description": "A dropdown menu on Base UI with items, radio groups and separators in two densities.",
+      "dependencies": [
+        "@base-ui/react",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "utils",
+        "https://bjoernaagaard.github.io/ComposerKit/r/theme.json"
+      ],
+      "files": [
+        {
+          "path": "src/components/ui/menu.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/theme-value.ts",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/popup-layer.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "composer",
+      "type": "registry:block",
+      "title": "Composer",
+      "description": "A message box with attachments, dictation, model and permission menus and a Work mode tray, driven by a reducer you can own.",
+      "dependencies": [
+        "lucide-react",
+        "react",
+        "@base-ui/react"
+      ],
+      "registryDependencies": [
+        "utils",
+        "https://bjoernaagaard.github.io/ComposerKit/r/theme.json",
+        "https://bjoernaagaard.github.io/ComposerKit/r/button.json",
+        "https://bjoernaagaard.github.io/ComposerKit/r/menu.json",
+        "https://bjoernaagaard.github.io/ComposerKit/r/tip.json"
+      ],
+      "files": [
+        {
+          "path": "src/components/composer/options.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/composer/machine.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/composer/use-composer-controller.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/composer/composer-attachments.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/composer/composer-menus.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/composer/composer-tray.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/composer/composer-hooks.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/composer/composer-primary.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/composer/composer-add-menu.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/composer/composer.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "conversation",
+      "type": "registry:block",
+      "title": "Conversation",
+      "description": "A scrolling conversation in three layouts with streaming replies, copy and retry, and the composer under it.",
+      "dependencies": [
+        "lucide-react",
+        "react"
+      ],
+      "registryDependencies": [
+        "utils",
+        "https://bjoernaagaard.github.io/ComposerKit/r/theme.json",
+        "https://bjoernaagaard.github.io/ComposerKit/r/button.json",
+        "https://bjoernaagaard.github.io/ComposerKit/r/tip.json",
+        "https://bjoernaagaard.github.io/ComposerKit/r/composer.json"
+      ],
+      "files": [
+        {
+          "path": "src/components/conversation/types.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/conversation/parts.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/conversation/layouts.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/conversation/conversation-view.tsx",
+          "type": "registry:component"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+# SPDX-License-Identifier: MIT
+
+# Product names used in doc comments.
+doc-valid-idents = ["ComposerKit", ".."]

@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+# SPDX-License-Identifier: MIT
+
+[package]
+name = "composerkit-theme"
+version = "0.1.0"
+description = "The ComposerKit theme for gpui-kit apps"
+license = "MIT"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+# design-tokens.json lives in this crate so it ships with the package. The
+# web side reads the same file.
+[dependencies]
+gpui-kit.workspace = true
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[lints]
+workspace = true

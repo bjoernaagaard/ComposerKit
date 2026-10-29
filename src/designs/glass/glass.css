@@ -1,0 +1,631 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+/*
+ * Liquid glass direction, turned all the way up. The window sits on a still
+ * wallpaper, and every layer above it is a material: the sidebar, the title
+ * bar's controls, the composer, menus and tooltips are clear glass, and the
+ * reading sheet is the heaviest frosted glass, so text on it stays as
+ * legible as on a solid page. Glass never sits on light glass: each
+ * floating surface either rests on the wallpaper or on the heavy sheet.
+ *
+ * Every tint is mixed from the theme's color variables, so both schemes
+ * work. Reduced transparency, more contrast and forced colors turn the
+ * glass solid; reduced motion keeps only fades.
+ *
+ * This file is unlayered on purpose, like the other directions, so these
+ * rules win over Tailwind's utilities without !important.
+ */
+
+body[data-design="glass"] {
+  --font-ui:
+    system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+    sans-serif;
+  --weight-regular: 400;
+  --weight-medium: 510;
+  --weight-semibold: 590;
+
+  /* Concentric geometry: inner radii are the outer radius minus the inset. */
+  --radius-small: 10px;
+  --radius-control: 12px;
+  --radius-tab: 9999px;
+  --radius-menu-item: 14px;
+  --radius-menu: 22px;
+  --radius-add-menu: 24px;
+  --radius-tray: 9999px;
+  --radius-composer: 28px;
+  --radius-conversation-composer: 9999px;
+  --radius-user-bubble: 22px;
+
+  --size-titlebar: 54px;
+  --size-tab-height: 32px;
+  --size-rail-button: 40px;
+  --size-composer-control: 32px;
+  --size-mode-toggle-height: 36px;
+  --size-mode-toggle-width: 220px;
+
+  --space-menu-padding: 6px;
+  --space-menu-item-padding-x: 12px;
+  --space-composer-padding-x: 18px;
+  --space-composer-footer-padding: 10px;
+
+  --text-hero-size: 40px;
+  --text-hero-leading: 46px;
+
+  --blur-menu: 30px;
+
+  /* A critically damped spring (response 0.4s), sampled for CSS. */
+  --motion-duration: 200ms;
+  --motion-ease-out: cubic-bezier(0.25, 1, 0.5, 1);
+  --motion-ease-enter: linear(
+    0,
+    0.046,
+    0.152,
+    0.28,
+    0.408,
+    0.524,
+    0.624,
+    0.708,
+    0.776,
+    0.83,
+    0.872,
+    0.905,
+    0.93,
+    0.948,
+    0.962,
+    0.973,
+    0.98,
+    0.986,
+    0.99,
+    0.993,
+    1
+  );
+
+  /* The wallpaper: soft light from four corners over the window color. */
+  --glass-wallpaper:
+    radial-gradient(
+      60% 70% at 8% 12%,
+      color-mix(in oklab, oklch(0.86 0.07 215) 60%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      55% 60% at 92% 8%,
+      color-mix(in oklab, var(--primary) 34%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(
+      70% 60% at 85% 95%,
+      color-mix(in oklab, oklch(0.86 0.1 60) 70%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      60% 55% at 15% 92%,
+      color-mix(in oklab, oklch(0.84 0.09 160) 60%, transparent),
+      transparent 72%
+    ),
+    var(--window);
+
+  /*
+   * Materials, from clear to heavy. Clear glass is for controls that float
+   * on the wallpaper; regular for panels; thick for menus over content;
+   * the sheet is nearly solid, because text is read on it.
+   */
+  --glass-clear: color-mix(in oklab, var(--card) 38%, transparent);
+  --glass-regular: color-mix(in oklab, var(--card) 62%, transparent);
+  --glass-thick: color-mix(in oklab, var(--card) 76%, transparent);
+  --glass-sheet: color-mix(in oklab, var(--background) 86%, transparent);
+  --glass-filter: blur(var(--blur-menu)) saturate(180%) brightness(1.04);
+  --glass-fill: color-mix(in oklab, var(--foreground) 7%, transparent);
+  --glass-fill-hover: color-mix(in oklab, var(--foreground) 12%, transparent);
+  --glass-tint: color-mix(in oklab, var(--primary) 18%, transparent);
+  --glass-track: color-mix(in oklab, var(--foreground) 6%, transparent);
+
+  /*
+   * The edge: light catching the top, a fainter bounce off the bottom, and
+   * a hairline that holds the shape against a busy background.
+   */
+  --glass-rim:
+    inset 0 1px 0 color-mix(in oklab, white 85%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, white 30%, transparent),
+    inset 0 0 0 0.5px color-mix(in oklab, var(--foreground) 10%, transparent);
+  --glass-lift:
+    0 1px 2px color-mix(in oklab, black 6%, transparent),
+    0 10px 30px -10px color-mix(in oklab, black 22%, transparent);
+  --glass-float:
+    0 2px 8px color-mix(in oklab, black 6%, transparent),
+    0 24px 60px -18px color-mix(in oklab, black 30%, transparent);
+  --shadow-menu: var(--glass-float);
+}
+
+html.dark body[data-design="glass"] {
+  --glass-wallpaper:
+    radial-gradient(
+      60% 70% at 8% 12%,
+      color-mix(in oklab, oklch(0.45 0.12 220) 70%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      55% 60% at 92% 8%,
+      color-mix(in oklab, var(--primary) 30%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(
+      70% 60% at 85% 95%,
+      color-mix(in oklab, oklch(0.42 0.1 40) 65%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      60% 55% at 15% 92%,
+      color-mix(in oklab, oklch(0.4 0.08 170) 60%, transparent),
+      transparent 72%
+    ),
+    var(--window);
+  --glass-clear: color-mix(in oklab, var(--card) 40%, transparent);
+  --glass-regular: color-mix(in oklab, var(--card) 55%, transparent);
+  --glass-thick: color-mix(in oklab, var(--card) 80%, transparent);
+  --glass-sheet: color-mix(in oklab, var(--background) 88%, transparent);
+  --glass-filter: blur(var(--blur-menu)) saturate(180%) brightness(0.96);
+  --glass-fill: color-mix(in oklab, var(--foreground) 9%, transparent);
+  --glass-fill-hover: color-mix(in oklab, var(--foreground) 15%, transparent);
+  --glass-tint: color-mix(in oklab, var(--primary) 28%, transparent);
+  --glass-rim:
+    inset 0 1px 0 color-mix(in oklab, white 22%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, white 6%, transparent),
+    inset 0 0 0 0.5px color-mix(in oklab, white 12%, transparent);
+  --glass-lift:
+    0 1px 2px color-mix(in oklab, black 30%, transparent),
+    0 12px 30px -10px color-mix(in oklab, black 55%, transparent);
+  --glass-float:
+    0 2px 8px color-mix(in oklab, black 30%, transparent),
+    0 28px 64px -18px color-mix(in oklab, black 65%, transparent);
+}
+
+/* ---------- The wallpaper, behind everything and still ---------- */
+
+body[data-design="glass"] {
+  background: var(--glass-wallpaper);
+  background-attachment: fixed;
+}
+
+body[data-design="glass"] .bg-window {
+  background: transparent;
+}
+
+/*
+ * ---------- The reading sheet: the heaviest glass ----------
+ * It takes no backdrop blur of its own: the wallpaper under it is already
+ * soft, and a blurred parent would stop the composer and the menus inside
+ * it from blurring the messages they cover.
+ */
+
+body[data-design="glass"] main:has(> #main-panel) {
+  margin: 0 8px 8px 0;
+  border-inline-start-width: 0;
+  border-radius: 26px;
+  background: var(--glass-sheet);
+  box-shadow: var(--glass-rim), var(--glass-lift);
+}
+
+body[data-design="glass"] [data-slot="home-view"] h1 {
+  font-weight: 700;
+  letter-spacing: -0.022em;
+}
+
+body[data-design="glass"] h2 {
+  letter-spacing: -0.01em;
+}
+
+/*
+ * Scroll edge: where messages pass under the composer and the top of the
+ * sheet, they fade instead of meeting a hard line.
+ */
+body[data-design="glass"] [data-slot="message-scroller"] {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 20px,
+    black calc(100% - 28px),
+    transparent
+  );
+}
+
+/* Your messages are a tinted lens on the sheet, solid enough to read. */
+body[data-design="glass"] [data-slot="bubble"] {
+  background: color-mix(in oklab, var(--primary) 10%, var(--card));
+  box-shadow: var(--glass-rim);
+}
+
+body[data-design="glass"] [data-slot="code-block"] {
+  border-color: transparent;
+  box-shadow: var(--glass-rim);
+}
+
+/* ---------- Panels on the wallpaper ---------- */
+
+body[data-design="glass"] [data-slot="sidebar"] {
+  width: calc(var(--size-sidebar) - 8px);
+  height: calc(100% - 8px);
+  margin-inline-end: 8px;
+  border-radius: 24px;
+  background: var(--glass-regular);
+  backdrop-filter: var(--glass-filter);
+  box-shadow: var(--glass-rim), var(--glass-lift);
+}
+
+body[data-design="glass"] [data-slot="conversation-row"] > button {
+  border-radius: 12px;
+  transition-property: background-color, color;
+}
+
+body[data-design="glass"]
+  [data-slot="conversation-row"]
+  > button[aria-current="page"] {
+  background: var(--glass-fill);
+  box-shadow: var(--glass-rim);
+  font-weight: var(--weight-medium);
+}
+
+/* Row actions sat on the old sidebar color; on glass they show the row. */
+body[data-design="glass"] [data-slot="conversation-row"] > span {
+  background: transparent;
+}
+
+/* ---------- Controls on the wallpaper: clear glass ---------- */
+
+body[data-design="glass"] [data-slot="title-bar"] [data-slot="icon-button"] {
+  border-radius: 9999px;
+  background: var(--glass-clear);
+  backdrop-filter: var(--glass-filter);
+  box-shadow: var(--glass-rim), var(--glass-lift);
+  color: var(--foreground);
+}
+
+/* Tabs: a clear capsule track, with the open tab as a raised lens. */
+body[data-design="glass"] [data-slot="tab-strip"][data-appearance="filled"] {
+  gap: 2px;
+  padding: 3px;
+  border-radius: 9999px;
+  background: var(--glass-clear);
+  backdrop-filter: var(--glass-filter);
+  box-shadow: var(--glass-rim);
+}
+
+body[data-design="glass"]
+  [data-slot="tab-strip"][data-appearance="filled"]
+  [data-slot="tab"] {
+  border-color: transparent;
+  border-radius: 9999px;
+  padding-inline-start: 12px;
+  transition-property: background-color, color, box-shadow;
+}
+
+body[data-design="glass"]
+  [data-slot="tab-strip"][data-appearance="filled"]
+  [data-slot="tab"][aria-selected="true"] {
+  background: var(--glass-thick);
+  box-shadow: var(--glass-rim), var(--glass-lift);
+}
+
+body[data-design="glass"] [data-slot="icon-rail"] button {
+  border-radius: 9999px;
+}
+
+body[data-design="glass"] [data-slot="icon-rail"] button[aria-current="page"] {
+  background: var(--glass-regular);
+  backdrop-filter: var(--glass-filter);
+  box-shadow: var(--glass-rim), var(--glass-lift);
+  color: var(--foreground);
+}
+
+/* ---------- On the sheet: controls stay light, never stacked glass ---------- */
+
+body[data-design="glass"]
+  [data-slot="mode-toggle"]:not([data-appearance="underline"])
+  [data-slot="mode-toggle-track"] {
+  border-radius: 9999px;
+  background: var(--glass-track);
+  box-shadow: inset 0 1px 2px color-mix(in oklab, black 8%, transparent);
+}
+
+body[data-design="glass"]
+  [data-slot="mode-toggle"]:not([data-appearance="underline"])
+  [data-slot="mode-toggle-thumb"] {
+  inset-block: 3px;
+  inset-inline-start: 3px;
+  width: calc(50% - 3px);
+  border-color: transparent;
+  border-radius: 9999px;
+  background: var(--card);
+  box-shadow: var(--glass-rim), var(--glass-lift);
+  transition-property: translate, scale;
+  transition-duration: 460ms, 160ms;
+  transition-timing-function: var(--motion-ease-enter), ease-out;
+}
+
+body[data-design="glass"]
+  [data-slot="mode-toggle"]
+  button[aria-pressed="true"] {
+  font-weight: var(--weight-semibold);
+}
+
+/*
+ * The composer floats over the sheet as the one piece of clear glass on
+ * it. It is thick enough that the text in it reads against whatever
+ * scrolls behind.
+ */
+body[data-design="glass"] [data-slot="composer-surface"] {
+  background: var(--glass-thick);
+  backdrop-filter: var(--glass-filter);
+  box-shadow: var(--glass-rim), var(--glass-float);
+}
+
+body[data-design="glass"] [data-slot="composer-surface"]:focus-within {
+  outline-offset: 3px;
+}
+
+body[data-design="glass"]
+  [data-slot="composer"][data-layout="inline"]
+  [data-slot="composer-surface"] {
+  border-radius: calc(var(--size-composer-inline-min-height) / 2);
+}
+
+body[data-design="glass"]
+  :is([data-slot="composer-controls"], [data-slot="composer-surface"])
+  [data-slot="icon-button"],
+body[data-design="glass"] [data-slot="composer-primary"] {
+  border-radius: 9999px;
+}
+
+body[data-design="glass"]
+  [data-slot="composer-surface"]
+  [data-slot="icon-button"] {
+  background: var(--glass-fill);
+  color: var(--foreground);
+}
+
+body[data-design="glass"]
+  [data-slot="composer-surface"]
+  [data-slot="icon-button"]:is([aria-pressed="true"], [aria-expanded="true"]) {
+  background: var(--glass-tint);
+  color: var(--link);
+}
+
+/* Color sits on a solid layer; the highlight makes it read as a pressed gem. */
+body[data-design="glass"] [data-slot="composer-primary"] {
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in oklab, white 22%, transparent),
+    transparent 60%
+  );
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 45%, transparent),
+    0 4px 12px -4px color-mix(in oklab, var(--primary) 60%, transparent);
+}
+
+body[data-design="glass"] [data-slot="composer-attachments"] > li {
+  border-radius: 20px;
+}
+
+/* The tucked tray comes loose as its own glass toolbar under the field. */
+body[data-design="glass"] [data-slot="composer"] > [data-slot="composer-tray"] {
+  margin: 12px 16px 0;
+  padding: 0 6px;
+  border-radius: 9999px;
+  background: var(--glass-regular);
+  backdrop-filter: var(--glass-filter);
+  box-shadow: var(--glass-rim), var(--glass-lift);
+}
+
+body[data-design="glass"]
+  [data-slot="composer-surface"]
+  > [data-slot="composer-tray"] {
+  margin: 4px 8px 8px;
+  padding: 0 4px;
+  border-top-width: 0;
+  border-radius: 22px;
+  background: var(--glass-track);
+}
+
+/* ---------- Over content: the thickest glass ---------- */
+
+body[data-design="glass"]
+  :is([data-slot="menu"], [data-slot="composer-add-menu"]) {
+  background: var(--glass-thick);
+  backdrop-filter: var(--glass-filter);
+  box-shadow: var(--glass-rim), var(--glass-float);
+  transform-origin: var(--transform-origin, bottom center);
+}
+
+body[data-design="glass"] [data-slot="composer-add-option"] {
+  border-radius: 9999px;
+}
+
+body[data-design="glass"] [data-slot="tooltip"] {
+  padding: 4px 11px;
+  background: var(--glass-thick);
+  backdrop-filter: var(--glass-filter);
+  box-shadow: var(--glass-rim), var(--glass-lift);
+  color: var(--foreground);
+  font-weight: var(--weight-medium);
+  transform-origin: var(--transform-origin);
+}
+
+/* ---------- Buttons ---------- */
+
+body[data-design="glass"] :is([data-slot="button"], [data-slot="icon-button"]) {
+  transition-property: background-color, color, scale, box-shadow;
+  transition-duration:
+    var(--motion-duration), var(--motion-duration), 120ms,
+    var(--motion-duration);
+  transition-timing-function: ease-out;
+}
+
+body[data-design="glass"] [data-slot="button"][data-variant="default"] {
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in oklab, white 20%, transparent),
+    transparent 60%
+  );
+  box-shadow: inset 0 1px 0 color-mix(in oklab, white 40%, transparent);
+}
+
+body[data-design="glass"] [data-slot="button"][data-variant="outline"] {
+  border-color: transparent;
+  background: var(--glass-fill);
+  box-shadow: var(--glass-rim);
+}
+
+body[data-design="glass"] [data-slot="icon-button"][data-kind="pill"] {
+  border-radius: 9999px;
+}
+
+body[data-design="glass"]
+  :is(
+    [data-slot="button"],
+    [data-slot="icon-button"],
+    [data-slot="tab"]
+  ):focus-visible,
+body[data-design="glass"]
+  :is([data-slot="icon-rail"], [data-slot="mode-toggle"])
+  button:focus-visible {
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  body[data-design="glass"]
+    [data-slot="title-bar"]
+    [data-slot="icon-button"]:not(:disabled):hover {
+    background: var(--glass-regular);
+  }
+
+  body[data-design="glass"]
+    [data-slot="composer-surface"]
+    [data-slot="icon-button"]:not(:disabled, [aria-disabled="true"]):hover,
+  body[data-design="glass"]
+    [data-slot="button"][data-variant="outline"]:not(:disabled):hover {
+    background: var(--glass-fill-hover);
+    color: var(--foreground);
+  }
+
+  body[data-design="glass"] [data-slot="tab"][aria-selected="false"]:hover {
+    background: var(--glass-fill);
+  }
+}
+
+/* ---------- Motion, opt in ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Press feedback lands on pointer-down. */
+  body[data-design="glass"]
+    :is(
+      [data-slot="button"],
+      [data-slot="icon-button"],
+      [data-slot="composer-primary"]
+    ):active:not(:disabled, [aria-disabled="true"]) {
+    scale: 0.95;
+  }
+
+  /* The lens swells while a segment is held, then settles on release. */
+  body[data-design="glass"]
+    [data-slot="mode-toggle-track"]:has(button:active)
+    [data-slot="mode-toggle-thumb"] {
+    scale: 1.05 1.1;
+  }
+
+  /* Glass arrives as a material: it sharpens and grows out of its trigger. */
+  body[data-design="glass"] [data-slot="menu"][data-open],
+  body[data-design="glass"] [data-slot="composer-add-menu"] {
+    animation: glass-materialize 380ms var(--motion-ease-enter) backwards;
+  }
+
+  body[data-design="glass"] [data-slot="menu"][data-closed] {
+    animation: glass-dematerialize 160ms ease-out both;
+  }
+
+  body[data-design="glass"] [data-slot="tooltip"][data-open] {
+    animation: glass-materialize 240ms var(--motion-ease-enter) backwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-design="glass"] [data-slot="menu"][data-open],
+  body[data-design="glass"] [data-slot="composer-add-menu"],
+  body[data-design="glass"] [data-slot="tooltip"][data-open] {
+    animation: glass-fade 120ms ease-out both;
+  }
+}
+
+@keyframes glass-materialize {
+  from {
+    opacity: 0;
+    scale: 0.92;
+    filter: blur(6px);
+  }
+}
+
+@keyframes glass-dematerialize {
+  to {
+    opacity: 0;
+    scale: 0.96;
+    filter: blur(4px);
+  }
+}
+
+@keyframes glass-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---------- Fallbacks: solid materials when transparency or contrast asks ---------- */
+
+@media (prefers-reduced-transparency: reduce) {
+  body[data-design="glass"],
+  html.dark body[data-design="glass"] {
+    --glass-wallpaper: var(--window);
+    --glass-clear: var(--card);
+    --glass-regular: var(--card);
+    --glass-thick: var(--card);
+    --glass-sheet: var(--background);
+    --glass-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  body[data-design="glass"],
+  html.dark body[data-design="glass"] {
+    --glass-wallpaper: var(--window);
+    --glass-clear: var(--card);
+    --glass-regular: var(--card);
+    --glass-thick: var(--card);
+    --glass-sheet: var(--background);
+    --glass-filter: none;
+    --glass-rim: inset 0 0 0 1px var(--input);
+    --glass-track: color-mix(in oklab, var(--foreground) 10%, transparent);
+  }
+
+  body[data-design="glass"] [data-slot="message-scroller"] {
+    mask-image: none;
+  }
+}
+
+/* Forced colors drops shadows, so floating surfaces keep a system-color edge. */
+@media (forced-colors: active) {
+  body[data-design="glass"]
+    :is(
+      [data-slot="sidebar"],
+      [data-slot="menu"],
+      [data-slot="tooltip"],
+      [data-slot="tab-strip"],
+      [data-slot="composer-surface"],
+      [data-slot="composer-tray"],
+      [data-slot="composer-add-menu"],
+      [data-slot="mode-toggle-thumb"]
+    ),
+  body[data-design="glass"] [data-slot="tab"][aria-selected="true"] {
+    outline: 1px solid CanvasText;
+  }
+}

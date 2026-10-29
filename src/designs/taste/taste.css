@@ -1,0 +1,666 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+/*
+ * Design taste — "Ledger desk" (tasteskill app style: achromatic-ledger,
+ * seed 1028961869, kind workspace, screens home/list/inbox).
+ *
+ * Idea: the draft is a ruled sheet on a desk; every conversation is a
+ * ledger entry. Chrome carries no hue of its own: flat opaque surfaces
+ * separated by 1px rules, tight square radii (8/6/4), ink primary action.
+ * Hue appears only where the product already signals a fact (full-access
+ * warning, upload/send failure, dictation) through the shared status and
+ * accent colors.
+ *
+ * Color and type stay as the theme sets them. Every color and both schemes
+ * come from src/theme/tokens.css. This file owns FORM only: form tokens on
+ * body plus rules scoped to body[data-design="taste"]. No color variable is
+ * redefined; material is mixed from them with color-mix.
+ * The dealt "no sidebar" shell is not adopted either: rail + sidebar +
+ * title bar are product structure. The shell is read as an open plane:
+ * sidebar on the window ground, one rule, content as the sheet.
+ */
+
+/* ------------------------------------------------------------------ */
+/* Form tokens. Baseline is pill-heavy (composer 22, menu 20, control */
+/* 12.5, rows 30/28px controls); the ledger is tight and ruled.       */
+/* ------------------------------------------------------------------ */
+
+body[data-design="taste"] {
+  --radius-small: 4px;
+  --radius-tab: 4px;
+  --radius-control: 6px;
+  --radius-menu-item: 4px;
+  --radius-menu: 8px;
+  --radius-tray: 8px;
+  --radius-composer: 8px;
+
+  --size-titlebar: 48px;
+  --size-rail: 56px;
+  --size-rail-button: 40px;
+  --size-sidebar: 260px;
+  --size-row: 34px;
+  --size-row-compact: 28px;
+  --size-row-two-line: 52px;
+  --size-row-gap: 0px;
+  --size-section-heading: 28px;
+  --size-tab-height: 36px;
+  --size-icon-button: 32px;
+  --size-button-small: 28px;
+  --size-button-medium: 32px;
+  --size-button-large: 36px;
+  --size-mode-toggle-height: 36px;
+  --size-composer-width: 720px;
+  --size-composer-min-height: 112px;
+  --size-composer-inline-min-height: 56px;
+  --size-composer-roomy-text-min-height: 88px;
+  --size-composer-control: 32px;
+  --size-tray-height: 44px;
+  --size-menu-width: 260px;
+
+  --space-rail-padding: 8px;
+  --space-rail-gap: 4px;
+  --space-sidebar-padding: 12px;
+  --space-row-padding-x: 10px;
+  --space-row-padding-y: 6px;
+  --space-hero-padding-top: 16px;
+  --space-hero-padding-bottom: 16px;
+  --space-composer-padding-x: 16px;
+  --space-composer-footer-padding: 10px;
+  --space-menu-padding: 6px;
+  --space-menu-item-padding-x: 10px;
+  --space-menu-item-padding-y: 6px;
+
+  /* App type is not display type: the home question is set at 24px. */
+  --text-hero-size: 24px;
+  --text-hero-leading: 30px;
+  --text-brand-size: 16px;
+  --text-brand-leading: 22px;
+  --text-body-leading: 20px;
+  --text-heading-leading: 20px;
+
+  --weight-regular: 400;
+
+  /* Real 1px rules carry the structure; blur and rest shadows go. */
+  --border-hairline: 1px;
+  --blur-menu: 0px;
+  --shadow-toggle-thumb: none;
+  --shadow-menu: 0 8px 24px rgb(0 0 0 / 0.12), 0 2px 6px rgb(0 0 0 / 0.08);
+  --shadow-composer-light: none;
+  --shadow-composer-dark-edge: inset 0 0 0 1px var(--input);
+
+  /* Feedback only: short, named-property transitions use this. */
+  --motion-duration: 120ms;
+  --motion-ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --motion-ease-enter: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Focus stays the shared ring; the ledger only squares its offset. */
+body[data-design="taste"] :focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* The integration select is a ledger control, not a pill. */
+body[data-design="taste"] select[aria-label="Design direction"] {
+  border: 1px solid var(--input);
+  border-radius: 6px;
+  background: var(--background);
+}
+
+/* ------------------------------------------------------------------ */
+/* Buttons: flat rectangles. One ink fill per view (primary already   */
+/* uses --primary); secondary is surface + control border; ghost   */
+/* stays text. Radius decided once: 6px, never the soft middle.       */
+/* ------------------------------------------------------------------ */
+
+body[data-design="taste"] [data-slot="button"] {
+  border-radius: 6px;
+  letter-spacing: 0;
+}
+
+/* Forward-compatible option markers (land with the main-library PR). */
+body[data-design="taste"] [data-slot="button"][data-variant="outline"] {
+  border: 1px solid var(--input);
+  background: var(--background);
+}
+
+body[data-design="taste"] [data-slot="button"][data-variant="default"] {
+  box-shadow: none;
+}
+
+body[data-design="taste"] [data-slot="icon-button"] {
+  border-radius: 6px;
+}
+
+body[data-design="taste"] [data-slot="icon-button"][data-kind="pill"] {
+  border-radius: 9999px;
+}
+
+body[data-design="taste"] [data-slot="icon-button"][data-kind="row"],
+body[data-design="taste"] [data-slot="icon-button"][data-kind="small"] {
+  border-radius: 4px;
+}
+
+/* Press feedback is a tone step, not movement: paper does not shrink. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  body[data-design="taste"]
+    [data-slot="button"]:active:not(:disabled):not([aria-disabled="true"]):not(
+      [data-variant="primary"]
+    ),
+  body[data-design="taste"]
+    [data-slot="icon-button"]:active:not(:disabled):not(
+      [aria-disabled="true"]
+    ) {
+    background-color: var(--accent);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Menus and tooltips float, so they alone keep a shadow. Opaque:     */
+/* the elevated composer tone, a real border, no blur, no glass.      */
+/* ------------------------------------------------------------------ */
+
+body[data-design="taste"] [data-slot="menu"] {
+  border: 1px solid var(--input);
+  border-radius: 8px;
+  background: var(--card);
+  backdrop-filter: none;
+  box-shadow: var(--shadow-menu);
+}
+
+body[data-design="taste"] [data-slot="menu-item"] {
+  border-radius: 4px;
+}
+
+/* Highlight is a fill step; checked keeps its check glyph in ink. */
+body[data-design="taste"] [data-slot="menu-item"][data-checked] {
+  font-weight: var(--weight-medium);
+}
+
+/* Forward-compatible menu density. */
+body[data-design="taste"] [data-slot="menu"][data-density="compact"] {
+  padding: 4px;
+}
+
+body[data-design="taste"]
+  [data-slot="menu"][data-density="compact"]
+  [data-slot="menu-item"] {
+  padding-block: 4px;
+}
+
+body[data-design="taste"] [data-slot="tooltip"] {
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Title bar and tabs: a plain bar on one rule. Tabs are underline    */
+/* tabs — selected is ink text + medium weight + a 2px ink rule,      */
+/* never a filled pill and never colour alone.                        */
+/* ------------------------------------------------------------------ */
+
+body[data-design="taste"] [data-slot="title-bar"] {
+  border-bottom: 1px solid var(--input);
+  background: var(--window);
+}
+
+/* Tabs stretch to the bar height so the indicator sits on its rule. */
+body[data-design="taste"] [data-slot="tab-strip"] {
+  gap: 4px;
+  align-self: stretch;
+  align-items: stretch;
+}
+
+body[data-design="taste"] [data-slot="tab"] {
+  height: auto;
+  border: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body[data-design="taste"] [data-slot="tab"][aria-selected="true"] {
+  border-color: transparent;
+  background: transparent;
+  color: var(--foreground);
+  font-weight: var(--weight-semibold);
+  box-shadow: inset 0 -2px 0 0 var(--foreground);
+}
+
+/* Forward-compatible tab appearance: underline is the ledger default. */
+body[data-design="taste"] [data-slot="tab-strip"][data-appearance="filled"] {
+  align-items: center;
+}
+
+body[data-design="taste"]
+  [data-slot="tab-strip"][data-appearance="filled"]
+  [data-slot="tab"] {
+  height: var(--size-tab-height);
+  border-radius: 6px;
+}
+
+body[data-design="taste"]
+  [data-slot="tab-strip"][data-appearance="filled"]
+  [data-slot="tab"][aria-selected="true"] {
+  background: var(--accent);
+  box-shadow: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Icon rail: destinations recede. Current is a neutral square block  */
+/* with ink icon and a 2px leading rule — shape plus brightness,      */
+/* not a tint. The avatar disc itself stays round (a person mark).    */
+/* ------------------------------------------------------------------ */
+
+body[data-design="taste"] [data-slot="icon-rail"] {
+  border-inline-end: 1px solid var(--border);
+  background: var(--window);
+}
+
+body[data-design="taste"] [data-slot="icon-rail"] button {
+  border-radius: 6px;
+}
+
+body[data-design="taste"] [data-slot="icon-rail"] button[aria-current="page"] {
+  background: var(--accent);
+  color: var(--foreground);
+  box-shadow: inset 2px 0 0 0 var(--foreground);
+}
+
+/* ------------------------------------------------------------------ */
+/* Sidebar: open plane. Opaque window ground (the translucent        */
+/* sidebar tone flattened onto it), one rule before the sheet,        */
+/* square controls, opaque fields with a control-strength border.     */
+/* ------------------------------------------------------------------ */
+
+body[data-design="taste"] [data-slot="sidebar"] {
+  border-inline-end: 1px solid var(--input);
+  background: var(--window);
+}
+
+body[data-design="taste"] [data-slot="sidebar"] button {
+  border-radius: 6px;
+}
+
+body[data-design="taste"] [data-slot="sidebar"] input {
+  border: 1px solid var(--input);
+  border-radius: 6px;
+  background: var(--background);
+}
+
+/* Section headings are sentence-case text on a shared left edge. */
+body[data-design="taste"] [data-slot="sidebar"] section > div:first-child {
+  border-bottom: 1px solid var(--border);
+}
+
+/* ------------------------------------------------------------------ */
+/* Conversation rows are ledger entries: ruled, not boxed. The open   */
+/* chat takes the active fill plus a 2px ink leading rule and ink     */
+/* text, so selection survives without colour. Meta is tabular.       */
+/* ------------------------------------------------------------------ */
+
+body[data-design="taste"] [data-slot="conversation-row"] {
+  border-bottom: 1px solid var(--border);
+}
+
+body[data-design="taste"] [data-slot="conversation-row"] > button {
+  border-radius: 4px;
+}
+
+body[data-design="taste"]
+  [data-slot="conversation-row"]
+  > button[aria-current="page"] {
+  background: var(--accent);
+  color: var(--foreground);
+  font-weight: var(--weight-medium);
+  box-shadow: inset 2px 0 0 0 var(--foreground);
+}
+
+body[data-design="taste"] [data-slot="conversation-row"] > span {
+  border-radius: 4px;
+}
+
+/* Forward-compatible row density markers. */
+body[data-design="taste"]
+  [data-slot="conversation-row"][data-density="compact"]
+  > button {
+  border-radius: 4px;
+}
+
+body[data-design="taste"]
+  [data-slot="conversation-row"][data-density="two-line"]
+  > button
+  > span:last-child {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ */
+/* Mode toggle: a divided ledger control, not a sliding pill. The     */
+/* track is a bordered strip split in two; the thumb is the active    */
+/* fill. Choice is carried by fill + ink text + weight together.      */
+/* ------------------------------------------------------------------ */
+
+body[data-design="taste"] [data-slot="mode-toggle-track"] {
+  border-radius: 6px;
+  background: var(--background);
+  box-shadow: inset 0 0 0 1px var(--input);
+}
+
+body[data-design="taste"] [data-slot="mode-toggle-thumb"] {
+  border-radius: 4px;
+  background: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--input);
+}
+
+body[data-design="taste"] [data-slot="mode-toggle"] button {
+  border-radius: 4px;
+}
+
+body[data-design="taste"]
+  [data-slot="mode-toggle"]
+  button[aria-pressed="true"] {
+  color: var(--foreground);
+  font-weight: var(--weight-semibold);
+}
+
+/* A 1px divider between the two choices, drawn on the track centre. */
+body[data-design="taste"] [data-slot="mode-toggle-track"]::after {
+  position: absolute;
+  inset-block: 6px;
+  left: 50%;
+  width: 1px;
+  background: var(--input);
+  content: "";
+  pointer-events: none;
+}
+
+/* Forward-compatible toggle appearances. Segmented is the default. */
+body[data-design="taste"]
+  [data-slot="mode-toggle"][data-appearance="pill"]
+  [data-slot="mode-toggle-track"] {
+  border-radius: 999px;
+  box-shadow: none;
+}
+
+body[data-design="taste"]
+  [data-slot="mode-toggle"][data-appearance="pill"]
+  [data-slot="mode-toggle-thumb"] {
+  border-radius: 999px;
+  box-shadow: none;
+}
+
+body[data-design="taste"]
+  [data-slot="mode-toggle"][data-appearance="pill"]
+  [data-slot="mode-toggle-track"]::after {
+  content: none;
+}
+
+body[data-design="taste"]
+  [data-slot="mode-toggle"][data-appearance="underline"]
+  [data-slot="mode-toggle-track"] {
+  border-radius: 0;
+  background: transparent;
+  box-shadow: inset 0 -1px 0 0 var(--input);
+}
+
+body[data-design="taste"]
+  [data-slot="mode-toggle"][data-appearance="underline"]
+  [data-slot="mode-toggle-thumb"] {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+body[data-design="taste"]
+  [data-slot="mode-toggle"][data-appearance="underline"]
+  [data-slot="mode-toggle-track"]::after {
+  content: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Home: one left ledger edge. The toggle, the question and the       */
+/* sheet share it; nothing floats in the centre. DOM order is kept —  */
+/* only alignment changes, so reading order matches visual order.     */
+/* ------------------------------------------------------------------ */
+
+body[data-design="taste"] [data-slot="home-view"] {
+  align-items: flex-start;
+  padding-inline: clamp(16px, 5vw, 56px);
+}
+
+body[data-design="taste"] [data-slot="home-hero"] {
+  align-items: flex-start;
+  justify-content: flex-end;
+  width: 100%;
+  max-width: var(--size-composer-width);
+}
+
+body[data-design="taste"] [data-slot="home-view"] h1 {
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.01em;
+  text-align: start;
+  text-wrap: pretty;
+}
+
+body[data-design="taste"] [data-slot="home-view"] [data-slot="composer"] {
+  width: 100%;
+}
+
+/* ------------------------------------------------------------------ */
+/* Composer: one opaque sheet. A heavy border does the work the soft  */
+/* shadow did; the control row is ruled off from the draft; the tray  */
+/* attaches as a footer strip of the same sheet instead of a second   */
+/* tucked card. All three layouts keep their DOM and behaviour.       */
+/* ------------------------------------------------------------------ */
+
+body[data-design="taste"] [data-slot="composer-surface"] {
+  border: 1px solid var(--input);
+  border-radius: var(--radius-composer);
+  background: var(--card);
+}
+
+/* Stacked and roomy: rule above the control row. */
+body[data-design="taste"]
+  [data-slot="composer-surface"]
+  > [data-slot="composer-controls"] {
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-composer-footer-padding);
+}
+
+/* Inline keeps its single row: no rule through the text. Detected by */
+/* the field living inside the controls row, not by a utility class.  */
+body[data-design="taste"]
+  [data-slot="composer"]
+  [data-slot="composer-controls"]:has(> [data-slot="composer-field"]) {
+  border-top: none;
+  padding-top: 8px;
+}
+
+body[data-design="taste"] [data-slot="composer-field"] {
+  caret-color: var(--foreground);
+}
+
+body[data-design="taste"] [data-slot="composer-field"]::placeholder {
+  color: var(--subtle-foreground);
+  opacity: 1;
+}
+
+/* Composer choices read as ledger columns: square triggers with a    */
+/* hairline divider between groups. Triggers are menu buttons, so     */
+/* they are found by their menu state, not by utility classes.        */
+body[data-design="taste"] [data-slot="composer-controls"] button[aria-haspopup],
+body[data-design="taste"] [data-slot="composer-tray"] button {
+  border-radius: 6px;
+}
+
+/* The one primary action: an ink square in every phase (voice, send, */
+/* stop). Found by its stable accessible names until a dedicated hook */
+/* lands; see the integration notes in the delivery report.           */
+body[data-design="taste"] [data-slot="composer-primary"] {
+  border-radius: 6px;
+}
+
+/* Divider before the trailing model / dictation / send group. */
+body[data-design="taste"] [data-slot="composer-controls"] > div:last-child {
+  border-inline-start: 1px solid var(--border);
+  padding-inline-start: 8px;
+}
+
+/* Forward-compatible composer layouts. */
+body[data-design="taste"] [data-slot="composer"][data-layout="roomy"] {
+  --size-composer-min-height: 128px;
+}
+
+body[data-design="taste"] [data-slot="composer"][data-layout="inline"] {
+  --radius-composer: 8px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Tray: attached footer strip. Untucked, flush with the sheet,       */
+/* ruled between project / files / plugins and the run location.      */
+/* Embedded (roomy) keeps its in-sheet top rule.                       */
+/* ------------------------------------------------------------------ */
+
+body[data-design="taste"] [data-slot="composer-tray"] {
+  border-radius: 0 0 var(--radius-tray) var(--radius-tray);
+}
+
+body[data-design="taste"]
+  [data-slot="composer"]:has(> [data-slot="composer-tray"])
+  > div:first-child {
+  border-bottom: none;
+  border-end-start-radius: 0;
+  border-end-end-radius: 0;
+}
+
+body[data-design="taste"] [data-slot="composer"] > [data-slot="composer-tray"] {
+  margin-top: 0;
+  margin-inline: 0;
+  border: 1px solid var(--input);
+  border-top: 1px solid var(--border);
+  padding-top: 0;
+  background: var(--muted);
+}
+
+/* ------------------------------------------------------------------ */
+/* Attachments: filed slips on the sheet. Square, bordered, sizes in  */
+/* tabular figures; failure keeps its warning glyph and words, so     */
+/* state never rides on colour alone.                                 */
+/* ------------------------------------------------------------------ */
+
+body[data-design="taste"] [data-slot="composer-attachments"] {
+  gap: 6px;
+  padding-inline: 10px;
+}
+
+body[data-design="taste"] [data-slot="composer-attachments"] > li {
+  border: 1px solid var(--input);
+  border-radius: 6px;
+  background: var(--muted);
+}
+
+body[data-design="taste"]
+  [data-slot="composer-attachments"]
+  > li
+  > span
+  > span:last-child {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ */
+/* Catalogue furniture that has no data-slot hook yet: the theme      */
+/* switch. Scoped by its accessible name so the state harness (which  */
+/* deliberately sits outside the design system) is untouched.         */
+/* ------------------------------------------------------------------ */
+
+body[data-design="taste"] fieldset[aria-label="Color scheme"] button {
+  border-radius: 6px;
+}
+
+body[data-design="taste"]
+  fieldset[aria-label="Color scheme"]
+  button[aria-pressed="true"] {
+  font-weight: var(--weight-semibold);
+}
+
+/* ------------------------------------------------------------------ */
+/* Dark: true neutrals come from the theme layer. The ledger only     */
+/* strengthens its rules, because black shadows disappear on dark.    */
+/* ------------------------------------------------------------------ */
+
+html.dark body[data-design="taste"] [data-slot="menu"] {
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+}
+
+html.dark body[data-design="taste"] [data-slot="composer-surface"] {
+  border-color: var(--input);
+  box-shadow: var(--shadow-composer-dark-edge);
+}
+
+html.dark body[data-design="taste"] [data-slot="mode-toggle-track"] {
+  background: var(--window);
+}
+
+/* ------------------------------------------------------------------ */
+/* Narrow widths and zoom: the ledger edge becomes the screen edge.   */
+/* Fields reach 16px so touch browsers do not zoom the sheet.         */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 640px) {
+  body[data-design="taste"] {
+    --space-sidebar-padding: 10px;
+    --space-composer-padding-x: 12px;
+    --space-composer-footer-padding: 8px;
+  }
+
+  body[data-design="taste"] [data-slot="home-view"] {
+    padding-inline: 12px;
+  }
+
+  body[data-design="taste"] [data-slot="composer-field"],
+  body[data-design="taste"] [data-slot="sidebar"] input {
+    font-size: 16px;
+  }
+
+  /* The trailing divider would strand on a wrapped inline row. */
+  body[data-design="taste"] [data-slot="composer-controls"] > div:last-child {
+    border-inline-start: none;
+    padding-inline-start: 0;
+  }
+}
+
+/* Forced colours: borders already carry every edge, so nothing is    */
+/* lost when shadows and fills are removed by the system.             */
+@media (forced-colors: active) {
+  body[data-design="taste"] [data-slot="tab"][aria-selected="true"],
+  body[data-design="taste"]
+    [data-slot="conversation-row"]
+    > button[aria-current="page"],
+  body[data-design="taste"]
+    [data-slot="icon-rail"]
+    button[aria-current="page"] {
+    box-shadow: none;
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+}
+
+/* Reduced motion: no travel, no scale. State is still carried by     */
+/* fill, weight, glyphs and words, never by the animation.            */
+@media (prefers-reduced-motion: reduce) {
+  body[data-design="taste"] *,
+  body[data-design="taste"] *::before,
+  body[data-design="taste"] *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (max-width: 480px) {
+  body[data-design="taste"] [data-slot="composer-controls"] {
+    flex-wrap: wrap;
+  }
+}

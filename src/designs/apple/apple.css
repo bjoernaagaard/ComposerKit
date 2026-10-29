@@ -1,0 +1,554 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+/*
+ * Apple direction. Content sits on solid sheets; a sparse Liquid Glass layer
+ * carries navigation and controls above it: tabs, toolbar buttons, the mode
+ * switch, the Work tray, menus and tooltips. Every material is mixed from the
+ * theme's color variables, so both schemes still work.
+ *
+ * This file is unlayered on purpose. Tailwind's utilities live in a cascade
+ * layer, so these rules win over them without !important, which also means
+ * each rule that replaces a background restates its hover state.
+ */
+
+body[data-design="apple"] {
+  /* SF's own weights: 510 and 590 are what macOS draws for medium and semibold. */
+  --font-ui:
+    system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+    sans-serif;
+  --weight-regular: 400;
+  --weight-medium: 510;
+  --weight-semibold: 590;
+
+  /* Concentric geometry: each inner radius is its parent's minus the inset. */
+  --radius-small: 8px;
+  --radius-control: 10px;
+  --radius-tab: 9999px;
+  --radius-menu-item: 12px;
+  --radius-menu: 18px;
+  --radius-tray: 9999px;
+  --radius-composer: 26px;
+
+  --size-titlebar: 52px;
+  --size-tab-height: 30px;
+  --size-tab-width: 220px;
+  --size-rail-button: 38px;
+  --size-row: 32px;
+  --size-row-compact: 26px;
+  --size-row-two-line: 46px;
+  --size-icon-button: 30px;
+  --size-composer-control: 32px;
+  --size-composer-min-height: 108px;
+  --size-composer-inline-min-height: 56px;
+  --size-composer-roomy-text-min-height: 88px;
+  --size-button-small: 26px;
+  --size-button-medium: 30px;
+  --size-button-large: 36px;
+  --size-mode-toggle-height: 34px;
+  --size-mode-toggle-width: 216px;
+  --size-menu-width: 264px;
+
+  --space-sidebar-padding: 10px;
+  --space-row-padding-x: 10px;
+  --space-menu-padding: 6px;
+  --space-menu-item-padding-x: 10px;
+  --space-menu-item-padding-y: 6px;
+  --space-composer-padding-x: 16px;
+  --space-composer-footer-padding: 10px;
+  --space-hero-padding-top: 32px;
+  --space-hero-padding-bottom: 26px;
+
+  /* Large Title, Title 3 and Footnote steps. */
+  --text-hero-size: 34px;
+  --text-hero-leading: 41px;
+  --text-brand-size: 20px;
+  --text-brand-leading: 25px;
+  --text-caption-size: 12px;
+  --text-caption-leading: 16px;
+
+  --blur-menu: 24px;
+  --shadow-menu:
+    0 2px 6px color-mix(in oklab, black 6%, transparent),
+    0 16px 40px -10px color-mix(in oklab, black 24%, transparent);
+  --shadow-toggle-thumb:
+    0 1px 2px color-mix(in oklab, black 10%, transparent),
+    0 4px 10px -3px color-mix(in oklab, black 14%, transparent);
+
+  /* A critically damped spring (response 0.35s), sampled for CSS. */
+  --motion-duration: 180ms;
+  --motion-ease-out: cubic-bezier(0.25, 1, 0.5, 1);
+  --motion-ease-enter: linear(
+    0,
+    0.055,
+    0.175,
+    0.312,
+    0.445,
+    0.562,
+    0.66,
+    0.74,
+    0.803,
+    0.852,
+    0.89,
+    0.919,
+    0.94,
+    0.956,
+    0.968,
+    0.977,
+    0.983,
+    0.988,
+    0.991,
+    0.994,
+    1
+  );
+
+  /* Materials. Thicker glass for bigger surfaces, a lens for the chosen item. */
+  --apple-glass: color-mix(in oklab, var(--card) 62%, transparent);
+  --apple-glass-thick: color-mix(in oklab, var(--card) 80%, transparent);
+  --apple-glass-filter: blur(var(--blur-menu)) saturate(180%);
+  --apple-sidebar: color-mix(in oklab, var(--background) 70%, transparent);
+  --apple-track: color-mix(in oklab, var(--foreground) 6%, transparent);
+  --apple-lens: var(--card);
+  --apple-fill: color-mix(in oklab, var(--foreground) 7%, transparent);
+  --apple-fill-hover: color-mix(in oklab, var(--foreground) 11%, transparent);
+  --apple-highlight: color-mix(in oklab, var(--primary) 16%, transparent);
+
+  /* Light catching the top edge, plus a hairline that holds the shape. */
+  --apple-rim:
+    inset 0 0.5px 0 color-mix(in oklab, white 80%, transparent),
+    inset 0 0 0 0.5px color-mix(in oklab, var(--foreground) 9%, transparent);
+  --apple-lift:
+    0 1px 2px color-mix(in oklab, black 7%, transparent),
+    0 6px 16px -6px color-mix(in oklab, black 16%, transparent);
+  --apple-sheet:
+    0 0 0 0.5px var(--border),
+    0 1px 3px color-mix(in oklab, black 4%, transparent);
+}
+
+html.dark body[data-design="apple"] {
+  --apple-glass: color-mix(in oklab, var(--card) 58%, transparent);
+  --apple-glass-thick: color-mix(in oklab, var(--card) 82%, transparent);
+  --apple-sidebar: color-mix(in oklab, var(--card) 46%, transparent);
+  --apple-lens: var(--card);
+  --apple-fill: color-mix(in oklab, var(--foreground) 9%, transparent);
+  --apple-fill-hover: color-mix(in oklab, var(--foreground) 14%, transparent);
+  --apple-highlight: color-mix(in oklab, var(--primary) 26%, transparent);
+  --apple-rim:
+    inset 0 0.5px 0 color-mix(in oklab, white 18%, transparent),
+    inset 0 0 0 0.5px color-mix(in oklab, white 9%, transparent);
+  --apple-lift:
+    0 1px 2px color-mix(in oklab, black 30%, transparent),
+    0 8px 20px -6px color-mix(in oklab, black 45%, transparent);
+  --apple-sheet:
+    inset 0 0.5px 0 color-mix(in oklab, white 7%, transparent),
+    0 0 0 0.5px var(--border);
+  --shadow-menu:
+    0 2px 6px color-mix(in oklab, black 25%, transparent),
+    0 18px 44px -10px color-mix(in oklab, black 55%, transparent);
+}
+
+/* ---------- Content layer: solid, readable, never glass ---------- */
+
+/* The main panel becomes a sheet whose corner meets the window chrome. */
+body[data-design="apple"] main:has(> #main-panel) {
+  border-inline-start-width: 0;
+  border-start-start-radius: 22px;
+  box-shadow: var(--apple-sheet);
+}
+
+body[data-design="apple"] [data-slot="home-view"] h1 {
+  font-weight: 700;
+  letter-spacing: -0.012em;
+}
+
+body[data-design="apple"] h2 {
+  letter-spacing: -0.008em;
+}
+
+/* The sidebar floats as a panel inset from the window, as in macOS. */
+body[data-design="apple"] [data-slot="sidebar"] {
+  width: calc(var(--size-sidebar) - 8px);
+  height: calc(100% - 8px);
+  margin-inline-end: 8px;
+  border-radius: 20px;
+  background: var(--apple-sidebar);
+  backdrop-filter: var(--apple-glass-filter);
+  box-shadow: var(--apple-rim), var(--apple-lift);
+}
+
+body[data-design="apple"] [data-slot="conversation-row"] > button {
+  transition-property: background-color, color;
+}
+
+body[data-design="apple"]
+  [data-slot="conversation-row"]
+  > button[aria-current="page"] {
+  background: var(--apple-fill);
+  font-weight: var(--weight-medium);
+}
+
+/* Row actions sat on the old sidebar color; on glass they show the row. */
+body[data-design="apple"] [data-slot="conversation-row"] > span {
+  background: transparent;
+}
+
+/* ---------- Composer: a solid field with controls set into it ---------- */
+
+body[data-design="apple"] [data-slot="composer"] > .composer-surface {
+  background: var(--card);
+  box-shadow:
+    var(--apple-rim),
+    0 2px 6px color-mix(in oklab, black 4%, transparent),
+    0 18px 40px -16px color-mix(in oklab, black 16%, transparent);
+  outline-offset: 2px;
+}
+
+html.dark body[data-design="apple"] [data-slot="composer"] > .composer-surface {
+  box-shadow:
+    var(--apple-rim),
+    0 18px 40px -16px color-mix(in oklab, black 50%, transparent);
+}
+
+/* inline is a capsule: half its resting height, so the controls sit concentric. */
+body[data-design="apple"]
+  :is(
+    [data-slot="composer"][data-layout="inline"],
+    [data-slot="composer"]:has(
+      > .composer-surface
+        > [data-slot="composer-controls"]
+        > [data-slot="composer-field"]
+    )
+  )
+  > .composer-surface {
+  border-radius: calc(var(--size-composer-inline-min-height) / 2);
+}
+
+/* roomy is the tallest, so it takes the deepest corner. */
+body[data-design="apple"]
+  :is(
+    [data-slot="composer"][data-layout="roomy"],
+    [data-slot="composer"]:has(
+      > .composer-surface > [data-slot="composer-tray"]
+    )
+  )
+  > .composer-surface {
+  border-radius: 30px;
+}
+
+body[data-design="apple"] [data-slot="composer-field"] {
+  font-size: 15px;
+  line-height: 22px;
+}
+
+/* 16px keeps iOS from zooming the page when the field takes focus. */
+@media (pointer: coarse) {
+  body[data-design="apple"] [data-slot="composer-field"] {
+    font-size: 16px;
+  }
+}
+
+/* Round controls set into the field, filled so they read as buttons at rest. */
+body[data-design="apple"]
+  [data-slot="composer-controls"]
+  [data-slot="icon-button"],
+body[data-design="apple"] [data-slot="composer-primary"] {
+  border-radius: 9999px;
+}
+
+body[data-design="apple"]
+  [data-slot="composer-controls"]
+  [data-slot="icon-button"] {
+  background: var(--apple-fill);
+  color: var(--muted-foreground);
+}
+
+body[data-design="apple"]
+  [data-slot="composer-controls"]
+  [data-slot="icon-button"][aria-pressed="true"] {
+  background: var(--apple-highlight);
+  color: var(--link);
+}
+
+body[data-design="apple"] [data-slot="composer-primary"] {
+  box-shadow: inset 0 0.5px 0 color-mix(in oklab, white 30%, transparent);
+}
+
+/* Chips nest inside the composer corner: 26px minus the 8px inset. */
+body[data-design="apple"] [data-slot="composer-attachments"] > li {
+  border-radius: 18px;
+}
+
+/* The tucked tray comes loose as a floating glass toolbar under the field. */
+body[data-design="apple"] [data-slot="composer"] > [data-slot="composer-tray"] {
+  margin: 10px 14px 0;
+  padding: 0 6px;
+  border-radius: 9999px;
+  background: var(--apple-glass-thick);
+  backdrop-filter: var(--apple-glass-filter);
+  box-shadow: var(--apple-rim), var(--apple-lift);
+}
+
+/* roomy keeps its tray inside, as a recessed well that follows the corner. */
+body[data-design="apple"] .composer-surface > [data-slot="composer-tray"] {
+  margin: 4px 8px 8px;
+  padding: 0 4px;
+  border-top-width: 0;
+  border-radius: 22px;
+  background: var(--apple-track);
+}
+
+/* ---------- Glass layer: navigation and controls ---------- */
+
+/* Toolbar buttons: each one a small glass disc. */
+body[data-design="apple"] [data-slot="title-bar"] [data-slot="icon-button"] {
+  border-radius: 9999px;
+  background: var(--apple-glass);
+  backdrop-filter: var(--apple-glass-filter);
+  box-shadow: var(--apple-rim), var(--apple-lift);
+  color: var(--muted-foreground);
+}
+
+/* Tabs: a recessed capsule track with the open tab raised as a lens. */
+body[data-design="apple"] [data-slot="tab-strip"][data-appearance="filled"] {
+  gap: 2px;
+  padding: 3px;
+  border-radius: 9999px;
+  background: var(--apple-track);
+}
+
+body[data-design="apple"]
+  [data-slot="tab-strip"][data-appearance="filled"]
+  [data-slot="tab"] {
+  border-color: transparent;
+  border-radius: 9999px;
+  padding-inline-start: 12px;
+  transition-property: background-color, color, box-shadow;
+}
+
+body[data-design="apple"]
+  [data-slot="tab-strip"][data-appearance="filled"]
+  [data-slot="tab"][aria-selected="true"] {
+  background: var(--apple-lens);
+  box-shadow: var(--apple-rim), var(--apple-lift);
+  font-weight: var(--weight-semibold);
+}
+
+/* Rail: the current destination is lifted out as a glass lens. */
+body[data-design="apple"] [data-slot="icon-rail"] button {
+  border-radius: 9999px;
+}
+
+body[data-design="apple"] [data-slot="icon-rail"] button[aria-current="page"] {
+  background: var(--apple-lens);
+  box-shadow: var(--apple-rim), var(--apple-lift);
+  color: var(--foreground);
+}
+
+/* Mode switch: a segmented control whose thumb is a lens inset from the track. */
+body[data-design="apple"]
+  [data-slot="mode-toggle"]:not([data-appearance="underline"])
+  [data-slot="mode-toggle-track"] {
+  background: var(--apple-track);
+}
+
+body[data-design="apple"]
+  [data-slot="mode-toggle"]:not([data-appearance="underline"])
+  [data-slot="mode-toggle-thumb"] {
+  inset-block: 3px;
+  inset-inline-start: 3px;
+  width: calc(50% - 3px);
+  border-color: transparent;
+  background: var(--apple-lens);
+  box-shadow: var(--apple-rim), var(--shadow-toggle-thumb);
+  transition-property: translate, scale;
+  transition-duration: 420ms, 160ms;
+  transition-timing-function: var(--motion-ease-enter), ease-out;
+}
+
+body[data-design="apple"]
+  [data-slot="mode-toggle"]
+  button[aria-pressed="true"] {
+  font-weight: var(--weight-semibold);
+}
+
+/* Menus: the thickest glass, scaled out of the control that opened them. */
+body[data-design="apple"] [data-slot="menu"] {
+  background: var(--apple-glass-thick);
+  backdrop-filter: var(--apple-glass-filter);
+  box-shadow: var(--apple-rim), var(--shadow-menu);
+  transform-origin: var(--transform-origin);
+}
+
+/* Tooltips: a small glass capsule with ink text instead of an inverted slab. */
+body[data-design="apple"] [data-slot="tooltip"] {
+  padding: 4px 10px;
+  background: var(--apple-glass-thick);
+  backdrop-filter: var(--apple-glass-filter);
+  box-shadow: var(--apple-rim), var(--apple-lift);
+  color: var(--foreground);
+  font-weight: var(--weight-medium);
+  transform-origin: var(--transform-origin);
+}
+
+/* ---------- Buttons ---------- */
+
+body[data-design="apple"] [data-slot="button"] {
+  transition-property: background-color, color, scale;
+  transition-duration: var(--motion-duration), var(--motion-duration), 120ms;
+  transition-timing-function: ease-out;
+}
+
+body[data-design="apple"] [data-slot="button"][data-variant="default"] {
+  box-shadow: inset 0 0.5px 0 color-mix(in oklab, white 30%, transparent);
+}
+
+/* Bordered buttons trade the outline for a tinted fill, as on macOS. */
+body[data-design="apple"] [data-slot="button"][data-variant="outline"] {
+  border-color: transparent;
+  background: var(--apple-fill);
+}
+
+body[data-design="apple"] [data-slot="icon-button"] {
+  transition-property: background-color, color, scale;
+  transition-duration: var(--motion-duration), var(--motion-duration), 120ms;
+  transition-timing-function: ease-out;
+}
+
+body[data-design="apple"] [data-slot="icon-button"][data-kind="pill"] {
+  border-radius: 9999px;
+}
+
+body[data-design="apple"]
+  :is(
+    [data-slot="button"],
+    [data-slot="icon-button"],
+    [data-slot="tab"]
+  ):focus-visible,
+body[data-design="apple"]
+  :is([data-slot="icon-rail"], [data-slot="mode-toggle"])
+  button:focus-visible {
+  outline-offset: 2px;
+}
+
+/* Hover only where a pointer can hover, so taps never latch a state. */
+@media (hover: hover) {
+  body[data-design="apple"]
+    [data-slot="title-bar"]
+    [data-slot="icon-button"]:not(:disabled):hover,
+  body[data-design="apple"]
+    [data-slot="composer-controls"]
+    [data-slot="icon-button"]:not(:disabled, [aria-disabled="true"]):hover,
+  body[data-design="apple"]
+    [data-slot="button"][data-variant="outline"]:not(:disabled):hover {
+    background: var(--apple-fill-hover);
+    color: var(--foreground);
+  }
+
+  body[data-design="apple"] [data-slot="tab"][aria-selected="false"]:hover {
+    background: var(--apple-fill);
+  }
+}
+
+/* ---------- Motion, opt in ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Press feedback lands on pointer-down. */
+  body[data-design="apple"]
+    :is(
+      [data-slot="button"],
+      [data-slot="icon-button"],
+      [data-slot="composer-primary"]
+    ):active:not(:disabled, [aria-disabled="true"]) {
+    scale: 0.96;
+  }
+
+  /* The lens swells slightly while a segment is held, then settles on release. */
+  body[data-design="apple"]
+    [data-slot="mode-toggle-track"]:has(button:active)
+    [data-slot="mode-toggle-thumb"] {
+    scale: 1.04 1.08;
+  }
+
+  /* Menus and tooltips materialize from their trigger and leave the same way. */
+  body[data-design="apple"] [data-slot="menu"][data-open] {
+    animation: apple-materialize 340ms var(--motion-ease-enter) both;
+  }
+
+  body[data-design="apple"] [data-slot="menu"][data-closed] {
+    animation: apple-dematerialize 140ms ease-out both;
+  }
+
+  body[data-design="apple"] [data-slot="tooltip"][data-open] {
+    animation: apple-materialize 220ms var(--motion-ease-enter) both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-design="apple"] [data-slot="menu"][data-open],
+  body[data-design="apple"] [data-slot="tooltip"][data-open] {
+    animation: apple-fade 120ms ease-out both;
+  }
+}
+
+@keyframes apple-materialize {
+  from {
+    opacity: 0;
+    scale: 0.94;
+  }
+}
+
+@keyframes apple-dematerialize {
+  to {
+    opacity: 0;
+    scale: 0.97;
+  }
+}
+
+@keyframes apple-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---------- Fallbacks: solid materials when transparency or contrast asks ---------- */
+
+@media (prefers-reduced-transparency: reduce) {
+  body[data-design="apple"],
+  html.dark body[data-design="apple"] {
+    --apple-glass: var(--card);
+    --apple-glass-thick: var(--card);
+    --apple-sidebar: var(--background);
+    --apple-glass-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  body[data-design="apple"],
+  html.dark body[data-design="apple"] {
+    --apple-glass: var(--card);
+    --apple-glass-thick: var(--card);
+    --apple-sidebar: var(--background);
+    --apple-glass-filter: none;
+    --apple-rim: inset 0 0 0 1px var(--input);
+    --apple-track: color-mix(in oklab, var(--foreground) 10%, transparent);
+  }
+}
+
+/* Forced colors drops shadows, so floating surfaces keep a system-color edge. */
+@media (forced-colors: active) {
+  body[data-design="apple"]
+    :is(
+      [data-slot="sidebar"],
+      [data-slot="menu"],
+      [data-slot="tooltip"],
+      [data-slot="tab-strip"],
+      [data-slot="composer-tray"],
+      [data-slot="mode-toggle-thumb"]
+    ),
+  body[data-design="apple"] [data-slot="tab"][aria-selected="true"] {
+    outline: 1px solid CanvasText;
+  }
+}

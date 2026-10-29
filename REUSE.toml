@@ -1,0 +1,16 @@
+version = 1
+
+# Files that cannot carry a comment header.
+[[annotations]]
+path = [
+  "**/*.json",
+  "**/*.lock",
+  "package-lock.json",
+  "**/*.png",
+  "**/*.svg",
+  "**/*.md",
+  ".gitignore",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Bjørn Aagaard"
+SPDX-License-Identifier = "MIT"
