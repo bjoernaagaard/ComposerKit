@@ -109,6 +109,18 @@ export const openPage = async (page: Page, url: string, scheme: Scheme) => {
   expect(dark).toBe(scheme === "dark");
 };
 
+// One example as a reader copies it: the Code tab of a registry page,
+// copied with the docs' own Copy button, compared with the example file
+// minus its license header.
+export interface CopiedExample {
+  page: string;
+  example: string;
+  file: string;
+  tab: string;
+  characters: number;
+  matchesRepoFile: boolean;
+}
+
 export interface CommandRun {
   command: string;
   cwd: string;

@@ -17,7 +17,7 @@ import type {
   RenderRow,
 } from "./stress-support";
 import { ARTIFACTS, REPO, readManifest, readResult } from "./support";
-import type { CommandRun } from "./support";
+import type { CommandRun, CopiedExample } from "./support";
 
 interface SchemaResult {
   ajv: string;
@@ -25,6 +25,7 @@ interface SchemaResult {
 }
 
 interface ShadcnResult {
+  copied: CopiedExample[];
   note: string;
   steps: CommandRun[];
   tempFolder: string;
@@ -122,13 +123,13 @@ const checkOne = (schema: SchemaResult | undefined) => {
 const checkTwo = (shadcn: ShadcnResult | undefined) => {
   if (!shadcn) {
     return [
-      "## 2. A new app installs every item with shadcn add, then type checks and builds",
+      "## 2. A new app installs every item and the sample data, takes every example from its Code tab, then type checks and builds",
       MISSING,
     ];
   }
 
   return [
-    "## 2. A new app installs every item with shadcn add, then type checks and builds",
+    "## 2. A new app installs every item and the sample data, takes every example from its Code tab, then type checks and builds",
     shadcn.note,
     table(
       ["Command", "Folder", "Exit code", "Seconds"],
@@ -140,6 +141,26 @@ const checkTwo = (shadcn: ShadcnResult | undefined) => {
       ])
     ),
     `Temp folder: \`${shadcn.tempFolder}\` (outside the repo).`,
+    "### Examples copied from the Code tab",
+    `Every example file on the six item pages, copied with the docs' Copy button into \`components/examples/\` of the new app before tsc and next build. ${shadcn.copied.length} files. Same as the file means the copied text equals the example file minus its license header.`,
+    table(
+      [
+        "Page",
+        "First example",
+        "File",
+        "Tab",
+        "Characters",
+        "Same as the file",
+      ],
+      shadcn.copied.map((entry) => [
+        entry.page,
+        entry.example,
+        entry.file,
+        entry.tab,
+        entry.characters,
+        entry.matchesRepoFile ? "yes" : "NO",
+      ])
+    ),
   ];
 };
 

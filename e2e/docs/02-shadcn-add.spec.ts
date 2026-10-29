@@ -2,12 +2,16 @@
 // SPDX-License-Identifier: MIT
 
 // Check 2: a new app, made in a temp folder outside the repo, installs every
-// item from a local copy of the docs export, then type checks and builds.
+// item and the sample data from a local copy of the docs export. Then every
+// example on the six item pages is copied the way a reader copies it, with
+// the Code tab's Copy button, into the app, and the app type checks and
+// builds.
 // registry.json points dependencies at the published site, so the copy has
 // that prefix replaced with the local server's URL. The repo's export is
 // not changed.
 import {
   cpSync,
+  mkdirSync,
   mkdtempSync,
   readdirSync,
   readFileSync,
@@ -17,19 +21,33 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 
 import { expect, test } from "@playwright/test";
+import type { Browser, Locator, Page } from "@playwright/test";
 
 import {
+  DOCS_APP,
+  DOCS_URL,
   EXPORT_DIR,
   ITEMS,
   LOCAL_REGISTRY_PORT,
   PUBLISHED_REGISTRY,
+  openPage,
   run,
   serve,
   writeResult,
 } from "./support";
-import type { CommandRun } from "./support";
+import type { CommandRun, CopiedExample } from "./support";
 
 const LOCAL_REGISTRY = `http://127.0.0.1:${LOCAL_REGISTRY_PORT}/r/`;
+
+const SAMPLE_DATA = "sample-data";
+
+// Where the copied examples go in the new app.
+const EXAMPLES_DIR = "components/examples";
+
+// The same header the docs leave out of the Code tab.
+const LICENSE_HEADER = /^(?:\/\/ SPDX-[^\n]*\n)+\n?/u;
+
+const EXAMPLE_TITLE = /^examples\/[\w-]+\.tsx$/u;
 
 // Renders composer, conversation, button, menu and tip. The registry files
 // use hooks and have no "use client", so the page is a client component.
@@ -123,7 +141,120 @@ export default function Page() {
 }
 `;
 
-test("a new shadcn app installs every item and builds", async () => {
+// Opens one preview's Code tab and copies it with the docs' Copy button.
+const copyFromTab = async (page: Page, preview: Locator) => {
+  const name =
+    (await preview
+      .locator("[data-example]")
+      .first()
+      .getAttribute("data-example")) ?? "";
+
+  const tab = preview.getByRole("tab", { name: /code/iu });
+  const tabLabel = (await tab.textContent()) ?? "";
+
+  await tab.click();
+
+  const figure = page
+    .locator("figure")
+    .filter({ has: page.getByRole("region", { name: `Code for ${name}` }) });
+
+  const title = (await figure.getByText(EXAMPLE_TITLE).textContent()) ?? "";
+
+  await figure.getByRole("button", { name: "Copy Text" }).click();
+  await figure.getByRole("button", { name: "Copied Text" }).waitFor();
+
+  const text = await page.evaluate(() => navigator.clipboard.readText());
+
+  return { file: path.basename(title), name, tabLabel, text };
+};
+
+// Every example file on the six item pages, copied once each.
+const copyExamples = async (
+  browser: Browser,
+  app: string
+): Promise<CopiedExample[]> => {
+  const context = await browser.newContext();
+
+  await context.grantPermissions(["clipboard-read", "clipboard-write"], {
+    origin: DOCS_URL,
+  });
+
+  const page = await context.newPage();
+  const copied: CopiedExample[] = [];
+
+  mkdirSync(path.join(app, EXAMPLES_DIR), { recursive: true });
+
+  for (const item of ITEMS) {
+    // oxlint-disable-next-line no-await-in-loop -- one page at a time
+    await openPage(page, `${DOCS_URL}/${item}`, "light");
+
+    const previews = page
+      .locator('[role="tablist"]')
+      .locator("..")
+      .filter({ has: page.locator("[data-example]") });
+
+    // oxlint-disable-next-line no-await-in-loop -- counts this page's previews
+    const count = await previews.count();
+
+    for (let index = 0; index < count; index += 1) {
+      // oxlint-disable-next-line no-await-in-loop -- one Code tab at a time
+      const { file, name, tabLabel, text } = await copyFromTab(
+        page,
+        previews.nth(index)
+      );
+
+      if (!copied.some((entry) => entry.file === file)) {
+        const repoFile = readFileSync(
+          path.join(DOCS_APP, "examples", file),
+          "utf-8"
+        );
+
+        writeFileSync(path.join(app, EXAMPLES_DIR, file), text);
+        copied.push({
+          characters: text.length,
+          example: name,
+          file,
+          matchesRepoFile:
+            text.trimEnd() === repoFile.replace(LICENSE_HEADER, "").trimEnd(),
+          page: `/${item}`,
+          tab: tabLabel,
+        });
+      }
+    }
+  }
+
+  await context.close();
+
+  return copied;
+};
+
+// Imports every copied example, so next build compiles each one.
+const examplesPage = (files: string[]) =>
+  [
+    '"use client";',
+    "",
+    ...files.map(
+      (file, index) =>
+        `import * as example${index} from "@/${EXAMPLES_DIR}/${file.replace(".tsx", "")}";`
+    ),
+    "",
+    "const EXAMPLES = [",
+    ...files.map((file, index) => `  ["${file}", example${index}],`),
+    "] as const;",
+    "",
+    "export default function Page() {",
+    "  return (",
+    "    <ul>",
+    "      {EXAMPLES.map(([file, exports]) => (",
+    '        <li key={file}>{file}: {Object.keys(exports).join(", ")}</li>',
+    "      ))}",
+    "    </ul>",
+    "  );",
+    "}",
+    "",
+  ].join("\n");
+
+test("a new shadcn app installs every item and builds", async ({ browser }) => {
   test.setTimeout(30 * 60_000);
 
   const root = mkdtempSync(path.join(tmpdir(), "composerkit-e2e-"));
@@ -149,6 +280,7 @@ test("a new shadcn app installs every item and builds", async () => {
 
   const stop = await serve(site, LOCAL_REGISTRY_PORT);
   const steps: CommandRun[] = [];
+  let copied: CopiedExample[] = [];
 
   try {
     steps.push(
@@ -181,7 +313,29 @@ test("a new shadcn app installs every item and builds", async () => {
       steps.push(added);
     }
 
+    steps.push(
+      await run(
+        "npx",
+        [
+          "-y",
+          "shadcn@latest",
+          "add",
+          `${LOCAL_REGISTRY}${SAMPLE_DATA}.json`,
+          "-y",
+          "-o",
+        ],
+        app
+      )
+    );
+
+    copied = await copyExamples(browser, app);
+
     writeFileSync(path.join(app, "app/page.tsx"), PAGE);
+    mkdirSync(path.join(app, "app/examples"), { recursive: true });
+    writeFileSync(
+      path.join(app, "app/examples/page.tsx"),
+      examplesPage(copied.map((entry) => entry.file))
+    );
     steps.push(
       await run("npx", ["tsc", "--noEmit"], app),
       await run("npx", ["next", "build"], app)
@@ -191,6 +345,7 @@ test("a new shadcn app installs every item and builds", async () => {
   }
 
   writeResult("shadcn-add", {
+    copied,
     localRegistry: LOCAL_REGISTRY,
     note: `The export was copied to ${site}. In that copy only, ${PUBLISHED_REGISTRY} was replaced with ${LOCAL_REGISTRY} in ${rewritten.join(", ")}, so registry dependencies also come from the local server.`,
     rewritten,
@@ -201,4 +356,8 @@ test("a new shadcn app installs every item and builds", async () => {
   expect(steps.map((step) => [step.command, step.exitCode])).toEqual(
     steps.map((step) => [step.command, 0])
   );
+  expect(
+    copied.map((entry) => [entry.file, entry.tab, entry.matchesRepoFile])
+  ).toEqual(copied.map((entry) => [entry.file, "Code", true]));
+  expect(copied.length).toBeGreaterThan(0);
 });
