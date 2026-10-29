@@ -108,14 +108,22 @@ const BUILT_IN_ADD_ITEMS: readonly ComposerAddItem[] = [
 
 const NO_ADD_ITEMS: readonly ComposerAddItem[] = [];
 
+// Docked in a conversation, the one-row field is a taller box with the text
+// at its top, so a click below the line still lands in it. The text stays
+// where it is in a one-line box: the box starts the inset above it.
+const DOCKED_ONE_ROW_FIELD =
+  "min-h-(--size-conversation-composer-text-height) pt-(--space-conversation-composer-text-inset) mt-[calc(var(--size-conversation-composer-text-height)-2*var(--space-conversation-composer-text-inset)-var(--text-composer-leading))]";
+
 const fieldClasses = ({
   twoRows,
   layout,
+  conversation,
   showExpand,
   expanded,
 }: {
   twoRows: boolean;
   layout: ComposerLayout;
+  conversation: boolean;
   showExpand: boolean;
   expanded: boolean;
 }): string =>
@@ -124,6 +132,7 @@ const fieldClasses = ({
     twoRows
       ? "mx-(--space-composer-padding-x) mt-(--space-composer-two-row-top) max-h-[calc(var(--size-composer-max-height)-var(--space-composer-two-row-top)-var(--space-composer-row-gap)-var(--size-composer-control)-var(--space-composer-footer-padding))] min-h-(--size-composer-two-row-text-min-height)"
       : "min-w-0 self-center",
+    conversation && !twoRows && DOCKED_ONE_ROW_FIELD,
     layout === "roomy" && "mt-4 min-h-(--size-composer-roomy-text-min-height)",
     showExpand &&
       "mr-[calc(var(--space-composer-padding-x)+var(--space-composer-expand-reserve))]",
@@ -626,7 +635,13 @@ export const Composer = ({
       aria-activedescendant={activeOptionId(listId, addMenu)}
       aria-controls={addMenu.shown.length > 0 ? listId : undefined}
       aria-label={placeholder}
-      className={fieldClasses({ expanded, layout, showExpand, twoRows })}
+      className={fieldClasses({
+        conversation,
+        expanded,
+        layout,
+        showExpand,
+        twoRows,
+      })}
       data-slot="composer-field"
       key="field"
       onBlur={() => {

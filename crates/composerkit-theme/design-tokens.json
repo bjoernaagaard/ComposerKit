@@ -94,6 +94,7 @@
     "composerRoomyTextMinHeight": 80,
     "messageColumn": 737,
     "conversationComposerMinHeight": 48,
+    "conversationComposerTextHeight": 36,
     "menuNarrow": 200,
     "menuMedium": 220,
     "menuWide": 240,
@@ -185,7 +186,8 @@
     "modelMenuRowGap": 8,
     "tooltipOffset": 2,
     "tooltipPaddingX": 12,
-    "composerExpandReserve": 28
+    "composerExpandReserve": 28,
+    "conversationComposerTextInset": 4
   },
   "border": {
     "hairline": 0.5,
