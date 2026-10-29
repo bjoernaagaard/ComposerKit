@@ -483,6 +483,46 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "sample-data",
+      "type": "registry:item",
+      "title": "Sample data",
+      "description": "The sample options, projects, chats, conversation turns, composer states and color roles that the docs examples import. Add it to run an example exactly as the docs show it.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "https://bjoernaagaard.github.io/ComposerKit/r/composer.json",
+        "https://bjoernaagaard.github.io/ComposerKit/r/conversation.json"
+      ],
+      "files": [
+        {
+          "path": "src/content/catalog.ts",
+          "type": "registry:file",
+          "target": "content/catalog.ts"
+        },
+        {
+          "path": "src/content/sample.ts",
+          "type": "registry:file",
+          "target": "content/sample.ts"
+        },
+        {
+          "path": "src/content/conversation.ts",
+          "type": "registry:file",
+          "target": "content/conversation.ts"
+        },
+        {
+          "path": "src/content/color-roles.ts",
+          "type": "registry:file",
+          "target": "content/color-roles.ts"
+        },
+        {
+          "path": "src/states/composer/fixtures.ts",
+          "type": "registry:file",
+          "target": "states/composer/fixtures.ts"
+        }
+      ]
     }
   ]
 }
