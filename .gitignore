@@ -82,3 +82,7 @@ target/
 
 # Browser automation output
 .playwright-mcp/
+
+# Playwright output
+test-results/
+playwright-report/
