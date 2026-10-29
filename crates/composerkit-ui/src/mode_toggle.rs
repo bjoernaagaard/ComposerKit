@@ -154,7 +154,6 @@ impl RenderOnce for ModeToggle {
             ModeToggleAppearance::Segmented => border_width(track, hairline)
                 .border_color(colors.border)
                 .rounded(px(tokens.radius.control))
-                .p(px(inset))
                 .bg(colors.secondary),
             ModeToggleAppearance::Underline => {
                 let mut track = track.border_color(colors.input);

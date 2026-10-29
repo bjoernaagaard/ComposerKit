@@ -17,12 +17,14 @@ export const MODE_TOGGLE_APPEARANCES: ModeToggleAppearance[] = [
 ];
 
 // pill: a round track with a thumb that slides. The default.
-// segmented: a squarer track with the thumb set inside it.
+// segmented: a squarer track with the thumb set inside it. Only the thumb
+// is inset, and the track's edge is a ring that takes no room, so each
+// option fills its half of the track.
 // underline: no track, just a bar that slides under the chosen label.
 const TRACK_CLASSES: Record<ModeToggleAppearance, string> = {
   pill: "bg-secondary rounded-full",
   segmented:
-    "bg-secondary border-border rounded-(--radius-control) border-(length:--border-hairline) p-(--space-mode-toggle-inset)",
+    "bg-secondary inset-ring-border rounded-(--radius-control) inset-ring-(length:--border-hairline)",
   underline: "border-input border-b-(length:--border-hairline)",
 };
 

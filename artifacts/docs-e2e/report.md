@@ -23,22 +23,22 @@ Schemas fetched at run time from ui.shadcn.com. Validator: ajv 8 (draft-07), str
 
 ## 2. A new app installs every item and the sample data, takes every example from its Code tab, then type checks and builds
 
-The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-yRyR1v/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
+The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-rs4URS/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
 
 | Command | Folder | Exit code | Seconds |
 | --- | --- | --- | --- |
-| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 29 |
+| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 38 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/theme.json -y -o | consumer | 0 | 2 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/button.json -y -o | consumer | 0 | 2 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/button.json -y -o | consumer | 0 | 3 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/tip.json -y -o | consumer | 0 | 2 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/menu.json -y -o | consumer | 0 | 2 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/menu.json -y -o | consumer | 0 | 3 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/composer.json -y -o | consumer | 0 | 3 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/conversation.json -y -o | consumer | 0 | 2 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/sample-data.json -y -o | consumer | 0 | 2 |
-| npx tsc --noEmit | consumer | 0 | 2 |
-| npx next build | consumer | 0 | 8 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/conversation.json -y -o | consumer | 0 | 3 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/sample-data.json -y -o | consumer | 0 | 4 |
+| npx tsc --noEmit | consumer | 0 | 4 |
+| npx next build | consumer | 0 | 11 |
 
-Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-yRyR1v` (outside the repo).
+Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-rs4URS` (outside the repo).
 
 ### Examples copied from the Code tab
 
@@ -112,7 +112,7 @@ Keyboard and size rows are listed, not gated. A mismatch does not fail the run; 
 
 | Rows | Pass | Mismatch | Not checkable |
 | ---- | ---- | -------- | ------------- |
-| 104  | 78   | 13       | 13            |
+| 104  | 79   | 12       | 13            |
 
 ## 4. Every old catalog screenshot has a docs example
 
@@ -124,9 +124,9 @@ Baseline: 37 ids, light and dark, in `catalog-before/`. Docs screenshots in `doc
 
 | Id | Page | Light before | Light after | Light diff | Dark diff |
 | --- | --- | --- | --- | --- | --- |
-| button--default | /button | 1104 x 32 | 1070 x 33 | 5.9% | 5.9% |
-| button--ghost | /button | 1104 x 32 | 1070 x 33 | 5.9% | 5.9% |
-| button--outline | /button | 1104 x 32 | 1070 x 33 | 5.9% | 5.9% |
+| button--default | /button | 1104 x 32 | 1059 x 33 | 6.9% | 6.9% |
+| button--ghost | /button | 1104 x 32 | 1059 x 33 | 6.9% | 6.9% |
+| button--outline | /button | 1104 x 32 | 1059 x 33 | 6.9% | 6.9% |
 | composer--inline | /composer | 641 x 84 | 641 x 85 | 1.2% | 1.2% |
 | composer--roomy | /composer | 641 x 177 | 641 x 178 | 0.5% | 0.6% |
 | composer--stacked | /composer | 641 x 138 | 641 x 139 | 0.7% | 0.7% |
@@ -143,9 +143,9 @@ Baseline: 37 ids, light and dark, in `catalog-before/`. Docs screenshots in `doc
 | composer-state--unsupported | /composer | 640 x 98 | 641 x 99 | 1.7% | 1.7% |
 | composer-state--upload-offline | /composer | 640 x 155 | 641 x 156 | 1.5% | 1.5% |
 | composer-state--uploading | /composer | 640 x 155 | 641 x 155 | 0.7% | 0.7% |
-| conversation--bubbles | /conversation | 1104 x 640 | 1070 x 641 | 5.9% | 5.9% |
-| conversation--document | /conversation | 1104 x 640 | 1070 x 641 | 5.4% | 5.4% |
-| conversation--transcript | /conversation | 1104 x 640 | 1070 x 641 | 6.1% | 6.1% |
+| conversation--bubbles | /conversation | 1104 x 640 | 1059 x 641 | 6.9% | 6.9% |
+| conversation--document | /conversation | 1104 x 640 | 1059 x 641 | 6.4% | 6.4% |
+| conversation--transcript | /conversation | 1104 x 640 | 1059 x 641 | 7.0% | 7.0% |
 | conversation-row--compact | /app-shell | 288 x 217 | 288 x 218 | 5.9% | 7.2% |
 | conversation-row--measured | /app-shell | 288 x 265 | 288 x 266 | 5.1% | 6.1% |
 | conversation-row--two-line | /app-shell | 288 x 377 | 288 x 378 | 4.4% | 5.1% |
@@ -155,18 +155,18 @@ Baseline: 37 ids, light and dark, in `catalog-before/`. Docs screenshots in `doc
 | icon-button--small | /button | 94 x 28 | 94 x 29 | 3.4% | 3.4% |
 | menu--compact | /menu | 279 x 28 | 279 x 29 | 4.1% | 4.1% |
 | menu--regular | /menu | 181 x 28 | 181 x 29 | 3.4% | 3.4% |
-| mode-toggle--pill | /app-shell | 289 x 36 | 289 x 37 | 3.6% | 4.2% |
-| mode-toggle--segmented | /app-shell | 332 x 36 | 331 x 37 | 5.3% | 4.5% |
-| mode-toggle--underline | /app-shell | 283 x 36 | 283 x 37 | 6.0% | 4.9% |
-| palette--swatches | /theme | 1104 x 312 | 1070 x 313 | 9.7% | 9.7% |
-| title-bar-tabs--filled | /app-shell | 1104 x 78 | 1070 x 79 | 6.0% | 6.6% |
-| title-bar-tabs--underline | /app-shell | 1104 x 78 | 1070 x 79 | 6.6% | 6.6% |
+| mode-toggle--pill | /app-shell | 289 x 36 | 289 x 37 | 4.7% | 5.4% |
+| mode-toggle--segmented | /app-shell | 332 x 36 | 331 x 37 | 7.0% | 5.3% |
+| mode-toggle--underline | /app-shell | 283 x 36 | 283 x 37 | 7.0% | 6.0% |
+| palette--swatches | /theme | 1104 x 312 | 1059 x 313 | 11.7% | 11.7% |
+| title-bar-tabs--filled | /app-shell | 1104 x 78 | 1059 x 79 | 7.0% | 7.5% |
+| title-bar-tabs--underline | /app-shell | 1104 x 78 | 1059 x 79 | 7.5% | 7.6% |
 
 ## 5. next build passes and next-validate-link finds no broken links
 
 | Step | Result | Detail |
 | --- | --- | --- |
-| npm run build --workspace @composerkit/docs | exit 0 | 5 s |
+| npm run build --workspace @composerkit/docs | exit 0 | 10 s |
 | next-validate-link on content/docs/*.mdx | no broken links | 9 files, 9 known URLs |
 
 ## 6. Stress
@@ -338,7 +338,7 @@ None.
 | 50 | Gap from add button to text, empty chat | 4 | 38 | /composer [data-example="composer--inline"] |
 | 52 | Model picker, empty chat | 102 to 102 x 28 | 99.9 x 28 | /composer [data-example="composer--inline"] |
 | 52 | Model picker, docked | 102 to 103 x 28 | 66 x 28 | /conversation [data-example="conversation--bubbles"] |
-| 220 | Prompt action row | right-aligned, 4 below the bubble; copy 27 x 26, share 31 x 30, edit 27 x 26 | 4 below, right edges 1217.5 and bubble 1217.5; copy 27 x 26, share 27 x 26, edit 27 x 26 | /conversation [data-example="conversation--document"] |
+| 220 | Prompt action row | right-aligned, 4 below the bubble; copy 27 x 26, share 31 x 30, edit 27 x 26 | 4 below, right edges 1210 and bubble 1210; copy 27 x 26, share 27 x 26, edit 27 x 26 | /conversation [data-example="conversation--document"] |
 | 228 | Gap from prompt bubble bottom to reply text | about 49 | 45 | /conversation [data-example="conversation--document"] |
 | 230 | Reply action row | about 6 below the last line; buttons 27 x 26 or 27 x 27 on a 28 pitch; share 31 x 30; more 25 x 25 | 6 below; Copy 27 x 26, Helpful 27 x 26, This browser can’t read aloud 27 x 26, Share 27 x 26, Write again 27 x 26, More 27 x 26; pitch 28, 28, 28, 28, 28 | /conversation [data-example="conversation--document"] |
 | 258 | Heading at the start of each prompt turn | level 4, visually hidden | h2 "You said:", 1 wide | /conversation [data-example="conversation--document"] |
@@ -347,7 +347,6 @@ None.
 | 271 | Message action buttons | 27 x 26 (some 27 x 27, share 31 x 30) | Copy 27 x 26, Share 27 x 26, Edit 27 x 26, Helpful 27 x 26, This browser can’t read aloud 27 x 26, Write again 27 x 26, More 27 x 26 | /conversation [data-example="conversation--document"] |
 | 277 | Sidebar row trailing buttons (more, pin) | 20 x 20 or 20 x 21 | 24 x 24, 24 x 24 | /app-shell [data-example="conversation-row--measured"] |
 | 434 | Chat row | 30 tall on a 31 pitch, 261 to 272 wide, 8 text inset, radius about 8; on hover two 20 pt buttons 8 apart | 30 tall, pitch 31, 270 wide, inset 8, radius 12.5, 2 trailing buttons 24 x 24 and 24 x 24 4 apart | /app-shell [data-example="conversation-row--measured"] |
-| 435 | Mode switch, segmented variant | two 113 x 36 toggle buttons | 109 x 30, 109 x 30 | /app-shell [data-example="mode-toggle--segmented"] |
 
 ### Rows that could not be checked
 
