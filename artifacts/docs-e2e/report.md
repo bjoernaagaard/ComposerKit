@@ -23,22 +23,22 @@ Schemas fetched at run time from ui.shadcn.com. Validator: ajv 8 (draft-07), str
 
 ## 2. A new app installs every item and the sample data, takes every example from its Code tab, then type checks and builds
 
-The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-rs4URS/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
+The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-GAhENL/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
 
 | Command | Folder | Exit code | Seconds |
 | --- | --- | --- | --- |
-| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 38 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/theme.json -y -o | consumer | 0 | 2 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/button.json -y -o | consumer | 0 | 3 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/tip.json -y -o | consumer | 0 | 2 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/menu.json -y -o | consumer | 0 | 3 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/composer.json -y -o | consumer | 0 | 3 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/conversation.json -y -o | consumer | 0 | 3 |
-| npx -y shadcn@latest add http://127.0.0.1:4321/r/sample-data.json -y -o | consumer | 0 | 4 |
-| npx tsc --noEmit | consumer | 0 | 4 |
-| npx next build | consumer | 0 | 11 |
+| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 17 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/theme.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/button.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/tip.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/menu.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/composer.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/conversation.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/sample-data.json -y -o | consumer | 0 | 1 |
+| npx tsc --noEmit | consumer | 0 | 2 |
+| npx next build | consumer | 0 | 5 |
 
-Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-rs4URS` (outside the repo).
+Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-GAhENL` (outside the repo).
 
 ### Examples copied from the Code tab
 
@@ -166,7 +166,7 @@ Baseline: 37 ids, light and dark, in `catalog-before/`. Docs screenshots in `doc
 
 | Step | Result | Detail |
 | --- | --- | --- |
-| npm run build --workspace @composerkit/docs | exit 0 | 10 s |
+| npm run build --workspace @composerkit/docs | exit 0 | 3 s |
 | next-validate-link on content/docs/*.mdx | no broken links | 9 files, 9 known URLs |
 
 ## 6. Stress
@@ -188,15 +188,15 @@ Tab from the top of the page to the end, then Shift+Tab back, with no mouse even
 
 | Page | Stops | Walk ended | Trap | No visible focus | Not reachable by Tab | Shift+Tab gives the same order | Escape did not return focus |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| / | 32 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /theme | 102 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /button | 102 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /tip | 65 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /menu | 102 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /composer | 324 | Tab left the last control and focus went back to the page | none | none | none | yes | menu on button "Add files and more": closed, focus went to a textarea (16 times) |
-| /conversation | 239 | Tab left the last control and focus went back to the page | none | none | button "Scroll to the newest message" (4 times) | yes | menu on button "Add files and more": closed, focus went to a textarea (4 times) |
-| /sample-data | 33 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /app-shell | 156 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| / | 33 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| /theme | 103 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| /button | 103 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| /tip | 66 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| /menu | 103 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| /composer | 325 | Tab left the last control and focus went back to the page | none | none | none | yes | menu on button "Add files and more": closed, focus went to a textarea (16 times) |
+| /conversation | 240 | Tab left the last control and focus went back to the page | none | none | button "Scroll to the newest message" (4 times) | yes | menu on button "Add files and more": closed, focus went to a textarea (4 times) |
+| /sample-data | 34 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| /app-shell | 157 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
 
 ### A 200 character paste into every composer, then Enter
 
@@ -316,6 +316,37 @@ Images are in `stress/empty/`.
 | conversation--demo | Enter with only spaces and a line break | held up | nothing was sent, field " \n ", height 48 then 98 (spec: 98 for 2 lines), primary button stays "Send" | stress/empty/conversation--demo--enter-whitespace.png |
 | conversation--demo | paste 200 characters, select all, delete, then Enter | held up | nothing was sent, field "", height 48 then 48 (spec: 48 for 1 line), primary button stays "Send" | stress/empty/conversation--demo--paste-delete.png |
 | composer-state--attached | remove the last attachment with the keyboard | held up | 2 attachments removed with Enter, 0 left; height 211 then 98; focus after each removal: button "Remove household budget by month and category (final version).xlsx", textarea "Describe a task" | stress/empty/composer-state--attached--remove-last.png |
+
+## 7. Design directions
+
+The Design picker in the docs sidebar footer, on the pages with the most examples, in light and dark. Each row picks the design through the real select, runs axe on the whole page, then reloads. First frame counts the animation frames before the load event that showed the page, and how many were already in the design, so a flash of the base look fails. Kept after navigation means a sidebar link click reached the next page with the design and without a document load. Screenshots are in `designs/`. Gated: axe, first frame, navigation and console errors.
+
+| Page | Design | Scheme | axe violations | First frame | Kept after navigation | Console errors |
+| --- | --- | --- | --- | --- | --- | --- |
+| /composer | apple | light | none | pass, 2 of 2 frames | yes | none |
+| /composer | glass | light | none | pass, 1 of 1 frames | yes | none |
+| /composer | taste | light | none | pass, 1 of 1 frames | yes | none |
+| /composer | emil | light | none | pass, 1 of 1 frames | yes | none |
+| /conversation | apple | light | none | pass, 2 of 2 frames | yes | none |
+| /conversation | glass | light | none | pass, 1 of 1 frames | yes | none |
+| /conversation | taste | light | none | pass, 2 of 2 frames | yes | none |
+| /conversation | emil | light | none | pass, 2 of 2 frames | yes | none |
+| /app-shell | apple | light | none | pass, 2 of 2 frames | yes | none |
+| /app-shell | glass | light | none | pass, 2 of 2 frames | yes | none |
+| /app-shell | taste | light | none | pass, 2 of 2 frames | yes | none |
+| /app-shell | emil | light | none | pass, 2 of 2 frames | yes | none |
+| /composer | apple | dark | none | pass, 1 of 1 frames | yes | none |
+| /composer | glass | dark | none | pass, 1 of 1 frames | yes | none |
+| /composer | taste | dark | none | pass, 1 of 1 frames | yes | none |
+| /composer | emil | dark | none | pass, 1 of 1 frames | yes | none |
+| /conversation | apple | dark | none | pass, 2 of 2 frames | yes | none |
+| /conversation | glass | dark | none | pass, 1 of 1 frames | yes | none |
+| /conversation | taste | dark | none | pass, 2 of 2 frames | yes | none |
+| /conversation | emil | dark | none | pass, 2 of 2 frames | yes | none |
+| /app-shell | apple | dark | none | pass, 2 of 2 frames | yes | none |
+| /app-shell | glass | dark | none | pass, 2 of 2 frames | yes | none |
+| /app-shell | taste | dark | none | pass, 2 of 2 frames | yes | none |
+| /app-shell | emil | dark | none | pass, 2 of 2 frames | yes | none |
 
 ## Every mismatch
 

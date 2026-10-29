@@ -24,6 +24,17 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* Liquid glass draws its wallpaper on the whole page. The docs keep it to
+   the previews, like the base styles below, so the chrome stays Fumadocs'. */
+body[data-design="glass"] {
+  background: var(--color-fd-background);
+}
+
+body[data-design="glass"] [data-slot="preview"] {
+  background: var(--glass-wallpaper);
+  background-attachment: fixed;
+}
+
 /* The base styles the playground sets on its whole page, kept to the
    previews so the docs chrome stays Fumadocs'. */
 @layer base {

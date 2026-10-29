@@ -62,6 +62,11 @@ export const SCHEMES = ["light", "dark"] as const;
 
 export type Scheme = (typeof SCHEMES)[number];
 
+// The design directions the docs' Design picker offers besides base, and
+// the pages with the most ComposerKit examples to see them on.
+export const DESIGNS = ["apple", "glass", "taste", "emil"] as const;
+export const DESIGN_PAGES = ["/composer", "/conversation", "/app-shell"];
+
 export interface ManifestEntry {
   id: string;
   label: string;
