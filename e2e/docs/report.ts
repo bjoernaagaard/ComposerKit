@@ -4,10 +4,11 @@
 // Writes artifacts/docs-e2e/report.md from the result files the specs
 // leave in artifacts/docs-e2e/results. One short table per check, then
 // every mismatch in full.
+import { spawnSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 
-import { ARTIFACTS, readManifest, readResult } from "./support";
+import { ARTIFACTS, REPO, readManifest, readResult } from "./support";
 import type { CommandRun } from "./support";
 
 interface SchemaResult {
@@ -168,6 +169,7 @@ const checkThree = (
         ])
       ),
   "### Keyboard rows from spec/functional.md",
+  "Keyboard and size rows are listed, not gated. A mismatch does not fail the run; every one is in the list at the end. The spec describes a reference app, so each row is a finding to review, not a test that ComposerKit must pass.",
   table(
     ["Rows", "Pass", "Mismatch", "Not checkable"],
     [
@@ -386,5 +388,10 @@ export const writeReport = (): void => {
     ...mismatchList(axe, keyboard, sizes),
   ].join("\n\n");
 
-  writeFileSync(path.join(ARTIFACTS, "report.md"), `${report}\n`);
+  const file = path.join(ARTIFACTS, "report.md");
+
+  writeFileSync(file, `${report}\n`);
+  // The repo's formatter lines up the tables, so the committed report
+  // passes ultracite check like every other file.
+  spawnSync(path.join(REPO, "node_modules/.bin/oxfmt"), [file], { cwd: REPO });
 };
