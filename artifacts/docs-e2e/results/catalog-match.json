@@ -1,0 +1,1038 @@
+[
+  {
+    "after": {
+      "height": 33,
+      "width": 1059
+    },
+    "before": {
+      "height": 32,
+      "width": 1104
+    },
+    "id": "button--default",
+    "page": "/button",
+    "ratio": 0.0685935441370224,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 33,
+      "width": 1059
+    },
+    "before": {
+      "height": 32,
+      "width": 1104
+    },
+    "id": "button--ghost",
+    "page": "/button",
+    "ratio": 0.0685935441370224,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 33,
+      "width": 1059
+    },
+    "before": {
+      "height": 32,
+      "width": 1104
+    },
+    "id": "button--outline",
+    "page": "/button",
+    "ratio": 0.0685935441370224,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 85,
+      "width": 641
+    },
+    "before": {
+      "height": 84,
+      "width": 641
+    },
+    "id": "composer--inline",
+    "page": "/composer",
+    "ratio": 0.030760759842158394,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 178,
+      "width": 641
+    },
+    "before": {
+      "height": 177,
+      "width": 641
+    },
+    "id": "composer--roomy",
+    "page": "/composer",
+    "ratio": 0.01657347192764115,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 139,
+      "width": 641
+    },
+    "before": {
+      "height": 138,
+      "width": 641
+    },
+    "id": "composer--stacked",
+    "page": "/composer",
+    "ratio": 0.022121460397984266,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 212,
+      "width": 641
+    },
+    "before": {
+      "height": 212,
+      "width": 640
+    },
+    "id": "composer-state--attached",
+    "page": "/composer",
+    "ratio": 0.00926471021104995,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 99,
+      "width": 641
+    },
+    "before": {
+      "height": 98,
+      "width": 640
+    },
+    "id": "composer-state--chat-mode",
+    "page": "/composer",
+    "ratio": 0.027718684504955956,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 99,
+      "width": 641
+    },
+    "before": {
+      "height": 98,
+      "width": 640
+    },
+    "id": "composer-state--empty",
+    "page": "/composer",
+    "ratio": 0.027356245764982114,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 99,
+      "width": 641
+    },
+    "before": {
+      "height": 98,
+      "width": 640
+    },
+    "id": "composer-state--listening",
+    "page": "/composer",
+    "ratio": 0.025087064088624152,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 280,
+      "width": 641
+    },
+    "before": {
+      "height": 279,
+      "width": 640
+    },
+    "id": "composer-state--long-draft",
+    "page": "/composer",
+    "ratio": 0.053326275908179184,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 99,
+      "width": 641
+    },
+    "before": {
+      "height": 98,
+      "width": 640
+    },
+    "id": "composer-state--no-limits",
+    "page": "/composer",
+    "ratio": 0.026631368285034433,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 131,
+      "width": 641
+    },
+    "before": {
+      "height": 130,
+      "width": 640
+    },
+    "id": "composer-state--send-failed",
+    "page": "/composer",
+    "ratio": 0.045289445165592884,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 99,
+      "width": 641
+    },
+    "before": {
+      "height": 98,
+      "width": 640
+    },
+    "id": "composer-state--sending",
+    "page": "/composer",
+    "ratio": 0.042562914637797634,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 156,
+      "width": 641
+    },
+    "before": {
+      "height": 155,
+      "width": 640
+    },
+    "id": "composer-state--too-large",
+    "page": "/composer",
+    "ratio": 0.011770470818832753,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 99,
+      "width": 641
+    },
+    "before": {
+      "height": 98,
+      "width": 640
+    },
+    "id": "composer-state--typing",
+    "page": "/composer",
+    "ratio": 0.04276777131691328,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 99,
+      "width": 641
+    },
+    "before": {
+      "height": 98,
+      "width": 640
+    },
+    "id": "composer-state--unsupported",
+    "page": "/composer",
+    "ratio": 0.02705683984935155,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 155,
+      "width": 641
+    },
+    "before": {
+      "height": 155,
+      "width": 640
+    },
+    "id": "composer-state--upload-offline",
+    "page": "/composer",
+    "ratio": 0.005898042373307835,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 156,
+      "width": 641
+    },
+    "before": {
+      "height": 155,
+      "width": 640
+    },
+    "id": "composer-state--uploading",
+    "page": "/composer",
+    "ratio": 0.02044081763270531,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 641,
+      "width": 1059
+    },
+    "before": {
+      "height": 640,
+      "width": 1104
+    },
+    "id": "conversation--bubbles",
+    "page": "/conversation",
+    "ratio": 0.06233608039973773,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 641,
+      "width": 1059
+    },
+    "before": {
+      "height": 640,
+      "width": 1104
+    },
+    "id": "conversation--document",
+    "page": "/conversation",
+    "ratio": 0.06340438400144702,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 641,
+      "width": 1059
+    },
+    "before": {
+      "height": 640,
+      "width": 1104
+    },
+    "id": "conversation--transcript",
+    "page": "/conversation",
+    "ratio": 0.0690299351104479,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 218,
+      "width": 288
+    },
+    "before": {
+      "height": 217,
+      "width": 288
+    },
+    "id": "conversation-row--compact",
+    "page": "/app-shell",
+    "ratio": 0.058804791029561675,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 266,
+      "width": 288
+    },
+    "before": {
+      "height": 265,
+      "width": 288
+    },
+    "id": "conversation-row--measured",
+    "page": "/app-shell",
+    "ratio": 0.05098684210526316,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 378,
+      "width": 288
+    },
+    "before": {
+      "height": 377,
+      "width": 288
+    },
+    "id": "conversation-row--two-line",
+    "page": "/app-shell",
+    "ratio": 0.04431216931216931,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 29,
+      "width": 110
+    },
+    "before": {
+      "height": 28,
+      "width": 111
+    },
+    "id": "icon-button--control",
+    "page": "/button",
+    "ratio": 0.04287045666356011,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 29,
+      "width": 87
+    },
+    "before": {
+      "height": 28,
+      "width": 87
+    },
+    "id": "icon-button--pill",
+    "page": "/button",
+    "ratio": 0.04280618311533888,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 25,
+      "width": 79
+    },
+    "before": {
+      "height": 24,
+      "width": 79
+    },
+    "id": "icon-button--row",
+    "page": "/button",
+    "ratio": 0.06025316455696202,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 29,
+      "width": 94
+    },
+    "before": {
+      "height": 28,
+      "width": 94
+    },
+    "id": "icon-button--small",
+    "page": "/button",
+    "ratio": 0.034482758620689655,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 29,
+      "width": 279
+    },
+    "before": {
+      "height": 28,
+      "width": 279
+    },
+    "id": "menu--compact",
+    "page": "/menu",
+    "ratio": 0.17809912248176987,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 29,
+      "width": 181
+    },
+    "before": {
+      "height": 28,
+      "width": 181
+    },
+    "id": "menu--regular",
+    "page": "/menu",
+    "ratio": 0.19508477805296248,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 37,
+      "width": 289
+    },
+    "before": {
+      "height": 36,
+      "width": 289
+    },
+    "id": "mode-toggle--pill",
+    "page": "/app-shell",
+    "ratio": 0.03619190124380436,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 37,
+      "width": 331
+    },
+    "before": {
+      "height": 36,
+      "width": 332
+    },
+    "id": "mode-toggle--segmented",
+    "page": "/app-shell",
+    "ratio": 0.05307717355910127,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 37,
+      "width": 283
+    },
+    "before": {
+      "height": 36,
+      "width": 283
+    },
+    "id": "mode-toggle--underline",
+    "page": "/app-shell",
+    "ratio": 0.0595931620666603,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 313,
+      "width": 1059
+    },
+    "before": {
+      "height": 312,
+      "width": 1104
+    },
+    "id": "palette--swatches",
+    "page": "/theme",
+    "ratio": 0.1113985738760013,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 79,
+      "width": 1059
+    },
+    "before": {
+      "height": 78,
+      "width": 1104
+    },
+    "id": "title-bar-tabs--filled",
+    "page": "/app-shell",
+    "ratio": 0.07002155567785727,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 79,
+      "width": 1059
+    },
+    "before": {
+      "height": 78,
+      "width": 1104
+    },
+    "id": "title-bar-tabs--underline",
+    "page": "/app-shell",
+    "ratio": 0.07539900935608146,
+    "scheme": "light"
+  },
+  {
+    "after": {
+      "height": 33,
+      "width": 1059
+    },
+    "before": {
+      "height": 32,
+      "width": 1104
+    },
+    "id": "button--default",
+    "page": "/button",
+    "ratio": 0.0685935441370224,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 33,
+      "width": 1059
+    },
+    "before": {
+      "height": 32,
+      "width": 1104
+    },
+    "id": "button--ghost",
+    "page": "/button",
+    "ratio": 0.0685935441370224,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 33,
+      "width": 1059
+    },
+    "before": {
+      "height": 32,
+      "width": 1104
+    },
+    "id": "button--outline",
+    "page": "/button",
+    "ratio": 0.0685935441370224,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 85,
+      "width": 641
+    },
+    "before": {
+      "height": 84,
+      "width": 641
+    },
+    "id": "composer--inline",
+    "page": "/composer",
+    "ratio": 0.028429843076075986,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 178,
+      "width": 641
+    },
+    "before": {
+      "height": 177,
+      "width": 641
+    },
+    "id": "composer--roomy",
+    "page": "/composer",
+    "ratio": 0.01587232028606987,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 139,
+      "width": 641
+    },
+    "before": {
+      "height": 138,
+      "width": 641
+    },
+    "id": "composer--stacked",
+    "page": "/composer",
+    "ratio": 0.020471610231315728,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 212,
+      "width": 641
+    },
+    "before": {
+      "height": 212,
+      "width": 640
+    },
+    "id": "composer-state--attached",
+    "page": "/composer",
+    "ratio": 0.0047758514114149475,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 99,
+      "width": 641
+    },
+    "before": {
+      "height": 98,
+      "width": 640
+    },
+    "id": "composer-state--chat-mode",
+    "page": "/composer",
+    "ratio": 0.02704108164326573,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 99,
+      "width": 641
+    },
+    "before": {
+      "height": 98,
+      "width": 640
+    },
+    "id": "composer-state--empty",
+    "page": "/composer",
+    "ratio": 0.026426511605918784,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 99,
+      "width": 641
+    },
+    "before": {
+      "height": 98,
+      "width": 640
+    },
+    "id": "composer-state--listening",
+    "page": "/composer",
+    "ratio": 0.024346428402590648,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 280,
+      "width": 641
+    },
+    "before": {
+      "height": 279,
+      "width": 640
+    },
+    "id": "composer-state--long-draft",
+    "page": "/composer",
+    "ratio": 0.05161577891687096,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 99,
+      "width": 641
+    },
+    "before": {
+      "height": 98,
+      "width": 640
+    },
+    "id": "composer-state--no-limits",
+    "page": "/composer",
+    "ratio": 0.026111347484202397,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 131,
+      "width": 641
+    },
+    "before": {
+      "height": 130,
+      "width": 640
+    },
+    "id": "composer-state--send-failed",
+    "page": "/composer",
+    "ratio": 0.043884198116016244,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 99,
+      "width": 641
+    },
+    "before": {
+      "height": 98,
+      "width": 640
+    },
+    "id": "composer-state--sending",
+    "page": "/composer",
+    "ratio": 0.041349532769189554,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 156,
+      "width": 641
+    },
+    "before": {
+      "height": 155,
+      "width": 640
+    },
+    "id": "composer-state--too-large",
+    "page": "/composer",
+    "ratio": 0.01171046841873675,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 99,
+      "width": 641
+    },
+    "before": {
+      "height": 98,
+      "width": 640
+    },
+    "id": "composer-state--typing",
+    "page": "/composer",
+    "ratio": 0.041333774563103734,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 99,
+      "width": 641
+    },
+    "before": {
+      "height": 98,
+      "width": 640
+    },
+    "id": "composer-state--unsupported",
+    "page": "/composer",
+    "ratio": 0.02625317133897477,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 155,
+      "width": 641
+    },
+    "before": {
+      "height": 155,
+      "width": 640
+    },
+    "id": "composer-state--upload-offline",
+    "page": "/composer",
+    "ratio": 0.005817523023501585,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 156,
+      "width": 641
+    },
+    "before": {
+      "height": 155,
+      "width": 640
+    },
+    "id": "composer-state--uploading",
+    "page": "/composer",
+    "ratio": 0.020210808432337295,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 641,
+      "width": 1059
+    },
+    "before": {
+      "height": 640,
+      "width": 1104
+    },
+    "id": "conversation--bubbles",
+    "page": "/conversation",
+    "ratio": 0.06370820050193313,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 641,
+      "width": 1059
+    },
+    "before": {
+      "height": 640,
+      "width": 1104
+    },
+    "id": "conversation--document",
+    "page": "/conversation",
+    "ratio": 0.06329416220127065,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 641,
+      "width": 1059
+    },
+    "before": {
+      "height": 640,
+      "width": 1104
+    },
+    "id": "conversation--transcript",
+    "page": "/conversation",
+    "ratio": 0.0689211264102738,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 218,
+      "width": 288
+    },
+    "before": {
+      "height": 217,
+      "width": 288
+    },
+    "id": "conversation-row--compact",
+    "page": "/app-shell",
+    "ratio": 0.0718335881753313,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 266,
+      "width": 288
+    },
+    "before": {
+      "height": 265,
+      "width": 288
+    },
+    "id": "conversation-row--measured",
+    "page": "/app-shell",
+    "ratio": 0.061116332497911444,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 378,
+      "width": 288
+    },
+    "before": {
+      "height": 377,
+      "width": 288
+    },
+    "id": "conversation-row--two-line",
+    "page": "/app-shell",
+    "ratio": 0.05141277189888301,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 29,
+      "width": 110
+    },
+    "before": {
+      "height": 28,
+      "width": 111
+    },
+    "id": "icon-button--control",
+    "page": "/button",
+    "ratio": 0.04287045666356011,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 29,
+      "width": 87
+    },
+    "before": {
+      "height": 28,
+      "width": 87
+    },
+    "id": "icon-button--pill",
+    "page": "/button",
+    "ratio": 0.03884264764169639,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 25,
+      "width": 79
+    },
+    "before": {
+      "height": 24,
+      "width": 79
+    },
+    "id": "icon-button--row",
+    "page": "/button",
+    "ratio": 0.060759493670886074,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 29,
+      "width": 94
+    },
+    "before": {
+      "height": 28,
+      "width": 94
+    },
+    "id": "icon-button--small",
+    "page": "/button",
+    "ratio": 0.034482758620689655,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 29,
+      "width": 279
+    },
+    "before": {
+      "height": 28,
+      "width": 279
+    },
+    "id": "menu--compact",
+    "page": "/menu",
+    "ratio": 0.14509949326412064,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 29,
+      "width": 181
+    },
+    "before": {
+      "height": 28,
+      "width": 181
+    },
+    "id": "menu--regular",
+    "page": "/menu",
+    "ratio": 0.1630786816536483,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 37,
+      "width": 289
+    },
+    "before": {
+      "height": 36,
+      "width": 289
+    },
+    "id": "mode-toggle--pill",
+    "page": "/app-shell",
+    "ratio": 0.042364163471429905,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 37,
+      "width": 331
+    },
+    "before": {
+      "height": 36,
+      "width": 332
+    },
+    "id": "mode-toggle--segmented",
+    "page": "/app-shell",
+    "ratio": 0.04493650276782807,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 37,
+      "width": 283
+    },
+    "before": {
+      "height": 36,
+      "width": 283
+    },
+    "id": "mode-toggle--underline",
+    "page": "/app-shell",
+    "ratio": 0.04880145162830675,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 313,
+      "width": 1059
+    },
+    "before": {
+      "height": 312,
+      "width": 1104
+    },
+    "id": "palette--swatches",
+    "page": "/theme",
+    "ratio": 0.11165034495531787,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 79,
+      "width": 1059
+    },
+    "before": {
+      "height": 78,
+      "width": 1104
+    },
+    "id": "title-bar-tabs--filled",
+    "page": "/app-shell",
+    "ratio": 0.07546780407264722,
+    "scheme": "dark"
+  },
+  {
+    "after": {
+      "height": 79,
+      "width": 1059
+    },
+    "before": {
+      "height": 78,
+      "width": 1104
+    },
+    "id": "title-bar-tabs--underline",
+    "page": "/app-shell",
+    "ratio": 0.07585764079985324,
+    "scheme": "dark"
+  }
+]

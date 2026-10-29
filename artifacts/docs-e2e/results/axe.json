@@ -1,0 +1,82 @@
+[
+  {
+    "page": "/",
+    "scheme": "light",
+    "violations": []
+  },
+  {
+    "page": "/theme",
+    "scheme": "light",
+    "violations": []
+  },
+  {
+    "page": "/button",
+    "scheme": "light",
+    "violations": []
+  },
+  {
+    "page": "/tip",
+    "scheme": "light",
+    "violations": []
+  },
+  {
+    "page": "/menu",
+    "scheme": "light",
+    "violations": []
+  },
+  {
+    "page": "/composer",
+    "scheme": "light",
+    "violations": []
+  },
+  {
+    "page": "/conversation",
+    "scheme": "light",
+    "violations": []
+  },
+  {
+    "page": "/app-shell",
+    "scheme": "light",
+    "violations": []
+  },
+  {
+    "page": "/",
+    "scheme": "dark",
+    "violations": []
+  },
+  {
+    "page": "/theme",
+    "scheme": "dark",
+    "violations": []
+  },
+  {
+    "page": "/button",
+    "scheme": "dark",
+    "violations": []
+  },
+  {
+    "page": "/tip",
+    "scheme": "dark",
+    "violations": []
+  },
+  {
+    "page": "/menu",
+    "scheme": "dark",
+    "violations": []
+  },
+  {
+    "page": "/composer",
+    "scheme": "dark",
+    "violations": []
+  },
+  {
+    "page": "/conversation",
+    "scheme": "dark",
+    "violations": []
+  },
+  {
+    "page": "/app-shell",
+    "scheme": "dark",
+    "violations": []
+  }
+]

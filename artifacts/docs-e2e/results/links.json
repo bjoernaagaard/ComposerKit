@@ -1,0 +1,28 @@
+{
+  "broken": [],
+  "build": {
+    "command": "npm run build --workspace @composerkit/docs",
+    "exitCode": 0,
+    "seconds": 3
+  },
+  "files": [
+    "content/docs/app-shell.mdx",
+    "content/docs/button.mdx",
+    "content/docs/composer.mdx",
+    "content/docs/conversation.mdx",
+    "content/docs/index.mdx",
+    "content/docs/menu.mdx",
+    "content/docs/theme.mdx",
+    "content/docs/tip.mdx"
+  ],
+  "urls": [
+    "/",
+    "/app-shell",
+    "/button",
+    "/composer",
+    "/conversation",
+    "/menu",
+    "/theme",
+    "/tip"
+  ]
+}
