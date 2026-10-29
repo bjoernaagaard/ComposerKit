@@ -160,6 +160,8 @@ const DENSITY_CLASSES: Record<RowDensity, string> = {
     "min-h-(--size-row-two-line) flex-col justify-center rounded-(--radius-control) py-0.5 text-(length:--text-body-size) leading-(--text-body-leading)",
 };
 
+export type ConversationRowProps = RowProps & { density?: RowDensity };
+
 export const ConversationRow = ({
   conversation,
   project,
@@ -169,7 +171,7 @@ export const ConversationRow = ({
   onOpen,
   onTogglePin,
   onArchive,
-}: RowProps & { density?: RowDensity }) => (
+}: ConversationRowProps) => (
   <div
     data-slot="conversation-row"
     className="group relative"

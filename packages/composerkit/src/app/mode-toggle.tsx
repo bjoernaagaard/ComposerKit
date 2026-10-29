@@ -40,6 +40,12 @@ const OPTION_CLASSES: Record<ModeToggleAppearance, string> = {
   underline: "rounded-(--radius-small)",
 };
 
+export interface ModeToggleProps {
+  mode: ComposerMode;
+  onChange: (mode: ComposerMode) => void;
+  appearance?: ModeToggleAppearance;
+}
+
 // The Chat and Work switch above the heading. A thumb or bar marks the
 // choice and its label turns semibold, since the thumb alone is faint
 // against the track. Thumb edges and the bar are borders, which survive
@@ -48,11 +54,7 @@ export const ModeToggle = ({
   mode,
   onChange,
   appearance = "pill",
-}: {
-  mode: ComposerMode;
-  onChange: (mode: ComposerMode) => void;
-  appearance?: ModeToggleAppearance;
-}) => (
+}: ModeToggleProps) => (
   <fieldset
     data-slot="mode-toggle"
     aria-label="Composer mode"

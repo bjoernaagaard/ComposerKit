@@ -17,22 +17,24 @@ const FALLBACK_OFFSET = 2;
 // opens a neighbour at once while a group is active, so there is no group:
 // each Tip sets its own delays. This stays as the place to wrap an app, so
 // apps written against the earlier grouped version keep working.
-export const TipProvider = ({ children }: { children: ReactNode }) => children;
+export interface TipProviderProps {
+  children: ReactNode;
+}
+
+export const TipProvider = ({ children }: TipProviderProps) => children;
 
 // A short visible label for an icon-only control. It opens on hover and on
 // keyboard focus. The control keeps its own aria-label, so the tooltip
 // never carries the accessible name alone. The child must be one element
 // that accepts a ref, such as a button. It is centered on the control and
 // moves to the other side when there is no room.
-export const Tip = ({
-  label,
-  side = "bottom",
-  children,
-}: {
+export interface TipProps {
   label: string;
   side?: "top" | "right" | "bottom" | "left";
   children: ReactElement;
-}) => (
+}
+
+export const Tip = ({ label, side = "bottom", children }: TipProps) => (
   <Tooltip.Root>
     <Tooltip.Trigger
       closeDelay={themeMilliseconds(

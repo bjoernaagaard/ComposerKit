@@ -470,6 +470,24 @@ const WorkTray = ({
   );
 };
 
+export interface ComposerProps {
+  state: ComposerState;
+  dispatch: (action: ComposerAction) => void;
+  handlers: ComposerHandlers;
+  mode: ComposerMode;
+  options: ComposerOptions;
+  projects: readonly ComposerProject[];
+  layout?: ComposerLayout;
+  conversation?: boolean;
+  expandable?: boolean;
+  typeToFocus?: boolean;
+  addItems?: readonly ComposerAddItem[];
+  label?: string;
+  onStopReply?: () => void;
+  onExpandedChange?: (expanded: boolean) => void;
+  replyStatus?: ComposerReplyStatus;
+}
+
 // The message box: text, attachments, the add menu, model and permission
 // menus, and the send button. Work mode adds the tray. State lives in the
 // caller, usually through useComposerController.
@@ -500,23 +518,7 @@ export const Composer = ({
   onStopReply,
   onExpandedChange,
   replyStatus,
-}: {
-  state: ComposerState;
-  dispatch: (action: ComposerAction) => void;
-  handlers: ComposerHandlers;
-  mode: ComposerMode;
-  options: ComposerOptions;
-  projects: readonly ComposerProject[];
-  layout?: ComposerLayout;
-  conversation?: boolean;
-  expandable?: boolean;
-  typeToFocus?: boolean;
-  addItems?: readonly ComposerAddItem[];
-  label?: string;
-  onStopReply?: () => void;
-  onExpandedChange?: (expanded: boolean) => void;
-  replyStatus?: ComposerReplyStatus;
-}) => {
+}: ComposerProps) => {
   const fileInput = useRef<HTMLInputElement>(null);
   const imageInput = useRef<HTMLInputElement>(null);
   const listId = useId();

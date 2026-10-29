@@ -130,6 +130,17 @@ const endOf = (scroller: HTMLElement, turns: HTMLElement): number => {
 const withMessage = (draft: string, message: string): string =>
   draft.trim() ? `${draft.trimEnd()}\n\n${message}` : message;
 
+export interface ConversationViewProps {
+  turns: Turn[];
+  reply: (message: Turn, style: ReplyStyle) => BlockContent[];
+  options: ComposerOptions;
+  projects: readonly ComposerProject[];
+  layout?: ConversationLayout;
+  assistantName?: string;
+  title?: string;
+  notice?: string;
+}
+
 // An open chat: the turns scroll above the composer. Sending moves your
 // message near the top of the view and leaves the view there while the
 // reply arrives, so you read it from its start; once the reply runs past
@@ -149,16 +160,7 @@ export const ConversationView = ({
   assistantName = "Assistant",
   title,
   notice,
-}: {
-  turns: Turn[];
-  reply: (message: Turn, style: ReplyStyle) => BlockContent[];
-  options: ComposerOptions;
-  projects: readonly ComposerProject[];
-  layout?: ConversationLayout;
-  assistantName?: string;
-  title?: string;
-  notice?: string;
-}) => {
+}: ConversationViewProps) => {
   const [turns, setTurns] = useState(initialTurns);
   const [stream, setStream] = useState<Stream | null>(null);
   const [waiting, setWaiting] = useState(false);

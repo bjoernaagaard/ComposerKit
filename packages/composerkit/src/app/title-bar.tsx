@@ -50,6 +50,15 @@ const TAB_CLASSES: Record<
   },
 };
 
+export interface TabStripProps {
+  tabs: Tab[];
+  activeTabId: string;
+  onSelectTab: (id: string) => void;
+  panelId: string;
+  appearance?: TabAppearance;
+  label?: string;
+}
+
 export const TabStrip = ({
   tabs,
   activeTabId,
@@ -57,14 +66,7 @@ export const TabStrip = ({
   panelId,
   appearance = "filled",
   label = "Open chats",
-}: {
-  tabs: Tab[];
-  activeTabId: string;
-  onSelectTab: (id: string) => void;
-  panelId: string;
-  appearance?: TabAppearance;
-  label?: string;
-}) => {
+}: TabStripProps) => {
   const style = TAB_CLASSES[appearance];
 
   const list = useRef<HTMLDivElement>(null);

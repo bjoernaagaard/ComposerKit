@@ -66,6 +66,17 @@ const FALLBACK_SUBMENU_ALIGN = -3;
 const POPUP =
   "group/menu bg-popover text-popover-foreground border-border z-50 max-h-(--available-height) max-w-(--available-width) overflow-y-auto overscroll-contain border-(length:--border-panel) p-(--space-menu-padding) shadow-(--shadow-menu) backdrop-blur-(--blur-menu) outline-none";
 
+export interface MenuContentProps {
+  children: ReactNode;
+  label: string;
+  align?: "start" | "center" | "end";
+  alignOffset?: number;
+  side?: "top" | "bottom";
+  width?: MenuWidth;
+  density?: MenuDensity;
+  finalFocus?: ComponentProps<typeof Menu.Popup>["finalFocus"];
+}
+
 // Items read the density from the panel, so callers set it once.
 // finalFocus picks where focus goes when the menu closes; see Base UI's
 // Menu.Popup.
@@ -78,16 +89,7 @@ export const MenuContent = ({
   width = "regular",
   density = "regular",
   finalFocus,
-}: {
-  children: ReactNode;
-  label: string;
-  align?: "start" | "center" | "end";
-  alignOffset?: number;
-  side?: "top" | "bottom";
-  width?: MenuWidth;
-  density?: MenuDensity;
-  finalFocus?: ComponentProps<typeof Menu.Popup>["finalFocus"];
-}) => (
+}: MenuContentProps) => (
   <Menu.Portal container={usePopupLayer()}>
     <Menu.Positioner
       align={align}
@@ -129,19 +131,21 @@ const ItemText = ({
   </span>
 );
 
+export interface MenuItemProps {
+  label: string;
+  description?: string;
+  disabled?: boolean;
+  icon?: ReactNode;
+  onSelect?: () => void;
+}
+
 export const MenuItem = ({
   label,
   description,
   disabled,
   icon,
   onSelect,
-}: {
-  label: string;
-  description?: string;
-  disabled?: boolean;
-  icon?: ReactNode;
-  onSelect?: () => void;
-}) => (
+}: MenuItemProps) => (
   <Menu.Item
     className={ITEM}
     data-slot="menu-item"
@@ -157,13 +161,12 @@ export const MenuItem = ({
 // Items under a line of muted text that is not an item, such as when a
 // message was sent. The arrow keys skip the line, and it names the group,
 // so a screen reader reads it as focus enters the items.
-export const MenuInfoGroup = ({
-  info,
-  children,
-}: {
+export interface MenuInfoGroupProps {
   info: ReactNode;
   children: ReactNode;
-}) => (
+}
+
+export const MenuInfoGroup = ({ info, children }: MenuInfoGroupProps) => (
   <Menu.Group>
     <Menu.GroupLabel
       className="text-subtle-foreground flex min-h-(--size-menu-item) items-center px-(--space-menu-item-padding-x) text-(length:--text-caption-size) leading-(--text-caption-leading)"
@@ -177,17 +180,19 @@ export const MenuInfoGroup = ({
 
 // One choice out of several. A label, when given, heads the group and names
 // it for screen readers.
+export interface MenuRadioGroupProps {
+  label?: string;
+  value: string;
+  onValueChange?: (value: string) => void;
+  children: ReactNode;
+}
+
 export const MenuRadioGroup = ({
   label,
   value,
   onValueChange,
   children,
-}: {
-  label?: string;
-  value: string;
-  onValueChange?: (value: string) => void;
-  children: ReactNode;
-}) => (
+}: MenuRadioGroupProps) => (
   <Menu.RadioGroup onValueChange={onValueChange} value={value}>
     {label ? (
       <Menu.GroupLabel className="text-subtle-foreground px-(--space-menu-item-padding-x) pt-1.5 pb-1 text-(length:--text-caption-size) leading-(--text-caption-leading) group-data-[density=compact]/menu:px-(--space-menu-item-padding-x-compact) group-data-[density=compact]/menu:pt-1 group-data-[density=compact]/menu:pb-0.5">
@@ -199,17 +204,19 @@ export const MenuRadioGroup = ({
 );
 
 // Picking a choice closes the menu, as picking an item does.
+export interface MenuRadioItemProps {
+  value: string;
+  label: string;
+  description?: string;
+  disabled?: boolean;
+}
+
 export const MenuRadioItem = ({
   value,
   label,
   description,
   disabled,
-}: {
-  value: string;
-  label: string;
-  description?: string;
-  disabled?: boolean;
-}) => (
+}: MenuRadioItemProps) => (
   <Menu.RadioItem
     className={ITEM}
     closeOnClick
@@ -240,17 +247,19 @@ export const MenuSeparator = ({
 
 // A nested menu. Its trigger is an item with a chevron, and Right or a
 // click opens it beside the panel.
+export interface MenuSubmenuProps {
+  label: string;
+  icon?: ReactNode;
+  children: ReactNode;
+  width?: MenuWidth;
+}
+
 export const MenuSubmenu = ({
   label,
   icon,
   children,
   width = "submenu",
-}: {
-  label: string;
-  icon?: ReactNode;
-  children: ReactNode;
-  width?: MenuWidth;
-}) => {
+}: MenuSubmenuProps) => {
   const layer = usePopupLayer();
 
   return (

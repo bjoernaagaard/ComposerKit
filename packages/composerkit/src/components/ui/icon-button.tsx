@@ -44,6 +44,17 @@ const KIND_VARIANT = {
   small: "quiet",
 } as const;
 
+export type IconButtonProps = Omit<
+  ComponentProps<typeof Button>,
+  "aria-label" | "children" | "size" | "variant"
+> & {
+  icon: LucideIcon;
+  label: string;
+  kind?: IconButtonKind;
+  tipSide?: "top" | "right" | "bottom" | "left";
+  floating?: boolean;
+};
+
 // An icon-only button. aria-label names it and a tooltip shows the same
 // words, so the tooltip never carries the accessible name alone.
 export const IconButton = ({
@@ -53,16 +64,7 @@ export const IconButton = ({
   tipSide = "bottom",
   floating = false,
   ...props
-}: Omit<
-  ComponentProps<typeof Button>,
-  "aria-label" | "children" | "size" | "variant"
-> & {
-  icon: LucideIcon;
-  label: string;
-  kind?: IconButtonKind;
-  tipSide?: "top" | "right" | "bottom" | "left";
-  floating?: boolean;
-}) => (
+}: IconButtonProps) => (
   <Tip label={label} side={tipSide}>
     <Button
       aria-label={label}

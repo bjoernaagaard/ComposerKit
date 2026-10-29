@@ -12,13 +12,12 @@ const PopupLayerContext = createContext<HTMLElement | undefined>(undefined);
 // Popups are positioned against the window, so a layer inside a region that
 // scrolls or clips does not cut them off. Keep the layer out of anything
 // made inert, or the popups go inert with it.
-export const PopupLayer = ({
-  container,
-  children,
-}: {
+export interface PopupLayerProps {
   container: HTMLElement | null;
   children: ReactNode;
-}) => (
+}
+
+export const PopupLayer = ({ container, children }: PopupLayerProps) => (
   <PopupLayerContext value={container ?? undefined}>
     {children}
   </PopupLayerContext>
