@@ -12,6 +12,7 @@
     "content/docs/conversation.mdx",
     "content/docs/index.mdx",
     "content/docs/menu.mdx",
+    "content/docs/sample-data.mdx",
     "content/docs/theme.mdx",
     "content/docs/tip.mdx"
   ],
@@ -22,6 +23,7 @@
     "/composer",
     "/conversation",
     "/menu",
+    "/sample-data",
     "/theme",
     "/tip"
   ]

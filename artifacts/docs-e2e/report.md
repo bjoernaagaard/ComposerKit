@@ -23,7 +23,7 @@ Schemas fetched at run time from ui.shadcn.com. Validator: ajv 8 (draft-07), str
 
 ## 2. A new app installs every item and the sample data, takes every example from its Code tab, then type checks and builds
 
-The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-iA1cSH/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
+The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-YaJbRc/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
 
 | Command | Folder | Exit code | Seconds |
 | --- | --- | --- | --- |
@@ -35,14 +35,16 @@ The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/compos
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/composer.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/conversation.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/sample-data.json -y -o | consumer | 0 | 1 |
-| npx tsc --noEmit | consumer | 0 | 2 |
-| npx next build | consumer | 0 | 6 |
+| npx tsc --noEmit | consumer | 0 | 1 |
+| npx next build | consumer | 0 | 5 |
 
-Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-iA1cSH` (outside the repo).
+Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-YaJbRc` (outside the repo).
 
 ### Examples copied from the Code tab
 
-Every example file on the six item pages, copied with the docs' Copy button into `components/examples/` of the new app before tsc and next build. 13 files. Same as the file means the copied text equals the example file minus its license header.
+Every example file on the six item pages, copied with the docs' Copy button into `components/examples/` of the new app before tsc and next build. Same as the file means the copied text equals the example file minus its license header.
+
+Expected: the Code tab files in each item page's built HTML, /theme 2, /button 3, /tip 2, /menu 2, /composer 2, /conversation 2; 13 files in all. Copied: 13. Missing: none. Extra: none.
 
 | Page | First example | File | Tab | Characters | Same as the file |
 | --- | --- | --- | --- | --- | --- |
@@ -73,6 +75,7 @@ Every example file on the six item pages, copied with the docs' Copy button into
 | /menu         | light  | none       |
 | /composer     | light  | none       |
 | /conversation | light  | none       |
+| /sample-data  | light  | none       |
 | /app-shell    | light  | none       |
 | /             | dark   | none       |
 | /theme        | dark   | none       |
@@ -81,9 +84,12 @@ Every example file on the six item pages, copied with the docs' Copy button into
 | /menu         | dark   | none       |
 | /composer     | dark   | none       |
 | /conversation | dark   | none       |
+| /sample-data  | dark   | none       |
 | /app-shell    | dark   | none       |
 
 ### Page sections in order
+
+Only the six component items have the eight sections. The home page, Sample data and App shell are short pages without them, so this check skips them; axe, the link check and the stress keyboard walk cover every page.
 
 | Page | Result | Headings found |
 | --- | --- | --- |
@@ -161,7 +167,7 @@ Baseline: 37 ids, light and dark, in `catalog-before/`. Docs screenshots in `doc
 | Step | Result | Detail |
 | --- | --- | --- |
 | npm run build --workspace @composerkit/docs | exit 0 | 3 s |
-| next-validate-link on content/docs/*.mdx | no broken links | 8 files, 8 known URLs |
+| next-validate-link on content/docs/*.mdx | no broken links | 9 files, 9 known URLs |
 
 ## 6. Stress
 
@@ -182,14 +188,15 @@ Tab from the top of the page to the end, then Shift+Tab back, with no mouse even
 
 | Page | Stops | Walk ended | Trap | No visible focus | Not reachable by Tab | Shift+Tab gives the same order | Escape did not return focus |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| / | 30 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /theme | 100 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /button | 101 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /tip | 64 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /menu | 100 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /composer | 322 | Tab left the last control and focus went back to the page | none | none | none | yes | menu on button "Add files and more": closed, focus went to a textarea (16 times) |
-| /conversation | 237 | Tab left the last control and focus went back to the page | none | none | button "Scroll to the newest message" (4 times) | yes | menu on button "Add files and more": closed, focus went to a textarea (4 times) |
-| /app-shell | 155 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| / | 32 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| /theme | 102 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| /button | 102 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| /tip | 65 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| /menu | 102 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| /composer | 324 | Tab left the last control and focus went back to the page | none | none | none | yes | menu on button "Add files and more": closed, focus went to a textarea (16 times) |
+| /conversation | 239 | Tab left the last control and focus went back to the page | none | none | button "Scroll to the newest message" (4 times) | yes | menu on button "Add files and more": closed, focus went to a textarea (4 times) |
+| /sample-data | 33 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| /app-shell | 156 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
 
 ### A 200 character paste into every composer, then Enter
 

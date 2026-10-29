@@ -35,6 +35,11 @@
     "violations": []
   },
   {
+    "page": "/sample-data",
+    "scheme": "light",
+    "violations": []
+  },
+  {
     "page": "/app-shell",
     "scheme": "light",
     "violations": []
@@ -71,6 +76,11 @@
   },
   {
     "page": "/conversation",
+    "scheme": "dark",
+    "violations": []
+  },
+  {
+    "page": "/sample-data",
     "scheme": "dark",
     "violations": []
   },
