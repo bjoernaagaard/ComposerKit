@@ -1,0 +1,204 @@
+// SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+// SPDX-License-Identifier: MIT
+
+// Check 2: a new app, made in a temp folder outside the repo, installs every
+// item from a local copy of the docs export, then type checks and builds.
+// registry.json points dependencies at the published site, so the copy has
+// that prefix replaced with the local server's URL. The repo's export is
+// not changed.
+import {
+  cpSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+
+import { expect, test } from "@playwright/test";
+
+import {
+  EXPORT_DIR,
+  ITEMS,
+  LOCAL_REGISTRY_PORT,
+  PUBLISHED_REGISTRY,
+  run,
+  serve,
+  writeResult,
+} from "./support";
+import type { CommandRun } from "./support";
+
+const LOCAL_REGISTRY = `http://127.0.0.1:${LOCAL_REGISTRY_PORT}/r/`;
+
+// Renders composer, conversation, button, menu and tip. The registry files
+// use hooks and have no "use client", so the page is a client component.
+const PAGE = `"use client";
+
+import { PlusIcon } from "lucide-react";
+import { useState } from "react";
+
+import { Composer } from "@/components/composer/composer";
+import { initialComposer } from "@/components/composer/machine";
+import type { ComposerOptions } from "@/components/composer/options";
+import { useComposerController } from "@/components/composer/use-composer-controller";
+import { ConversationView } from "@/components/conversation/conversation-view";
+import { toBlocks } from "@/components/conversation/types";
+import type { Turn } from "@/components/conversation/types";
+import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
+import {
+  MenuContent,
+  MenuItem,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuRoot,
+  MenuTrigger,
+} from "@/components/ui/menu";
+import { Tip } from "@/components/ui/tip";
+
+const OPTIONS: ComposerOptions = {
+  efforts: [{ id: "quick", label: "Quick" }],
+  models: [{ id: "small", label: "Small model" }],
+  permissions: [{ id: "ask", label: "Ask first" }],
+};
+
+const PROJECTS = [{ id: "home", name: "Home" }];
+
+const TURNS: Turn[] = [
+  {
+    attachments: [],
+    blocks: toBlocks([{ kind: "paragraph", text: "Hello" }]),
+    id: "t1",
+    role: "user",
+  },
+  {
+    attachments: [],
+    blocks: toBlocks([{ kind: "paragraph", text: "Hi. What can I do?" }]),
+    id: "t2",
+    role: "assistant",
+  },
+];
+
+export default function Page() {
+  const composer = useComposerController(() => null, initialComposer(OPTIONS));
+  const [effort, setEffort] = useState("quick");
+
+  return (
+    <main className="flex flex-col gap-6 p-6">
+      <div className="flex gap-2">
+        <Button>Start a new chat</Button>
+        <IconButton icon={PlusIcon} label="Attach files" />
+        <Tip label="A tip">
+          <Button variant="outline">Hover me</Button>
+        </Tip>
+        <MenuRoot>
+          <MenuTrigger render={<Button variant="outline">Menu</Button>} />
+          <MenuContent label="Effort">
+            <MenuRadioGroup onValueChange={setEffort} value={effort}>
+              <MenuRadioItem label="Quick" value="quick" />
+            </MenuRadioGroup>
+            <MenuItem label="Pin chat" />
+          </MenuContent>
+        </MenuRoot>
+      </div>
+      <Composer
+        dispatch={composer.dispatch}
+        handlers={composer.handlers}
+        mode="work"
+        options={OPTIONS}
+        projects={PROJECTS}
+        state={composer.state}
+      />
+      <div className="h-96">
+        <ConversationView
+          options={OPTIONS}
+          projects={PROJECTS}
+          reply={() => [{ kind: "paragraph", text: "Done." }]}
+          turns={TURNS}
+        />
+      </div>
+    </main>
+  );
+}
+`;
+
+test("a new shadcn app installs every item and builds", async () => {
+  test.setTimeout(30 * 60_000);
+
+  const root = mkdtempSync(path.join(tmpdir(), "composerkit-e2e-"));
+  const site = path.join(root, "site");
+  const app = path.join(root, "consumer");
+
+  cpSync(EXPORT_DIR, site, { recursive: true });
+
+  const rewritten: string[] = [];
+
+  for (const file of readdirSync(path.join(site, "r"))) {
+    const target = path.join(site, "r", file);
+    const content = readFileSync(target, "utf-8");
+
+    if (content.includes(PUBLISHED_REGISTRY)) {
+      writeFileSync(
+        target,
+        content.replaceAll(PUBLISHED_REGISTRY, LOCAL_REGISTRY)
+      );
+      rewritten.push(`r/${file}`);
+    }
+  }
+
+  const stop = await serve(site, LOCAL_REGISTRY_PORT);
+  const steps: CommandRun[] = [];
+
+  try {
+    steps.push(
+      await run(
+        "npx",
+        [
+          "-y",
+          "shadcn@latest",
+          "init",
+          "-d",
+          "-y",
+          "-n",
+          "consumer",
+          "--no-monorepo",
+        ],
+        root
+      )
+    );
+
+    for (const item of ITEMS) {
+      const url = `${LOCAL_REGISTRY}${item}.json`;
+
+      // oxlint-disable-next-line no-await-in-loop -- each add builds on the one before
+      const added = await run(
+        "npx",
+        ["-y", "shadcn@latest", "add", url, "-y", "-o"],
+        app
+      );
+
+      steps.push(added);
+    }
+
+    writeFileSync(path.join(app, "app/page.tsx"), PAGE);
+    steps.push(
+      await run("npx", ["tsc", "--noEmit"], app),
+      await run("npx", ["next", "build"], app)
+    );
+  } finally {
+    stop();
+  }
+
+  writeResult("shadcn-add", {
+    localRegistry: LOCAL_REGISTRY,
+    note: `The export was copied to ${site}. In that copy only, ${PUBLISHED_REGISTRY} was replaced with ${LOCAL_REGISTRY} in ${rewritten.join(", ")}, so registry dependencies also come from the local server.`,
+    rewritten,
+    steps,
+    tempFolder: root,
+  });
+
+  expect(steps.map((step) => [step.command, step.exitCode])).toEqual(
+    steps.map((step) => [step.command, 0])
+  );
+});
