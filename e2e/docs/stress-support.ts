@@ -170,11 +170,22 @@ export const inspect = (page: Page, selector: string): Promise<Flag[]> =>
       return { bottom, left, right, top };
     };
 
+    // An ellipsis only shows on a block box: text-overflow does nothing on
+    // a flex or grid container, so a truncate class there cuts text with
+    // no sign of more.
+    const ellipsis = (node: Element) => {
+      const style = getComputedStyle(node);
+
+      return (
+        style.textOverflow === "ellipsis" &&
+        !style.display.includes("flex") &&
+        !style.display.includes("grid")
+      );
+    };
+
     const allowedCut = (node: Element) =>
-      node.closest(
-        '[data-overflowing="true"], .truncate, [style*="ellipsis"]'
-      ) !== null ||
-      getComputedStyle(node).textOverflow === "ellipsis" ||
+      node.closest('[data-overflowing="true"]') !== null ||
+      ellipsis(node) ||
       getComputedStyle(node).webkitLineClamp !== "none";
 
     if (document.documentElement.scrollWidth > window.innerWidth + 1) {
