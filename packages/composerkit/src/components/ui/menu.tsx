@@ -3,6 +3,7 @@
 
 import { Menu } from "@base-ui/react/menu";
 import { CheckIcon, ChevronRightIcon } from "lucide-react";
+import { Children } from "react";
 import type { ComponentProps, ReactNode } from "react";
 
 import { usePopupLayer } from "@/components/ui/popup-layer";
@@ -75,43 +76,8 @@ export interface MenuContentProps {
   width?: MenuWidth;
   density?: MenuDensity;
   finalFocus?: ComponentProps<typeof Menu.Popup>["finalFocus"];
+  emptyLabel?: string;
 }
-
-// Items read the density from the panel, so callers set it once.
-// finalFocus picks where focus goes when the menu closes; see Base UI's
-// Menu.Popup.
-export const MenuContent = ({
-  children,
-  label,
-  align = "start",
-  alignOffset = 0,
-  side = "bottom",
-  width = "regular",
-  density = "regular",
-  finalFocus,
-}: MenuContentProps) => (
-  <Menu.Portal container={usePopupLayer()}>
-    <Menu.Positioner
-      align={align}
-      alignOffset={alignOffset}
-      className="isolate z-50 outline-none"
-      collisionPadding={8}
-      positionMethod="fixed"
-      side={side}
-      sideOffset={() => themePixels("--space-menu-offset", FALLBACK_OFFSET)}
-    >
-      <Menu.Popup
-        aria-label={label}
-        className={cn(POPUP, POPUP_DENSITY[density], POPUP_WIDTH[width])}
-        data-density={density}
-        data-slot="menu"
-        finalFocus={finalFocus}
-      >
-        {children}
-      </Menu.Popup>
-    </Menu.Positioner>
-  </Menu.Portal>
-);
 
 const ITEM =
   "flex min-h-(--size-menu-item) w-full items-center gap-2 rounded-(--radius-menu-item) px-(--space-menu-item-padding-x) py-(--space-menu-item-padding-y) text-left text-(length:--text-label-size) leading-(--text-label-leading) outline-none select-none data-disabled:text-subtle-foreground data-highlighted:bg-accent data-highlighted:text-accent-foreground data-popup-open:bg-accent group-data-[density=compact]/menu:min-h-0 group-data-[density=compact]/menu:rounded-(--radius-menu-item-compact) group-data-[density=compact]/menu:px-(--space-menu-item-padding-x-compact) group-data-[density=compact]/menu:py-(--space-menu-item-padding-y-compact)";
@@ -156,6 +122,50 @@ export const MenuItem = ({
     {icon}
     <ItemText description={description} label={label} />
   </Menu.Item>
+);
+
+// Items read the density from the panel, so callers set it once. A menu
+// with no items shows emptyLabel as one dimmed item, so the panel is never
+// a blank strip and focus still has somewhere to land.
+// finalFocus picks where focus goes when the menu closes; see Base UI's
+// Menu.Popup.
+export const MenuContent = ({
+  children,
+  label,
+  align = "start",
+  alignOffset = 0,
+  side = "bottom",
+  width = "regular",
+  density = "regular",
+  finalFocus,
+  emptyLabel = "Nothing to show",
+}: MenuContentProps) => (
+  <Menu.Portal container={usePopupLayer()}>
+    <Menu.Positioner
+      align={align}
+      alignOffset={alignOffset}
+      className="isolate z-50 outline-none"
+      collisionPadding={8}
+      positionMethod="fixed"
+      side={side}
+      sideOffset={() => themePixels("--space-menu-offset", FALLBACK_OFFSET)}
+    >
+      <Menu.Popup
+        aria-label={label}
+        className={cn(POPUP, POPUP_DENSITY[density], POPUP_WIDTH[width])}
+        data-density={density}
+        data-slot="menu"
+        finalFocus={finalFocus}
+      >
+        {/* oxlint-disable-next-line react/no-react-children -- only counts what the app passed, to tell an empty list from a full one */}
+        {Children.toArray(children).length > 0 ? (
+          children
+        ) : (
+          <MenuItem disabled label={emptyLabel} />
+        )}
+      </Menu.Popup>
+    </Menu.Positioner>
+  </Menu.Portal>
 );
 
 // Items under a line of muted text that is not an item, such as when a
