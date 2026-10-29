@@ -49,6 +49,28 @@ const LICENSE_HEADER = /^(?:\/\/ SPDX-[^\n]*\n)+\n?/u;
 
 const EXAMPLE_TITLE = /^examples\/[\w-]+\.tsx$/u;
 
+// A Code tab's title in a built page's HTML, where the page carries the
+// code for every example, shown or not.
+const CODE_TAB_TITLE = /title\\?"\s*:\s*\\?"examples\/(?<file>[\w-]+\.tsx)/gu;
+
+// The example files a reader can copy from each of the six item pages,
+// read from the static export, so the expected set follows the pages.
+const examplesOnPages = () =>
+  ITEMS.map((item) => {
+    const html = readFileSync(path.join(EXPORT_DIR, `${item}.html`), "utf-8");
+
+    return {
+      files: [
+        ...new Set(
+          [...html.matchAll(CODE_TAB_TITLE)].map(
+            (match) => match.groups?.file ?? ""
+          )
+        ),
+      ],
+      page: `/${item}`,
+    };
+  });
+
 // Renders composer, conversation, button, menu and tip. The registry files
 // use hooks and have no "use client", so the page is a client component.
 const PAGE = `"use client";
@@ -340,8 +362,17 @@ test("a new shadcn app installs every item and builds", async ({ browser }) => {
     stop();
   }
 
+  const onPages = examplesOnPages();
+  const expected = [...new Set(onPages.flatMap((entry) => entry.files))];
+  const copiedFiles = copied.map((entry) => entry.file);
+  const missing = expected.filter((file) => !copiedFiles.includes(file));
+  const extra = copiedFiles.filter((file) => !expected.includes(file));
+
   writeResult("shadcn-add", {
     copied,
+    expected: onPages,
+    extra,
+    missing,
     localRegistry: LOCAL_REGISTRY,
     note: `The export was copied to ${site}. In that copy only, ${PUBLISHED_REGISTRY} was replaced with ${LOCAL_REGISTRY} in ${rewritten.join(", ")}, so registry dependencies also come from the local server.`,
     rewritten,
@@ -355,5 +386,12 @@ test("a new shadcn app installs every item and builds", async ({ browser }) => {
   expect(
     copied.map((entry) => [entry.file, entry.tab, entry.matchesRepoFile])
   ).toEqual(copied.map((entry) => [entry.file, "Code", true]));
-  expect(copied.length).toBeGreaterThan(0);
+  // Every item page shows at least one example, so an empty set means the
+  // pages could not be read, not that there is nothing to copy.
+  expect(
+    onPages
+      .filter((entry) => entry.files.length === 0)
+      .map((entry) => entry.page)
+  ).toEqual([]);
+  expect({ extra, missing }).toEqual({ extra: [], missing: [] });
 });
