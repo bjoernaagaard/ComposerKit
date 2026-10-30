@@ -23,11 +23,11 @@ Schemas fetched at run time from ui.shadcn.com. Validator: ajv 8 (draft-07), str
 
 ## 2. A new app installs every item and the sample data, takes every example from its Code tab, then type checks and builds
 
-The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-C52NGn/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
+The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-LWOim8/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
 
 | Command | Folder | Exit code | Seconds |
 | --- | --- | --- | --- |
-| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 16 |
+| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 19 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/theme.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/button.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/tip.json -y -o | consumer | 0 | 1 |
@@ -38,7 +38,7 @@ The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/compos
 | npx tsc --noEmit | consumer | 0 | 1 |
 | npx next build | consumer | 0 | 4 |
 
-Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-C52NGn` (outside the repo).
+Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-LWOim8` (outside the repo).
 
 ### Examples copied from the Code tab
 
@@ -166,7 +166,7 @@ Baseline: 37 ids, light and dark, in `catalog-before/`. Docs screenshots in `doc
 
 | Step | Result | Detail |
 | --- | --- | --- |
-| npm run build --workspace @composerkit/docs | exit 0 | 3 s |
+| npm run build --workspace @composerkit/docs | exit 0 | 2 s |
 | next-validate-link on content/docs/*.mdx | no broken links | 9 files, 9 known URLs |
 
 ## 6. Stress
