@@ -29,10 +29,10 @@ export interface AppShellRailProps extends ComponentProps<"nav"> {
 }
 
 // The destinations, a navigation landmark named by labels.rail ("Main").
-// On wide shells it is a column at the window's leading edge. On narrow
-// shells the chats get the whole width, so the rail moves into the
-// sidebar's drawer as a row of icons at its top, and nothing is drawn
-// beside the main region. Without an AppShellSidebar there is no drawer,
+// On wide shells it is a column at the window's leading edge, with a
+// hairline divider on its inline-end edge. On narrow shells the chats get
+// the whole width, so the rail moves into the sidebar's drawer as a row of
+// icons at its top, and nothing is drawn beside the main region. Without an AppShellSidebar there is no drawer,
 // so a narrow shell shows no rail.
 export const AppShellRail = ({
   className,
@@ -49,7 +49,7 @@ export const AppShellRail = ({
         aria-label={text.rail}
         className={cn(
           placement === "side"
-            ? "col-start-1 row-start-2 flex min-h-0 w-(--size-rail) shrink-0 flex-col items-center pb-1"
+            ? "border-border col-start-1 row-start-2 flex min-h-0 w-(--size-rail) shrink-0 flex-col items-center border-e-(length:--border-hairline) pb-1"
             : "border-border flex min-w-0 shrink-0 items-center gap-1 border-b-(length:--border-hairline) ps-1 pe-2",
           className
         )}

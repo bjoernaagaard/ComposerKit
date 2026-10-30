@@ -24,14 +24,15 @@ import { cn } from "@/lib/utils";
 // The banner across the top of the window. In a desktop window with no
 // frame (Electron, Tauri, an installed web app), its empty space drags the
 // window and its controls stay clickable; app-shell.css holds those rules.
-// On narrow shells it wraps, so the actions get a row of their own.
+// On narrow shells it wraps, so the actions get a row of their own. A
+// hairline divider runs along its bottom edge.
 export const AppShellTitleBar = ({
   className,
   ...props
 }: ComponentProps<"header">) => (
   <header
     className={cn(
-      "col-span-full row-start-1 flex h-(--size-titlebar) min-w-0 shrink-0 items-center group-data-[sidebar-variant=overlay]/shell:h-auto group-data-[sidebar-variant=overlay]/shell:flex-wrap",
+      "border-border col-span-full row-start-1 flex h-(--size-titlebar) min-w-0 shrink-0 items-center border-b-(length:--border-hairline) group-data-[sidebar-variant=overlay]/shell:h-auto group-data-[sidebar-variant=overlay]/shell:flex-wrap",
       className
     )}
     data-slot="title-bar"
@@ -42,14 +43,16 @@ export const AppShellTitleBar = ({
 // The leading group: history and the sidebar toggle. It starts after the
 // window controls (see app-shell.css) and is at least as wide as the rail and the open
 // sidebar, so the tabs line up with the main region and travel with the
-// sidebar on the same curve.
+// sidebar on the same curve. While the sidebar is open beside the main
+// region, a hairline divider runs up the bar's full height just past the
+// group's end, in line with the main region's divider.
 export const AppShellTitleBarStart = ({
   className,
   ...props
 }: ComponentProps<"div">) => (
   <div
     className={cn(
-      "flex w-[calc(var(--size-rail)+var(--shell-sidebar-width))] min-w-fit shrink-0 items-center gap-1.5 ps-(--space-titlebar-inset-start) pe-2 transition-all duration-0 ease-(--motion-ease-drawer) group-data-[input=pointer]/shell:duration-(--motion-sidebar-exit) group-data-[input=pointer]/shell:group-data-[sidebar=expanded]/shell:duration-(--motion-sidebar-enter)",
+      "after:bg-border relative flex w-[calc(var(--size-rail)+var(--shell-sidebar-width))] min-w-fit shrink-0 items-center gap-1.5 self-stretch ps-(--space-titlebar-inset-start) pe-2 transition-all duration-0 ease-(--motion-ease-drawer) group-data-[input=pointer]/shell:duration-(--motion-sidebar-exit) group-data-[input=pointer]/shell:group-data-[sidebar=expanded]/shell:duration-(--motion-sidebar-enter) after:absolute after:inset-y-0 after:-end-(--border-hairline) after:hidden after:w-(--border-hairline) group-data-[sidebar=expanded]/shell:group-data-[sidebar-variant=push]/shell:after:block",
       className
     )}
     data-slot="title-bar-nav"

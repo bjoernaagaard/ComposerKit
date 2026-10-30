@@ -445,10 +445,12 @@ The app shell in `components/app-shell/` implements these measured items:
 - The complementary landmark for the sidebar, beside the banner, the rail's navigation landmark and the main landmark
 - The splitter on the sidebar's edge, with its 16 pt hit area and a 1 pt line, which also resizes the sidebar from the keyboard
 - The 1 pt divider between the open sidebar and the main region, and the short separator between rail groups
+- The 1 pt divider at the bottom of the title bar
+- The 1 pt divider on the rail's inline-end edge
+- The vertical divider in the title bar in line with the sidebar edge, drawn while the sidebar is open beside the main region
 
 These measured items are not implemented yet:
 
-- The 1 pt divider below the title bar, the 1 pt divider on the rail's right edge, and the vertical divider in the title bar in line with the sidebar edge. Some designs draw them, but the default theme doesn't.
 - The title bar's right-side actions (overflow, share and the two view toggles). `AppShellTitleBarEnd` holds whatever actions the app passes.
 - The temporary-chat button in the empty chat's header
 - The dismiss button on each suggestion row
