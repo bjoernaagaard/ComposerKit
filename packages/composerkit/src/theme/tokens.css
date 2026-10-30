@@ -124,7 +124,7 @@
   --radius-tooltip: 10px;
   --radius-sidebar: 0px;
   --radius-sheet: 0px;
-  --radius-row-actions: calc(var(--radius-control) - 2px);
+  --radius-row-actions: 10.5px;
   --size-titlebar: 44px;
   --size-rail: 52px;
   --size-rail-button: 36px;

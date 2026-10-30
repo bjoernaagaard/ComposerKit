@@ -62,7 +62,7 @@
     "tooltip": 10,
     "sidebar": 0,
     "sheet": 0,
-    "rowActions": "calc(var(--radius-control) - 2px)"
+    "rowActions": 10.5
   },
   "size": {
     "titlebar": 44,

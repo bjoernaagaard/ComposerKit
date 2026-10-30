@@ -14,9 +14,7 @@ export interface Tokens {
   color: Record<Scheme, Record<string, string>>;
   font: { ui: string; mono: string } & Record<string, string | number>;
   text: Record<string, { size: number; lineHeight: number }>;
-  // A radius that follows another one is a CSS expression, such as
-  // calc(var(--radius-control) - 2px).
-  radius: Record<string, number | string> & { control: number };
+  radius: Record<string, number> & { control: number };
   size: Record<string, number> & {
     conversationComposerMinHeight: number;
     composerControl: number;
@@ -39,11 +37,10 @@ const px = (value: number): string => `${value}px`;
 const kebab = (name: string): string =>
   name.replaceAll(/[A-Z]/gu, (letter) => `-${letter.toLowerCase()}`);
 
-// Numbers are pixels. Strings are CSS and pass through.
-const group = (prefix: string, values: Record<string, number | string>) =>
+const group = (prefix: string, values: Record<string, number>) =>
   Object.entries(values).map(([name, value]) => [
     `${prefix}-${kebab(name)}`,
-    typeof value === "number" ? px(value) : value,
+    px(value),
   ]);
 
 const overlay = (values: Record<string, string>): Variables =>
