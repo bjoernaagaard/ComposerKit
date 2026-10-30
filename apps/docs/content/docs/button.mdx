@@ -26,9 +26,16 @@ import { IconButton } from "@/components/ui/icon-button";
 
 <Button variant="default" size="default">Label</Button>
 
+// A label from data, such as a chat title, can be any length
+<Button variant="outline">
+  <span className="truncate">{chat.title}</span>
+</Button>
+
 <IconButton icon={PlusIcon} kind="composer" label="Attach files" />
 // renders <Tip label="Attach files"><Button aria-label="Attach files" /></Tip>
 ```
+
+A button is never wider than its container. Wrap a label that comes from data in a `truncate` span, as above, so a long one ends in an ellipsis instead of running past the button. The button's accessible name is still the whole label.
 
 ## Examples
 
