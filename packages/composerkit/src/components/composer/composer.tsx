@@ -539,11 +539,13 @@ export const Composer = ({
   const { settle, settling } = useStopSettle();
   const sending = state.phase === "sending";
   const hardBreak = state.draft.includes("\n");
+  const placeholder = placeholderFor(mode, state.dictating);
 
   const { field, surface, leading, trailing, measure } = useFieldSize({
     draft: state.draft,
     expanded,
     oneRowPossible: layout === "inline" && !hardBreak && !expanded,
+    placeholder,
   });
 
   const focusField = useCallback(() => field.current?.focus(), [field]);
@@ -624,7 +626,6 @@ export const Composer = ({
     }
   };
 
-  const placeholder = placeholderFor(mode, state.dictating);
   const rows = twoRows ? "two" : "one";
 
   // The field is a text box, which cannot take a combobox role, so the

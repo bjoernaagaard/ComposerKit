@@ -186,17 +186,20 @@ const oneRowRoom = (
 };
 
 // Sizes the field to its text and reports whether the text still fits on
-// one row beside the controls, and how many lines it fills. Only the
+// one row beside the controls, and how many lines it fills. An empty field
+// shows its placeholder, so the placeholder has to fit instead. Only the
 // inline layout has a one-row arrangement, and a line break always leaves
 // it. An expanded field takes the height its container gives it. The
 // returned refs go on the field, the box and the two groups of controls.
 export const useFieldSize = ({
   draft,
   expanded,
+  placeholder,
   oneRowPossible,
 }: {
   draft: string;
   expanded: boolean;
+  placeholder: string;
   oneRowPossible: boolean;
 }) => {
   const field = useRef<HTMLTextAreaElement>(null);
@@ -242,7 +245,8 @@ export const useFieldSize = ({
 
     const room = oneRowRoom(width, leading.current, trailing.current);
     const lines = Math.max(1, Math.round(element.scrollHeight / lineHeight));
-    const overflows = oneRowPossible && textWidth(draft, element) > room;
+    const shown = draft === "" ? placeholder : draft;
+    const overflows = oneRowPossible && textWidth(shown, element) > room;
 
     if (lines !== measure.lines || overflows !== measure.overflows) {
       // Measuring the DOM and updating before the browser paints is what a
@@ -251,7 +255,7 @@ export const useFieldSize = ({
       // oxlint-disable-next-line react/set-state-in-effect
       setMeasure({ lines, overflows });
     }
-  }, [draft, expanded, measure, oneRowPossible, width]);
+  }, [draft, expanded, measure, oneRowPossible, placeholder, width]);
 
   return { field, leading, measure, surface, trailing };
 };
