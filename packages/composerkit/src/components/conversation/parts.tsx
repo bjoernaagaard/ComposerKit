@@ -242,11 +242,13 @@ export const CodeBlock = ({
           {copied ? "Copied" : "Copy code"}
         </Button>
       </div>
-      {/* Long lines scroll sideways, so the region takes focus for keys. */}
+      {/* Long lines scroll sideways, so the region takes focus for keys.
+          The figure clips to its corners, so the focus ring is drawn
+          inside the region, following the figure's bottom corners. */}
       <pre
         aria-label={`${block.language} code`}
         className={cn(
-          "overflow-x-auto font-mono text-(length:--text-caption-size) leading-(--text-caption-leading)",
+          "overflow-x-auto rounded-b-(--radius-control) font-mono text-(length:--text-caption-size) leading-(--text-caption-leading) focus-visible:-outline-offset-2",
           compact ? "px-3 py-2" : "p-3"
         )}
         // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- a scrollable region must be reachable by keyboard
