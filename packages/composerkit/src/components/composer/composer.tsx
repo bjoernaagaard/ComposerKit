@@ -114,6 +114,11 @@ const NO_ADD_ITEMS: readonly ComposerAddItem[] = [];
 const DOCKED_ONE_ROW_FIELD =
   "min-h-(--size-conversation-composer-text-height) pt-(--space-conversation-composer-text-inset) mt-[calc(var(--size-conversation-composer-text-height)-2*var(--space-conversation-composer-text-inset)-var(--text-composer-leading))]";
 
+// Each paragraph of the draft runs the way its first letters do, so an
+// Arabic draft reads right to left in an English app and the other way.
+// unicode-bidi does that without changing the field's own direction, so
+// its margins stay on the page's sides, clear of the expand control, and
+// an empty field's placeholder follows the page.
 const fieldClasses = ({
   twoRows,
   layout,
@@ -128,7 +133,7 @@ const fieldClasses = ({
   expanded: boolean;
 }): string =>
   cn(
-    "text-foreground placeholder:text-subtle-foreground resize-none [scrollbar-width:thin] overflow-y-auto bg-transparent p-0 text-(length:--text-composer-size) leading-(--text-composer-leading) outline-none focus-visible:outline-none",
+    "text-foreground placeholder:text-subtle-foreground resize-none [scrollbar-width:thin] overflow-y-auto bg-transparent p-0 text-(length:--text-composer-size) leading-(--text-composer-leading) outline-none [unicode-bidi:plaintext] focus-visible:outline-none",
     twoRows
       ? "mx-(--space-composer-padding-x) mt-(--space-composer-two-row-top) max-h-[calc(var(--size-composer-max-height)-var(--space-composer-two-row-top)-var(--space-composer-row-gap)-var(--size-composer-control)-var(--space-composer-footer-padding))] min-h-(--size-composer-two-row-text-min-height)"
       : "min-w-0 self-center",
@@ -644,11 +649,6 @@ export const Composer = ({
         twoRows,
       })}
       data-slot="composer-field"
-      // Text runs the way its first letters do, so an Arabic or Hebrew
-      // draft reads right to left in an English app, and the other way.
-      // An empty field has no letters, so it keeps the page's direction
-      // for the placeholder.
-      dir={state.draft === "" ? undefined : "auto"}
       key="field"
       onBlur={() => {
         setKeyboardFocus(false);

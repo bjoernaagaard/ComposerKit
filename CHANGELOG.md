@@ -9,7 +9,7 @@ The list below describes the changes in each version of the `composerkit` npm pa
   - The inline composer moves to two rows when its placeholder doesn't fit on one, so a narrow box no longer wraps "Send a message" a few letters to a line.
   - A code block in a reply draws its keyboard focus ring inside the block, where the block's rounded corners no longer cut it off.
   - Text from people and from the model runs in its own direction. An Arabic or Hebrew message reads right to left in an English app, and English reads left to right in a right-to-left app. Code always runs left to right.
-  - Padding, margins and corners use the start and end sides instead of left and right, so the composer, the conversation and the buttons mirror in a right-to-left page. Submenu arrows point the other way there too.
+  - Padding, margins and corners use the start and end sides instead of left and right, so the composer, the conversation and the buttons mirror in a right-to-left page. For a right-to-left app, set `dir="rtl"` on the page and wrap it in Base UI's `DirectionProvider` with `direction="rtl"`. Then submenus open to the left, their arrows point left, and the arrow keys in the model menu follow.
 
 ## 0.1.0 (2026-10-29)
 
