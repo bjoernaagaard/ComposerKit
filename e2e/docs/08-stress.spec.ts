@@ -8,7 +8,7 @@
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 
-import { test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
 
 import { press } from "./keyboard-support";
@@ -963,6 +963,81 @@ for (const part of LABEL_PARTS) {
     }
   });
 }
+
+// Where a tab's close button sits against the tab and its title, in px
+// from the left of the page.
+const closePlace = async (tab: Locator, close: Locator) => {
+  const [tabBox, closeBox, titleBox] = await Promise.all([
+    tab.boundingBox(),
+    close.boundingBox(),
+    tab.locator("span").first().boundingBox(),
+  ]);
+
+  return {
+    closeEnd: (closeBox?.x ?? 0) + (closeBox?.width ?? 0),
+    closeStart: closeBox?.x ?? 0,
+    tabEnd: (tabBox?.x ?? 0) + (tabBox?.width ?? 0),
+    tabStart: tabBox?.x ?? 0,
+    titleEnd: (titleBox?.x ?? 0) + (titleBox?.width ?? 0),
+  };
+};
+
+// Long titles keep the close button inside the tab, clear of the title,
+// and the tab menu reaches every tab when 30 are open.
+test("tabs: 200 character titles keep their close button inside the tab, and 30 tabs all sit in the tab menu", async ({
+  page,
+}) => {
+  test.setTimeout(5 * MINUTE);
+
+  for (const width of WIDTHS) {
+    // oxlint-disable-next-line no-await-in-loop -- one width at a time
+    await page.setViewportSize({ height: HEIGHT, width });
+
+    for (const data of ["spaces", "word"] as const) {
+      // oxlint-disable-next-line no-await-in-loop -- one harness page at a time
+      await openHarness(page, `part=tabs&data=${data}`, "light");
+
+      const item = page.locator('[data-slot="tab-item"]').first();
+      const tab = item.getByRole("tab");
+      const close = item.locator('[data-slot="tab-close"]');
+
+      // oxlint-disable-next-line no-await-in-loop -- the open tab shows its close button
+      await expect(close).toHaveCSS("opacity", "1");
+
+      // oxlint-disable-next-line no-await-in-loop -- measures in place
+      const place = await closePlace(tab, close);
+
+      expect(place.closeStart).toBeGreaterThanOrEqual(place.tabStart);
+      expect(place.closeEnd).toBeLessThanOrEqual(place.tabEnd + 1);
+      expect(place.titleEnd).toBeLessThanOrEqual(place.closeStart + 1);
+
+      // oxlint-disable-next-line no-await-in-loop -- closes the long tab
+      await close.click();
+      // oxlint-disable-next-line no-await-in-loop -- the tab is gone
+      await expect(page.getByRole("tab")).toHaveCount(2);
+    }
+  }
+
+  await page.setViewportSize({ height: HEIGHT, width: 1440 });
+  await openHarness(page, "part=tabs&data=demo&tabs=30", "light");
+  await expect(page.getByRole("tab")).toHaveCount(30);
+  await page.getByRole("button", { exact: true, name: "All tabs" }).click();
+
+  const choices = page
+    .getByRole("menu", { name: "All tabs" })
+    .getByRole("menuitemradio");
+
+  await expect(choices).toHaveCount(30);
+  await expect(choices.first()).toHaveAttribute("aria-checked", "true");
+  await page.screenshot({
+    path: path.join(STRESS, "tabs", "thirty-tabs--menu.png"),
+  });
+  await choices.last().click();
+  await expect(page.getByRole("tab").last()).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+});
 
 // --- 5. Empty states -----------------------------------------------------
 

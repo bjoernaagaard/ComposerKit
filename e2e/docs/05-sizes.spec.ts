@@ -1947,6 +1947,34 @@ measure(
   }
 );
 
+// WCAG 2.5.8 asks for a target of at least 24 by 24. The open tab shows
+// its close button.
+measure(
+  {
+    expected: "a close button at least 24 x 24 inside the tab",
+    line: 427,
+    part: "Title bar tab close button",
+  },
+  TABS,
+  async (page) => {
+    const item = example(page, TABS.example)
+      .locator('[data-slot="tab-item"]')
+      .first();
+
+    const tab = await rect(item.getByRole("tab"));
+    const close = await rect(item.locator('[data-slot="tab-close"]'));
+
+    return {
+      actual: `${size(close)}, ${fmt(tab.right - close.right)} from the tab's end`,
+      pass:
+        close.width >= 24 &&
+        close.height >= 24 &&
+        close.left >= tab.left &&
+        close.right <= tab.right + TOLERANCE,
+    };
+  }
+);
+
 measure(
   {
     expected:

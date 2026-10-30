@@ -6,11 +6,15 @@
 import { useId, useState } from "react";
 
 import { AppShellTabs, appShellTabId } from "@/components/app-shell/tabs";
-import type { AppShellTabAppearance } from "@/components/app-shell/tabs";
+import type {
+  AppShellTab,
+  AppShellTabAppearance,
+} from "@/components/app-shell/tabs";
 import { SAMPLE_CONVERSATIONS } from "@/content/sample";
 
 // Title bar tabs with the panel they control. Left and Right move between
-// tabs.
+// tabs, Delete or a tab's close button closes it, and New tab opens one.
+// When the tabs don't fit, a menu button lists them all.
 export const TabStripExample = ({
   appearance,
 }: {
@@ -18,12 +22,15 @@ export const TabStripExample = ({
 }) => {
   // A tab id can be any string, such as the chat's title in quotes. Ids
   // carry the appearance so two strips on a page never share a tab id.
-  const tabs = SAMPLE_CONVERSATIONS.slice(0, 3).map((conversation) => ({
-    id: `${appearance} "${conversation.title}"`,
-    title: conversation.title,
-  }));
+  const [tabs, setTabs] = useState<AppShellTab[]>(() =>
+    SAMPLE_CONVERSATIONS.slice(0, 3).map((conversation) => ({
+      id: `${appearance} "${conversation.title}"`,
+      title: conversation.title,
+    }))
+  );
 
   const [active, setActive] = useState(tabs[0]?.id ?? "");
+  const [opened, setOpened] = useState(0);
   const panelId = useId();
 
   return (
@@ -32,6 +39,19 @@ export const TabStripExample = ({
         activeTabId={active}
         appearance={appearance}
         labels={{ tabs: `${appearance} tabs` }}
+        onCloseTab={(id) =>
+          setTabs((list) => list.filter((tab) => tab.id !== id))
+        }
+        onNewTab={() => {
+          const tab = {
+            id: `${appearance} new ${opened + 1}`,
+            title: `New chat ${opened + 1}`,
+          };
+
+          setOpened(opened + 1);
+          setTabs((list) => [...list, tab]);
+          setActive(tab.id);
+        }}
         onSelectTab={setActive}
         panelId={panelId}
         tabs={tabs}

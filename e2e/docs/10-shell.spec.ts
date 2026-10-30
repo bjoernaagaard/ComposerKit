@@ -9,6 +9,8 @@
 // and its state across a close and a reload. Then the shell as an app gets
 // it: the npm module a server calls, reduced motion and two shells on the
 // docs page, a controlled shell's cookie, blocked cookies, and tab ids.
+// Then the narrow drawer, closing tabs by key, pointer and touch, the tab
+// menu when tabs overflow, and the shortcut inside a shadow root.
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -16,7 +18,7 @@ import { pathToFileURL } from "node:url";
 import { expect, test } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
 
-import { openApp } from "./stress-support";
+import { openApp, openHarness } from "./stress-support";
 import { PLAYGROUND_URL, REPO, openPage, run } from "./support";
 
 const REDUCED_FADE = "0.15s";
@@ -804,6 +806,381 @@ test("resize: going narrow and back keeps the wide sidebar's open state", async 
   await expect(hideToggle(page)).toHaveAttribute("aria-expanded", "true");
 });
 
+// --- Tabs: close them, and reach the hidden ones from the tab menu ---
+
+const tabStrip = (page: Page) =>
+  page.getByRole("tablist", { name: "Open chats" });
+
+const shellTabs = (page: Page) => tabStrip(page).getByRole("tab");
+
+const newTabButton = (page: Page) =>
+  page.getByRole("button", { exact: true, name: "New tab" });
+
+const tabMenuButton = (page: Page) =>
+  page.getByRole("button", { exact: true, name: "All tabs" });
+
+const tabMenu = (page: Page) => page.getByRole("menu", { name: "All tabs" });
+
+// The close buttons are hidden from assistive technology, which closes a
+// tab with Delete or from the tab menu, so they are found by their hook.
+const closeButton = (page: Page, index: number) =>
+  tabStrip(page)
+    .locator('[data-slot="tab-item"]')
+    .nth(index)
+    .locator('[data-slot="tab-close"]');
+
+const tabIds = (page: Page) =>
+  shellTabs(page).evaluateAll((tabs) =>
+    tabs.map((tab) => (tab instanceof HTMLElement ? tab.dataset.tabId : ""))
+  );
+
+const focusedTab = (page: Page) => tabStrip(page).locator('[role="tab"]:focus');
+
+test("tabs: Delete closes the focused tab and focuses the one to its right, or to its left for the last tab, and the only tab can't close", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await newTabButton(page).click();
+  await newTabButton(page).click();
+  await expect(shellTabs(page)).toHaveCount(3);
+
+  const [, second, third] = await tabIds(page);
+
+  await shellTabs(page).first().click();
+  await expect(shellTabs(page).first()).toHaveAttribute(
+    "aria-keyshortcuts",
+    "Delete"
+  );
+
+  // A key closes the tab at once, with no motion to wait for.
+  await page.keyboard.press("Delete");
+  expect(await tabIds(page)).toEqual([second, third]);
+  await expect(focusedTab(page)).toHaveAttribute("data-tab-id", second ?? "");
+  await expect(focusedTab(page)).toHaveAttribute("aria-selected", "true");
+
+  await page.keyboard.press("End");
+  await expect(focusedTab(page)).toHaveAttribute("data-tab-id", third ?? "");
+  await page.keyboard.press("Delete");
+  expect(await tabIds(page)).toEqual([second]);
+  await expect(focusedTab(page)).toHaveAttribute("data-tab-id", second ?? "");
+  await expect(focusedTab(page)).toHaveAttribute("aria-selected", "true");
+
+  // The only tab has no close button, and Delete leaves it open.
+  await expect(shellTabs(page).first()).not.toHaveAttribute(
+    "aria-keyshortcuts"
+  );
+  await expect(tabStrip(page).locator('[data-slot="tab-close"]')).toHaveCount(
+    0
+  );
+  await page.keyboard.press("Delete");
+  expect(await tabIds(page)).toEqual([second]);
+});
+
+test("tabs: Delete on the open tab while another shrinks out opens and focuses the tab that stays", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await newTabButton(page).click();
+  await newTabButton(page).click();
+  await expect(shellTabs(page)).toHaveCount(3);
+
+  const [, second, third] = await tabIds(page);
+
+  await shellTabs(page).first().click();
+  // The second tab shrinks out over 140 ms, and focus stays on the first,
+  // where Delete closes it before the second is gone.
+  await closeButton(page, 1).click();
+  await expect(focusedTab(page)).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("Delete");
+  expect(await tabIds(page)).toEqual([second, third]);
+
+  await expect.poll(() => tabIds(page)).toEqual([third]);
+
+  const tab = shellTabs(page).first();
+  const tabId = await tab.getAttribute("id");
+  const panelId = await tab.getAttribute("aria-controls");
+
+  await expect(tab).toHaveAttribute("aria-selected", "true");
+  await expect(tab).toHaveAttribute("tabindex", "0");
+  await expect(tab).toBeFocused();
+  await expect(page.locator(`[id="${panelId}"]`)).toHaveAttribute(
+    "aria-labelledby",
+    tabId ?? ""
+  );
+});
+
+test("tabs: ArrowRight while the next tab shrinks out skips it and opens the one after", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await newTabButton(page).click();
+  await newTabButton(page).click();
+  await expect(shellTabs(page)).toHaveCount(3);
+
+  const [, second, third] = await tabIds(page);
+
+  await shellTabs(page).first().click();
+  await closeButton(page, 1).click();
+  await page.keyboard.press("ArrowRight");
+  expect(await tabIds(page)).toContain(second);
+
+  await expect.poll(() => tabIds(page)).toHaveLength(2);
+  await expect(focusedTab(page)).toHaveAttribute("data-tab-id", third ?? "");
+  await expect(focusedTab(page)).toHaveAttribute("aria-selected", "true");
+});
+
+test("tabs: a tab pressed and dragged off holds focus without opening, and Delete there focuses the tab to its right", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await newTabButton(page).click();
+  await newTabButton(page).click();
+  await expect(shellTabs(page)).toHaveCount(3);
+
+  const [first, , third] = await tabIds(page);
+
+  await shellTabs(page).first().click();
+
+  // A press on the second tab focuses it, and letting go away from it
+  // cancels the click that would open it.
+  const box = await shellTabs(page).nth(1).boundingBox();
+
+  await page.mouse.move(
+    (box?.x ?? 0) + (box?.width ?? 0) / 2,
+    (box?.y ?? 0) + (box?.height ?? 0) / 2
+  );
+  await page.mouse.down();
+  await page.mouse.move(700, 600, { steps: 4 });
+  await page.mouse.up();
+  await expect(shellTabs(page).nth(1)).toBeFocused();
+  await expect(shellTabs(page).first()).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+
+  await page.keyboard.press("Delete");
+  expect(await tabIds(page)).toEqual([first, third]);
+  await expect(focusedTab(page)).toHaveAttribute("data-tab-id", third ?? "");
+  await expect(shellTabs(page).first()).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+});
+
+test("tabs with a pointer: close buttons show on hover and on the open tab, a click closes one, and so does a middle click", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await newTabButton(page).click();
+  await newTabButton(page).click();
+  await expect(shellTabs(page)).toHaveCount(3);
+
+  const [, second, third] = await tabIds(page);
+
+  await page.mouse.move(700, 600);
+  await expect(closeButton(page, 2)).toHaveCSS("opacity", "1");
+  await expect(closeButton(page, 0)).toHaveCSS("opacity", "0");
+  await expect(closeButton(page, 0)).toHaveAttribute("aria-hidden", "true");
+  await expect(closeButton(page, 0)).toHaveAttribute("tabindex", "-1");
+
+  // With a fine pointer and every tab in view, there is no tab menu.
+  await expect(tabStrip(page)).not.toHaveAttribute("data-overflow");
+  await expect(tabMenuButton(page)).toBeHidden();
+
+  await shellTabs(page).first().hover();
+  await expect(closeButton(page, 0)).toHaveCSS("opacity", "1");
+
+  // WCAG 2.5.8: a target at least 24 by 24.
+  const box = await closeButton(page, 0).boundingBox();
+
+  expect(box?.width).toBeGreaterThanOrEqual(24);
+  expect(box?.height).toBeGreaterThanOrEqual(24);
+
+  // Closing a tab in the background leaves the open tab open.
+  await closeButton(page, 0).click();
+  await expect.poll(() => tabIds(page)).toEqual([second, third]);
+  await expect(shellTabs(page).last()).toHaveAttribute("aria-selected", "true");
+
+  await shellTabs(page).first().click({ button: "middle" });
+  await expect.poll(() => tabIds(page)).toEqual([third]);
+  await expect(shellTabs(page).first()).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+});
+
+test("tab motion: a new tab grows in over --motion-tab-enter, a clicked close shrinks it over --motion-tab-exit", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+
+  // Clicked in the page, and read on the next frame, long before the
+  // animation ends.
+  const entering = await page.evaluate(async () => {
+    const button = document.querySelector<HTMLElement>(
+      '[aria-label="New tab"]'
+    );
+
+    button?.click();
+    // React commits a click's update in a microtask queued before this one.
+    await Promise.resolve();
+
+    const items = [...document.querySelectorAll('[data-slot="tab-item"]')];
+
+    return [...(items.at(-1)?.getAnimations() ?? [])].map(
+      (animation) => animation.effect?.getTiming().duration
+    );
+  });
+
+  expect(entering).toEqual([180]);
+  await expect(shellTabs(page)).toHaveCount(2);
+
+  const leaving = await page.evaluate(() => {
+    const [item] = document.querySelectorAll('[data-slot="tab-item"]');
+
+    item?.querySelector<HTMLElement>('[data-slot="tab-close"]')?.click();
+
+    return {
+      durations: [...(item?.getAnimations() ?? [])].map(
+        (animation) => animation.effect?.getTiming().duration
+      ),
+      stillThere: item?.isConnected,
+    };
+  });
+
+  expect(leaving).toEqual({ durations: [140], stillThere: true });
+  await expect(shellTabs(page)).toHaveCount(1);
+});
+
+test("tabs on touch: every close button shows, the tab menu shows without overflow, and its Close item closes the open tab", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    hasTouch: true,
+    isMobile: true,
+    viewport: { height: 900, width: 1440 },
+  });
+
+  const page = await context.newPage();
+
+  await openApp(page, "base", "light");
+  await newTabButton(page).tap();
+  await expect(shellTabs(page)).toHaveCount(2);
+
+  await expect(closeButton(page, 0)).toHaveCSS("opacity", "1");
+  await expect(closeButton(page, 1)).toHaveCSS("opacity", "1");
+  await expect(tabStrip(page)).not.toHaveAttribute("data-overflow");
+  await expect(tabMenuButton(page)).toBeVisible();
+
+  await tabMenuButton(page).tap();
+  await expect(tabMenu(page).getByRole("menuitemradio")).toHaveCount(2);
+  await tabMenu(page)
+    .getByRole("menuitem", { exact: true, name: "Close New chat" })
+    .tap();
+
+  await expect(shellTabs(page)).toHaveCount(1);
+  await expect(shellTabs(page).first()).toHaveAccessibleName("Chat");
+  await expect(shellTabs(page).first()).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+  await context.close();
+});
+
+test("tab overflow: ten tabs at 1024 px fade at the clipped edge, and the tab menu lists every tab and opens a hidden one", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 768, width: 1024 });
+  await openApp(page, "base", "light");
+
+  for (let opened = 1; opened < 10; opened += 1) {
+    // oxlint-disable-next-line no-await-in-loop -- each tab follows the one before
+    await newTabButton(page).click();
+  }
+
+  await expect(shellTabs(page)).toHaveCount(10);
+
+  // The newest tab is open and in view, so the strip is clipped at its start.
+  await expect(tabStrip(page)).toHaveAttribute("data-overflow", "start");
+  expect(
+    await tabStrip(page).evaluate((strip) => getComputedStyle(strip).maskImage)
+  ).not.toBe("none");
+
+  await tabMenuButton(page).click();
+
+  const choices = tabMenu(page).getByRole("menuitemradio");
+
+  await expect(choices).toHaveCount(10);
+  await expect(choices.last()).toHaveAttribute("aria-checked", "true");
+  await expect(choices.first()).toHaveAttribute("aria-checked", "false");
+  await choices.first().click();
+
+  const first = shellTabs(page).first();
+
+  await expect(first).toHaveAttribute("aria-selected", "true");
+  await expect(first).toHaveAccessibleName("Chat");
+  await expect(tabStrip(page)).toHaveAttribute("data-overflow", "end");
+
+  const strip = await tabStrip(page).boundingBox();
+  const shown = await first.boundingBox();
+
+  expect(shown?.x).toBeGreaterThanOrEqual((strip?.x ?? 0) - 1);
+  expect((shown?.x ?? 0) + (shown?.width ?? 0)).toBeLessThanOrEqual(
+    (strip?.x ?? 0) + (strip?.width ?? 0) + 1
+  );
+});
+
+test("tab ids: a lone surrogate such as \\uD800 in a tab id renders, and its tabs open by click and by arrow key", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+
+  page.on("pageerror", (error) => errors.push(error.message));
+  await openHarness(page, "part=tabs&data=demo", "light");
+
+  const tabs = page.getByRole("tab");
+
+  await expect(tabs).toHaveCount(3);
+  expect(await tabs.first().getAttribute("data-tab-id")).toContain("\uD800");
+
+  await tabs.nth(1).click();
+  await expect(tabs.nth(1)).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("ArrowRight");
+  await expect(tabs.nth(2)).toHaveAttribute("aria-selected", "true");
+  await expect(tabs.nth(2)).toBeFocused();
+  await expect(page.getByRole("tabpanel")).toHaveAccessibleName(
+    ((await tabs.nth(2).textContent()) ?? "").trim()
+  );
+  expect(errors).toEqual([]);
+});
+
+test("shortcut in a shadow root: the shell that holds focus toggles, even when it sits inside one", async ({
+  page,
+}) => {
+  await openPage(page, "/app-shell", "light");
+
+  const first = shellIn(docsExample(page, "app-shell--demo"));
+  const second = shellIn(docsExample(page, "app-shell--controlled"));
+
+  const keys = await first
+    .getByRole("button", { name: "Hide sidebar" })
+    .getAttribute("aria-keyshortcuts");
+
+  // A host app that renders the shell inside a web component: the second
+  // shell moves into an open shadow root, and focus goes inside it.
+  await second.evaluate((shell) => {
+    const host = document.createElement("div");
+
+    shell.replaceWith(host);
+    host.attachShadow({ mode: "open" }).append(shell);
+  });
+  await second.getByRole("button", { name: "New chat" }).focus();
+  await page.keyboard.press(keys ?? "");
+
+  await expect(second).toHaveAttribute("data-sidebar", "collapsed");
+  await expect(first).toHaveAttribute("data-sidebar", "expanded");
+});
+
 test("resize: a drawer open when the shell goes wide is closed when it turns narrow again, and focus stays put", async ({
   page,
 }) => {
@@ -1073,6 +1450,32 @@ test("splitter: in right-to-left layouts, ArrowLeft and a drag to the left widen
   await expectWidth(page, 288);
 
   await dragSplitter(page, -112);
+  await expectWidth(page, 400);
+});
+
+test("splitter: hiding the sidebar mid drag ends the drag, and the cookie and a reload keep the width", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await dragSplitter(page, 112, true);
+  await expectWidth(page, 400);
+
+  const shell = page.locator('[data-slot="app-shell"]');
+
+  await page.keyboard.press("ControlOrMeta+b");
+  await expect(sidebar(page)).toBeHidden();
+  await page.mouse.up();
+
+  await expect(shell).not.toHaveAttribute("data-resizing");
+  await expect(page.getByRole("main")).not.toHaveCSS("cursor", "col-resize");
+  await expect.poll(() => savedShell(page)).toEqual(["open=false&width=400"]);
+
+  await page.keyboard.press("ControlOrMeta+b");
+  await expectWidth(page, 400);
+  await expect.poll(() => savedShell(page)).toEqual(["open=true&width=400"]);
+
+  await page.reload();
+  await page.locator('[data-slot="composer"]').first().waitFor();
   await expectWidth(page, 400);
 });
 

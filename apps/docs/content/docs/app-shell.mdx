@@ -12,7 +12,7 @@ full: true
 npx shadcn@latest add https://bjoernaagaard.github.io/ComposerKit/r/app-shell.json
 ```
 
-This adds `components/app-shell/`, with the theme, the button, the tip and the menu. It also adds the title bar rules for desktop windows to your CSS file.
+This adds `components/app-shell/`, with the theme, the button, the tip and the menu. It also adds the title bar rules for desktop windows and the tab row's overflow fade to your CSS file.
 
 From the npm package, import each part from its own module, and load `composerkit/styles.css` after Tailwind:
 
@@ -60,8 +60,8 @@ When the app owns the open state with `open` and `onOpenChange`, the provider st
         <AppShellSidebarToggle />
       </AppShellTitleBarStart>
       <AppShellTitleBarTabs>
-        <AppShellTabs />           // a tablist that controls the main region
-        <AppShellNewTab />
+        <AppShellTabs />           // a tablist that controls the main region, with
+                                   // New tab and the tab menu after it
       </AppShellTitleBarTabs>
       <AppShellTitleBarEnd />      // the app's own actions
     </AppShellTitleBar>
@@ -243,10 +243,11 @@ Every word the shell shows or announces. Pass `labels` to the provider, or to on
 | Enter | The sidebar splitter | Hides the sidebar and moves focus to the sidebar toggle. Enter there shows it again at the same width. |
 | Left, Right | A title bar tab | Opens the previous or next tab, and wraps around. |
 | Home, End | A title bar tab | Opens the first or last tab. |
+| Delete | A title bar tab | Closes the tab, at once and without motion. Focus and selection move to the tab on its right, or on its left for the last tab. The only tab can't close. Needs `onCloseTab`. |
 | Tab, Shift+Tab | The narrow drawer | Move through the drawer's controls and wrap around inside it. The page behind it can't take focus. |
 | Escape | The narrow drawer | Closes the drawer and moves focus back to the sidebar toggle. |
 
-The splitter follows the [WAI-ARIA Authoring Practices window splitter pattern](https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/), so the keys are a way to resize without dragging. The tabs follow the [WAI-ARIA Authoring Practices tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/), so only the open tab is a Tab stop. The sidebar toggle names its shortcut with `aria-keyshortcuts` and in its tooltip.
+The splitter follows the [WAI-ARIA Authoring Practices window splitter pattern](https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/), so the keys are a way to resize without dragging. The tabs follow the [WAI-ARIA Authoring Practices tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/), so only the open tab is a Tab stop. With a pointer, a tab also closes from its close button or with a middle click, and shrinks out over `--motion-tab-exit`. A tab opened from a pointer grows in over `--motion-tab-enter`. The sidebar toggle names its shortcut with `aria-keyshortcuts` and in its tooltip.
 
 ## Accessibility
 
@@ -255,6 +256,8 @@ The shell's regions are [WAI-ARIA Authoring Practices landmark regions](https://
 The splitter on the sidebar's edge is a focusable separator named Resize sidebar. It controls the sidebar, and its value is the sidebar's width in px, from 220 to 480. Its hit area is 16 px wide and draws a 1 px line on hover, on focus and during a drag. Dragging it moves the edge with the pointer, and a double click goes back to the theme's width. While a drag runs, the shell turns its transitions off, so the sidebar follows the pointer, and the width is saved when the drag ends. Until someone resizes the sidebar, it takes `--size-sidebar`, so a design that changes the token still applies.
 
 When the shell is narrower than 48rem, measured on the shell and not the window, the sidebar becomes a modal [Base UI Drawer](https://base-ui.com/react/components/drawer). It is a dialog named Sidebar, and the rail's destinations move into a row at its top. Opening it moves focus into it: to its first control from the keyboard, and to the dialog itself from a pointer. Focus stays inside while it is open, and the rest of the shell is hidden from screen readers. Escape, a tap on the backdrop or a swipe toward its edge closes it, and focus goes back to the sidebar toggle. Picking a destination or a chat inside it closes it and moves focus to the main region, through `useAppShell().closeNarrowAndFocusMain()`. The drawer leaves a strip of backdrop at least 48 px wide to tap, even on a 320 px screen. Under reduced motion it fades instead of sliding.
+
+Closable tabs follow [IBM Carbon's dismissible tabs](https://carbondesignsystem.com/components/tabs/usage/). A button inside a tab list breaks the list's structure for screen readers, so each close button is for the pointer only: it is hidden from assistive technology and is not a Tab stop. Each tab announces `aria-keyshortcuts="Delete"` instead. Close buttons show on hover, while a tab holds focus and on the open tab, and always on a touch screen. They are 24 by 24, the WCAG 2.5.8 minimum. When the tabs don't fit, the row fades at each end that hides tabs, and the All tabs menu button lists every tab with the open one checked. On a touch screen that button always shows, and its menu has a Close item for the open tab, so a screen reader on a phone can close tabs too.
 
 <SpecSection section="6. App shell > Regions" />
 
@@ -274,6 +277,7 @@ Design directions style the shell through these hooks instead of its structure:
 | --- | --- |
 | `data-slot="app-shell"`, with `data-sidebar` (expanded or collapsed), `data-sidebar-variant` (push or overlay), `data-input` (pointer or keyboard) and `data-resizing` during a drag | The window |
 | `data-slot="title-bar"`, `"title-bar-nav"`, `"title-bar-tabs"`, `"title-bar-actions"` | The title bar and its three groups |
+| `data-slot="tabs"`, `"tab-strip"` with `data-appearance` and `data-overflow` (start, end or both), `"tab-item"` with `data-selected`, `"tab"` and `"tab-close"`, and `data-tab-menu` on the All tabs button | The tabs, the row that scrolls, each tab with its close button, and the tab menu |
 | `data-slot="icon-rail"`, `"rail-content"`, `"rail-separator"`, `"rail-footer"`, and `data-rail-item` on each destination | The rail |
 | `data-slot="sidebar-gap"` and `"sidebar-panel"`, with `data-state` (open or closed) | The sidebar's space and its panel |
 | `data-slot="sidebar-splitter"`, with `--shell-splitter-line` for the line's color and `--shell-splitter-offset` to move the line from the sidebar's edge | The splitter |

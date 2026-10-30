@@ -32,7 +32,7 @@ Keyboard and size rows are listed, not gated. A mismatch does not fail the run; 
 
 | Rows | Pass | Mismatch | Not checkable |
 | ---- | ---- | -------- | ------------- |
-| 0    | 0    | 0        | 0             |
+| 63   | 54   | 3        | 6             |
 
 ### Size rows from spec/functional.md (about 1 px tolerance)
 
@@ -54,7 +54,7 @@ No result. The spec did not run or stopped early.
 
 | Step                                        | Result      | Detail |
 | ------------------------------------------- | ----------- | ------ |
-| npm run build --workspace @composerkit/docs | exit 0      | 3 s    |
+| npm run build --workspace @composerkit/docs | exit 0      | 5 s    |
 | next-validate-link on content/docs/*.mdx    | did not run |        |
 
 ## 6. Stress
@@ -128,7 +128,10 @@ None.
 ### Keyboard mismatches
 
 | Spec line | Keys and context | Spec says | What happened | Where |
-| --------- | ---------------- | --------- | ------------- | ----- |
+| --- | --- | --- | --- | --- |
+| 140 | Tab, Tab order, one-row layout, starting from the add button | add button, text field, model picker, dictate, then the trailing button when it is enabled | button "Add files and more" → button "Project rules, change permissions" → textarea "Describe a task" → button "Sparrow 3 Balanced effort, choose model" → button "Dictate" | /composer [data-example="composer--inline"] |
+| 251 | Click on the jump button, After clicking jump to latest | Stays on the jump button | focus on the page (body), jump button still on the page: false | /conversation [data-example="conversation--document"] |
+| 381 | Right, On a submenu item | Opens the submenu and focuses its first item. The parent item reports expanded. | focus on menuitemradio "Same length", parent aria-expanded=null | /menu [data-example="menu--demo"] |
 
 ### Size mismatches
 
@@ -138,4 +141,10 @@ None.
 ### Rows that could not be checked
 
 | Spec line | Row | Spec says | Why not |
-| --------- | --- | --------- | ------- |
+| --- | --- | --- | --- |
+| 142 | Shift+Escape, Focus outside the composer | Opens a confirmation dialog for a bulk mark-as-read action. | ComposerKit has no bulk mark-as-read action or dialog. This is app behavior of the reference app, not part of any registry item. |
+| 155 | Typing a letter, A sidebar chat row | Composer. The field receives it. | No docs page puts a sidebar row and a type-to-focus composer together; the rows are on /app-shell, the composer on /conversation. |
+| 156 | Typing a letter, A chat tab in the title bar | Composer. The field receives it. | No docs page puts title bar tabs and a type-to-focus composer together; the tabs are on /app-shell, the composer on /conversation. |
+| 160 | Typing a letter, A modal dialog (focus on its checkbox) | Dialog keeps focus. The composer does not receive it. | No registry item opens a modal dialog, so no demo has one. |
+| 184 | Enter, then Escape in the system dialog, Run an add-menu item, then cancel the system dialog it opened | Text field | A headless browser opens no system file dialog to cancel; Playwright only reports that a file chooser was requested (lines 132 and 318 check that). |
+| 384 | Enter or Space, On an item | Not tested, because it would run the action | The spec gives no expected result for this row. |

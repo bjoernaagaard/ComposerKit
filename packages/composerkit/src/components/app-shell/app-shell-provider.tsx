@@ -190,25 +190,38 @@ const shortcutShells = new Set<ShortcutShell>();
 
 // One press toggles one shell: of the shells with that key, the one that
 // holds focus, the innermost when shells nest, or the first on the page
-// when focus is in none. Shells are compared in page order, where an outer
-// shell comes before the shells inside it, and a shell whose root hasn't
-// mounted comes last.
-const shortcutOwner = (key: string): ShortcutShell | undefined => {
+// when focus is in none. The key event's composed path runs from the
+// focused element out to the window, through any shadow roots on the way,
+// so the first shell root on it is the innermost shell that holds focus,
+// even inside a web component. Otherwise shells are compared in page
+// order, and a shell whose root hasn't mounted or sits in a shadow root
+// comes last.
+const shortcutOwner = (
+  key: string,
+  path: EventTarget[]
+): ShortcutShell | undefined => {
+  const shells = [...shortcutShells].filter((shell) => shell.key === key);
+
+  const place = (shell: ShortcutShell) =>
+    shell.root ? path.indexOf(shell.root) : -1;
+
+  const focused = shells
+    .filter((shell) => place(shell) !== -1)
+    .toSorted((a, b) => place(a) - place(b));
+
+  if (focused[0]) {
+    return focused[0];
+  }
+
   const onPage = [...document.querySelectorAll('[data-slot="app-shell"]')];
 
-  const place = (shell: ShortcutShell) => {
+  const pagePlace = (shell: ShortcutShell) => {
     const index = shell.root ? onPage.indexOf(shell.root) : -1;
 
     return index === -1 ? onPage.length : index;
   };
 
-  const shells = [...shortcutShells]
-    .filter((shell) => shell.key === key)
-    .toSorted((a, b) => place(a) - place(b));
-
-  const focused = document.activeElement;
-
-  return shells.findLast((shell) => shell.root?.contains(focused)) ?? shells[0];
+  return shells.toSorted((a, b) => pagePlace(a) - pagePlace(b))[0];
 };
 
 export const AppShellProvider = ({
@@ -442,7 +455,7 @@ export const AppShellProvider = ({
         event.shiftKey ||
         event.repeat ||
         event.key.toLowerCase() !== shell.key ||
-        shortcutOwner(shell.key) !== shell
+        shortcutOwner(shell.key, event.composedPath()) !== shell
       ) {
         return;
       }

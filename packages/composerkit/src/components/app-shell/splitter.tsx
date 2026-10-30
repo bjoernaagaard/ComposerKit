@@ -3,7 +3,7 @@
 
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { ComponentProps, KeyboardEvent, PointerEvent } from "react";
 
 import {
@@ -73,8 +73,25 @@ export const AppShellSplitter = ({
 
   const text = useAppShellLabels(labels);
   const drag = useRef<Drag | null>(null);
+  const hidden = isNarrow || !open;
 
-  if (isNarrow || !open) {
+  // A drag also ends when the splitter goes away under the pointer, such
+  // as when a shortcut hides the sidebar, since no pointer event reaches
+  // it then. The cookie is written with the width the drag reached.
+  useEffect(() => {
+    if (hidden) {
+      return;
+    }
+
+    return () => {
+      if (drag.current) {
+        drag.current = null;
+        setResizing(false);
+      }
+    };
+  }, [hidden, setResizing]);
+
+  if (hidden) {
     return null;
   }
 
