@@ -1,6 +1,6 @@
 # composerkit
 
-composerkit is a set of React components for chat apps. It has a message box, called the composer, and a conversation view that shows the chat above the composer. It also has the buttons, menus and tooltips that the composer and the conversation use. The components are built on [Base UI](https://base-ui.com) and styled with Tailwind CSS v4.
+composerkit is a set of React components for chat apps. It has a message box, called the composer, and a conversation view that shows the chat above the composer. It also has an app shell for the window around them, a chat sidebar that lists the chats, and the buttons, menus and tooltips that the other components use. The components are built on [Base UI](https://base-ui.com) and styled with Tailwind CSS v4.
 
 ![A short chat in the conversation view, with a draft in the composer at the bottom](https://raw.githubusercontent.com/bjoernaagaard/ComposerKit/main/.github/assets/conversation.png)
 
@@ -19,7 +19,7 @@ npm install composerkit
 @import "composerkit/styles.css";
 ```
 
-The stylesheet adds the ComposerKit theme in light and dark, and it tells Tailwind to scan the components for the classes they use. Without the import, the components render with no styles.
+The stylesheet adds the ComposerKit theme in light and dark, and the app shell's and the chat sidebar's rules. It also tells Tailwind to scan the components for the classes they use. Without the import, the components render with no styles.
 
 ## Import paths
 
@@ -34,6 +34,15 @@ composerkit/
 ├── components/composer/options                  # the types for the model, effort and permission menus
 ├── components/conversation/conversation-view    # ConversationView, an open chat with the composer
 ├── components/conversation/types                # Turn, Block and toBlocks
+├── components/app-shell/app-shell-provider      # AppShellProvider and useAppShell, the shell's state and Cmd+B
+├── components/app-shell/app-shell               # AppShell, AppShellSkipLink, AppShellSidebar and AppShellMain
+├── components/app-shell/title-bar               # the title bar, back and forward, and the sidebar toggle
+├── components/app-shell/rail                    # the rail of destinations
+├── components/app-shell/tabs                    # the title bar's closable tabs
+├── components/app-shell/splitter                # the splitter that resizes the sidebar
+├── components/app-shell/persist                 # readShellCookie, which reads the saved layout
+├── components/chat-sidebar/chat-sidebar         # ChatSidebar, the list of chats and projects
+├── components/chat-sidebar/conversation-row     # the chat and project types, and one chat row
 ├── components/ui/button                         # Button and buttonVariants
 ├── components/ui/icon-button                    # IconButton, a button with a tip
 ├── components/ui/menu                           # the menu parts
@@ -98,6 +107,136 @@ export const App = () => (
 
 The conversation view fills its container, so give the container a height. The `bg-background` and `text-foreground` classes give the page the theme's colors.
 
+## Lay out a chat app
+
+The app shell is a set of parts that share their state through `AppShellProvider`. Leave out the parts you don't need, such as the tabs or the rail. Cmd+B on a Mac, or Ctrl+B elsewhere, shows and hides the sidebar, and on narrow widths the sidebar becomes a drawer with the rail inside it. The chat sidebar goes inside `AppShellSidebar`. Your app owns the chats and gets a callback for each change.
+
+The rail items take an icon from `lucide-react`. The package depends on it, but add it to your app's dependencies too, so your imports don't rely on the package's.
+
+```tsx
+"use client";
+
+import {
+  AppShell,
+  AppShellMain,
+  AppShellSidebar,
+  AppShellSkipLink,
+} from "composerkit/components/app-shell/app-shell";
+import { AppShellProvider } from "composerkit/components/app-shell/app-shell-provider";
+import {
+  AppShellRail,
+  AppShellRailContent,
+  AppShellRailItem,
+} from "composerkit/components/app-shell/rail";
+import { AppShellSplitter } from "composerkit/components/app-shell/splitter";
+import {
+  AppShellSidebarToggle,
+  AppShellTitleBar,
+  AppShellTitleBarStart,
+} from "composerkit/components/app-shell/title-bar";
+import { ChatSidebar } from "composerkit/components/chat-sidebar/chat-sidebar";
+import type { ChatSidebarConversation } from "composerkit/components/chat-sidebar/conversation-row";
+import { HomeIcon, InboxIcon } from "lucide-react";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const firstChats: ChatSidebarConversation[] = [
+  {
+    id: "c1",
+    pinned: false,
+    projectId: null,
+    title: "Plan the launch",
+    updatedAt: "2026-10-30T09:00:00Z",
+  },
+];
+
+export const ChatLayout = ({
+  defaultOpen,
+  defaultWidth,
+  children,
+}: {
+  defaultOpen?: boolean;
+  defaultWidth?: number;
+  children: ReactNode;
+}) => {
+  const [chats, setChats] = useState(firstChats);
+  const [activeId, setActiveId] = useState<string | null>("c1");
+  const [archived, setArchived] = useState<ChatSidebarConversation | null>(
+    null
+  );
+
+  const archive = (id: string) => {
+    setArchived(chats.find((chat) => chat.id === id) ?? null);
+    setChats(chats.filter((chat) => chat.id !== id));
+  };
+
+  return (
+    <AppShellProvider defaultOpen={defaultOpen} defaultWidth={defaultWidth}>
+      <AppShell>
+        <AppShellSkipLink />
+        <AppShellTitleBar>
+          <AppShellTitleBarStart>
+            <AppShellSidebarToggle />
+          </AppShellTitleBarStart>
+        </AppShellTitleBar>
+        <AppShellRail>
+          <AppShellRailContent>
+            <AppShellRailItem current icon={HomeIcon} label="Home" />
+            <AppShellRailItem icon={InboxIcon} label="Inbox" />
+          </AppShellRailContent>
+        </AppShellRail>
+        <AppShellSidebar>
+          <ChatSidebar
+            activeConversationId={activeId}
+            archived={archived}
+            conversations={chats}
+            onAddProject={() => undefined}
+            onArchive={archive}
+            onNewChat={() => setActiveId(null)}
+            onOpenConversation={setActiveId}
+            onStartProjectChat={() => undefined}
+            onTogglePin={(id) =>
+              setChats(
+                chats.map((chat) =>
+                  chat.id === id ? { ...chat, pinned: !chat.pinned } : chat
+                )
+              )
+            }
+            onUndoArchive={() => {
+              if (archived) {
+                setChats([archived, ...chats]);
+              }
+              setArchived(null);
+            }}
+            projects={[]}
+          />
+        </AppShellSidebar>
+        <AppShellSplitter />
+        <AppShellMain>{children}</AppShellMain>
+      </AppShell>
+    </AppShellProvider>
+  );
+};
+```
+
+The shell fills its container, so give the container a height, such as `h-dvh`.
+
+The provider saves whether the sidebar is open, and its width, in the `composerkit_shell` cookie. An app without a server passes the saved values in before it renders, so the first frame matches the last visit.
+
+```tsx
+import { readDocumentShellCookie } from "composerkit/components/app-shell/persist";
+
+const shell = readDocumentShellCookie();
+
+export const App = () => (
+  <div className="bg-background text-foreground h-dvh">
+    <ChatLayout defaultOpen={shell.open} defaultWidth={shell.width}>
+      <h1 className="p-6 text-2xl">Hello</h1>
+    </ChatLayout>
+  </div>
+);
+```
+
 ## Use the composer on its own
 
 The composer draws a state that your component owns. The `useComposerController` hook keeps the state in a reducer, and it gives the composer handlers for sending, uploads and dictation. When someone sends a message, the hook calls your function with the state that was sent, and then it clears the draft.
@@ -158,7 +297,37 @@ The [theme page](https://bjoernaagaard.github.io/ComposerKit/theme/) in the docs
 
 ## Next.js and React Server Components
 
-Every module in the package starts with the `"use client"` directive, so Next.js loads the components on the client. A server component can't pass a function prop, such as `reply`, to a client component. Render the conversation view and the composer from a file that starts with `"use client"`.
+Every module in the package starts with the `"use client"` directive, so Next.js loads the components on the client. A server component can't pass a function prop, such as `reply`, to a client component. Render the conversation view, the composer and the app shell from a file that starts with `"use client"`.
+
+`composerkit/components/app-shell/persist` has no hooks and no `"use client"`, so a server component can read the saved layout from the cookie and pass it to the shell. Next.js 16 apps made with `create-next-app` turn on Cache Components, which needs the cookie read inside `<Suspense>`:
+
+```tsx
+import { readShellCookie } from "composerkit/components/app-shell/persist";
+import { cookies } from "next/headers";
+import { Suspense } from "react";
+
+import { ChatLayout } from "./chat-layout";
+
+const Shell = async () => {
+  const shell = readShellCookie((await cookies()).toString());
+
+  return (
+    <ChatLayout defaultOpen={shell.open} defaultWidth={shell.width}>
+      <h1 className="p-6 text-2xl">Hello</h1>
+    </ChatLayout>
+  );
+};
+
+export default function Home() {
+  return (
+    <div className="bg-background text-foreground h-dvh">
+      <Suspense>
+        <Shell />
+      </Suspense>
+    </div>
+  );
+}
+```
 
 ## License
 
