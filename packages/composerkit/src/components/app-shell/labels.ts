@@ -10,15 +10,14 @@ export interface AppShellLabels {
   skipToContent: string;
   // The rail's navigation landmark.
   rail: string;
-  // The sidebar's complementary landmark.
+  // The sidebar's complementary landmark, and the drawer's dialog name on
+  // narrow shells.
   sidebar: string;
   showSidebar: string;
   hideSidebar: string;
   // The sidebar toggle's tooltip: its action and the shortcut that runs it,
   // such as "Hide sidebar ⌘B".
   withShortcut: (action: string, keys: string) => string;
-  // The scrim that closes the sidebar when it covers the page.
-  closeSidebar: string;
   back: string;
   forward: string;
   // The tab list's name.
@@ -28,7 +27,6 @@ export interface AppShellLabels {
 
 export const APP_SHELL_LABELS: AppShellLabels = {
   back: "Back",
-  closeSidebar: "Close sidebar",
   forward: "Forward",
   hideSidebar: "Hide sidebar",
   newTab: "New tab",

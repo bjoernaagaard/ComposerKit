@@ -179,6 +179,26 @@ body[data-design="apple"] [data-slot="sidebar"] {
   box-shadow: var(--apple-rim), var(--apple-lift);
 }
 
+/* On narrow shells the sidebar is a drawer over the sheet: the drawer is a
+   thick material the page does not read through, and the sidebar fills it. */
+body[data-design="apple"] [data-slot="sidebar-panel"][data-variant="overlay"] {
+  background: var(--apple-glass-thick);
+  backdrop-filter: var(--apple-glass-filter);
+  box-shadow: var(--apple-rim), var(--shadow-drawer);
+}
+
+body[data-design="apple"]
+  [data-slot="sidebar-panel"][data-variant="overlay"]
+  [data-slot="sidebar"] {
+  width: 100%;
+  height: 100%;
+  margin-inline-end: 0;
+  border-radius: 0;
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
 body[data-design="apple"] [data-slot="conversation-row"] > button {
   transition-property: background-color, color;
 }

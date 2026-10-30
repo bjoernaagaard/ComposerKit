@@ -590,3 +590,216 @@ test('tab ids: a tab whose id has quotes, such as filled "…", opens by click a
   );
   expect(errors).toEqual([]);
 });
+
+// --- Narrow shells: the sidebar is a modal drawer with the rail in it ---
+
+const NARROW_SIZES = [
+  { height: 844, width: 390 },
+  { height: 640, width: 320 },
+] as const;
+
+const WIDE = { height: 900, width: 1440 } as const;
+
+const drawer = (page: Page) => page.getByRole("dialog", { name: "Sidebar" });
+
+// The drawer itself or a control in it has focus.
+const focusInDrawer = (page: Page) =>
+  page.locator('[role="dialog"]:focus-within');
+
+const openDrawer = async (page: Page) => {
+  await showToggle(page).click();
+  await expect(drawer(page)).toBeVisible();
+};
+
+for (const size of NARROW_SIZES) {
+  test(`${size.width} wide: the drawer takes focus, and Tab and Shift+Tab stay inside it`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(size);
+    await openApp(page, "base", "light");
+    await openDrawer(page);
+
+    await expect(focusInDrawer(page)).toHaveCount(1);
+
+    // The page behind is out of reach for assistive technology, and Tab
+    // never reaches the title bar.
+    await expect(drawer(page)).toHaveAttribute("aria-modal", "true");
+    await expect(page.getByRole("banner")).toHaveCount(0);
+
+    await page.keyboard.press("Shift+Tab");
+    await expect(focusInDrawer(page)).toHaveCount(1);
+    await page.keyboard.press("Shift+Tab");
+    await expect(focusInDrawer(page)).toHaveCount(1);
+    await page.keyboard.press("Tab");
+    await page.keyboard.press("Tab");
+    await page.keyboard.press("Tab");
+    await expect(focusInDrawer(page)).toHaveCount(1);
+    await expect(drawer(page)).toBeVisible();
+  });
+
+  test(`${size.width} wide: Escape closes the drawer and focuses the sidebar toggle`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(size);
+    await openApp(page, "base", "light");
+    await openDrawer(page);
+    await page.keyboard.press("Escape");
+
+    await expect(drawer(page)).toBeHidden();
+    await expect(showToggle(page)).toBeFocused();
+    await expect(showToggle(page)).toHaveAttribute("aria-expanded", "false");
+  });
+
+  test(`${size.width} wide: picking a chat closes the drawer and focuses main`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(size);
+    await openApp(page, "base", "light");
+    await openDrawer(page);
+    await drawer(page)
+      .getByRole("button", {
+        exact: true,
+        name: "Add retries to the sync client",
+      })
+      .click();
+
+    await expect(drawer(page)).toBeHidden();
+    await expect(page.getByRole("main")).toBeFocused();
+    await expect(
+      page.getByRole("tab", { name: "Add retries to the sync client" })
+    ).toHaveAttribute("aria-selected", "true");
+  });
+
+  test(`${size.width} wide: a strip of backdrop at least 48 px wide stays to tap, and a tap there closes the drawer`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(size);
+    await openApp(page, "base", "light");
+    await openDrawer(page);
+
+    // Measured once the drawer has slid all the way in.
+    await expect
+      .poll(async () => {
+        const box = await drawer(page).boundingBox();
+
+        return box?.x;
+      })
+      .toBe(0);
+
+    const panel = await drawer(page).boundingBox();
+    const panelEnd = (panel?.x ?? 0) + (panel?.width ?? size.width);
+
+    expect(size.width - panelEnd).toBeGreaterThanOrEqual(48);
+
+    await page.mouse.click(size.width - 24, size.height / 2);
+
+    await expect(drawer(page)).toBeHidden();
+  });
+
+  test(`${size.width} wide: the rail's destinations sit at the top of the drawer, and none beside the page`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(size);
+    await openApp(page, "base", "light");
+
+    await expect(page.getByRole("navigation", { name: "Main" })).toHaveCount(0);
+    await expect(page.locator("[data-rail-item]").first()).toBeHidden();
+
+    // Opened from the keyboard, focus goes to the first destination.
+    await showToggle(page).focus();
+    await page.keyboard.press("Enter");
+    await expect(drawer(page)).toBeVisible();
+
+    const destinations = drawer(page).getByRole("navigation", { name: "Main" });
+
+    await expect(
+      destinations.getByRole("button", { name: "Home" })
+    ).toBeFocused();
+    await expect(
+      destinations.getByRole("button", { name: "Notes" })
+    ).toBeAttached();
+    await expect(
+      destinations.getByRole("button", { name: "Appearance" })
+    ).toBeVisible();
+
+    const row = await destinations.boundingBox();
+
+    const chats = await drawer(page)
+      .getByRole("navigation", { name: "Chats" })
+      .boundingBox();
+
+    expect((row?.y ?? 0) + (row?.height ?? 0)).toBeLessThanOrEqual(
+      (chats?.y ?? 0) + 1
+    );
+
+    await destinations.getByRole("button", { name: "Inbox" }).click();
+
+    await expect(drawer(page)).toBeHidden();
+    await expect(page.getByRole("main")).toBeFocused();
+    await expect(page.getByRole("heading", { name: "Inbox" })).toBeVisible();
+  });
+}
+
+test("container: a shell 600 px wide on a 1440 px page uses the drawer", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await page.addStyleTag({ content: "#root { width: 600px; }" });
+
+  const shell = page.locator('[data-slot="app-shell"]');
+
+  await expect(shell).toHaveAttribute("data-sidebar-variant", "overlay");
+  await expect(page.getByRole("complementary")).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: "Main" })).toHaveCount(0);
+
+  await openDrawer(page);
+  await expect(
+    drawer(page).getByRole("navigation", { name: "Main" })
+  ).toBeVisible();
+
+  const shellBox = await shell.boundingBox();
+
+  await expect
+    .poll(async () => {
+      const box = await drawer(page).boundingBox();
+
+      return box?.x;
+    })
+    .toBe(shellBox?.x);
+
+  const panel = await drawer(page).boundingBox();
+
+  expect((panel?.x ?? 0) + (panel?.width ?? 0)).toBeLessThanOrEqual(
+    (shellBox?.x ?? 0) + (shellBox?.width ?? 0) - 48
+  );
+});
+
+test("resize: going narrow and back keeps the wide sidebar's open state", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await hideToggle(page).click();
+  await expect(sidebar(page)).toBeHidden();
+
+  await page.setViewportSize(NARROW_SIZES[0]);
+  await openDrawer(page);
+  await page.keyboard.press("Escape");
+  await expect(drawer(page)).toBeHidden();
+
+  await page.setViewportSize(WIDE);
+  await expect(showToggle(page)).toHaveAttribute("aria-expanded", "false");
+  await expect(sidebar(page)).toBeHidden();
+
+  // Shown on wide, the drawer still starts closed on narrow, and the
+  // sidebar is back beside the page on wide.
+  await showToggle(page).click();
+  await expect(sidebar(page)).toBeVisible();
+
+  await page.setViewportSize(NARROW_SIZES[0]);
+  await expect(drawer(page)).toBeHidden();
+  await expect(showToggle(page)).toHaveAttribute("aria-expanded", "false");
+
+  await page.setViewportSize(WIDE);
+  await expect(sidebar(page)).toBeVisible();
+  await expect(hideToggle(page)).toHaveAttribute("aria-expanded", "true");
+});

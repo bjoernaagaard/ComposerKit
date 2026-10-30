@@ -228,12 +228,16 @@ Every word the shell shows or announces. Pass `labels` to the provider, or to on
 | Cmd+B (macOS), Ctrl+B (elsewhere) | Anywhere | Shows or hides the sidebar, at once and without motion. With several shells on a page, the one that holds focus toggles, or the first one when focus is in none. Pass `shortcut={false}` to turn it off, or another key. |
 | Left, Right | A title bar tab | Opens the previous or next tab, and wraps around. |
 | Home, End | A title bar tab | Opens the first or last tab. |
+| Tab, Shift+Tab | The narrow drawer | Move through the drawer's controls and wrap around inside it. The page behind it can't take focus. |
+| Escape | The narrow drawer | Closes the drawer and moves focus back to the sidebar toggle. |
 
 The tabs follow the [WAI-ARIA Authoring Practices tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/), so only the open tab is a Tab stop. The sidebar toggle names its shortcut with `aria-keyshortcuts` and in its tooltip.
 
 ## Accessibility
 
 The shell's regions are [WAI-ARIA Authoring Practices landmark regions](https://www.w3.org/WAI/ARIA/apg/practices/landmark-regions/): a banner for the title bar, a navigation named Main for the rail, a complementary region named Sidebar, and the main region, which is also the tab panel. A hidden sidebar is inert, so Tab and screen readers skip it. The current destination in the rail has `aria-current="page"`, a fill and a bar on its leading edge, and the bar stays in forced colors.
+
+When the shell is narrower than 48rem, measured on the shell and not the window, the sidebar becomes a modal [Base UI Drawer](https://base-ui.com/react/components/drawer). It is a dialog named Sidebar, and the rail's destinations move into a row at its top. Opening it moves focus into it: to its first control from the keyboard, and to the dialog itself from a pointer. Focus stays inside while it is open, and the rest of the shell is hidden from screen readers. Escape, a tap on the backdrop or a swipe toward its edge closes it, and focus goes back to the sidebar toggle. Picking a destination or a chat inside it closes it and moves focus to the main region, through `useAppShell().closeNarrowAndFocusMain()`. The drawer leaves a strip of backdrop at least 48 px wide to tap, even on a 320 px screen. Under reduced motion it fades instead of sliding.
 
 <SpecSection section="6. App shell > Regions" />
 
