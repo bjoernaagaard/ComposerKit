@@ -26,25 +26,25 @@ Schemas fetched at run time from ui.shadcn.com. Validator: ajv 8 (draft-07), str
 
 ## 2. A new app installs every item and the sample data, takes every example from its Code tab, then type checks and builds
 
-The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-Y3Dn3y/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:5881/r/ in r/app-shell.json, r/button.json, r/chat-app.json, r/chat-sidebar.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server. The temp folder is removed when the test ends.
+The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-5fa9op/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:5381/r/ in r/app-shell.json, r/button.json, r/chat-app.json, r/chat-sidebar.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server. The temp folder is removed when the test ends.
 
 | Command | Folder | Exit code | Seconds |
 | --- | --- | --- | --- |
-| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 24 |
-| npx -y shadcn@latest add http://127.0.0.1:5881/r/theme.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:5881/r/button.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:5881/r/tip.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:5881/r/menu.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:5881/r/composer.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:5881/r/conversation.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:5881/r/app-shell.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:5881/r/chat-sidebar.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:5881/r/chat-app.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:5881/r/sample-data.json -y -o | consumer | 0 | 1 |
-| npx tsc --noEmit | consumer | 0 | 2 |
-| npx next build | consumer | 0 | 6 |
+| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 19 |
+| npx -y shadcn@latest add http://127.0.0.1:5381/r/theme.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:5381/r/button.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:5381/r/tip.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:5381/r/menu.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:5381/r/composer.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:5381/r/conversation.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:5381/r/app-shell.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:5381/r/chat-sidebar.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:5381/r/chat-app.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:5381/r/sample-data.json -y -o | consumer | 0 | 1 |
+| npx tsc --noEmit | consumer | 0 | 1 |
+| npx next build | consumer | 0 | 5 |
 
-Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-Y3Dn3y` (outside the repo).
+Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-5fa9op` (outside the repo).
 
 ### Examples copied from the Code tab
 
@@ -52,7 +52,7 @@ Every example file on the item pages, copied with the docs' Copy button into `co
 
 ### The chat-app page
 
-next start served `http://127.0.0.1:5882/chat`. Shell in the server HTML: yes. Heading: Start with a task. Landmarks: banner, navigation Main, complementary Sidebar, navigation Chats, main. Console errors: none.
+next start served `http://127.0.0.1:5382/chat`. Shell in the server HTML: yes. Heading: Start with a task. Landmarks: banner, navigation Main, complementary Sidebar, navigation Chats, main. Console errors: none.
 
 Expected: the Code tab files in each item page's built HTML, /theme 2, /button 3, /tip 2, /menu 2, /composer 2, /conversation 2, /app-shell 3, /chat-sidebar 3, /chat-app 2; 21 files in all. Copied: 21. Missing: none. Extra: none.
 
@@ -73,9 +73,9 @@ Expected: the Code tab files in each item page's built HTML, /theme 2, /button 3
 | /conversation | conversation--bubbles | conversation-layout.tsx | Code | 1146 | yes |
 | /app-shell | app-shell--demo | app-shell-demo.tsx | Code | 2774 | yes |
 | /app-shell | app-shell--controlled | app-shell-controlled.tsx | Code | 2919 | yes |
-| /app-shell | title-bar-tabs--filled | tab-strip.tsx | Code | 2104 | yes |
+| /app-shell | title-bar-tabs--filled | tab-strip.tsx | Code | 2000 | yes |
 | /chat-sidebar | chat-sidebar--demo | chat-sidebar-demo.tsx | Code | 2640 | yes |
-| /chat-sidebar | chat-sidebar--links | chat-sidebar-links.tsx | Code | 1915 | yes |
+| /chat-sidebar | chat-sidebar--links | chat-sidebar-links.tsx | Code | 1854 | yes |
 | /chat-sidebar | conversation-row--compact | conversation-rows.tsx | Code | 3122 | yes |
 | /chat-app | chat-app--demo | chat-app-demo.tsx | Code | 534 | yes |
 | /chat-app | mode-toggle--pill | mode-toggle.tsx | Code | 541 | yes |
@@ -137,7 +137,7 @@ Keyboard and size rows are listed, not gated. A mismatch does not fail the run; 
 
 | Rows | Pass | Mismatch | Not checkable |
 | ---- | ---- | -------- | ------------- |
-| 105  | 84   | 15       | 6             |
+| 106  | 85   | 15       | 6             |
 
 ## 4. Every old catalog screenshot has a docs example
 
@@ -388,17 +388,17 @@ The Design picker in the docs sidebar footer, on the pages with the most example
 | Page | Design | Scheme | axe violations | First frame | Kept after navigation | Console errors |
 | --- | --- | --- | --- | --- | --- | --- |
 | /composer | apple | light | none | pass, 1 of 1 frames | yes | none |
-| /composer | glass | light | none | pass, 2 of 2 frames | yes | none |
-| /composer | taste | light | none | pass, 2 of 2 frames | yes | none |
+| /composer | glass | light | none | pass, 1 of 1 frames | yes | none |
+| /composer | taste | light | none | pass, 1 of 1 frames | yes | none |
 | /composer | emil | light | none | pass, 1 of 1 frames | yes | none |
 | /conversation | apple | light | none | pass, 2 of 2 frames | yes | none |
-| /conversation | glass | light | none | pass, 1 of 1 frames | yes | none |
+| /conversation | glass | light | none | pass, 2 of 2 frames | yes | none |
 | /conversation | taste | light | none | pass, 2 of 2 frames | yes | none |
-| /conversation | emil | light | none | pass, 1 of 1 frames | yes | none |
+| /conversation | emil | light | none | pass, 2 of 2 frames | yes | none |
 | /app-shell | apple | light | none | pass, 2 of 2 frames | yes | none |
 | /app-shell | glass | light | none | pass, 2 of 2 frames | yes | none |
 | /app-shell | taste | light | none | pass, 2 of 2 frames | yes | none |
-| /app-shell | emil | light | none | pass, 1 of 1 frames | yes | none |
+| /app-shell | emil | light | none | pass, 2 of 2 frames | yes | none |
 | /chat-app | apple | light | none | pass, 2 of 2 frames | yes | none |
 | /chat-app | glass | light | none | pass, 2 of 2 frames | yes | none |
 | /chat-app | taste | light | none | pass, 2 of 2 frames | yes | none |
@@ -408,7 +408,7 @@ The Design picker in the docs sidebar footer, on the pages with the most example
 | /composer | taste | dark | none | pass, 1 of 1 frames | yes | none |
 | /composer | emil | dark | none | pass, 1 of 1 frames | yes | none |
 | /conversation | apple | dark | none | pass, 2 of 2 frames | yes | none |
-| /conversation | glass | dark | none | pass, 1 of 1 frames | yes | none |
+| /conversation | glass | dark | none | pass, 2 of 2 frames | yes | none |
 | /conversation | taste | dark | none | pass, 2 of 2 frames | yes | none |
 | /conversation | emil | dark | none | pass, 2 of 2 frames | yes | none |
 | /app-shell | apple | dark | none | pass, 2 of 2 frames | yes | none |

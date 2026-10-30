@@ -525,7 +525,7 @@
     "part": "Sidebar header buttons (activity, search)",
     "actual": "28 x 28, 28 x 28",
     "status": "pass",
-    "where": "http://127.0.0.1:5890/ [data-example=\"app-shell\"]"
+    "where": "http://127.0.0.1:5390/ [data-example=\"app-shell\"]"
   },
   {
     "expected": "36 x 36, selected radius about 8",
@@ -776,20 +776,28 @@
     "where": "/app-shell [data-example=\"mode-toggle--underline\"]"
   },
   {
-    "expected": "44 tall, back and forward 28 x 28 6 apart, sidebar toggle 28 x 28",
+    "expected": "44 tall with a hairline divider at the bottom, back and forward 28 x 28 6 apart, sidebar toggle 28 x 28",
     "line": 426,
     "part": "Title bar",
-    "actual": "44 tall, back 28 x 28 and forward 28 x 28 6 apart, sidebar toggle 28 x 28",
+    "actual": "44 tall with a 1 divider at the bottom, back 28 x 28 and forward 28 x 28 6 apart, sidebar toggle 28 x 28",
     "status": "pass",
-    "where": "http://127.0.0.1:5890/ [data-example=\"app-shell\"]"
+    "where": "http://127.0.0.1:5390/ [data-example=\"app-shell\"]"
   },
   {
-    "expected": "52 wide, 36 x 36 buttons, 8 inset, 44 pitch",
+    "expected": "a hairline vertical divider the title bar's height, in line with the sidebar edge",
+    "line": 427,
+    "part": "Title bar divider",
+    "actual": "0.5 wide, 43 tall, 0 from the sidebar's edge",
+    "status": "pass",
+    "where": "http://127.0.0.1:5390/ [data-example=\"app-shell\"]"
+  },
+  {
+    "expected": "52 wide with a hairline divider on its inline-end edge, 36 x 36 buttons, 8 inset, 44 pitch",
     "line": 429,
     "part": "Icon rail",
-    "actual": "52 wide, buttons 36 x 36, inset 8, pitch 44",
+    "actual": "52 wide with a 1 divider on its inline-end edge, buttons 36 x 36, inset 7.5, pitch 44",
     "status": "pass",
-    "where": "http://127.0.0.1:5890/ [data-example=\"app-shell\"]"
+    "where": "http://127.0.0.1:5390/ [data-example=\"app-shell\"]"
   },
   {
     "expected": "288 wide, rail plus sidebar 340, a 16 wide splitter on its edge",
@@ -797,7 +805,7 @@
     "part": "Sidebar",
     "actual": "288 wide, rail plus sidebar 340, splitter 16 wide centered at 0 from the sidebar's edge",
     "status": "pass",
-    "where": "http://127.0.0.1:5890/ [data-example=\"app-shell\"]"
+    "where": "http://127.0.0.1:5390/ [data-example=\"app-shell\"]"
   },
   {
     "expected": "mode switcher about 109 x 32, two 28 x 28 buttons 6 apart",
@@ -805,7 +813,7 @@
     "part": "Sidebar header",
     "actual": "workspace menu 160.3 x 32, notifications 28 x 28 and search 28 x 28 6 apart",
     "status": "pass",
-    "where": "http://127.0.0.1:5890/ [data-example=\"app-shell\"]"
+    "where": "http://127.0.0.1:5390/ [data-example=\"app-shell\"]"
   },
   {
     "expected": "272 x 30",
@@ -813,7 +821,7 @@
     "part": "New chat row",
     "actual": "272 x 30",
     "status": "pass",
-    "where": "http://127.0.0.1:5890/ [data-example=\"app-shell\"]"
+    "where": "http://127.0.0.1:5390/ [data-example=\"app-shell\"]"
   },
   {
     "expected": "25 tall, 16 to 20 between sections",
@@ -821,7 +829,7 @@
     "part": "Section header",
     "actual": "25 tall, 16 between the first two sections",
     "status": "pass",
-    "where": "http://127.0.0.1:5890/ [data-example=\"app-shell\"]"
+    "where": "http://127.0.0.1:5390/ [data-example=\"app-shell\"]"
   },
   {
     "expected": "two 28 x 28 view toggles, 6 apart",

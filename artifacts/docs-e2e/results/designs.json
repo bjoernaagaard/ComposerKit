@@ -11,44 +11,44 @@
   {
     "consoleErrors": [],
     "design": "glass",
-    "firstFrames": ["glass", "glass"],
-    "keptAfterNavigation": true,
-    "page": "/composer",
-    "scheme": "light",
-    "violations": []
-  },
-  {
-    "consoleErrors": [],
-    "design": "taste",
-    "firstFrames": ["taste", "taste"],
-    "keptAfterNavigation": true,
-    "page": "/composer",
-    "scheme": "light",
-    "violations": []
-  },
-  {
-    "consoleErrors": [],
-    "design": "emil",
-    "firstFrames": ["emil"],
-    "keptAfterNavigation": true,
-    "page": "/composer",
-    "scheme": "light",
-    "violations": []
-  },
-  {
-    "consoleErrors": [],
-    "design": "apple",
-    "firstFrames": ["apple", "apple"],
-    "keptAfterNavigation": true,
-    "page": "/conversation",
-    "scheme": "light",
-    "violations": []
-  },
-  {
-    "consoleErrors": [],
-    "design": "glass",
     "firstFrames": ["glass"],
     "keptAfterNavigation": true,
+    "page": "/composer",
+    "scheme": "light",
+    "violations": []
+  },
+  {
+    "consoleErrors": [],
+    "design": "taste",
+    "firstFrames": ["taste"],
+    "keptAfterNavigation": true,
+    "page": "/composer",
+    "scheme": "light",
+    "violations": []
+  },
+  {
+    "consoleErrors": [],
+    "design": "emil",
+    "firstFrames": ["emil"],
+    "keptAfterNavigation": true,
+    "page": "/composer",
+    "scheme": "light",
+    "violations": []
+  },
+  {
+    "consoleErrors": [],
+    "design": "apple",
+    "firstFrames": ["apple", "apple"],
+    "keptAfterNavigation": true,
+    "page": "/conversation",
+    "scheme": "light",
+    "violations": []
+  },
+  {
+    "consoleErrors": [],
+    "design": "glass",
+    "firstFrames": ["glass", "glass"],
+    "keptAfterNavigation": true,
     "page": "/conversation",
     "scheme": "light",
     "violations": []
@@ -65,7 +65,7 @@
   {
     "consoleErrors": [],
     "design": "emil",
-    "firstFrames": ["emil"],
+    "firstFrames": ["emil", "emil"],
     "keptAfterNavigation": true,
     "page": "/conversation",
     "scheme": "light",
@@ -101,7 +101,7 @@
   {
     "consoleErrors": [],
     "design": "emil",
-    "firstFrames": ["emil"],
+    "firstFrames": ["emil", "emil"],
     "keptAfterNavigation": true,
     "page": "/app-shell",
     "scheme": "light",
@@ -191,7 +191,7 @@
   {
     "consoleErrors": [],
     "design": "glass",
-    "firstFrames": ["glass"],
+    "firstFrames": ["glass", "glass"],
     "keptAfterNavigation": true,
     "page": "/conversation",
     "scheme": "dark",

@@ -500,7 +500,7 @@
     },
     "id": "title-bar-tabs--filled",
     "page": "/app-shell",
-    "ratio": 0.054233168226013574,
+    "ratio": 0.05424463401210787,
     "scheme": "light"
   },
   {
@@ -1018,7 +1018,7 @@
     },
     "id": "title-bar-tabs--filled",
     "page": "/app-shell",
-    "ratio": 0.05419877086773069,
+    "ratio": 0.0541758392955421,
     "scheme": "dark"
   },
   {
@@ -1032,7 +1032,7 @@
     },
     "id": "title-bar-tabs--underline",
     "page": "/app-shell",
-    "ratio": 0.05408411300678775,
+    "ratio": 0.054061181434599155,
     "scheme": "dark"
   }
 ]
