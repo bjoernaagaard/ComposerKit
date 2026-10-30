@@ -81,6 +81,8 @@ When the app owns the open state with `open` and `onOpenChange`, the provider st
 
 Each part is its own module under `components/app-shell/`. Leave out the parts you don't need, such as the tabs or the rail. `useAppShell()` returns the provider's state, such as `open`, `setOpen`, `toggleSidebar`, `width` and `setWidth`.
 
+The [Chat app](/chat-app) puts every part together with the [Chat sidebar](/chat-sidebar), and installs as one page.
+
 ## Examples
 
 ### Controlled
@@ -92,18 +94,6 @@ Each part is its own module under `components/app-shell/`. Leave out the parts y
 <ComponentPreview name="title-bar-tabs--filled" />
 
 <ComponentPreview name="title-bar-tabs--underline" />
-
-### Demo app parts
-
-The mode toggle is the demo app's own part in `packages/composerkit/src/app`. No registry item installs it yet, so its Code tab shows repo code. The chat list in the demo app's sidebar is the [Chat sidebar](/chat-sidebar).
-
-#### Mode toggle
-
-<ComponentPreview name="mode-toggle--pill" />
-
-<ComponentPreview name="mode-toggle--segmented" />
-
-<ComponentPreview name="mode-toggle--underline" />
 
 ## API reference
 

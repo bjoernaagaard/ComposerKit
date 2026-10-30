@@ -6,14 +6,18 @@ import "@/designs/emil/emil.css";
 import "@/designs/apple/apple.css";
 import "@/designs/glass/glass.css";
 import "@/designs/taste/taste.css";
-import { lazy, StrictMode, Suspense } from "react";
+import { lazy, StrictMode, Suspense, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 
-import { App } from "@/app/app";
-import { startDirection } from "@/designs/direction";
+import { ChatApp } from "@/blocks/chat-app/chat-app";
+import { readDocumentShellCookie } from "@/components/app-shell/persist";
+import type { ConversationLayout } from "@/components/conversation/layouts";
+import { DirectionSelector, startDirection } from "@/designs/direction";
 import { startTheme } from "@/theme/apply";
 
+import { AppearanceMenu } from "./appearance-menu";
+import { readConversationLayout, saveConversationLayout } from "./saved-layout";
 import { ComposerStates } from "./states/composer/composer-states";
 
 // The stress harness is for the docs E2E only. In a production build the
@@ -29,6 +33,39 @@ const Stress = import.meta.env.DEV
 startTheme(document.documentElement);
 
 startDirection();
+
+// The chat-app block, as an app installs it, plus what only the demo has:
+// the color scheme and conversation layout menu at the foot of the rail,
+// and the Design select in the title bar. The sidebar's saved state and
+// width are read before the first render, so the first frame matches the
+// last visit.
+const Demo = () => {
+  const shell = useMemo(() => readDocumentShellCookie(), []);
+
+  const [conversationLayout, setConversationLayout] = useState(
+    readConversationLayout
+  );
+
+  const changeLayout = (layout: ConversationLayout) => {
+    saveConversationLayout(layout);
+    setConversationLayout(layout);
+  };
+
+  return (
+    <ChatApp
+      conversationLayout={conversationLayout}
+      defaultOpen={shell.open}
+      defaultWidth={shell.width}
+      railFooter={
+        <AppearanceMenu
+          conversationLayout={conversationLayout}
+          onConversationLayoutChange={changeLayout}
+        />
+      }
+      titleBarEnd={<DirectionSelector />}
+    />
+  );
+};
 
 const root = document.querySelector("#root");
 
@@ -59,7 +96,7 @@ const page = (): ReactNode => {
     );
   }
 
-  return <App />;
+  return <Demo />;
 };
 
 createRoot(root).render(<StrictMode>{page()}</StrictMode>);

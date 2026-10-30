@@ -30,7 +30,13 @@ interface ShadcnResult {
   expected: { page: string; files: string[] }[];
   missing: string[];
   extra: string[];
-  repoOnly?: string[];
+  chatPage?: {
+    url: string;
+    serverRendered: boolean;
+    landmarks: string[];
+    heading: string;
+    errors: string[];
+  } | null;
   note: string;
   steps: CommandRun[];
   tempFolder: string;
@@ -157,7 +163,11 @@ const checkTwo = (shadcn: ShadcnResult | undefined) => {
     ),
     `Temp folder: \`${shadcn.tempFolder}\` (outside the repo).`,
     "### Examples copied from the Code tab",
-    `Every example file on the item pages, copied with the docs' Copy button into \`components/examples/\` of the new app before tsc and next build. Same as the file means the copied text equals the example file minus its license header. Examples whose tab says Repo code use the demo app's own parts, which no item installs, so they are not copied: ${shadcn.repoOnly?.join(", ") || "none"}.`,
+    `Every example file on the item pages, copied with the docs' Copy button into \`components/examples/\` of the new app before tsc and next build. Same as the file means the copied text equals the example file minus its license header.`,
+    "### The chat-app page",
+    shadcn.chatPage
+      ? `next start served \`${shadcn.chatPage.url}\`. Shell in the server HTML: ${shadcn.chatPage.serverRendered ? "yes" : "no"}. Heading: ${shadcn.chatPage.heading || "none"}. Landmarks: ${shadcn.chatPage.landmarks.join(", ") || "none"}. Console errors: ${shadcn.chatPage.errors.join("; ") || "none"}.`
+      : "Not checked, because a step before it failed.",
     `Expected: the Code tab files in each item page's built HTML, ${shadcn.expected.map((entry) => `${entry.page} ${entry.files.length}`).join(", ")}; ${new Set(shadcn.expected.flatMap((entry) => entry.files)).size} files in all. Copied: ${shadcn.copied.length}. Missing: ${shadcn.missing.join(", ") || "none"}. Extra: ${shadcn.extra.join(", ") || "none"}.`,
     table(
       [

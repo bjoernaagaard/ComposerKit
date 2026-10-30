@@ -27,6 +27,7 @@ const SHOTS = path.join(ARTIFACTS, "designs");
 // Each page's sidebar link to click for the client-side navigation.
 const NEXT = new Map([
   ["/app-shell", "/composer"],
+  ["/chat-app", "/app-shell"],
   ["/composer", "/conversation"],
   ["/conversation", "/app-shell"],
 ]);

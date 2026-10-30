@@ -2,17 +2,6 @@
 // SPDX-License-Identifier: MIT
 
 import {
-  BlocksIcon,
-  CalendarClockIcon,
-  FilesIcon,
-  FolderIcon,
-  HouseIcon,
-  InboxIcon,
-  NotebookPenIcon,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-
-import {
   CONVERSATION_LAYOUTS,
   isConversationLayout,
 } from "@/components/conversation/layouts";
@@ -29,31 +18,6 @@ import {
 import { Tip } from "@/components/ui/tip";
 import { SCHEMES, setScheme } from "@/theme/apply";
 import { useTheme } from "@/theme/use-theme";
-
-export type Destination =
-  | "home"
-  | "inbox"
-  | "schedule"
-  | "extensions"
-  | "projects"
-  | "files"
-  | "notes";
-
-// The demo's destinations. The rail shows a rule between the two groups.
-export const DESTINATIONS: {
-  id: Destination;
-  label: string;
-  icon: LucideIcon;
-  group: 1 | 2;
-}[] = [
-  { group: 1, icon: HouseIcon, id: "home", label: "Home" },
-  { group: 1, icon: InboxIcon, id: "inbox", label: "Inbox" },
-  { group: 1, icon: CalendarClockIcon, id: "schedule", label: "Schedule" },
-  { group: 1, icon: BlocksIcon, id: "extensions", label: "Extensions" },
-  { group: 2, icon: FolderIcon, id: "projects", label: "Projects" },
-  { group: 2, icon: FilesIcon, id: "files", label: "Files" },
-  { group: 2, icon: NotebookPenIcon, id: "notes", label: "Notes" },
-];
 
 const isScheme = (value: string) =>
   SCHEMES.find((scheme) => scheme.id === value)?.id;

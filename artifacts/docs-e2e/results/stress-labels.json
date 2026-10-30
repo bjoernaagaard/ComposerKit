@@ -1,0 +1,338 @@
+[
+  {
+    "data": "demo",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/button--demo--320.png",
+    "part": "button",
+    "width": 320
+  },
+  {
+    "data": "spaces",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/button--spaces--320.png",
+    "part": "button",
+    "width": 320
+  },
+  {
+    "data": "word",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/button--word--320.png",
+    "part": "button",
+    "width": 320
+  },
+  {
+    "data": "demo",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/button--demo--1440.png",
+    "part": "button",
+    "width": 1440
+  },
+  {
+    "data": "spaces",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/button--spaces--1440.png",
+    "part": "button",
+    "width": 1440
+  },
+  {
+    "data": "word",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/button--word--1440.png",
+    "part": "button",
+    "width": 1440
+  },
+  {
+    "data": "demo",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/icon-button--demo--320.png",
+    "part": "icon-button",
+    "width": 320
+  },
+  {
+    "data": "spaces",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/icon-button--spaces--320.png",
+    "part": "icon-button",
+    "width": 320
+  },
+  {
+    "data": "word",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/icon-button--word--320.png",
+    "part": "icon-button",
+    "width": 320
+  },
+  {
+    "data": "demo",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/icon-button--demo--1440.png",
+    "part": "icon-button",
+    "width": 1440
+  },
+  {
+    "data": "spaces",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/icon-button--spaces--1440.png",
+    "part": "icon-button",
+    "width": 1440
+  },
+  {
+    "data": "word",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/icon-button--word--1440.png",
+    "part": "icon-button",
+    "width": 1440
+  },
+  {
+    "data": "demo",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/tooltip--demo--320.png",
+    "part": "tooltip",
+    "width": 320
+  },
+  {
+    "data": "spaces",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/tooltip--spaces--320.png",
+    "part": "tooltip",
+    "width": 320
+  },
+  {
+    "data": "word",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/tooltip--word--320.png",
+    "part": "tooltip",
+    "width": 320
+  },
+  {
+    "data": "demo",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/tooltip--demo--1440.png",
+    "part": "tooltip",
+    "width": 1440
+  },
+  {
+    "data": "spaces",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/tooltip--spaces--1440.png",
+    "part": "tooltip",
+    "width": 1440
+  },
+  {
+    "data": "word",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/tooltip--word--1440.png",
+    "part": "tooltip",
+    "width": 1440
+  },
+  {
+    "data": "demo",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/menu--demo--320.png",
+    "part": "menu",
+    "width": 320
+  },
+  {
+    "data": "spaces",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/menu--spaces--320.png",
+    "part": "menu",
+    "width": 320
+  },
+  {
+    "data": "word",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/menu--word--320.png",
+    "part": "menu",
+    "width": 320
+  },
+  {
+    "data": "demo",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/menu--demo--1440.png",
+    "part": "menu",
+    "width": 1440
+  },
+  {
+    "data": "spaces",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/menu--spaces--1440.png",
+    "part": "menu",
+    "width": 1440
+  },
+  {
+    "data": "word",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/menu--word--1440.png",
+    "part": "menu",
+    "width": 1440
+  },
+  {
+    "data": "demo",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/tabs--demo--320.png",
+    "part": "tabs",
+    "width": 320
+  },
+  {
+    "data": "spaces",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/tabs--spaces--320.png",
+    "part": "tabs",
+    "width": 320
+  },
+  {
+    "data": "word",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/tabs--word--320.png",
+    "part": "tabs",
+    "width": 320
+  },
+  {
+    "data": "demo",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/tabs--demo--1440.png",
+    "part": "tabs",
+    "width": 1440
+  },
+  {
+    "data": "spaces",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/tabs--spaces--1440.png",
+    "part": "tabs",
+    "width": 1440
+  },
+  {
+    "data": "word",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/tabs--word--1440.png",
+    "part": "tabs",
+    "width": 1440
+  },
+  {
+    "data": "demo",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/row--demo--320.png",
+    "part": "row",
+    "width": 320
+  },
+  {
+    "data": "spaces",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/row--spaces--320.png",
+    "part": "row",
+    "width": 320
+  },
+  {
+    "data": "word",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/row--word--320.png",
+    "part": "row",
+    "width": 320
+  },
+  {
+    "data": "demo",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/row--demo--1440.png",
+    "part": "row",
+    "width": 1440
+  },
+  {
+    "data": "spaces",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/row--spaces--1440.png",
+    "part": "row",
+    "width": 1440
+  },
+  {
+    "data": "word",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/row--word--1440.png",
+    "part": "row",
+    "width": 1440
+  },
+  {
+    "data": "demo",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/turns--demo--320.png",
+    "part": "turns",
+    "width": 320
+  },
+  {
+    "data": "spaces",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/turns--spaces--320.png",
+    "part": "turns",
+    "width": 320
+  },
+  {
+    "data": "word",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/turns--word--320.png",
+    "part": "turns",
+    "width": 320
+  },
+  {
+    "data": "demo",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/turns--demo--1440.png",
+    "part": "turns",
+    "width": 1440
+  },
+  {
+    "data": "spaces",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/turns--spaces--1440.png",
+    "part": "turns",
+    "width": 1440
+  },
+  {
+    "data": "word",
+    "errors": [],
+    "flags": [],
+    "image": "stress/labels/turns--word--1440.png",
+    "part": "turns",
+    "width": 1440
+  }
+]
