@@ -59,7 +59,10 @@
     "conversationComposer": 22,
     "addMenu": 18,
     "action": 8,
-    "tooltip": 10
+    "tooltip": 10,
+    "sidebar": 0,
+    "sheet": 0,
+    "rowActions": "calc(var(--radius-control) - 2px)"
   },
   "size": {
     "titlebar": 44,
@@ -121,7 +124,10 @@
     "modelMenuHeader": 36,
     "modelMenuSlider": 32,
     "moreMenuWidth": 193,
-    "submenuWidth": 180
+    "submenuWidth": 180,
+    "sidebarMin": 220,
+    "sidebarMax": 480,
+    "splitterHit": 16
   },
   "space": {
     "railPadding": 8,
@@ -187,7 +193,10 @@
     "tooltipOffset": 2,
     "tooltipPaddingX": 12,
     "composerExpandReserve": 28,
-    "conversationComposerTextInset": 4
+    "conversationComposerTextInset": 4,
+    "titlebarInsetStart": 12,
+    "sidebarInset": 0,
+    "sheetInset": 0
   },
   "border": {
     "hairline": 0.5,
@@ -205,6 +214,16 @@
     "composerLight": "0px 0px 0px 1px rgba(0, 0, 0, 0.04), 0px 2px 8px 0px rgba(0, 0, 0, 0.04), 0px 4px 80px 8px rgba(0, 0, 0, 0.024)",
     "composerDarkEdge": "inset 0px 0px 1px 0px rgba(255, 255, 255, 0.2)"
   },
+  "overlay": {
+    "light": {
+      "scrim": "rgb(0 0 0 / 0.3)",
+      "shadowDrawer": "8px 0 24px -8px rgb(0 0 0 / 0.16)"
+    },
+    "dark": {
+      "scrim": "rgb(0 0 0 / 0.5)",
+      "shadowDrawer": "8px 0 24px -8px rgb(0 0 0 / 0.5)"
+    }
+  },
   "blur": {
     "menu": 8
   },
@@ -217,7 +236,16 @@
     "jumpDurationMs": 0,
     "tooltipDelayMs": 200,
     "tooltipCloseDelayMs": 0,
-    "stopSettleMs": 500
+    "stopSettleMs": 500,
+    "easeDrawer": "cubic-bezier(0.32, 0.72, 0, 1)",
+    "sidebarEnterMs": 240,
+    "sidebarExitMs": 200,
+    "overlayEnterMs": 280,
+    "overlayExitMs": 200,
+    "tabEnterMs": 180,
+    "tabExitMs": 140,
+    "reducedFadeMs": 150,
+    "pressScale": 1
   },
   "palette": {
     "neutral": {

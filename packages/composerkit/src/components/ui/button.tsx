@@ -13,7 +13,10 @@ import { cn } from "@/lib/utils";
 // that should not draw the eye until hovered. caution is quiet in the
 // warning color, and floating sits over content on its own card.
 // A quiet button shows its state: pressed (aria-pressed), the current page
-// (aria-current) or a filter that is on (data-active). inset is quiet with
+// (aria-current) or a filter that is on (data-active). The current page and
+// an active filter also get a 2px bar on the inline-start edge, in the text
+// color, because the fill alone is too faint to see (about 1.12:1). In
+// forced colors the fill is gone and the bar is Highlight. inset is quiet with
 // its fill drawn inside the hit area, in the shape the size gives it, so a
 // round fill can sit in a slightly wider button.
 // Hover and press look the same and change within a frame, without a fade.
@@ -78,7 +81,7 @@ const buttonVariants = cva(
         outline:
           "border-input text-foreground hover:bg-accent aria-expanded:bg-accent data-popup-open:bg-accent border-(length:--border-hairline)",
         quiet:
-          "text-subtle-foreground hover:bg-accent hover:text-muted-foreground data-popup-open:bg-accent aria-pressed:bg-accent aria-pressed:text-link aria-[current=page]:bg-accent aria-[current=page]:text-foreground data-active:bg-accent data-active:text-foreground disabled:hover:bg-transparent aria-disabled:hover:bg-transparent",
+          "text-subtle-foreground hover:bg-accent hover:text-muted-foreground data-popup-open:bg-accent aria-pressed:bg-accent aria-pressed:text-link aria-[current=page]:bg-accent aria-[current=page]:text-foreground data-active:bg-accent data-active:text-foreground disabled:hover:bg-transparent aria-disabled:hover:bg-transparent [&:is([aria-current=page],[data-active])]:after:pointer-events-none [&:is([aria-current=page],[data-active])]:after:absolute [&:is([aria-current=page],[data-active])]:after:inset-y-2 [&:is([aria-current=page],[data-active])]:after:start-0 [&:is([aria-current=page],[data-active])]:after:w-0.5 [&:is([aria-current=page],[data-active])]:after:rounded-full [&:is([aria-current=page],[data-active])]:after:bg-foreground forced-colors:[&:is([aria-current=page],[data-active])]:after:bg-[Highlight] forced-colors:[&:is([aria-current=page],[data-active])]:after:[forced-color-adjust:none]",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary",
         // Like inset, with a fill that is always there, for the composer's send

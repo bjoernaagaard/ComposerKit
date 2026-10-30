@@ -82,6 +82,8 @@
       "sidebar-border": "#e5e7eb",
       "sidebar-ring": "#716ff1",
       "shadow-composer": "0px 0px 0px 1px rgba(0, 0, 0, 0.04), 0px 2px 8px 0px rgba(0, 0, 0, 0.04), 0px 4px 80px 8px rgba(0, 0, 0, 0.024)",
+      "scrim": "rgb(0 0 0 / 0.3)",
+      "shadow-drawer": "8px 0 24px -8px rgb(0 0 0 / 0.16)",
       "radius": "12.5px",
       "font-ui": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
       "weight-regular": "430",
@@ -120,6 +122,9 @@
       "radius-add-menu": "18px",
       "radius-action": "8px",
       "radius-tooltip": "10px",
+      "radius-sidebar": "0px",
+      "radius-sheet": "0px",
+      "radius-row-actions": "calc(var(--radius-control) - 2px)",
       "size-titlebar": "44px",
       "size-rail": "52px",
       "size-rail-button": "36px",
@@ -180,6 +185,9 @@
       "size-model-menu-slider": "32px",
       "size-more-menu-width": "193px",
       "size-submenu-width": "180px",
+      "size-sidebar-min": "220px",
+      "size-sidebar-max": "480px",
+      "size-splitter-hit": "16px",
       "space-rail-padding": "8px",
       "space-rail-gap": "8px",
       "space-sidebar-padding": "8px",
@@ -244,6 +252,9 @@
       "space-tooltip-padding-x": "12px",
       "space-composer-expand-reserve": "28px",
       "space-conversation-composer-text-inset": "4px",
+      "space-titlebar-inset-start": "12px",
+      "space-sidebar-inset": "0px",
+      "space-sheet-inset": "0px",
       "space-conversation-composer-padding-y": "10px",
       "border-hairline": "0.5px",
       "border-focus-width": "2px",
@@ -265,7 +276,16 @@
       "motion-jump-duration": "0ms",
       "motion-tooltip-delay": "200ms",
       "motion-tooltip-close-delay": "0ms",
-      "motion-stop-settle": "500ms"
+      "motion-stop-settle": "500ms",
+      "motion-ease-drawer": "cubic-bezier(0.32, 0.72, 0, 1)",
+      "motion-sidebar-enter": "240ms",
+      "motion-sidebar-exit": "200ms",
+      "motion-overlay-enter": "280ms",
+      "motion-overlay-exit": "200ms",
+      "motion-tab-enter": "180ms",
+      "motion-tab-exit": "140ms",
+      "motion-reduced-fade": "150ms",
+      "press-scale": "1"
     },
     "dark": {
       "window": "#0a0b0d",
@@ -302,7 +322,9 @@
       "sidebar-accent-foreground": "#f2f4f6",
       "sidebar-border": "#2d2f34",
       "sidebar-ring": "#9095fd",
-      "shadow-composer": "inset 0px 0px 1px 0px rgba(255, 255, 255, 0.2)"
+      "shadow-composer": "inset 0px 0px 1px 0px rgba(255, 255, 255, 0.2)",
+      "scrim": "rgb(0 0 0 / 0.5)",
+      "shadow-drawer": "8px 0 24px -8px rgb(0 0 0 / 0.5)"
     }
   },
   "type": "registry:theme"
