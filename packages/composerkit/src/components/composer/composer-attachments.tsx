@@ -60,7 +60,7 @@ const AttachmentChip = ({
   return (
     <li
       className={cn(
-        "flex max-w-full min-w-0 items-center gap-2 rounded-(--radius-control) py-1.5 pr-1 pl-2",
+        "flex max-w-full min-w-0 items-center gap-2 rounded-(--radius-control) py-1.5 ps-2 pe-1",
         failed ? "bg-accent" : "bg-muted"
       )}
     >
@@ -72,7 +72,10 @@ const AttachmentChip = ({
         )}
       />
       <span className="flex min-w-0 flex-col">
-        <span className="text-(length:--text-label-size) leading-(--text-label-leading) wrap-anywhere">
+        <span
+          className="text-(length:--text-label-size) leading-(--text-label-leading) wrap-anywhere"
+          dir="auto"
+        >
           {attachment.name}
         </span>
         <span
@@ -80,6 +83,7 @@ const AttachmentChip = ({
             "text-(length:--text-caption-size) leading-(--text-caption-leading) tabular-nums",
             failed ? "text-destructive" : "text-subtle-foreground"
           )}
+          dir="auto"
         >
           {statusText(attachment)}
         </span>

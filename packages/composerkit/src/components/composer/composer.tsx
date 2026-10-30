@@ -114,6 +114,11 @@ const NO_ADD_ITEMS: readonly ComposerAddItem[] = [];
 const DOCKED_ONE_ROW_FIELD =
   "min-h-(--size-conversation-composer-text-height) pt-(--space-conversation-composer-text-inset) mt-[calc(var(--size-conversation-composer-text-height)-2*var(--space-conversation-composer-text-inset)-var(--text-composer-leading))]";
 
+// Each paragraph of the draft runs the way its first letters do, so an
+// Arabic draft reads right to left in an English app and the other way.
+// unicode-bidi does that without changing the field's own direction, so
+// its margins stay on the page's sides, clear of the expand control, and
+// an empty field's placeholder follows the page.
 const fieldClasses = ({
   twoRows,
   layout,
@@ -128,14 +133,14 @@ const fieldClasses = ({
   expanded: boolean;
 }): string =>
   cn(
-    "text-foreground placeholder:text-subtle-foreground resize-none [scrollbar-width:thin] overflow-y-auto bg-transparent p-0 text-(length:--text-composer-size) leading-(--text-composer-leading) outline-none focus-visible:outline-none",
+    "text-foreground placeholder:text-subtle-foreground resize-none [scrollbar-width:thin] overflow-y-auto bg-transparent p-0 text-(length:--text-composer-size) leading-(--text-composer-leading) outline-none [unicode-bidi:plaintext] focus-visible:outline-none",
     twoRows
       ? "mx-(--space-composer-padding-x) mt-(--space-composer-two-row-top) max-h-[calc(var(--size-composer-max-height)-var(--space-composer-two-row-top)-var(--space-composer-row-gap)-var(--size-composer-control)-var(--space-composer-footer-padding))] min-h-(--size-composer-two-row-text-min-height)"
       : "min-w-0 self-center",
     conversation && !twoRows && DOCKED_ONE_ROW_FIELD,
     layout === "roomy" && "mt-4 min-h-(--size-composer-roomy-text-min-height)",
     showExpand &&
-      "mr-[calc(var(--space-composer-padding-x)+var(--space-composer-expand-reserve))]",
+      "me-[calc(var(--space-composer-padding-x)+var(--space-composer-expand-reserve))]",
     expanded && "max-h-none min-h-0 flex-1"
   );
 
@@ -222,7 +227,7 @@ const ExpandToggle = ({
   const Glyph = expanded ? Minimize2Icon : Maximize2Icon;
 
   return (
-    <div className="absolute top-(--space-composer-expand-inset) right-(--space-composer-expand-inset)">
+    <div className="absolute inset-e-(--space-composer-expand-inset) top-(--space-composer-expand-inset)">
       <Tip label={expanded ? "Exit full height" : "Full height"} side="top">
         <Button
           aria-label="Full height"
@@ -338,7 +343,7 @@ const TrailingControls = ({
   dictationBlocked: boolean;
   children: ReactNode;
 }) => (
-  <div className="ml-auto flex items-center" ref={ref}>
+  <div className="ms-auto flex items-center" ref={ref}>
     <ModelMenu
       compact={layout === "inline"}
       dispatch={dispatch}
@@ -349,7 +354,7 @@ const TrailingControls = ({
     <IconButton
       aria-disabled={handlers.dictationSupported ? undefined : "true"}
       aria-pressed={state.dictating}
-      className="mr-(--space-composer-trailing-gap)"
+      className="me-(--space-composer-trailing-gap)"
       disabled={dictationBlocked}
       icon={MicIcon}
       kind="composer"

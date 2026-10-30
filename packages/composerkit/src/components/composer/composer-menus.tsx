@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 // SPDX-License-Identifier: MIT
 
+import { useDirection } from "@base-ui/react/direction-provider";
 import { Menu } from "@base-ui/react/menu";
 import {
   CheckIcon,
@@ -109,6 +110,8 @@ const ModelList = ({
   onBack: () => void;
 }) => {
   const current = useRef<HTMLDivElement>(null);
+  // Back is the arrow that points to the start side.
+  const back = useDirection() === "rtl" ? "ArrowRight" : "ArrowLeft";
 
   // The list replaces the first panel, so focus moves to the current model.
   useEffect(() => {
@@ -118,7 +121,7 @@ const ModelList = ({
   return (
     <Menu.RadioGroup
       onKeyDown={(event) => {
-        if (event.key === "ArrowLeft") {
+        if (event.key === back) {
           event.preventDefault();
           onBack();
         }
@@ -130,7 +133,7 @@ const ModelList = ({
     >
       {options.models.map((item) => (
         <Menu.RadioItem
-          className="data-highlighted:bg-accent data-highlighted:text-accent-foreground flex min-h-(--size-menu-item) w-full items-center gap-2 rounded-(--radius-menu-item) px-(--space-menu-item-padding-x) text-left text-(length:--text-label-size) leading-(--text-label-leading) outline-none select-none"
+          className="data-highlighted:bg-accent data-highlighted:text-accent-foreground flex min-h-(--size-menu-item) w-full items-center gap-2 rounded-(--radius-menu-item) px-(--space-menu-item-padding-x) text-start text-(length:--text-label-size) leading-(--text-label-leading) outline-none select-none"
           closeOnClick
           data-slot="menu-item"
           key={item.id}
@@ -168,6 +171,8 @@ const EffortSteps = ({
 }) => {
   const hintId = useId();
   const nameId = useId();
+  // Steps run from the start side, so in right to left Left moves on.
+  const forward = useDirection() === "rtl" ? -1 : 1;
 
   const index = Math.max(
     0,
@@ -202,7 +207,13 @@ const EffortSteps = ({
         }
 
         const box = track.getBoundingClientRect();
-        const share = (event.clientX - box.left) / box.width;
+
+        const fromStart =
+          getComputedStyle(track).direction === "rtl"
+            ? box.right - event.clientX
+            : event.clientX - box.left;
+
+        const share = fromStart / box.width;
         choose(
           Math.min(
             efforts.length - 1,
@@ -215,7 +226,9 @@ const EffortSteps = ({
 
         if (step) {
           event.preventDefault();
-          choose(Math.min(efforts.length - 1, Math.max(0, index + step)));
+          choose(
+            Math.min(efforts.length - 1, Math.max(0, index + step * forward))
+          );
         }
       }}
     >
@@ -272,6 +285,7 @@ export const ModelMenu = ({
   compact?: boolean;
 }) => {
   const [view, setView] = useState<"main" | "models" | "back">("main");
+  const direction = useDirection();
   const returnTo = useRef<HTMLElement | null>(null);
   const modelRow = useRef<HTMLDivElement>(null);
 
@@ -364,7 +378,10 @@ export const ModelMenu = ({
               {modelName}
               <ChevronRightIcon
                 aria-hidden="true"
-                className="text-subtle-foreground size-4"
+                className={cn(
+                  "text-subtle-foreground size-4",
+                  direction === "rtl" && "-scale-x-100"
+                )}
               />
             </Menu.Item>
             <EffortSteps

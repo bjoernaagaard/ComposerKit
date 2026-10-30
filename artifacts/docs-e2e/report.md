@@ -23,11 +23,11 @@ Schemas fetched at run time from ui.shadcn.com. Validator: ajv 8 (draft-07), str
 
 ## 2. A new app installs every item and the sample data, takes every example from its Code tab, then type checks and builds
 
-The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-C52NGn/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
+The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-RnZSjO/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
 
 | Command | Folder | Exit code | Seconds |
 | --- | --- | --- | --- |
-| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 16 |
+| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 11 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/theme.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/button.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/tip.json -y -o | consumer | 0 | 1 |
@@ -36,9 +36,9 @@ The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/compos
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/conversation.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/sample-data.json -y -o | consumer | 0 | 1 |
 | npx tsc --noEmit | consumer | 0 | 1 |
-| npx next build | consumer | 0 | 4 |
+| npx next build | consumer | 0 | 5 |
 
-Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-C52NGn` (outside the repo).
+Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-RnZSjO` (outside the repo).
 
 ### Examples copied from the Code tab
 
@@ -376,7 +376,7 @@ The Design picker in the docs sidebar footer, on the pages with the most example
 | /composer | glass | dark | none | pass, 1 of 1 frames | yes | none |
 | /composer | taste | dark | none | pass, 1 of 1 frames | yes | none |
 | /composer | emil | dark | none | pass, 1 of 1 frames | yes | none |
-| /conversation | apple | dark | none | pass, 2 of 2 frames | yes | none |
+| /conversation | apple | dark | none | pass, 1 of 1 frames | yes | none |
 | /conversation | glass | dark | none | pass, 2 of 2 frames | yes | none |
 | /conversation | taste | dark | none | pass, 2 of 2 frames | yes | none |
 | /conversation | emil | dark | none | pass, 2 of 2 frames | yes | none |
