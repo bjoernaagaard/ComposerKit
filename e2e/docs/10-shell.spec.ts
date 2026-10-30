@@ -17,6 +17,8 @@ import { pathToFileURL } from "node:url";
 
 import { expect, test } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
+import type { ComponentType, createElement, useState } from "react";
+import type { createRoot } from "react-dom/client";
 
 import { openApp, openHarness } from "./stress-support";
 import { PLAYGROUND_URL, REPO, openPage, run } from "./support";
@@ -514,6 +516,28 @@ test("controlled: the cookie follows open when the app changes it, and a reload 
   await expect
     .poll(() => savedShell(page))
     .toEqual([expect.stringContaining("open=true")]);
+});
+
+test("cookie: a sidebar closed before anyone picks a width saves no width, and a reload keeps the design's width", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+
+  const designBox = await sidebar(page).boundingBox();
+
+  await hideToggle(page).click();
+  await expect(sidebar(page)).toBeHidden();
+  await expect.poll(() => savedShell(page)).toEqual(["open=false"]);
+
+  await showToggle(page).click();
+  await expect(sidebar(page)).toBeVisible();
+  await expect.poll(() => savedShell(page)).toEqual(["open=true"]);
+
+  await page.reload();
+  await expect(sidebar(page)).toBeVisible();
+  const reloadedBox = await sidebar(page).boundingBox();
+
+  expect(reloadedBox?.width).toBe(designBox?.width);
 });
 
 test("blocked cookies: in a sandboxed iframe the playground renders one shell and no error", async ({
@@ -1154,6 +1178,106 @@ test("tab ids: a lone surrogate such as \\uD800 in a tab id renders, and its tab
   expect(errors).toEqual([]);
 });
 
+// The parts of React, react-dom/client and the tabs module that
+// mountTabs uses, as the playground's dev server serves them.
+interface ServedReact {
+  default: { createElement: typeof createElement; useState: typeof useState };
+}
+
+interface ServedReactDom {
+  default: { createRoot: typeof createRoot };
+}
+
+interface ServedTabs {
+  AppShellTabs: ComponentType<{
+    activeTabId: string;
+    onCloseTab: (id: string) => void;
+    onSelectTab: (id: string) => void;
+    panelId: string;
+    tabs: { id: string; title: string }[];
+  }>;
+}
+
+// Renders AppShellTabs on a playground page with tabs that have these
+// ids, each titled with its id in brackets, the first one open. React and
+// the tabs come from the playground's Vite dev server, the same copies its
+// pages run.
+const mountTabs = (page: Page, ids: string[]) =>
+  page.evaluate(
+    async ({ reactDomUrl, reactUrl, tabsUrl, wanted }) => {
+      const served: ServedReact = await import(reactUrl);
+      const servedDom: ServedReactDom = await import(reactDomUrl);
+
+      const { AppShellTabs }: ServedTabs = await import(tabsUrl);
+      const react = served.default;
+
+      const Strip = () => {
+        const [tabs, setTabs] = react.useState(() =>
+          wanted.map((id) => ({ id, title: `[${id}]` }))
+        );
+
+        const [active, setActive] = react.useState(wanted[0] ?? "");
+
+        return react.createElement(AppShellTabs, {
+          activeTabId: active,
+          onCloseTab: (id) =>
+            setTabs((list) => list.filter((tab) => tab.id !== id)),
+          onSelectTab: setActive,
+          panelId: "mounted-panel",
+          tabs,
+        });
+      };
+
+      const host = document.createElement("div");
+
+      document.body.append(host);
+      servedDom.default.createRoot(host).render(react.createElement(Strip));
+    },
+    {
+      reactDomUrl: "/node_modules/.vite/deps/react-dom_client.js",
+      reactUrl: "/node_modules/.vite/deps/react.js",
+      tabsUrl: `/@fs${REPO}/packages/composerkit/src/components/app-shell/tabs.tsx`,
+      wanted: ids,
+    }
+  );
+
+test("tab ids: a tab whose id is empty takes focus when Delete closes the tab before it, and Delete on it focuses the next", async ({
+  page,
+}) => {
+  await openHarness(page, "part=tabs&data=empty", "light");
+  await mountTabs(page, ["a", "", "c"]);
+
+  const tab = (title: string) => page.getByRole("tab", { name: title });
+
+  await tab("[a]").click();
+  await page.keyboard.press("Delete");
+  await expect(tab("[a]")).toHaveCount(0);
+  await expect(tab("[]")).toHaveAttribute("aria-selected", "true");
+  await expect(tab("[]")).toBeFocused();
+
+  await page.keyboard.press("Delete");
+  await expect(tab("[]")).toHaveCount(0);
+  await expect(tab("[c]")).toHaveAttribute("aria-selected", "true");
+  await expect(tab("[c]")).toBeFocused();
+});
+
+test("tab ids: Delete on the last tab focuses the open tab to its left, also when that tab's id is empty", async ({
+  page,
+}) => {
+  await openHarness(page, "part=tabs&data=empty", "light");
+  await mountTabs(page, ["a", "", "c"]);
+
+  const tab = (title: string) => page.getByRole("tab", { name: title });
+
+  await tab("[]").click();
+  // Focus without opening, as a tab pressed and dragged off does.
+  await tab("[c]").focus();
+  await page.keyboard.press("Delete");
+  await expect(tab("[c]")).toHaveCount(0);
+  await expect(tab("[]")).toHaveAttribute("aria-selected", "true");
+  await expect(tab("[]")).toBeFocused();
+});
+
 test("shortcut in a shadow root: the shell that holds focus toggles, even when it sits inside one", async ({
   page,
 }) => {
@@ -1409,10 +1533,8 @@ test("splitter: a double click goes back to 288, and the cookie keeps no width",
   await splitter(page).dblclick();
 
   await expectWidth(page, 288);
-  // No chosen width is saved as 0, which reads back as none.
-  await expect
-    .poll(() => savedShell(page))
-    .toEqual([expect.stringContaining("width=0")]);
+  // With no chosen width, the cookie keeps none.
+  await expect.poll(() => savedShell(page)).toEqual(["open=true"]);
 });
 
 test("splitter: Enter hides the sidebar and focuses the toggle, and Enter there shows it at the same width", async ({

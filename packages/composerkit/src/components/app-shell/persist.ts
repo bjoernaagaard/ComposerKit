@@ -71,15 +71,20 @@ export const readDocumentShellCookie = (): ShellCookie => {
   }
 };
 
-// Saves the values for the next visit. The Cookie Store API writes it where
-// the page is a secure context; elsewhere the classic cookie string does.
-export const writeShellCookie = (state: Required<ShellCookie>): void => {
-  const value = encodeURIComponent(
-    new URLSearchParams({
-      open: String(state.open),
-      width: String(state.width),
-    }).toString()
-  );
+// Saves the values for the next visit. Without a width, none is saved, so
+// the next visit uses the theme's width. The Cookie Store API writes it
+// where the page is a secure context; elsewhere the classic cookie string
+// does.
+export const writeShellCookie = (
+  state: ShellCookie & { open: boolean }
+): void => {
+  const params = new URLSearchParams({ open: String(state.open) });
+
+  if (state.width !== undefined) {
+    params.set("width", String(state.width));
+  }
+
+  const value = encodeURIComponent(params.toString());
 
   try {
     if (typeof cookieStore !== "undefined") {

@@ -36,10 +36,6 @@ export const SIDEBAR_MAX_WIDTH = 480;
 const clampSidebarWidth = (px: number): number =>
   Math.round(Math.min(SIDEBAR_MAX_WIDTH, Math.max(SIDEBAR_MIN_WIDTH, px)));
 
-// The cookie keeps "no width chosen" as 0, which readShellCookie leaves
-// out, so the next visit uses --size-sidebar again.
-const NO_WIDTH = 0;
-
 export type AppShellInput = "pointer" | "keyboard";
 
 export interface AppShellProviderProps {
@@ -373,7 +369,9 @@ export const AppShellProvider = ({
     }
 
     saved.current = { open, width: widthPx };
-    writeShellCookie({ open, width: widthPx ?? NO_WIDTH });
+    // With no width chosen the cookie keeps none, so the next visit uses
+    // --size-sidebar again.
+    writeShellCookie({ open, width: widthPx ?? undefined });
   }, [open, persist, resizing, widthPx]);
 
   // The drawer moves focus in when it opens and back out when it closes.
