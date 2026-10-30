@@ -803,3 +803,77 @@ test("resize: going narrow and back keeps the wide sidebar's open state", async 
   await expect(sidebar(page)).toBeVisible();
   await expect(hideToggle(page)).toHaveAttribute("aria-expanded", "true");
 });
+
+test("resize: a drawer open when the shell goes wide is closed when it turns narrow again, and focus stays put", async ({
+  page,
+}) => {
+  await page.setViewportSize(NARROW_SIZES[0]);
+  await openApp(page, "base", "light");
+  await openDrawer(page);
+
+  await page.setViewportSize(WIDE);
+  await expect(sidebar(page)).toBeVisible();
+  await page.getByRole("main").focus();
+
+  await page.setViewportSize(NARROW_SIZES[0]);
+  await expect(page.locator('[data-slot="app-shell"]')).toHaveAttribute(
+    "data-sidebar-variant",
+    "overlay"
+  );
+  await expect(drawer(page)).toBeHidden();
+  await expect(showToggle(page)).toHaveAttribute("aria-expanded", "false");
+  await expect(page.getByRole("main")).toBeFocused();
+});
+
+test("touch: a 220 px swipe toward the leading edge closes the drawer", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    hasTouch: true,
+    isMobile: true,
+    viewport: NARROW_SIZES[1],
+  });
+
+  const page = await context.newPage();
+
+  await openApp(page, "base", "light");
+  await openDrawer(page);
+  await expect
+    .poll(async () => {
+      const box = await drawer(page).boundingBox();
+
+      return box?.x;
+    })
+    .toBe(0);
+
+  // A finger from x 240 to x 20 in 20 px steps, 220 px toward the leading
+  // edge.
+  const cdp = await context.newCDPSession(page);
+  const y = 300;
+  const steps = [220, 200, 180, 160, 140, 120, 100, 80, 60, 40, 20];
+
+  await cdp.send("Input.dispatchTouchEvent", {
+    touchPoints: [{ x: 240, y }],
+    type: "touchStart",
+  });
+
+  for (const x of steps) {
+    // oxlint-disable-next-line no-await-in-loop -- each move follows the one before
+    await cdp.send("Input.dispatchTouchEvent", {
+      touchPoints: [{ x, y }],
+      type: "touchMove",
+    });
+  }
+
+  await cdp.send("Input.dispatchTouchEvent", {
+    touchPoints: [],
+    type: "touchEnd",
+  });
+
+  await expect(page.locator('[data-slot="sidebar-panel"]')).toHaveAttribute(
+    "data-state",
+    "closed"
+  );
+  await expect(drawer(page)).toBeHidden();
+  await context.close();
+});

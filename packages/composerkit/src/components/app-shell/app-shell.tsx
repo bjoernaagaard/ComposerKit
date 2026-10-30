@@ -134,29 +134,33 @@ const AppShellSidebarDrawer = ({
           className="absolute inset-0 z-30 col-span-full row-start-2 bg-(--scrim) opacity-(--shell-scrim-opacity) transition-opacity duration-0 ease-(--motion-ease-out) [--shell-scrim-opacity:calc(1-var(--drawer-swipe-progress))] group-data-[input=pointer]/shell:duration-(--motion-overlay-enter) data-ending-style:opacity-0 group-data-[input=pointer]/shell:data-ending-style:duration-(--motion-overlay-exit) data-starting-style:opacity-0 data-swiping:duration-0"
           data-slot="sidebar-scrim"
         />
-        <Drawer.Popup
-          // Base UI hides the rest of the page with aria-hidden, except live
-          // regions and what holds them; aria-modal tells screen readers the
-          // whole page behind is out of reach.
-          aria-modal="true"
-          className="bg-sidebar absolute inset-y-0 start-0 z-40 col-span-full row-start-2 flex w-[min(var(--size-sidebar),100%-48px)] [transform:translateX(var(--drawer-swipe-movement-x))] flex-col ps-(--shell-drawer-inset) shadow-(--shadow-drawer) transition duration-0 ease-(--motion-ease-drawer) outline-none [--shell-drawer-exit:calc(var(--drawer-swipe-strength)*var(--motion-overlay-exit))] [--shell-drawer-inset:env(safe-area-inset-left)] group-data-[input=pointer]/shell:duration-(--motion-overlay-enter) group-data-[input=pointer]/shell:data-ending-style:duration-(--shell-drawer-exit) data-swiping:duration-0 data-swiping:select-none motion-safe:data-ending-style:[transform:translateX(-100%)] motion-safe:data-starting-style:[transform:translateX(-100%)] motion-reduce:data-ending-style:opacity-0 motion-reduce:data-starting-style:opacity-0 rtl:[--shell-drawer-inset:env(safe-area-inset-right)] rtl:motion-safe:data-ending-style:[transform:translateX(100%)] rtl:motion-safe:data-starting-style:[transform:translateX(100%)]"
-          data-slot="sidebar-panel"
-          data-state={openNarrow ? "open" : "closed"}
-          data-variant="overlay"
-          finalFocus={narrowFinalFocus}
-          id={ids.sidebar}
-          // From the keyboard, focus goes to the first control. From a
-          // pointer it goes to the dialog itself, so a touch doesn't land on
-          // a control or open the on-screen keyboard.
-          initialFocus={input === "keyboard" ? true : undefined}
-        >
-          <Drawer.Title className="sr-only">{title}</Drawer.Title>
-          <div className="contents" ref={setRailSlot} />
-          <div className="flex min-h-0 flex-1">
-            <PopupLayer container={layer}>{children}</PopupLayer>
-          </div>
-          <div ref={setLayer} />
-        </Drawer.Popup>
+        {/* The viewport handles the swipe that closes the drawer. It has no
+            box of its own, so the popup still sits in the shell's grid. */}
+        <Drawer.Viewport className="contents">
+          <Drawer.Popup
+            // Base UI hides the rest of the page with aria-hidden, except live
+            // regions and what holds them; aria-modal tells screen readers the
+            // whole page behind is out of reach.
+            aria-modal="true"
+            className="bg-sidebar absolute inset-y-0 start-0 z-40 col-span-full row-start-2 flex w-[min(var(--size-sidebar),100%-48px)] [transform:translateX(var(--drawer-swipe-movement-x))] flex-col ps-(--shell-drawer-inset) shadow-(--shadow-drawer) transition duration-0 ease-(--motion-ease-drawer) outline-none [--shell-drawer-exit:calc(var(--drawer-swipe-strength)*var(--motion-overlay-exit))] [--shell-drawer-inset:env(safe-area-inset-left)] group-data-[input=pointer]/shell:duration-(--motion-overlay-enter) group-data-[input=pointer]/shell:data-ending-style:duration-(--shell-drawer-exit) data-swiping:duration-0 data-swiping:select-none motion-safe:data-ending-style:[transform:translateX(-100%)] motion-safe:data-starting-style:[transform:translateX(-100%)] motion-reduce:data-ending-style:opacity-0 motion-reduce:data-starting-style:opacity-0 rtl:[--shell-drawer-inset:env(safe-area-inset-right)] rtl:motion-safe:data-ending-style:[transform:translateX(100%)] rtl:motion-safe:data-starting-style:[transform:translateX(100%)]"
+            data-slot="sidebar-panel"
+            data-state={openNarrow ? "open" : "closed"}
+            data-variant="overlay"
+            finalFocus={narrowFinalFocus}
+            id={ids.sidebar}
+            // From the keyboard, focus goes to the first control. From a
+            // pointer it goes to the dialog itself, so a touch doesn't land on
+            // a control or open the on-screen keyboard.
+            initialFocus={input === "keyboard" ? true : undefined}
+          >
+            <Drawer.Title className="sr-only">{title}</Drawer.Title>
+            <div className="contents" ref={setRailSlot} />
+            <div className="flex min-h-0 flex-1">
+              <PopupLayer container={layer}>{children}</PopupLayer>
+            </div>
+            <div ref={setLayer} />
+          </Drawer.Popup>
+        </Drawer.Viewport>
       </Drawer.Portal>
     </Drawer.Root>
   );

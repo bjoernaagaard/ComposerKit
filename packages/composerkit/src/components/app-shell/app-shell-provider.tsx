@@ -222,6 +222,12 @@ export const AppShellProvider = ({
 
   const isNarrow = useSyncExternalStore(subscribeToWidth, readNarrow, onServer);
 
+  // The drawer is gone while the shell is wide, so it closes then. Turning
+  // narrow again leaves it closed and focus where it is.
+  if (!isNarrow && narrowOpen) {
+    setNarrowOpen(false);
+  }
+
   const apple = useSyncExternalStore(subscribeNever, isApplePlatform, onServer);
 
   const base = useId();
