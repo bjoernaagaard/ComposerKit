@@ -261,11 +261,12 @@ body[data-design="taste"] [data-slot="icon-rail"] {
   background: var(--window);
 }
 
-body[data-design="taste"] [data-slot="icon-rail"] button {
+body[data-design="taste"] [data-rail-item],
+body[data-design="taste"] [data-slot="rail-footer"] [data-slot="button"] {
   border-radius: 6px;
 }
 
-body[data-design="taste"] [data-slot="icon-rail"] button[aria-current="page"] {
+body[data-design="taste"] [data-rail-item][aria-current="page"] {
   background: var(--accent);
   color: var(--foreground);
   box-shadow: inset 2px 0 0 0 var(--foreground);
@@ -639,9 +640,7 @@ html.dark body[data-design="taste"] [data-slot="mode-toggle-track"] {
   body[data-design="taste"]
     [data-slot="conversation-row"]
     > button[aria-current="page"],
-  body[data-design="taste"]
-    [data-slot="icon-rail"]
-    button[aria-current="page"] {
+  body[data-design="taste"] [data-rail-item][aria-current="page"] {
     box-shadow: none;
     outline: 2px solid Highlight;
     outline-offset: -2px;

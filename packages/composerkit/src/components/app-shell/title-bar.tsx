@@ -23,15 +23,15 @@ import { cn } from "@/lib/utils";
 
 // The banner across the top of the window. In a desktop window with no
 // frame (Electron, Tauri, an installed web app), its empty space drags the
-// window and its controls stay clickable. On narrow shells it wraps, so the
-// actions get a row of their own.
+// window and its controls stay clickable; app-shell.css holds those rules.
+// On narrow shells it wraps, so the actions get a row of their own.
 export const AppShellTitleBar = ({
   className,
   ...props
 }: ComponentProps<"header">) => (
   <header
     className={cn(
-      "col-span-full row-start-1 flex h-(--size-titlebar) min-w-0 shrink-0 items-center [-webkit-app-region:drag] group-data-[sidebar-variant=overlay]/shell:h-auto group-data-[sidebar-variant=overlay]/shell:flex-wrap [&_:is(a,button,input,select,textarea)]:[-webkit-app-region:no-drag]",
+      "col-span-full row-start-1 flex h-(--size-titlebar) min-w-0 shrink-0 items-center group-data-[sidebar-variant=overlay]/shell:h-auto group-data-[sidebar-variant=overlay]/shell:flex-wrap",
       className
     )}
     data-slot="title-bar"
@@ -40,7 +40,7 @@ export const AppShellTitleBar = ({
 );
 
 // The leading group: history and the sidebar toggle. It starts after the
-// window-controls inset and is at least as wide as the rail and the open
+// window controls (see app-shell.css) and is at least as wide as the rail and the open
 // sidebar, so the tabs line up with the main region and travel with the
 // sidebar on the same curve.
 export const AppShellTitleBarStart = ({

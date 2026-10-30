@@ -30,6 +30,7 @@ interface ShadcnResult {
   expected: { page: string; files: string[] }[];
   missing: string[];
   extra: string[];
+  repoOnly?: string[];
   note: string;
   steps: CommandRun[];
   tempFolder: string;
@@ -156,7 +157,7 @@ const checkTwo = (shadcn: ShadcnResult | undefined) => {
     ),
     `Temp folder: \`${shadcn.tempFolder}\` (outside the repo).`,
     "### Examples copied from the Code tab",
-    `Every example file on the six item pages, copied with the docs' Copy button into \`components/examples/\` of the new app before tsc and next build. Same as the file means the copied text equals the example file minus its license header.`,
+    `Every example file on the item pages, copied with the docs' Copy button into \`components/examples/\` of the new app before tsc and next build. Same as the file means the copied text equals the example file minus its license header. Examples whose tab says Repo code use the demo app's own parts, which no item installs, so they are not copied: ${shadcn.repoOnly?.join(", ") || "none"}.`,
     `Expected: the Code tab files in each item page's built HTML, ${shadcn.expected.map((entry) => `${entry.page} ${entry.files.length}`).join(", ")}; ${new Set(shadcn.expected.flatMap((entry) => entry.files)).size} files in all. Copied: ${shadcn.copied.length}. Missing: ${shadcn.missing.join(", ") || "none"}. Extra: ${shadcn.extra.join(", ") || "none"}.`,
     table(
       [
@@ -202,7 +203,7 @@ const checkThree = (
         ])
       ),
   "### Page sections in order",
-  "Only the six component items have the eight sections. The home page, Sample data and App shell are short pages without them, so this check skips them; axe, the link check and the stress keyboard walk cover every page.",
+  "Only the component items have the eight sections. The home page and Sample data are short pages without them, so this check skips them; axe, the link check and the stress keyboard walk cover every page.",
   sections.length === 0
     ? MISSING
     : table(

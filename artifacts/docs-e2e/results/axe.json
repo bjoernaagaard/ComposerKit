@@ -35,12 +35,12 @@
     "violations": []
   },
   {
-    "page": "/sample-data",
+    "page": "/app-shell",
     "scheme": "light",
     "violations": []
   },
   {
-    "page": "/app-shell",
+    "page": "/sample-data",
     "scheme": "light",
     "violations": []
   },
@@ -80,12 +80,12 @@
     "violations": []
   },
   {
-    "page": "/sample-data",
+    "page": "/app-shell",
     "scheme": "dark",
     "violations": []
   },
   {
-    "page": "/app-shell",
+    "page": "/sample-data",
     "scheme": "dark",
     "violations": []
   }

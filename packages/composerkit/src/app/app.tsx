@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 // SPDX-License-Identifier: MIT
 
-import { useCallback, useMemo, useReducer, useState } from "react";
+import { useCallback, useId, useMemo, useReducer, useState } from "react";
 
 import {
   AppShell,
@@ -86,9 +86,6 @@ const SAMPLE_TITLE = SAMPLE_CONVERSATIONS.find(
   (item) => item.id === SAMPLE_CONVERSATION_ID
 )?.title;
 
-// The tab panel inside the main region. The apple and glass designs find
-// the main sheet by this id, until they move onto data-slot="main-sheet".
-const MAIN_PANEL_ID = "main-panel";
 const TITLE_LENGTH = 60;
 
 const historyReducer = (history: History, action: HistoryAction): History => {
@@ -178,6 +175,8 @@ const newId = (prefix: string): string => {
 
 const ShellApp = ({ density }: { density?: RowDensity }) => {
   const shell = useAppShell();
+  // The tab panel inside the main region.
+  const panelId = useId();
 
   const [tabs, setTabs] = useState<AppShellTab[]>([
     { id: "t1", title: "Chat" },
@@ -368,7 +367,7 @@ const ShellApp = ({ density }: { density?: RowDensity }) => {
               <AppShellTabs
                 activeTabId={activeTabId}
                 onSelectTab={setActiveTabId}
-                panelId={MAIN_PANEL_ID}
+                panelId={panelId}
                 tabs={tabs}
               />
               <AppShellNewTab
@@ -447,9 +446,9 @@ const ShellApp = ({ density }: { density?: RowDensity }) => {
           </AppShellSidebar>
           <AppShellMain>
             <div
-              aria-labelledby={appShellTabId(MAIN_PANEL_ID, activeTabId)}
+              aria-labelledby={appShellTabId(panelId, activeTabId)}
               className="h-full"
-              id={MAIN_PANEL_ID}
+              id={panelId}
               inert={overlay}
               role="tabpanel"
             >

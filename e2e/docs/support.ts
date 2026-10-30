@@ -36,16 +36,12 @@ export const ITEMS = [
   "menu",
   "composer",
   "conversation",
+  "app-shell",
 ] as const;
 
 // Every docs page. sample-data is a registry item with a short page of its
 // own, not a component, so it is not in ITEMS and has no eight sections.
-export const PAGES = [
-  "/",
-  ...ITEMS.map((item) => `/${item}`),
-  "/sample-data",
-  "/app-shell",
-];
+export const PAGES = ["/", ...ITEMS.map((item) => `/${item}`), "/sample-data"];
 
 export const SECTIONS = [
   "Install",

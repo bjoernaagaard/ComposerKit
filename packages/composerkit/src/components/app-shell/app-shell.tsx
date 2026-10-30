@@ -3,6 +3,7 @@
 
 "use client";
 
+import { useRender } from "@base-ui/react/use-render";
 import { useEffect, useRef } from "react";
 import type { ComponentProps } from "react";
 
@@ -88,8 +89,10 @@ export const AppShellSkipLink = ({
   );
 };
 
+// render swaps the <aside> for another element, such as a <section> when
+// the shell sits inside a page that already has its landmarks.
 export interface AppShellSidebarProps extends Omit<
-  ComponentProps<"aside">,
+  useRender.ComponentProps<"aside">,
   "id" | "ref"
 > {
   labels?: Partial<AppShellLabels>;
@@ -105,6 +108,7 @@ export const AppShellSidebar = ({
   className,
   children,
   labels,
+  render,
   ...props
 }: AppShellSidebarProps) => {
   const {
@@ -143,21 +147,11 @@ export const AppShellSidebar = ({
     return () => window.removeEventListener("keydown", onKey);
   }, [overlay, setOpenNarrow, toggle]);
 
-  return (
-    <>
-      <aside
-        aria-label={text.sidebar}
-        className={cn(
-          "relative z-10 col-start-2 row-start-2 min-h-0 w-(--shell-sidebar-width) transition-all duration-0 ease-(--motion-ease-drawer) [clip-path:inset(-100vh_-100vw_-100vh_0)] group-data-[input=pointer]/shell:duration-(--motion-sidebar-exit) group-data-[sidebar-variant=overlay]/shell:z-30 group-data-[input=pointer]/shell:group-data-[sidebar=expanded]/shell:duration-(--motion-sidebar-enter) rtl:[clip-path:inset(-100vh_0_-100vh_-100vw)]",
-          className
-        )}
-        data-slot="sidebar-gap"
-        data-state={expanded ? "open" : "closed"}
-        id={ids.sidebar}
-        inert={!expanded}
-        ref={sidebarRef}
-        {...props}
-      >
+  const sidebar = useRender({
+    defaultTagName: "aside",
+    props: {
+      "aria-label": text.sidebar,
+      children: (
         <div
           className="group-data-[sidebar-variant=overlay]/shell:bg-window absolute inset-y-0 start-0 flex w-(--size-sidebar) translate-x-(--shell-sidebar-offset) opacity-0 transition duration-0 ease-(--motion-ease-drawer) [--shell-sidebar-offset:-100%] group-data-[input=pointer]/shell:duration-(--motion-sidebar-exit) group-data-[sidebar-variant=overlay]/shell:max-w-[calc(100vw-var(--size-rail))] group-data-[sidebar-variant=overlay]/shell:shadow-(--shadow-drawer) group-data-[sidebar=expanded]/shell:translate-x-0 group-data-[sidebar=expanded]/shell:opacity-100 group-data-[input=pointer]/shell:group-data-[sidebar=expanded]/shell:duration-(--motion-sidebar-enter) motion-reduce:translate-none! rtl:[--shell-sidebar-offset:100%]"
           data-slot="sidebar-panel"
@@ -166,7 +160,24 @@ export const AppShellSidebar = ({
         >
           {children}
         </div>
-      </aside>
+      ),
+      className: cn(
+        "relative z-10 col-start-2 row-start-2 min-h-0 w-(--shell-sidebar-width) transition-all duration-0 ease-(--motion-ease-drawer) [clip-path:inset(-100vh_-100vw_-100vh_0)] group-data-[input=pointer]/shell:duration-(--motion-sidebar-exit) group-data-[sidebar-variant=overlay]/shell:z-30 group-data-[input=pointer]/shell:group-data-[sidebar=expanded]/shell:duration-(--motion-sidebar-enter) rtl:[clip-path:inset(-100vh_0_-100vh_-100vw)]",
+        className
+      ),
+      "data-slot": "sidebar-gap",
+      "data-state": expanded ? "open" : "closed",
+      id: ids.sidebar,
+      inert: !expanded,
+      ...props,
+    },
+    ref: sidebarRef,
+    render,
+  });
+
+  return (
+    <>
+      {sidebar}
       {overlay ? (
         <button
           aria-label={text.closeSidebar}
@@ -184,14 +195,20 @@ export const AppShellSidebar = ({
 };
 
 export type AppShellMainProps = Omit<
-  ComponentProps<"main">,
+  useRender.ComponentProps<"main">,
   "id" | "ref" | "tabIndex"
 >;
 
 // The main region. The skip link moves focus here, so it takes focus from
 // script but is not a Tab stop. Popups can mount inside it, so every part
-// of the page sits in a landmark.
-export const AppShellMain = ({ className, ...props }: AppShellMainProps) => {
+// of the page sits in a landmark. render swaps the <main> for another
+// element, such as a <div> when the shell sits inside a page that already
+// has a main landmark.
+export const AppShellMain = ({
+  className,
+  render,
+  ...props
+}: AppShellMainProps) => {
   const {
     ids,
     refs: { main: mainRef },
@@ -199,20 +216,22 @@ export const AppShellMain = ({ className, ...props }: AppShellMainProps) => {
     open,
   } = useAppShell();
 
-  return (
-    <main
-      className={cn(
+  return useRender({
+    defaultTagName: "main",
+    props: {
+      className: cn(
         "bg-background relative col-start-3 row-start-2 min-h-0 min-w-0 overflow-y-auto outline-none",
         open && !isNarrow
           ? "border-border border-s-(length:--border-hairline)"
           : "",
         className
-      )}
-      data-slot="main-sheet"
-      id={ids.main}
-      ref={mainRef}
-      tabIndex={-1}
-      {...props}
-    />
-  );
+      ),
+      "data-slot": "main-sheet",
+      id: ids.main,
+      tabIndex: -1,
+      ...props,
+    },
+    ref: mainRef,
+    render,
+  });
 };

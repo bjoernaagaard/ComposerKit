@@ -12,6 +12,7 @@ Schemas fetched at run time from ui.shadcn.com. Validator: ajv 8 (draft-07), str
 
 | File | Schema | Result | Errors |
 | --- | --- | --- | --- |
+| apps/docs/public/r/app-shell.json | https://ui.shadcn.com/schema/registry-item.json | pass |  |
 | apps/docs/public/r/button.json | https://ui.shadcn.com/schema/registry-item.json | pass |  |
 | apps/docs/public/r/composer.json | https://ui.shadcn.com/schema/registry-item.json | pass |  |
 | apps/docs/public/r/conversation.json | https://ui.shadcn.com/schema/registry-item.json | pass |  |
@@ -23,28 +24,29 @@ Schemas fetched at run time from ui.shadcn.com. Validator: ajv 8 (draft-07), str
 
 ## 2. A new app installs every item and the sample data, takes every example from its Code tab, then type checks and builds
 
-The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-RnZSjO/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
+The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-CS2QIC/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/app-shell.json, r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
 
 | Command | Folder | Exit code | Seconds |
 | --- | --- | --- | --- |
-| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 11 |
+| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 18 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/theme.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/button.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/tip.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/menu.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/composer.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/conversation.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:4321/r/app-shell.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/sample-data.json -y -o | consumer | 0 | 1 |
 | npx tsc --noEmit | consumer | 0 | 1 |
-| npx next build | consumer | 0 | 5 |
+| npx next build | consumer | 0 | 4 |
 
-Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-RnZSjO` (outside the repo).
+Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-CS2QIC` (outside the repo).
 
 ### Examples copied from the Code tab
 
-Every example file on the six item pages, copied with the docs' Copy button into `components/examples/` of the new app before tsc and next build. Same as the file means the copied text equals the example file minus its license header.
+Every example file on the item pages, copied with the docs' Copy button into `components/examples/` of the new app before tsc and next build. Same as the file means the copied text equals the example file minus its license header. Examples whose tab says Repo code use the demo app's own parts, which no item installs, so they are not copied: conversation-rows.tsx, mode-toggle.tsx.
 
-Expected: the Code tab files in each item page's built HTML, /theme 2, /button 3, /tip 2, /menu 2, /composer 2, /conversation 2; 13 files in all. Copied: 13. Missing: none. Extra: none.
+Expected: the Code tab files in each item page's built HTML, /theme 2, /button 3, /tip 2, /menu 2, /composer 2, /conversation 2, /app-shell 4; 17 files in all. Copied: 15. Missing: none. Extra: none.
 
 | Page | First example | File | Tab | Characters | Same as the file |
 | --- | --- | --- | --- | --- | --- |
@@ -61,6 +63,8 @@ Expected: the Code tab files in each item page's built HTML, /theme 2, /button 3
 | /composer | composer-state--empty | composer-state.tsx | Code | 1174 | yes |
 | /conversation | conversation--demo | conversation-demo.tsx | Code | 795 | yes |
 | /conversation | conversation--bubbles | conversation-layout.tsx | Code | 1146 | yes |
+| /app-shell | app-shell--demo | app-shell-demo.tsx | Code | 2634 | yes |
+| /app-shell | title-bar-tabs--filled | tab-strip.tsx | Code | 1410 | yes |
 
 ## 3. Accessibility, keyboard and sizes on the static export
 
@@ -75,8 +79,8 @@ Expected: the Code tab files in each item page's built HTML, /theme 2, /button 3
 | /menu         | light  | none       |
 | /composer     | light  | none       |
 | /conversation | light  | none       |
-| /sample-data  | light  | none       |
 | /app-shell    | light  | none       |
+| /sample-data  | light  | none       |
 | /             | dark   | none       |
 | /theme        | dark   | none       |
 | /button       | dark   | none       |
@@ -84,12 +88,12 @@ Expected: the Code tab files in each item page's built HTML, /theme 2, /button 3
 | /menu         | dark   | none       |
 | /composer     | dark   | none       |
 | /conversation | dark   | none       |
-| /sample-data  | dark   | none       |
 | /app-shell    | dark   | none       |
+| /sample-data  | dark   | none       |
 
 ### Page sections in order
 
-Only the six component items have the eight sections. The home page, Sample data and App shell are short pages without them, so this check skips them; axe, the link check and the stress keyboard walk cover every page.
+Only the component items have the eight sections. The home page and Sample data are short pages without them, so this check skips them; axe, the link check and the stress keyboard walk cover every page.
 
 | Page | Result | Headings found |
 | --- | --- | --- |
@@ -99,6 +103,7 @@ Only the six component items have the eight sections. The home page, Sample data
 | /menu | pass | Install, Demo, Anatomy, Examples, API reference, Keyboard, Accessibility, Theming |
 | /composer | pass | Install, Demo, Anatomy, Examples, API reference, Keyboard, Accessibility, Theming |
 | /conversation | pass | Install, Demo, Anatomy, Examples, API reference, Keyboard, Accessibility, Theming |
+| /app-shell | pass | Install, Demo, Anatomy, Examples, API reference, Keyboard, Accessibility, Theming |
 
 ### Keyboard rows from spec/functional.md
 
@@ -106,13 +111,13 @@ Keyboard and size rows are listed, not gated. A mismatch does not fail the run; 
 
 | Rows | Pass | Mismatch | Not checkable |
 | ---- | ---- | -------- | ------------- |
-| 60   | 51   | 3        | 6             |
+| 62   | 53   | 3        | 6             |
 
 ### Size rows from spec/functional.md (about 1 px tolerance)
 
 | Rows | Pass | Mismatch | Not checkable |
 | ---- | ---- | -------- | ------------- |
-| 104  | 79   | 12       | 13            |
+| 104  | 81   | 12       | 11            |
 
 ## 4. Every old catalog screenshot has a docs example
 
@@ -155,12 +160,12 @@ Baseline: 37 ids, light and dark, in `catalog-before/`. Docs screenshots in `doc
 | icon-button--small | /button | 94 x 28 | 94 x 29 | 3.4% | 3.4% |
 | menu--compact | /menu | 279 x 28 | 279 x 29 | 4.1% | 4.1% |
 | menu--regular | /menu | 181 x 28 | 181 x 29 | 3.4% | 3.4% |
-| mode-toggle--pill | /app-shell | 289 x 36 | 289 x 37 | 4.7% | 5.4% |
-| mode-toggle--segmented | /app-shell | 332 x 36 | 331 x 37 | 7.0% | 5.3% |
+| mode-toggle--pill | /app-shell | 289 x 36 | 289 x 37 | 4.3% | 4.9% |
+| mode-toggle--segmented | /app-shell | 332 x 36 | 331 x 37 | 6.8% | 5.1% |
 | mode-toggle--underline | /app-shell | 283 x 36 | 283 x 37 | 7.0% | 6.0% |
 | palette--swatches | /theme | 1104 x 312 | 1059 x 313 | 11.7% | 11.7% |
-| title-bar-tabs--filled | /app-shell | 1104 x 78 | 1059 x 79 | 7.0% | 7.5% |
-| title-bar-tabs--underline | /app-shell | 1104 x 78 | 1059 x 79 | 7.5% | 7.6% |
+| title-bar-tabs--filled | /app-shell | 1104 x 78 | 1059 x 79 | 5.9% | 6.4% |
+| title-bar-tabs--underline | /app-shell | 1104 x 78 | 1059 x 79 | 6.4% | 6.4% |
 
 ## 5. next build passes and next-validate-link finds no broken links
 
@@ -179,16 +184,16 @@ In the base design, one image per example and width, light on the left and dark 
 
 | Design | Width | Examples | With a flag |
 | ------ | ----- | -------- | ----------- |
-| base   | 320   | 44       | 0           |
-| base   | 1440  | 44       | 0           |
-| apple  | 320   | 44       | 0           |
-| apple  | 1440  | 44       | 0           |
-| glass  | 320   | 44       | 0           |
-| glass  | 1440  | 44       | 0           |
-| taste  | 320   | 44       | 0           |
-| taste  | 1440  | 44       | 0           |
-| emil   | 320   | 44       | 0           |
-| emil   | 1440  | 44       | 0           |
+| base   | 320   | 45       | 0           |
+| base   | 1440  | 45       | 0           |
+| apple  | 320   | 45       | 0           |
+| apple  | 1440  | 45       | 0           |
+| glass  | 320   | 45       | 0           |
+| glass  | 1440  | 45       | 0           |
+| taste  | 320   | 45       | 0           |
+| taste  | 1440  | 45       | 0           |
+| emil   | 320   | 45       | 0           |
+| emil   | 1440  | 45       | 0           |
 
 ### The demo app in every design at 320 and 1440 wide
 
@@ -224,16 +229,16 @@ Tab from the top of the page to the end, then Shift+Tab back, with no mouse even
 | Page | Stops | Walk ended | Trap | No visible focus | Focus ring cut off | Not reachable by Tab | Shift+Tab gives the same order | Escape did not return focus |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | / | 33 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
-| /theme | 103 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
+| /theme | 104 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
 | /button | 103 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
 | /tip | 66 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
 | /menu | 103 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
 | /composer | 325 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
 | /conversation | 240 | Tab left the last control and focus went back to the page | none | none | none | button "Scroll to the newest message" (4 times) | yes | none |
+| /app-shell | 241 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
 | /sample-data | 34 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
-| /app-shell | 157 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
-| demo app, 320 wide | 27 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
-| demo app, 1440 wide | 159 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
+| demo app, 320 wide | 28 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
+| demo app, 1440 wide | 160 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
 
 ### A 200 character paste into every composer, then Enter
 
@@ -376,7 +381,7 @@ The Design picker in the docs sidebar footer, on the pages with the most example
 | /composer | glass | dark | none | pass, 1 of 1 frames | yes | none |
 | /composer | taste | dark | none | pass, 1 of 1 frames | yes | none |
 | /composer | emil | dark | none | pass, 1 of 1 frames | yes | none |
-| /conversation | apple | dark | none | pass, 1 of 1 frames | yes | none |
+| /conversation | apple | dark | none | pass, 2 of 2 frames | yes | none |
 | /conversation | glass | dark | none | pass, 2 of 2 frames | yes | none |
 | /conversation | taste | dark | none | pass, 2 of 2 frames | yes | none |
 | /conversation | emil | dark | none | pass, 2 of 2 frames | yes | none |
@@ -431,9 +436,7 @@ None.
 | 275 | Sidebar header buttons (activity, search) | 28 x 28 | No example renders the sidebar header. |
 | 276 | Icon rail buttons | 36 x 36, selected radius about 8 | No example renders the icon rail. |
 | 368 | Row more menu separators | none seen in this menu | Separators are content the app passes in. The menu demo adds one on purpose to show the MenuSeparator part. |
-| 426 | Title bar | 44 tall, back and forward 28 x 28 6 apart, sidebar toggle 28 x 28 | This part of the playground app shell is not a registry item and no docs example renders it. |
 | 428 | Title bar right side | two 28 x 28 view toggles, 6 apart | This part of the playground app shell is not a registry item and no docs example renders it. |
-| 429 | Icon rail | 52 wide, 36 x 36 buttons, 8 inset, 44 pitch | This part of the playground app shell is not a registry item and no docs example renders it. |
 | 430 | Sidebar | 288 wide, 16 pt splitter | This part of the playground app shell is not a registry item and no docs example renders it. |
 | 431 | Sidebar header | mode switcher about 109 x 32, two 28 x 28 buttons 6 apart | This part of the playground app shell is not a registry item and no docs example renders it. |
 | 432 | New chat row | 272 x 30 | This part of the playground app shell is not a registry item and no docs example renders it. |

@@ -3,7 +3,7 @@
 
 // Runs after vite and tsc have written dist. tsc keeps the "@/" alias in the
 // .d.ts files, and a project that installs the package cannot resolve it, so
-// each one becomes a relative path. Then the stylesheet and the theme it
+// each one becomes a relative path. Then the stylesheet and the files it
 // imports are copied in.
 //
 //   node scripts/finish-dist.ts
@@ -21,7 +21,12 @@ import { fileURLToPath } from "node:url";
 const SRC = fileURLToPath(new URL("../src", import.meta.url));
 const DIST = fileURLToPath(new URL("../dist", import.meta.url));
 const ALIAS = /(?<lead>from |import\()"@\/(?<target>[^"]+)"/gu;
-const STYLES = ["styles.css", "theme/tokens.css"];
+
+const STYLES = [
+  "styles.css",
+  "theme/tokens.css",
+  "components/app-shell/app-shell.css",
+];
 
 for (const file of globSync("**/*.d.ts", { cwd: DIST })) {
   const absolute = path.join(DIST, file);

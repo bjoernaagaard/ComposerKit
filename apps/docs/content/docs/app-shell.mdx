@@ -2,29 +2,83 @@
 # SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 # SPDX-License-Identifier: MIT
 title: App shell
-description: The sidebar row, the mode toggle and the title bar tabs from the demo app. They are not registry items.
+description: The window around an app. A title bar with tabs, a rail of destinations, a sidebar that remembers its state, and the main region.
 full: true
 ---
 
-These pieces live in `packages/composerkit/src/app` and build the demo app. The registry does not ship them, so there is no install command. Copy them from the repo if you want them.
+## Install
+
+```bash
+npx shadcn@latest add https://bjoernaagaard.github.io/ComposerKit/r/app-shell.json
+```
+
+This adds `components/app-shell/`, with the theme, the button, the tip and the menu. It also adds the title bar rules for desktop windows to your CSS file.
+
+From the npm package, import each part from its own module, and load `composerkit/styles.css` after Tailwind:
+
+```tsx title="npm"
+import { AppShellProvider } from "composerkit/components/app-shell/app-shell-provider";
+```
+
+The provider saves whether the sidebar is open in the `composerkit_shell` cookie. Read it on the server and pass it in, so the first frame matches the last visit:
+
+```tsx title="app/layout.tsx"
+import { cookies } from "next/headers";
+import type { ReactNode } from "react";
+
+import { AppShellProvider } from "@/components/app-shell/app-shell-provider";
+import { readShellCookie } from "@/components/app-shell/persist";
+
+export default async function Layout({ children }: { children: ReactNode }) {
+  const shell = readShellCookie((await cookies()).toString());
+
+  return (
+    <AppShellProvider defaultOpen={shell.open} defaultWidth={shell.width}>
+      {children}
+    </AppShellProvider>
+  );
+}
+```
+
+An app without a server passes `readShellCookie(document.cookie)` before it renders.
+
+## Demo
+
+<ComponentPreview name="app-shell--demo" />
+
+## Anatomy
+
+```tsx title="Anatomy"
+<AppShellProvider>                 // open state, Cmd+B or Ctrl+B, the cookie
+  <AppShell>                       // data-slot="app-shell", the grid
+    <AppShellSkipLink />           // the first Tab stop, moves focus to main
+    <AppShellTitleBar>             // <header>, a banner landmark
+      <AppShellTitleBarStart>
+        <AppShellHistory />        // back and forward
+        <AppShellSidebarToggle />
+      </AppShellTitleBarStart>
+      <AppShellTitleBarTabs>
+        <AppShellTabs />           // a tablist that controls the main region
+        <AppShellNewTab />
+      </AppShellTitleBarTabs>
+      <AppShellTitleBarEnd />      // the app's own actions
+    </AppShellTitleBar>
+    <AppShellRail>                 // <nav> "Main"
+      <AppShellRailContent>
+        <AppShellRailItem />
+        <AppShellRailSeparator />
+      </AppShellRailContent>
+      <AppShellRailFooter />       // such as the account button
+    </AppShellRail>
+    <AppShellSidebar />            // <aside> "Sidebar", stays mounted, inert when hidden
+    <AppShellMain />               // <main>, also the tab panel
+  </AppShell>
+</AppShellProvider>
+```
+
+Each part is its own module under `components/app-shell/`. Leave out the parts you don't need, such as the tabs or the rail. `useAppShell()` returns the provider's state, such as `open`, `setOpen` and `toggleSidebar`.
 
 ## Examples
-
-### Conversation row
-
-<ComponentPreview name="conversation-row--compact" />
-
-<ComponentPreview name="conversation-row--measured" />
-
-<ComponentPreview name="conversation-row--two-line" />
-
-### Mode toggle
-
-<ComponentPreview name="mode-toggle--pill" />
-
-<ComponentPreview name="mode-toggle--segmented" />
-
-<ComponentPreview name="mode-toggle--underline" />
 
 ### Title bar tabs
 
@@ -32,45 +86,164 @@ These pieces live in `packages/composerkit/src/app` and build the demo app. The 
 
 <ComponentPreview name="title-bar-tabs--underline" />
 
+### Demo app parts
+
+The chat row and the mode toggle are the demo app's own parts in `packages/composerkit/src/app`. No registry item installs them yet, so their Code tab shows repo code.
+
+#### Conversation row
+
+<ComponentPreview name="conversation-row--compact" />
+
+<ComponentPreview name="conversation-row--measured" />
+
+<ComponentPreview name="conversation-row--two-line" />
+
+#### Mode toggle
+
+<ComponentPreview name="mode-toggle--pill" />
+
+<ComponentPreview name="mode-toggle--segmented" />
+
+<ComponentPreview name="mode-toggle--underline" />
+
 ## API reference
 
-### ConversationRow
+### AppShellProvider
 
 <AutoTypeTable
-  path="../../packages/composerkit/src/app/sidebar/conversation-row.tsx"
-  name="ConversationRowProps"
+  path="../../packages/composerkit/src/components/app-shell/app-shell-provider.tsx"
+  name="AppShellProviderProps"
 />
 
-### ModeToggle
+### useAppShell
 
 <AutoTypeTable
-  path="../../packages/composerkit/src/app/mode-toggle.tsx"
-  name="ModeToggleProps"
+  path="../../packages/composerkit/src/components/app-shell/app-shell-provider.tsx"
+  name="AppShellContextValue"
 />
 
-### TabStrip
+### AppShell
+
+`AppShell`, `AppShellTitleBar`, `AppShellTitleBarStart`, `AppShellTitleBarTabs`, `AppShellTitleBarEnd`, `AppShellRailContent`, `AppShellRailSeparator` and `AppShellRailFooter` take the props of the element they render and add none of their own.
+
+### AppShellSkipLink
+
+AppShellSkipLink also takes the props of an `<a>`, except `children` and `href`, which it sets itself.
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/app-shell/app-shell.tsx"
+  name="AppShellSkipLinkOwnProps"
+  type="Omit<AppShellSkipLinkProps, keyof ComponentProps<'a'>>"
+/>
+
+### AppShellSidebar
+
+AppShellSidebar also takes the props of an `<aside>`, except `id`, which it sets itself.
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/app-shell/app-shell.tsx"
+  name="AppShellSidebarOwnProps"
+  type="Omit<AppShellSidebarProps, keyof ComponentProps<'aside'>>"
+/>
+
+### AppShellMain
+
+AppShellMain also takes the props of a `<main>`, except `id` and `tabIndex`, which it sets itself.
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/app-shell/app-shell.tsx"
+  name="AppShellMainOwnProps"
+  type="Omit<AppShellMainProps, keyof ComponentProps<'main'>>"
+/>
+
+### AppShellHistory
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/app-shell/title-bar.tsx"
+  name="AppShellHistoryProps"
+/>
+
+### AppShellSidebarToggle
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/app-shell/title-bar.tsx"
+  name="AppShellSidebarToggleProps"
+/>
+
+### AppShellNewTab
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/app-shell/title-bar.tsx"
+  name="AppShellNewTabProps"
+/>
+
+### AppShellTabs
 
 <AutoTypeTable
   path="../../packages/composerkit/src/components/app-shell/tabs.tsx"
   name="AppShellTabsProps"
 />
 
+### AppShellRail
+
+AppShellRail also takes the props of a `<nav>`.
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/app-shell/rail.tsx"
+  name="AppShellRailOwnProps"
+  type="Omit<AppShellRailProps, keyof ComponentProps<'nav'>>"
+/>
+
+### AppShellRailItem
+
+AppShellRailItem also takes the [Button](/button) props, except `aria-label`, `children`, `size` and `variant`, which it sets itself. Pass `render={<a href="…" />}` and `nativeButton={false}` for a real link.
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/app-shell/rail.tsx"
+  name="AppShellRailItemOwnProps"
+  type="Omit<AppShellRailItemProps, keyof ComponentProps<typeof Button>>"
+/>
+
+### AppShellLabels
+
+Every word the shell shows or announces. Pass `labels` to the provider, or to one part, to translate them.
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/app-shell/labels.ts"
+  name="AppShellLabels"
+/>
+
 ## Keyboard
 
-The title bar tabs follow the [WAI-ARIA Authoring Practices tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/): Left and Right move to the previous and next tab and open it, and Home and End go to the first and last. The mode toggle is two [toggle buttons](https://www.w3.org/WAI/ARIA/apg/patterns/button/), each reached with Tab and pressed with Enter or Space.
+| Key | Where | What it does |
+| --- | --- | --- |
+| Tab | The page | The first stop is the Skip to content link. It shows when it has focus. |
+| Enter | Skip to content | Moves focus to the main region, past the title bar, the rail and the sidebar. |
+| Cmd+B (macOS), Ctrl+B (elsewhere) | Anywhere | Shows or hides the sidebar, at once and without motion. Pass `shortcut={false}` to turn it off, or another key. |
+| Left, Right | A title bar tab | Opens the previous or next tab, and wraps around. |
+| Home, End | A title bar tab | Opens the first or last tab. |
+
+The tabs follow the [WAI-ARIA Authoring Practices tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/), so only the open tab is a Tab stop. The sidebar toggle names its shortcut with `aria-keyshortcuts` and in its tooltip.
 
 ## Accessibility
+
+The shell's regions are [WAI-ARIA Authoring Practices landmark regions](https://www.w3.org/WAI/ARIA/apg/practices/landmark-regions/): a banner for the title bar, a navigation named Main for the rail, a complementary region named Sidebar, and the main region, which is also the tab panel. A hidden sidebar is inert, so Tab and screen readers skip it. The current destination in the rail has `aria-current="page"`, a fill and a bar on its leading edge, and the bar stays in forced colors.
 
 <SpecSection section="6. App shell > Regions" />
 
 ## Theming
 
-Tokens that these pieces use.
+Tokens that the shell's files use.
 
-<TokenTable
-  files={[
-    "src/app/sidebar/conversation-row.tsx",
-    "src/app/mode-toggle.tsx",
-    "src/components/app-shell/tabs.tsx",
-  ]}
-/>
+<TokenTable item="app-shell" />
+
+Design directions style the shell through these hooks instead of its structure:
+
+| Hook | On |
+| --- | --- |
+| `data-slot="app-shell"`, with `data-sidebar` (expanded or collapsed), `data-sidebar-variant` (push or overlay) and `data-input` (pointer or keyboard) | The window |
+| `data-slot="title-bar"`, `"title-bar-nav"`, `"title-bar-tabs"`, `"title-bar-actions"` | The title bar and its three groups |
+| `data-slot="icon-rail"`, `"rail-content"`, `"rail-separator"`, `"rail-footer"`, and `data-rail-item` on each destination | The rail |
+| `data-slot="sidebar-gap"` and `"sidebar-panel"`, with `data-state` (open or closed) | The sidebar's space and its panel |
+| `data-slot="main-sheet"` | The main region |
+| `--shell-sidebar-width` | The room the sidebar takes: its width when it sits beside the main region, otherwise 0 |

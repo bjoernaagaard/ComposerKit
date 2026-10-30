@@ -3,6 +3,12 @@
   "rows": [
     {
       "errors": [],
+      "file": "apps/docs/public/r/app-shell.json",
+      "schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "valid": true
+    },
+    {
+      "errors": [],
       "file": "apps/docs/public/r/button.json",
       "schema": "https://ui.shadcn.com/schema/registry-item.json",
       "valid": true

@@ -510,6 +510,67 @@
       ]
     },
     {
+      "name": "app-shell",
+      "type": "registry:ui",
+      "title": "App shell",
+      "description": "The window around an app: a title bar with tabs, a rail of destinations, a sidebar that remembers its state, and the main region, as parts with a provider.",
+      "dependencies": [
+        "@base-ui/react",
+        "lucide-react",
+        "react"
+      ],
+      "registryDependencies": [
+        "utils",
+        "https://bjoernaagaard.github.io/ComposerKit/r/theme.json",
+        "https://bjoernaagaard.github.io/ComposerKit/r/button.json",
+        "https://bjoernaagaard.github.io/ComposerKit/r/tip.json",
+        "https://bjoernaagaard.github.io/ComposerKit/r/menu.json"
+      ],
+      "files": [
+        {
+          "path": "src/components/app-shell/app-shell-provider.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/app-shell/app-shell.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/app-shell/title-bar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/app-shell/rail.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/app-shell/tabs.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/app-shell/persist.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/app-shell/labels.ts",
+          "type": "registry:component"
+        }
+      ],
+      "css": {
+        "[data-slot=\"title-bar\"]": {
+          "-webkit-app-region": "drag",
+          "app-region": "drag"
+        },
+        "[data-slot=\"title-bar\"] :is(a, button, input, select, textarea, [role=\"tablist\"])": {
+          "-webkit-app-region": "no-drag",
+          "app-region": "no-drag"
+        },
+        "[data-slot=\"title-bar-nav\"]": {
+          "padding-inline-start": "max(var(--space-titlebar-inset-start), env(titlebar-area-x, 0px))"
+        }
+      }
+    },
+    {
       "name": "sample-data",
       "type": "registry:item",
       "title": "Sample data",
