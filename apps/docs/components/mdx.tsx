@@ -25,6 +25,15 @@ const generator = createGenerator({
 export const getMDXComponents = (components?: MDXComponents) =>
   ({
     ...defaultMdxComponents,
+    AutoTypeTable: (props: Partial<AutoTypeTableProps>) => (
+      <AutoTypeTable {...props} generator={generator} />
+    ),
+    ComponentPreview,
+    ComposerStatePreviews,
+    SampleDataFiles,
+    SampleDataPages,
+    SpecSection,
+    TokenTable,
     // Fumadocs makes each code block's scroll area a region with no name,
     // which axe flags (landmark-unique). The block's title names it.
     pre: ({ ref: _ref, title, ...props }: ComponentProps<"pre">) => (
@@ -36,15 +45,6 @@ export const getMDXComponents = (components?: MDXComponents) =>
         <Pre>{props.children}</Pre>
       </CodeBlock>
     ),
-    AutoTypeTable: (props: Partial<AutoTypeTableProps>) => (
-      <AutoTypeTable {...props} generator={generator} />
-    ),
-    ComponentPreview,
-    ComposerStatePreviews,
-    SampleDataFiles,
-    SampleDataPages,
-    SpecSection,
-    TokenTable,
     ...components,
   }) satisfies MDXComponents;
 
