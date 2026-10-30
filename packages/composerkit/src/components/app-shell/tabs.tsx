@@ -77,15 +77,12 @@ const findTab = (
     (tab) => tab.dataset.tabId === tabId
   );
 
-// The box around a tab and its close button, which grows in and shrinks
-// out.
 const findItem = (strip: HTMLElement | null, tabId: string) =>
-  findTab(strip, tabId)?.closest<HTMLElement>('[data-slot="tab-item"]') ??
-  undefined;
+  findTab(strip, tabId)?.closest<HTMLElement>('[data-slot="tab-item"]');
 
 // Whether focus is inside an element, also when the element sits in a
 // shadow root.
-const holdsFocus = (element: HTMLElement | null): boolean => {
+const holdsFocus = (element: HTMLElement | null | undefined): boolean => {
   const root = element?.getRootNode();
 
   const active =
@@ -151,8 +148,6 @@ const MS_PER_SECOND = 1000;
 const MIDDLE_BUTTON = 1;
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 
-// A CSS time such as 180ms or 0.18s, in milliseconds, or 0 when it is
-// not one.
 const toMs = (value: string): number => {
   const time = value.trim();
 
@@ -163,9 +158,6 @@ const toMs = (value: string): number => {
   return Number.isFinite(amount) ? amount : 0;
 };
 
-// A tab grows in from nothing, or shrinks out to nothing, so its
-// neighbours slide. Under reduced motion it only fades in, and it leaves
-// at once.
 const animateItem = async (
   item: HTMLElement,
   direction: "in" | "out"
@@ -225,7 +217,6 @@ const animateItem = async (
   }
 };
 
-// Removes a tab once it has shrunk out.
 const shrinkOut = async (item: HTMLElement, remove: () => void) => {
   await animateItem(item, "out");
   remove();
@@ -309,7 +300,6 @@ export const AppShellTabs = ({
     }
   }, []);
 
-  // The row fades at an end that hides tabs, and the tab menu shows.
   useLayoutEffect(() => {
     const strip = list.current;
 
@@ -339,8 +329,6 @@ export const AppShellTabs = ({
     [measure]
   );
 
-  // A tab that opened from a pointer grows in. One opened from the
-  // keyboard is there at once.
   useLayoutEffect(() => {
     const before = known.current;
 
@@ -362,19 +350,11 @@ export const AppShellTabs = ({
     }
   }, [growIn, measure, shell?.input, tabs]);
 
-  // When tabs don't fit the row scrolls, and the open tab is kept in view,
-  // whether it was picked by key, by click, from the tab menu or just
-  // opened.
   useEffect(() => {
     active.current = activeTabId;
     reveal(list.current, activeTabId);
   }, [activeTabId]);
 
-  // When the open tab closes, focus and selection move to the tab on the
-  // right, or on the left for the last tab. When the focused tab closes,
-  // focus moves there too. Tabs still shrinking out are skipped, since
-  // they are about to go. A close from a pointer shrinks the tab out
-  // first; one from the keyboard or the tab menu is instant.
   const closeTab = (id: string, animate: boolean) => {
     const staying = tabs.filter(
       (tab) => tab.id === id || !closing.current.has(tab.id)
@@ -394,7 +374,7 @@ export const AppShellTabs = ({
     const strip = list.current;
     const neighbour = staying[index + 1] ?? staying[index - 1];
     const wasOpen = id === activeTabId;
-    const wasFocused = holdsFocus(findTab(strip, id) ?? null);
+    const wasFocused = holdsFocus(findTab(strip, id));
     const nextFocus = wasOpen || wasFocused ? neighbour?.id : activeTabId;
 
     if (wasOpen && neighbour) {
@@ -435,7 +415,6 @@ export const AppShellTabs = ({
       return;
     }
 
-    // Tabs still shrinking out can't be opened.
     const reachable = tabs.filter((tab) => !closing.current.has(tab.id));
     const index = reachable.findIndex((tab) => tab.id === activeTabId);
 

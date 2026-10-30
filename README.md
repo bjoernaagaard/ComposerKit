@@ -1,6 +1,6 @@
 # ComposerKit
 
-ComposerKit is a set of React components for chat apps. It has a message box, called the composer, and a conversation view that shows the chat above the composer. It also has the buttons, menus and tooltips that the composer and the conversation use. The components are built on [Base UI](https://base-ui.com) and styled with Tailwind CSS v4.
+ComposerKit is a set of React components for chat apps. It has a message box, called the composer, and a conversation view that shows the chat above the composer. It also has an app shell for the window around them, a chat sidebar that lists the chats, and the buttons, menus and tooltips that the other components use. The components are built on [Base UI](https://base-ui.com) and styled with Tailwind CSS v4.
 
 ![A short chat in the conversation view, with a draft in the composer at the bottom](.github/assets/conversation.png)
 
@@ -19,7 +19,13 @@ You can add ComposerKit to an app with the shadcn CLI or with npm. The shadcn CL
 
 ### Install with the shadcn CLI
 
-Your app needs shadcn with Tailwind CSS v4, which `npx shadcn@latest init` sets up. Then add the items you want. Each item brings the items it needs, so the composer also adds the theme, the button, the menu and the tip.
+Your app needs shadcn with Tailwind CSS v4, which `npx shadcn@latest init` sets up. The fastest start is the chat-app block, which adds a whole chat app as one page at `app/chat/page.tsx`, with the app shell, the chat sidebar, the composer and the conversation. Edit it to use your own chats and replies.
+
+```bash
+npx shadcn@latest add https://bjoernaagaard.github.io/ComposerKit/r/chat-app.json
+```
+
+You can also add only the items you want. Each item brings the items it needs, so the composer also adds the theme, the button, the menu and the tip.
 
 ```bash
 npx shadcn@latest add https://bjoernaagaard.github.io/ComposerKit/r/composer.json
@@ -111,8 +117,9 @@ Each component has its own page in the docs, with examples, the props, the keybo
 | [Composer](https://bjoernaagaard.github.io/ComposerKit/composer/) | The message box with attachments, model and access menus, and send | `components/composer/composer` |
 | [Conversation](https://bjoernaagaard.github.io/ComposerKit/conversation/) | An open chat with its turns and the composer below | `components/conversation/conversation-view` |
 | [App shell](https://bjoernaagaard.github.io/ComposerKit/app-shell/) | The window around an app: a title bar with tabs, a rail, a sidebar that remembers its state, and the main region | `components/app-shell/app-shell-provider`, `components/app-shell/app-shell` and one module for each other part |
+| [Chat sidebar](https://bjoernaagaard.github.io/ComposerKit/chat-sidebar/) | The chat list in the sidebar: New chat, search, pinned chats, projects, recent chats, and archive with undo | `components/chat-sidebar/chat-sidebar` and one module for each other part |
 
-The module paths are the same after `@/` in a shadcn app and after `composerkit/` in the npm package. The registry also has a [sample data](https://bjoernaagaard.github.io/ComposerKit/sample-data/) item, which holds the data that the docs examples import. The npm package doesn't include the sample data.
+The module paths are the same after `@/` in a shadcn app and after `composerkit/` in the npm package. The registry also has the [chat app](https://bjoernaagaard.github.io/ComposerKit/chat-app/) block, which puts the components together on one page, and a [sample data](https://bjoernaagaard.github.io/ComposerKit/sample-data/) item, which holds the data that the docs examples import. The npm package doesn't include the chat app or the sample data.
 
 ## How the composer state works
 

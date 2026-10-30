@@ -79,9 +79,6 @@ export const MarqueeLabel = ({
   const track = useRef<HTMLSpanElement>(null);
   const [overflowing, setOverflowing] = useState(false);
 
-  // The distance to scroll goes straight onto the text as --overflow, in
-  // px, and --overflow-px, as a number. It is measured again when the
-  // text changes or the title's box resizes.
   useLayoutEffect(() => {
     const element = viewport.current;
     const content = track.current;
@@ -203,8 +200,6 @@ const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;
 
-// How long ago iso was, in whole minutes, hours or days, at least one
-// minute.
 const elapsedSince = (
   iso: string,
   now: Date
@@ -273,8 +268,6 @@ export type RowDensity = "compact" | "measured" | "two-line";
 
 export const ROW_DENSITIES: RowDensity[] = ["compact", "measured", "two-line"];
 
-// measured: 30px rows, 14/20 text and a 12.5px radius. The default.
-// compact fits about a quarter more chats; two-line adds age and project.
 const DENSITY_CLASSES: Record<RowDensity, string> = {
   compact:
     "min-h-(--size-row-compact) items-center rounded-(--radius-small) py-0.5 text-(length:--text-caption-size) leading-(--text-caption-leading)",

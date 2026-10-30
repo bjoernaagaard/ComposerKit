@@ -185,7 +185,6 @@ export const ChatSidebar = ({
       !conversation.pinned && matchesFilter(conversation, filter)
   );
 
-  // A choice that changes the page closes the narrow drawer.
   const thenShowMain =
     <T extends unknown[]>(action: (...args: T) => void) =>
     (...args: T) => {

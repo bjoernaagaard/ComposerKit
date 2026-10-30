@@ -25,7 +25,6 @@ const ALIAS = /(?<lead>from |import\()"@\/(?<target>[^"]+)"/gu;
 
 const IMPORT = /@import\s+"(?<target>\.[^"]+\.css)"/gu;
 
-// styles.css and the local files it imports, and theirs, as paths in src.
 const stylesheets = (file: string, found = new Set<string>()): Set<string> => {
   if (found.has(file)) {
     return found;

@@ -437,6 +437,24 @@ The trigger (20 x 21) is a pop-up button. It shows only on row hover. The menu w
 
 Shell roles: a skip-to-content link first, then a banner (title bar), a complementary landmark (the sidebar), two navigation landmarks (rail and sidebar list), and a main landmark with a nested main for the chat. Chat tabs are a tab group: each tab is a tab with a selected state and the content is a tab panel. Sidebar lists are content lists.
 
+### What the app shell implements
+
+The app shell in `components/app-shell/` implements these measured items:
+
+- The skip-to-content link as the first Tab stop, which moves focus to the main region
+- The complementary landmark for the sidebar, beside the banner, the rail's navigation landmark and the main landmark
+- The splitter on the sidebar's edge, with its 16 pt hit area and a 1 pt line, which also resizes the sidebar from the keyboard
+- The 1 pt divider between the open sidebar and the main region, and the short separator between rail groups
+- The 1 pt divider at the bottom of the title bar
+- The 1 pt divider on the rail's inline-end edge
+- The vertical divider in the title bar in line with the sidebar edge, drawn while the sidebar is open beside the main region
+
+These measured items are not implemented yet:
+
+- The title bar's right-side actions (overflow, share and the two view toggles). `AppShellTitleBarEnd` holds whatever actions the app passes.
+- The temporary-chat button in the empty chat's header
+- The dismiss button on each suggestion row
+
 ### Light and dark
 
 The reference app has its own theme setting and ignores the system appearance. Switching the app between dark and light changed no layout. All frames stayed the same. Two structural details differ:

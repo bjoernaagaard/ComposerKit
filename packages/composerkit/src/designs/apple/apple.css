@@ -159,6 +159,21 @@ body[data-design="apple"] [data-slot="main-sheet"] {
   box-shadow: var(--apple-sheet);
 }
 
+/* The floating sidebar and sheet are their own edges, so the shell's
+   dividers under the title bar, beside the rail and up the title bar
+   are not drawn. */
+body[data-design="apple"] [data-slot="title-bar"] {
+  border-bottom-width: 0;
+}
+
+body[data-design="apple"] [data-slot="icon-rail"] {
+  border-inline-end-width: 0;
+}
+
+body[data-design="apple"] [data-slot="title-bar-nav"]::after {
+  display: none;
+}
+
 body[data-design="apple"] [data-slot="home-view"] h1 {
   font-weight: 700;
   letter-spacing: -0.012em;

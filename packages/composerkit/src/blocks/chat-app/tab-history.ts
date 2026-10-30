@@ -26,10 +26,8 @@ type HistoryAction =
   | { type: "back" }
   | { type: "forward" };
 
-// Each tab keeps its own back and forward history, keyed by tab id.
 export type TabHistories = Record<string, History>;
 
-// A closed tab takes its history with it.
 export type TabHistoryAction =
   | (HistoryAction & { tabId: string })
   | { type: "close"; tabId: string };

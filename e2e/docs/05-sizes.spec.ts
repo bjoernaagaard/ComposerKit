@@ -1287,8 +1287,6 @@ notMeasurable(
   "The title bar tabs example shows only the tab strip; the back, forward, sidebar and view buttons are not in any example."
 );
 
-// The demo app's sidebar header: its notifications button and the chat
-// sidebar's search button.
 measure(
   {
     expected: "28 x 28",
@@ -2079,7 +2077,7 @@ const APP: Where = { example: "app-shell", url: `${PLAYGROUND_URL}/` };
 measure(
   {
     expected:
-      "44 tall, back and forward 28 x 28 6 apart, sidebar toggle 28 x 28",
+      "44 tall with a hairline divider at the bottom, back and forward 28 x 28 6 apart, sidebar toggle 28 x 28",
     line: 426,
     part: "Title bar",
   },
@@ -2095,11 +2093,13 @@ measure(
     );
 
     const apart = forward.left - back.right;
+    const divider = await cssNumber(bar, "border-bottom-width");
 
     return {
-      actual: `${fmt(box.height)} tall, back ${size(back)} and forward ${size(forward)} ${fmt(apart)} apart, sidebar toggle ${size(toggle)}`,
+      actual: `${fmt(box.height)} tall with a ${fmt(divider)} divider at the bottom, back ${size(back)} and forward ${size(forward)} ${fmt(apart)} apart, sidebar toggle ${size(toggle)}`,
       pass:
         near(box.height, 44) &&
+        isHairline(divider) &&
         [back, forward, toggle].every(
           (button) => near(button.width, 28) && near(button.height, 28)
         ) &&
@@ -2108,9 +2108,57 @@ measure(
   }
 );
 
+// The title bar draws this divider past the end of its leading group, so
+// the line is read from that group's ::after box.
 measure(
   {
-    expected: "52 wide, 36 x 36 buttons, 8 inset, 44 pitch",
+    expected:
+      "a hairline vertical divider the title bar's height, in line with the sidebar edge",
+    line: 427,
+    part: "Title bar divider",
+  },
+  APP,
+  async (page) => {
+    const bar = page.getByRole("banner");
+    const box = await rect(bar);
+
+    const sidebar = await rect(
+      page.getByRole("complementary", { name: "Sidebar" })
+    );
+
+    const line = await bar
+      .locator('[data-slot="title-bar-nav"]')
+      .evaluate((element) => {
+        const after = getComputedStyle(element, "::after");
+        const width = Number(after.width.replace("px", ""));
+        const end = Number(after.insetInlineEnd.replace("px", ""));
+        const right = element.getBoundingClientRect().right - end;
+
+        return {
+          height: Number(after.height.replace("px", "")),
+          left: right - width,
+          shown: after.display !== "none",
+          width,
+        };
+      });
+
+    return {
+      actual: line.shown
+        ? `${fmt(line.width)} wide, ${fmt(line.height)} tall, ${fmt(line.left - sidebar.right)} from the sidebar's edge`
+        : "no divider",
+      pass:
+        line.shown &&
+        isHairline(line.width) &&
+        near(line.height, box.height) &&
+        near(line.left, sidebar.right),
+    };
+  }
+);
+
+measure(
+  {
+    expected:
+      "52 wide with a hairline divider on its inline-end edge, 36 x 36 buttons, 8 inset, 44 pitch",
     line: 429,
     part: "Icon rail",
   },
@@ -2122,11 +2170,13 @@ measure(
     const [first, second] = buttons;
     const inset = (first?.left ?? 0) - box.left;
     const pitch = (second?.top ?? 0) - (first?.top ?? 0);
+    const divider = await cssNumber(rail, "border-inline-end-width");
 
     return {
-      actual: `${fmt(box.width)} wide, buttons ${[...new Set(buttons.map(size))].join(", ")}, inset ${fmt(inset)}, pitch ${fmt(pitch)}`,
+      actual: `${fmt(box.width)} wide with a ${fmt(divider)} divider on its inline-end edge, buttons ${[...new Set(buttons.map(size))].join(", ")}, inset ${fmt(inset)}, pitch ${fmt(pitch)}`,
       pass:
         near(box.width, 52) &&
+        isHairline(divider) &&
         buttons.length > 1 &&
         buttons.every(
           (button) => near(button.width, 36) && near(button.height, 36)
@@ -2169,8 +2219,6 @@ measure(
   }
 );
 
-// The chat sidebar in the demo app, which runs the shipped chat-sidebar
-// parts with the demo's own workspace menu and notifications in its header.
 const chats = (page: Page) => page.getByRole("navigation", { name: "Chats" });
 
 measure(

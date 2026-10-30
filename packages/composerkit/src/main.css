@@ -50,12 +50,8 @@
   }
 }
 
-/* Reduced motion: nothing moves, grows or blurs, but a change can still
-   fade. Transitions run on opacity and color only, so transform, translate,
-   scale, width and blur snap to their end. The shell's motion tokens all
-   become --motion-reduced-fade, so what still fades takes that long. The
-   enter and exit animations of tw-animate-css keep their fade and lose
-   their slide, zoom, spin and blur. */
+/* The --tw-enter-* and --tw-exit-* variables belong to tw-animate-css.
+   Zeroing them keeps its fades and drops its slide, zoom, spin and blur. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -84,9 +80,6 @@
   }
 }
 
-/* While the color scheme changes, theme/apply.ts sets this attribute for
-   one frame, so every color swaps at once instead of each element fading on
-   its own. */
 [data-theme-switching],
 [data-theme-switching] *,
 [data-theme-switching] *::before,

@@ -4,10 +4,19 @@
 // The sidebar's open state and width, kept in the composerkit_shell cookie
 // for 7 days so a reload paints the same layout. A server reads the cookie
 // header and passes the values to AppShellProvider as defaultOpen and
-// defaultWidth, so the first frame is right. In Next.js:
+// defaultWidth, so the first frame is right. In Next.js, read it in an
+// async server component inside <Suspense>, which Cache Components needs:
 //
-//   const shell = readShellCookie((await cookies()).toString());
-//   <AppShellProvider defaultOpen={shell.open} defaultWidth={shell.width}>
+//   const SavedShell = async ({ children }) => {
+//     const shell = readShellCookie((await cookies()).toString());
+//     return (
+//       <AppShellProvider defaultOpen={shell.open} defaultWidth={shell.width}>
+//         {children}
+//       </AppShellProvider>
+//     );
+//   };
+//
+//   <Suspense><SavedShell>{children}</SavedShell></Suspense>
 //
 // A browser-only app calls readDocumentShellCookie() before it renders. It
 // reads document.cookie, whose getter throws where cookies are blocked, such

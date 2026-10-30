@@ -6,11 +6,7 @@ import path from "node:path";
 
 import Link from "next/link";
 
-import {
-  COMPOSER_STATE_NAMES,
-  EXAMPLES,
-  REPO_ONLY_FILES,
-} from "../examples/registry";
+import { COMPOSER_STATE_NAMES, EXAMPLES } from "../examples/registry";
 import { source } from "../lib/source";
 
 // The sample-data page, read from the registry and the docs content when
@@ -129,10 +125,7 @@ export const SampleDataPages = async () => {
             examplesOn(mdx).flatMap((name) => {
               const example = EXAMPLES.get(name);
 
-              // Repo code needs the repo anyway, so it is left out.
-              return example && !REPO_ONLY_FILES.has(example.file)
-                ? [example.file]
-                : [];
+              return example ? [example.file] : [];
             })
           ),
         ];

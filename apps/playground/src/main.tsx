@@ -34,11 +34,8 @@ startTheme(document.documentElement);
 
 startDirection();
 
-// The chat-app block, as an app installs it, plus what only the demo has:
-// the color scheme and conversation layout menu at the foot of the rail,
-// and the Design select in the title bar. The sidebar's saved state and
-// width are read before the first render, so the first frame matches the
-// last visit.
+// The sidebar's saved state and width are read before the first render,
+// so the first frame matches the last visit.
 const Demo = () => {
   const shell = useMemo(() => readDocumentShellCookie(), []);
 

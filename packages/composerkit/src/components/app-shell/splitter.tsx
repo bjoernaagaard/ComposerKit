@@ -7,15 +7,13 @@ import { useEffect, useRef } from "react";
 import type { ComponentProps, KeyboardEvent, PointerEvent } from "react";
 
 import {
-  SIDEBAR_MAX_WIDTH,
-  SIDEBAR_MIN_WIDTH,
   useAppShell,
   useAppShellLabels,
 } from "@/components/app-shell/app-shell-provider";
 import type { AppShellLabels } from "@/components/app-shell/labels";
+import { SIDEBAR_WIDTH } from "@/components/app-shell/sidebar-width";
 import { cn } from "@/lib/utils";
 
-// An arrow key moves the edge this far, or FINE_STEP with Shift.
 const STEP = 16;
 const FINE_STEP = 8;
 
@@ -39,10 +37,8 @@ export interface AppShellSplitterProps extends Omit<
 
 interface Drag {
   pointerId: number;
-  // Where the pointer went down, and the width then.
   startX: number;
   startWidth: number;
-  // In right-to-left layouts the sidebar grows toward the left.
   rtl: boolean;
 }
 
@@ -106,9 +102,9 @@ export const AppShellSplitter = ({
     if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
       setWidth(width + (event.key === wider ? step : -step));
     } else if (event.key === "Home") {
-      setWidth(SIDEBAR_MIN_WIDTH);
+      setWidth(SIDEBAR_WIDTH.min);
     } else if (event.key === "End") {
-      setWidth(SIDEBAR_MAX_WIDTH);
+      setWidth(SIDEBAR_WIDTH.max);
     } else if (event.key === "Enter") {
       // The splitter goes away with the sidebar, so focus moves first.
       (refs.toggle.current ?? refs.main.current)?.focus();
@@ -149,8 +145,6 @@ export const AppShellSplitter = ({
     setWidth(current.startWidth + (current.rtl ? -moved : moved));
   };
 
-  // The drag ends when the pointer comes up, the browser cancels it, or
-  // the splitter loses the pointer. The cookie is written then.
   const endDrag = (event: PointerEvent<HTMLDivElement>) => {
     if (drag.current?.pointerId !== event.pointerId) {
       return;
@@ -165,8 +159,8 @@ export const AppShellSplitter = ({
       aria-controls={ids.sidebar}
       aria-label={text.resizeSidebar}
       aria-orientation="vertical"
-      aria-valuemax={SIDEBAR_MAX_WIDTH}
-      aria-valuemin={SIDEBAR_MIN_WIDTH}
+      aria-valuemax={SIDEBAR_WIDTH.max}
+      aria-valuemin={SIDEBAR_WIDTH.min}
       aria-valuenow={Math.round(width)}
       className={cn(
         "relative z-20 col-start-3 row-start-2 -ms-[calc(var(--size-splitter-hit)/2)] w-(--size-splitter-hit) cursor-col-resize touch-none justify-self-start outline-none select-none [--shell-splitter-line:var(--ring)] after:pointer-events-none after:absolute after:inset-y-0 after:start-[calc(50%-0.5px+var(--shell-splitter-offset,0px))] after:w-px after:bg-transparent after:transition-colors after:duration-(--motion-duration) group-data-resizing/shell:after:bg-(--shell-splitter-line) hover:after:bg-(--shell-splitter-line) focus-visible:after:bg-(--shell-splitter-line)",

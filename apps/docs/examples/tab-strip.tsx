@@ -20,11 +20,10 @@ export const TabStripExample = ({
 }: {
   appearance: AppShellTabAppearance;
 }) => {
-  // A tab id can be any string, such as the chat's title in quotes. Ids
-  // carry the appearance so two strips on a page never share a tab id.
+  // A tab id can be any string, such as the chat's title in quotes.
   const [tabs, setTabs] = useState<AppShellTab[]>(() =>
     SAMPLE_CONVERSATIONS.slice(0, 3).map((conversation) => ({
-      id: `${appearance} "${conversation.title}"`,
+      id: `"${conversation.title}"`,
       title: conversation.title,
     }))
   );
@@ -44,7 +43,7 @@ export const TabStripExample = ({
         }
         onNewTab={() => {
           const tab = {
-            id: `${appearance} new ${opened + 1}`,
+            id: `new ${opened + 1}`,
             title: `New chat ${opened + 1}`,
           };
 

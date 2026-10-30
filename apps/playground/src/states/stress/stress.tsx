@@ -1,7 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 // SPDX-License-Identifier: MIT
 
-// Dev-only stress harness for the docs E2E (e2e/docs/08-stress.spec.ts).
+// Dev-only stress harness for the docs E2E (e2e/docs/08-stress.spec.ts and
+// 10-shell.spec.ts).
 // Each part gets its data through its own props, the way an app would pass
 // it: the demo data, a 200 character label with spaces, the same length as
 // one unbroken word, or nothing at all. ?part= picks the part and ?data=
@@ -9,7 +10,10 @@
 // ?bare hides it so screenshots show the part alone. For an empty menu,
 // ?empty= picks how the app passes no items: nothing, an empty fragment,
 // a fragment around an empty list, or a radio group with no items.
-// ?tabs= sets how many tabs the tab strip opens with.
+// ?tabs= sets how many tabs the tab strip opens with, and each ?id= gives
+// it a tab with that id instead, titled with the id in brackets, so
+// ?id=a&id=&id=c opens [a], [] and [c]. The row-title part shows one row,
+// 288 px wide, whose title follows the Row title field.
 import { CopyIcon } from "lucide-react";
 import { useId, useState } from "react";
 import type { ReactNode } from "react";
@@ -72,6 +76,7 @@ const PARTS = [
   "menu",
   "tabs",
   "row",
+  "row-title",
   "sidebar",
   "turns",
 ] as const;
@@ -204,12 +209,17 @@ const MenuPart = ({ data }: { data: Dataset }) => {
   );
 };
 
-// ?tabs= sets how many tabs the strip opens with, 3 by default.
 const TAB_COUNT = Number(params.get("tabs")) || 3;
+
+const GIVEN_TAB_IDS = params.getAll("id");
 
 // Tab ids may be any string, so each carries a space and a lone surrogate,
 // which no encoding step may choke on.
 const stressTabs = (data: Dataset): AppShellTab[] => {
+  if (GIVEN_TAB_IDS.length > 0) {
+    return GIVEN_TAB_IDS.map((id) => ({ id, title: `[${id}]` }));
+  }
+
   if (data === "empty") {
     return [];
   }
@@ -282,6 +292,42 @@ const RowsPart = ({ data }: { data: Dataset }) => {
         </li>
       ))}
     </ul>
+  );
+};
+
+const RowTitlePart = () => {
+  const [title, setTitle] = useState("Short");
+  const fieldId = useId();
+
+  return (
+    <div className="flex flex-col gap-2">
+      <label className="flex flex-col gap-1 text-sm" htmlFor={fieldId}>
+        Row title
+        <input
+          className="border-border rounded-md border px-2 py-1"
+          id={fieldId}
+          onChange={(event) => setTitle(event.target.value)}
+          type="text"
+          value={title}
+        />
+      </label>
+      <div className="w-72">
+        <ConversationRow
+          active={false}
+          conversation={{
+            id: "row-title",
+            pinned: false,
+            projectId: null,
+            title,
+            updatedAt: SAMPLE_DATE.toISOString(),
+          }}
+          now={SAMPLE_DATE}
+          onArchive={ignore}
+          onOpen={ignore}
+          onTogglePin={ignore}
+        />
+      </div>
+    </div>
   );
 };
 
@@ -382,6 +428,10 @@ const renderPart = (part: Part, data: Dataset): ReactNode => {
 
     case "row": {
       return <RowsPart data={data} />;
+    }
+
+    case "row-title": {
+      return <RowTitlePart />;
     }
 
     case "sidebar": {

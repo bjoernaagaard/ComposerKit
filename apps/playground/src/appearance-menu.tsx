@@ -22,7 +22,6 @@ import { useTheme } from "@/theme/use-theme";
 const isScheme = (value: string) =>
   SCHEMES.find((scheme) => scheme.id === value)?.id;
 
-// The avatar at the foot of the rail opens the appearance settings.
 export const AppearanceMenu = ({
   conversationLayout,
   onConversationLayoutChange,

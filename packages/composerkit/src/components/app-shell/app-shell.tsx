@@ -103,16 +103,10 @@ export const AppShellSkipLink = ({
   );
 };
 
-// The narrow sidebar: a modal Base UI Drawer over the shell, below the
-// title bar. It is a dialog named by labels.sidebar. Focus moves in when it
-// opens and stays in, and the rest of the shell is hidden from assistive
-// technology. Escape, a press on the backdrop or a swipe toward the
-// leading edge closes it, and focus goes back to the sidebar toggle, or to
-// the main region after closeNarrowAndFocusMain. It is at most
-// 100% - 48px wide, so a strip of backdrop is always there to tap. The
-// rail's destinations move into the row at its top. It stays mounted while
-// closed, so the sidebar keeps its search and scroll. Menus and tooltips
-// inside it mount inside it too, because the page behind is hidden.
+// It is at most 100% - --space-drawer-backdrop wide, so a strip of backdrop is always there
+// to tap. It stays mounted while closed, so the sidebar keeps its search
+// and scroll. Menus and tooltips inside it mount inside it too, because
+// the page behind is hidden.
 const AppShellSidebarDrawer = ({
   title,
   children,
@@ -153,7 +147,7 @@ const AppShellSidebarDrawer = ({
             // regions and what holds them; aria-modal tells screen readers the
             // whole page behind is out of reach.
             aria-modal="true"
-            className="bg-sidebar absolute inset-y-0 start-0 z-40 col-span-full row-start-2 flex w-[min(var(--size-sidebar),100%-48px)] [transform:translateX(var(--drawer-swipe-movement-x))] flex-col ps-(--shell-drawer-inset) shadow-(--shadow-drawer) transition duration-0 ease-(--motion-ease-drawer) outline-none [--shell-drawer-exit:calc(var(--drawer-swipe-strength)*var(--motion-overlay-exit))] [--shell-drawer-inset:env(safe-area-inset-left)] group-data-[input=pointer]/shell:duration-(--motion-overlay-enter) group-data-[input=pointer]/shell:data-ending-style:duration-(--shell-drawer-exit) data-swiping:duration-0 data-swiping:select-none motion-safe:data-ending-style:[transform:translateX(-100%)] motion-safe:data-starting-style:[transform:translateX(-100%)] motion-reduce:data-ending-style:opacity-0 motion-reduce:data-starting-style:opacity-0 rtl:[--shell-drawer-inset:env(safe-area-inset-right)] rtl:motion-safe:data-ending-style:[transform:translateX(100%)] rtl:motion-safe:data-starting-style:[transform:translateX(100%)]"
+            className="bg-sidebar absolute inset-y-0 start-0 z-40 col-span-full row-start-2 flex w-[min(var(--size-sidebar),100%-var(--space-drawer-backdrop))] [transform:translateX(var(--drawer-swipe-movement-x))] flex-col ps-(--shell-drawer-inset) shadow-(--shadow-drawer) transition duration-0 ease-(--motion-ease-drawer) outline-none [--shell-drawer-exit:calc(var(--drawer-swipe-strength)*var(--motion-overlay-exit))] [--shell-drawer-inset:env(safe-area-inset-left)] group-data-[input=pointer]/shell:duration-(--motion-overlay-enter) group-data-[input=pointer]/shell:data-ending-style:duration-(--shell-drawer-exit) data-swiping:duration-0 data-swiping:select-none motion-safe:data-ending-style:[transform:translateX(-100%)] motion-safe:data-starting-style:[transform:translateX(-100%)] motion-reduce:data-ending-style:opacity-0 motion-reduce:data-starting-style:opacity-0 rtl:[--shell-drawer-inset:env(safe-area-inset-right)] rtl:motion-safe:data-ending-style:[transform:translateX(100%)] rtl:motion-safe:data-starting-style:[transform:translateX(100%)]"
             data-slot="sidebar-panel"
             data-state={openNarrow ? "open" : "closed"}
             data-variant="overlay"

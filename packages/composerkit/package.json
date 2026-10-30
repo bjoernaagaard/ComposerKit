@@ -1,6 +1,6 @@
 {
   "name": "composerkit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Composer and conversation components for React, built on Base UI and Tailwind CSS v4",
   "keywords": [
     "base-ui",
@@ -44,7 +44,7 @@
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json && node scripts/finish-dist.ts",
     "prepack": "npm run build",
-    "registry:build": "shadcn build --output ../../apps/docs/public/r",
+    "registry:build": "node ../../scripts/tokens.ts && shadcn build --output ../../apps/docs/public/r",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -3,17 +3,8 @@
 
 /* The chat sidebar's row actions and long titles. They depend on what the
    screen can do, hover or touch, and on reduced motion, so they are rules
-   here rather than classes on the parts.
+   here rather than classes on the parts. */
 
-   The npm package loads this file from styles.css. The chat-sidebar
-   registry item carries the same rules in its css field, so keep the two
-   in step. */
-
-/* Row actions. With a pointer that can hover they show while a mouse
-   hovers the row (data-hover, which a finger's tap never sets), while the
-   keyboard focuses the row and while their menu is open. Until then they
-   take no click or tap, which goes to the row instead, and the title keeps
-   their width. */
 @media (hover: hover) {
   [data-slot="row-actions"] {
     opacity: 0;
@@ -55,18 +46,13 @@
   }
 }
 
-/* A long title stays on one line. */
 [data-slot="row-title-track"] {
   white-space: nowrap;
 }
 
-/* Without reduced motion, a long title fades out at its end, and scrolls
-   toward its end from its start, which is where it rests, at
-   --motion-marquee-ms-per-pixel from the theme. It scrolls while the
-   keyboard focuses its row, and while a fine mouse pointer hovers it
-   (data-hover, as a finger's tap would leave :hover behind). The two
-   motion preferences get separate blocks, so neither depends on the order
-   the rules land in an app's CSS file. */
+/* data-hover, not :hover, because a finger's tap would leave :hover
+   behind. The two motion preferences get separate blocks, so neither
+   depends on the order the rules land in an app's CSS file. */
 @media (prefers-reduced-motion: no-preference) {
   [data-slot="row-title-track"] {
     display: inline-block;
