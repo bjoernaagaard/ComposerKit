@@ -19,6 +19,7 @@ import type { ReactNode, RefObject } from "react";
 import { APP_SHELL_LABELS } from "@/components/app-shell/labels";
 import type { AppShellLabels } from "@/components/app-shell/labels";
 import { writeShellCookie } from "@/components/app-shell/persist";
+import { SIDEBAR_WIDTH } from "@/components/app-shell/sidebar-width";
 import { pixelsOf } from "@/components/ui/theme-value";
 
 // The shell is narrow below 48rem of its own width, not the window's, so a
@@ -27,11 +28,8 @@ const NARROW_REM = 48;
 const FALLBACK_REM_PX = 16;
 const DEFAULT_SHORTCUT = "b";
 
-export const SIDEBAR_MIN_WIDTH = 220;
-export const SIDEBAR_MAX_WIDTH = 480;
-
 const clampSidebarWidth = (px: number): number =>
-  Math.round(Math.min(SIDEBAR_MAX_WIDTH, Math.max(SIDEBAR_MIN_WIDTH, px)));
+  Math.round(Math.min(SIDEBAR_WIDTH.max, Math.max(SIDEBAR_WIDTH.min, px)));
 
 export type AppShellInput = "pointer" | "keyboard";
 
@@ -144,17 +142,15 @@ const isNarrowElement = (element: HTMLElement) => {
   return element.getBoundingClientRect().width < NARROW_REM * rem;
 };
 
-const THEME_WIDTH = 288;
-
 const sidebarWidthOf = (element: HTMLElement) => {
   const px = pixelsOf(
     getComputedStyle(element).getPropertyValue("--size-sidebar").trim()
   );
 
-  return Number.isNaN(px) ? THEME_WIDTH : px;
+  return Number.isNaN(px) ? SIDEBAR_WIDTH.theme : px;
 };
 
-const onServerWidth = () => THEME_WIDTH;
+const onServerWidth = () => SIDEBAR_WIDTH.theme;
 
 const noUpdates = () => {
   // Nothing to watch until the root mounts.
@@ -305,7 +301,7 @@ export const AppShellProvider = ({
   );
 
   const readSidebarWidth = useCallback(
-    () => (rootElement ? sidebarWidthOf(rootElement) : THEME_WIDTH),
+    () => (rootElement ? sidebarWidthOf(rootElement) : SIDEBAR_WIDTH.theme),
     [rootElement]
   );
 

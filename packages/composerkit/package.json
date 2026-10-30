@@ -44,7 +44,7 @@
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json && node scripts/finish-dist.ts",
     "prepack": "npm run build",
-    "registry:build": "shadcn build --output ../../apps/docs/public/r",
+    "registry:build": "node ../../scripts/tokens.ts && shadcn build --output ../../apps/docs/public/r",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

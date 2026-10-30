@@ -196,7 +196,8 @@
     "conversationComposerTextInset": 4,
     "titlebarInsetStart": 12,
     "sidebarInset": 0,
-    "sheetInset": 0
+    "sheetInset": 0,
+    "drawerBackdrop": 48
   },
   "border": {
     "hairline": 0.5,

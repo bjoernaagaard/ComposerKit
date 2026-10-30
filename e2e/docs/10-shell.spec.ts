@@ -575,7 +575,7 @@ test("shortcut with two shells: the shell that holds focus toggles, and the firs
   await expect(second).toHaveAttribute("data-sidebar", "collapsed");
 });
 
-test('tab ids: a tab whose id has quotes, such as filled "…", opens by click and by arrow key', async ({
+test('tab ids: a tab whose id has quotes, such as "…", opens by click and by arrow key', async ({
   page,
 }) => {
   const errors: string[] = [];

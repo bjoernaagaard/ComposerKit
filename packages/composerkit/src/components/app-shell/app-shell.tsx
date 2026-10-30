@@ -103,7 +103,7 @@ export const AppShellSkipLink = ({
   );
 };
 
-// It is at most 100% - 48px wide, so a strip of backdrop is always there
+// It is at most 100% - --space-drawer-backdrop wide, so a strip of backdrop is always there
 // to tap. It stays mounted while closed, so the sidebar keeps its search
 // and scroll. Menus and tooltips inside it mount inside it too, because
 // the page behind is hidden.
@@ -147,7 +147,7 @@ const AppShellSidebarDrawer = ({
             // regions and what holds them; aria-modal tells screen readers the
             // whole page behind is out of reach.
             aria-modal="true"
-            className="bg-sidebar absolute inset-y-0 start-0 z-40 col-span-full row-start-2 flex w-[min(var(--size-sidebar),100%-48px)] [transform:translateX(var(--drawer-swipe-movement-x))] flex-col ps-(--shell-drawer-inset) shadow-(--shadow-drawer) transition duration-0 ease-(--motion-ease-drawer) outline-none [--shell-drawer-exit:calc(var(--drawer-swipe-strength)*var(--motion-overlay-exit))] [--shell-drawer-inset:env(safe-area-inset-left)] group-data-[input=pointer]/shell:duration-(--motion-overlay-enter) group-data-[input=pointer]/shell:data-ending-style:duration-(--shell-drawer-exit) data-swiping:duration-0 data-swiping:select-none motion-safe:data-ending-style:[transform:translateX(-100%)] motion-safe:data-starting-style:[transform:translateX(-100%)] motion-reduce:data-ending-style:opacity-0 motion-reduce:data-starting-style:opacity-0 rtl:[--shell-drawer-inset:env(safe-area-inset-right)] rtl:motion-safe:data-ending-style:[transform:translateX(100%)] rtl:motion-safe:data-starting-style:[transform:translateX(100%)]"
+            className="bg-sidebar absolute inset-y-0 start-0 z-40 col-span-full row-start-2 flex w-[min(var(--size-sidebar),100%-var(--space-drawer-backdrop))] [transform:translateX(var(--drawer-swipe-movement-x))] flex-col ps-(--shell-drawer-inset) shadow-(--shadow-drawer) transition duration-0 ease-(--motion-ease-drawer) outline-none [--shell-drawer-exit:calc(var(--drawer-swipe-strength)*var(--motion-overlay-exit))] [--shell-drawer-inset:env(safe-area-inset-left)] group-data-[input=pointer]/shell:duration-(--motion-overlay-enter) group-data-[input=pointer]/shell:data-ending-style:duration-(--shell-drawer-exit) data-swiping:duration-0 data-swiping:select-none motion-safe:data-ending-style:[transform:translateX(-100%)] motion-safe:data-starting-style:[transform:translateX(-100%)] motion-reduce:data-ending-style:opacity-0 motion-reduce:data-starting-style:opacity-0 rtl:[--shell-drawer-inset:env(safe-area-inset-right)] rtl:motion-safe:data-ending-style:[transform:translateX(100%)] rtl:motion-safe:data-starting-style:[transform:translateX(100%)]"
             data-slot="sidebar-panel"
             data-state={openNarrow ? "open" : "closed"}
             data-variant="overlay"

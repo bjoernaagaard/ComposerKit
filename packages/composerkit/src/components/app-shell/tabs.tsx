@@ -78,12 +78,11 @@ const findTab = (
   );
 
 const findItem = (strip: HTMLElement | null, tabId: string) =>
-  findTab(strip, tabId)?.closest<HTMLElement>('[data-slot="tab-item"]') ??
-  undefined;
+  findTab(strip, tabId)?.closest<HTMLElement>('[data-slot="tab-item"]');
 
 // Whether focus is inside an element, also when the element sits in a
 // shadow root.
-const holdsFocus = (element: HTMLElement | null): boolean => {
+const holdsFocus = (element: HTMLElement | null | undefined): boolean => {
   const root = element?.getRootNode();
 
   const active =
@@ -375,7 +374,7 @@ export const AppShellTabs = ({
     const strip = list.current;
     const neighbour = staying[index + 1] ?? staying[index - 1];
     const wasOpen = id === activeTabId;
-    const wasFocused = holdsFocus(findTab(strip, id) ?? null);
+    const wasFocused = holdsFocus(findTab(strip, id));
     const nextFocus = wasOpen || wasFocused ? neighbour?.id : activeTabId;
 
     if (wasOpen && neighbour) {

@@ -255,6 +255,7 @@
   --space-titlebar-inset-start: 12px;
   --space-sidebar-inset: 0px;
   --space-sheet-inset: 0px;
+  --space-drawer-backdrop: 48px;
   --space-conversation-composer-padding-y: 10px;
   --border-hairline: 0.5px;
   --border-focus-width: 2px;
