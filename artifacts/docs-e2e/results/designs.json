@@ -2,7 +2,7 @@
   {
     "consoleErrors": [],
     "design": "apple",
-    "firstFrames": ["apple", "apple"],
+    "firstFrames": ["apple"],
     "keptAfterNavigation": true,
     "page": "/composer",
     "scheme": "light",
@@ -20,7 +20,7 @@
   {
     "consoleErrors": [],
     "design": "taste",
-    "firstFrames": ["taste"],
+    "firstFrames": ["taste", "taste"],
     "keptAfterNavigation": true,
     "page": "/composer",
     "scheme": "light",
@@ -47,7 +47,7 @@
   {
     "consoleErrors": [],
     "design": "glass",
-    "firstFrames": ["glass", "glass"],
+    "firstFrames": ["glass"],
     "keptAfterNavigation": true,
     "page": "/conversation",
     "scheme": "light",
@@ -101,7 +101,7 @@
   {
     "consoleErrors": [],
     "design": "emil",
-    "firstFrames": ["emil", "emil"],
+    "firstFrames": ["emil"],
     "keptAfterNavigation": true,
     "page": "/app-shell",
     "scheme": "light",
@@ -191,7 +191,7 @@
   {
     "consoleErrors": [],
     "design": "glass",
-    "firstFrames": ["glass", "glass"],
+    "firstFrames": ["glass"],
     "keptAfterNavigation": true,
     "page": "/conversation",
     "scheme": "dark",

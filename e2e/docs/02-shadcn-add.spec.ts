@@ -7,7 +7,8 @@
 // the Code tab's Copy button, into the app, and the app type checks and
 // builds. The chat-app item's page, app/chat/page.tsx, is then served with
 // next start and opened in a browser: the server HTML already holds the
-// shell, and the page hydrates with no errors.
+// shell, and the page hydrates with no errors. The temp folder is removed
+// when the test ends, whether it passed, failed, or timed out.
 // registry.json points dependencies at the published site, so the copy has
 // that prefix replaced with the local server's URL. The repo's export is
 // not changed.
@@ -19,6 +20,7 @@ import {
   readFileSync,
   writeFileSync,
 } from "node:fs";
+import { rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -343,10 +345,21 @@ const examplesPage = (files: string[]) =>
     "",
   ].join("\n");
 
+// The temp folder of the running test, removed after it in afterEach,
+// which Playwright runs even when the test fails or times out.
+let root = "";
+
+test.afterEach(async () => {
+  if (root) {
+    await rm(root, { force: true, recursive: true });
+    root = "";
+  }
+});
+
 test("a new shadcn app installs every item and builds", async ({ browser }) => {
   test.setTimeout(30 * 60_000);
 
-  const root = mkdtempSync(path.join(tmpdir(), "composerkit-e2e-"));
+  root = mkdtempSync(path.join(tmpdir(), "composerkit-e2e-"));
   const site = path.join(root, "site");
   const app = path.join(root, "consumer");
 
@@ -459,7 +472,7 @@ test("a new shadcn app installs every item and builds", async ({ browser }) => {
     extra,
     localRegistry: LOCAL_REGISTRY,
     missing,
-    note: `The export was copied to ${site}. In that copy only, ${PUBLISHED_REGISTRY} was replaced with ${LOCAL_REGISTRY} in ${rewritten.join(", ")}, so registry dependencies also come from the local server.`,
+    note: `The export was copied to ${site}. In that copy only, ${PUBLISHED_REGISTRY} was replaced with ${LOCAL_REGISTRY} in ${rewritten.join(", ")}, so registry dependencies also come from the local server. The temp folder is removed when the test ends.`,
     rewritten,
     steps,
     tempFolder: root,

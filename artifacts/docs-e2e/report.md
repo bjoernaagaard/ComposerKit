@@ -26,25 +26,25 @@ Schemas fetched at run time from ui.shadcn.com. Validator: ajv 8 (draft-07), str
 
 ## 2. A new app installs every item and the sample data, takes every example from its Code tab, then type checks and builds
 
-The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-kj3o7h/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:5821/r/ in r/app-shell.json, r/button.json, r/chat-app.json, r/chat-sidebar.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
+The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-Y3Dn3y/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:5881/r/ in r/app-shell.json, r/button.json, r/chat-app.json, r/chat-sidebar.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server. The temp folder is removed when the test ends.
 
 | Command | Folder | Exit code | Seconds |
 | --- | --- | --- | --- |
 | npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 24 |
-| npx -y shadcn@latest add http://127.0.0.1:5821/r/theme.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:5821/r/button.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:5821/r/tip.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:5821/r/menu.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:5821/r/composer.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:5821/r/conversation.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:5821/r/app-shell.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:5821/r/chat-sidebar.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:5821/r/chat-app.json -y -o | consumer | 0 | 1 |
-| npx -y shadcn@latest add http://127.0.0.1:5821/r/sample-data.json -y -o | consumer | 0 | 1 |
-| npx tsc --noEmit | consumer | 0 | 1 |
-| npx next build | consumer | 0 | 7 |
+| npx -y shadcn@latest add http://127.0.0.1:5881/r/theme.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:5881/r/button.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:5881/r/tip.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:5881/r/menu.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:5881/r/composer.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:5881/r/conversation.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:5881/r/app-shell.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:5881/r/chat-sidebar.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:5881/r/chat-app.json -y -o | consumer | 0 | 1 |
+| npx -y shadcn@latest add http://127.0.0.1:5881/r/sample-data.json -y -o | consumer | 0 | 1 |
+| npx tsc --noEmit | consumer | 0 | 2 |
+| npx next build | consumer | 0 | 6 |
 
-Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-kj3o7h` (outside the repo).
+Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-Y3Dn3y` (outside the repo).
 
 ### Examples copied from the Code tab
 
@@ -52,7 +52,7 @@ Every example file on the item pages, copied with the docs' Copy button into `co
 
 ### The chat-app page
 
-next start served `http://127.0.0.1:5822/chat`. Shell in the server HTML: yes. Heading: Start with a task. Landmarks: banner, navigation Main, complementary Sidebar, navigation Chats, main. Console errors: none.
+next start served `http://127.0.0.1:5882/chat`. Shell in the server HTML: yes. Heading: Start with a task. Landmarks: banner, navigation Main, complementary Sidebar, navigation Chats, main. Console errors: none.
 
 Expected: the Code tab files in each item page's built HTML, /theme 2, /button 3, /tip 2, /menu 2, /composer 2, /conversation 2, /app-shell 3, /chat-sidebar 3, /chat-app 2; 21 files in all. Copied: 21. Missing: none. Extra: none.
 
@@ -137,7 +137,7 @@ Keyboard and size rows are listed, not gated. A mismatch does not fail the run; 
 
 | Rows | Pass | Mismatch | Not checkable |
 | ---- | ---- | -------- | ------------- |
-| 105  | 83   | 16       | 6             |
+| 105  | 84   | 15       | 6             |
 
 ## 4. Every old catalog screenshot has a docs example
 
@@ -256,8 +256,8 @@ Tab from the top of the page to the end, then Shift+Tab back, with no mouse even
 | /composer | 327 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
 | /conversation | 242 | Tab left the last control and focus went back to the page | none | none | none | button "Scroll to the newest message" (4 times) | yes | none |
 | /app-shell | 176 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
-| /chat-sidebar | 361 | Tab left the last control and focus went back to the page | none | none | button "Name ideas for a plant-watering app", bottom; button "Plan meals for a week on a budget", bottom; button "How do I read a flame graph?", bottom; button "Estimate how long the migration will tak", bottom; button "Sketch a schema for recurring events", bottom | none | yes | none |
-| /chat-app | 245 | Tab left the last control and focus went back to the page | none | none | button "What should go in a README for a small l", bottom; button "Shorten the release notes for 0.3", bottom; button "Sketch a schema for recurring events", bottom | none | yes | none |
+| /chat-sidebar | 362 | Tab left the last control and focus went back to the page | none | none | button "Turn the onboarding steps into a checkli", bottom; button "What should go in a README for a small l", bottom; button "Write alt text for the product photos", bottom; button "Pick colors that pass contrast checks", bottom; button "Write test data for the invoice page", bottom | none | yes | none |
+| /chat-app | 245 | Tab left the last control and focus went back to the page | none | none | button "Rewrite the error messages on the signup", bottom; button "Turn this spreadsheet into a chart", bottom; button "Write test data for the invoice page", bottom | none | yes | none |
 | /sample-data | 38 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
 | demo app, 320 wide | 20 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
 | demo app, 1440 wide | 161 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
@@ -387,18 +387,18 @@ The Design picker in the docs sidebar footer, on the pages with the most example
 
 | Page | Design | Scheme | axe violations | First frame | Kept after navigation | Console errors |
 | --- | --- | --- | --- | --- | --- | --- |
-| /composer | apple | light | none | pass, 2 of 2 frames | yes | none |
+| /composer | apple | light | none | pass, 1 of 1 frames | yes | none |
 | /composer | glass | light | none | pass, 2 of 2 frames | yes | none |
-| /composer | taste | light | none | pass, 1 of 1 frames | yes | none |
+| /composer | taste | light | none | pass, 2 of 2 frames | yes | none |
 | /composer | emil | light | none | pass, 1 of 1 frames | yes | none |
 | /conversation | apple | light | none | pass, 2 of 2 frames | yes | none |
-| /conversation | glass | light | none | pass, 2 of 2 frames | yes | none |
+| /conversation | glass | light | none | pass, 1 of 1 frames | yes | none |
 | /conversation | taste | light | none | pass, 2 of 2 frames | yes | none |
 | /conversation | emil | light | none | pass, 1 of 1 frames | yes | none |
 | /app-shell | apple | light | none | pass, 2 of 2 frames | yes | none |
 | /app-shell | glass | light | none | pass, 2 of 2 frames | yes | none |
 | /app-shell | taste | light | none | pass, 2 of 2 frames | yes | none |
-| /app-shell | emil | light | none | pass, 2 of 2 frames | yes | none |
+| /app-shell | emil | light | none | pass, 1 of 1 frames | yes | none |
 | /chat-app | apple | light | none | pass, 2 of 2 frames | yes | none |
 | /chat-app | glass | light | none | pass, 2 of 2 frames | yes | none |
 | /chat-app | taste | light | none | pass, 2 of 2 frames | yes | none |
@@ -408,7 +408,7 @@ The Design picker in the docs sidebar footer, on the pages with the most example
 | /composer | taste | dark | none | pass, 1 of 1 frames | yes | none |
 | /composer | emil | dark | none | pass, 1 of 1 frames | yes | none |
 | /conversation | apple | dark | none | pass, 2 of 2 frames | yes | none |
-| /conversation | glass | dark | none | pass, 2 of 2 frames | yes | none |
+| /conversation | glass | dark | none | pass, 1 of 1 frames | yes | none |
 | /conversation | taste | dark | none | pass, 2 of 2 frames | yes | none |
 | /conversation | emil | dark | none | pass, 2 of 2 frames | yes | none |
 | /app-shell | apple | dark | none | pass, 2 of 2 frames | yes | none |
@@ -449,7 +449,6 @@ None.
 | 260 | Heading before the composer | a level-4 heading marking the latest response | h2 "New message" | /conversation [data-example="conversation--document"] |
 | 271 | Message action buttons | 27 x 26 (some 27 x 27, share 31 x 30) | Copy 27 x 26, Share 27 x 26, Edit 27 x 26, Helpful 27 x 26, This browser can’t read aloud 27 x 26, Write again 27 x 26, More 27 x 26 | /conversation [data-example="conversation--document"] |
 | 277 | Sidebar row trailing buttons (more, pin) | 20 x 20 or 20 x 21 | 24 x 24, 24 x 24 | /chat-sidebar [data-example="conversation-row--measured"] |
-| 433 | Section header | 25 tall, 16 to 20 between sections | 25 tall, 8 between the first two sections | http://127.0.0.1:5830/ [data-example="app-shell"] |
 | 434 | Chat row | 30 tall on a 31 pitch, 261 to 272 wide, 8 text inset, radius about 8; on hover two 20 pt buttons 8 apart | 30 tall, pitch 31, 270 wide, inset 8, radius 12.5, 2 trailing buttons 24 x 24 and 24 x 24 4 apart | /chat-sidebar [data-example="conversation-row--measured"] |
 | 435 | Mode switch, pill variant | two 113 x 36 toggle buttons |  | /app-shell [data-example="mode-toggle--pill"] |
 | 435 | Mode switch, segmented variant | two 113 x 36 toggle buttons |  | /app-shell [data-example="mode-toggle--segmented"] |

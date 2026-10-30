@@ -525,7 +525,7 @@
     "part": "Sidebar header buttons (activity, search)",
     "actual": "28 x 28, 28 x 28",
     "status": "pass",
-    "where": "http://127.0.0.1:5830/ [data-example=\"app-shell\"]"
+    "where": "http://127.0.0.1:5890/ [data-example=\"app-shell\"]"
   },
   {
     "expected": "36 x 36, selected radius about 8",
@@ -781,7 +781,7 @@
     "part": "Title bar",
     "actual": "44 tall, back 28 x 28 and forward 28 x 28 6 apart, sidebar toggle 28 x 28",
     "status": "pass",
-    "where": "http://127.0.0.1:5830/ [data-example=\"app-shell\"]"
+    "where": "http://127.0.0.1:5890/ [data-example=\"app-shell\"]"
   },
   {
     "expected": "52 wide, 36 x 36 buttons, 8 inset, 44 pitch",
@@ -789,7 +789,7 @@
     "part": "Icon rail",
     "actual": "52 wide, buttons 36 x 36, inset 8, pitch 44",
     "status": "pass",
-    "where": "http://127.0.0.1:5830/ [data-example=\"app-shell\"]"
+    "where": "http://127.0.0.1:5890/ [data-example=\"app-shell\"]"
   },
   {
     "expected": "288 wide, rail plus sidebar 340, a 16 wide splitter on its edge",
@@ -797,7 +797,7 @@
     "part": "Sidebar",
     "actual": "288 wide, rail plus sidebar 340, splitter 16 wide centered at 0 from the sidebar's edge",
     "status": "pass",
-    "where": "http://127.0.0.1:5830/ [data-example=\"app-shell\"]"
+    "where": "http://127.0.0.1:5890/ [data-example=\"app-shell\"]"
   },
   {
     "expected": "mode switcher about 109 x 32, two 28 x 28 buttons 6 apart",
@@ -805,7 +805,7 @@
     "part": "Sidebar header",
     "actual": "workspace menu 160.3 x 32, notifications 28 x 28 and search 28 x 28 6 apart",
     "status": "pass",
-    "where": "http://127.0.0.1:5830/ [data-example=\"app-shell\"]"
+    "where": "http://127.0.0.1:5890/ [data-example=\"app-shell\"]"
   },
   {
     "expected": "272 x 30",
@@ -813,15 +813,15 @@
     "part": "New chat row",
     "actual": "272 x 30",
     "status": "pass",
-    "where": "http://127.0.0.1:5830/ [data-example=\"app-shell\"]"
+    "where": "http://127.0.0.1:5890/ [data-example=\"app-shell\"]"
   },
   {
     "expected": "25 tall, 16 to 20 between sections",
     "line": 433,
     "part": "Section header",
-    "actual": "25 tall, 8 between the first two sections",
-    "status": "mismatch",
-    "where": "http://127.0.0.1:5830/ [data-example=\"app-shell\"]"
+    "actual": "25 tall, 16 between the first two sections",
+    "status": "pass",
+    "where": "http://127.0.0.1:5890/ [data-example=\"app-shell\"]"
   },
   {
     "expected": "two 28 x 28 view toggles, 6 apart",

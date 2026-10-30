@@ -17,8 +17,6 @@ import { pathToFileURL } from "node:url";
 
 import { expect, test } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
-import type { ComponentType, createElement, useState } from "react";
-import type { createRoot } from "react-dom/client";
 
 import { openApp, openHarness } from "./stress-support";
 import { PLAYGROUND_URL, REPO, openPage, run } from "./support";
@@ -34,8 +32,6 @@ declare global {
     // The transitions that started since listenForTransitions, each as
     // "slot property", where slot is the target's data-slot or tag name.
     shellTransitions?: string[];
-    // Renders the row mounted by mountRow again with this title.
-    renderRowTitle?: (title: string) => void;
   }
 }
 
@@ -1180,74 +1176,14 @@ test("tab ids: a lone surrogate such as \\uD800 in a tab id renders, and its tab
   expect(errors).toEqual([]);
 });
 
-// The parts of React, react-dom/client and the tabs module that
-// mountTabs uses, as the playground's dev server serves them.
-interface ServedReact {
-  default: { createElement: typeof createElement; useState: typeof useState };
-}
-
-interface ServedReactDom {
-  default: { createRoot: typeof createRoot };
-}
-
-interface ServedTabs {
-  AppShellTabs: ComponentType<{
-    activeTabId: string;
-    onCloseTab: (id: string) => void;
-    onSelectTab: (id: string) => void;
-    panelId: string;
-    tabs: { id: string; title: string }[];
-  }>;
-}
-
-// Renders AppShellTabs on a playground page with tabs that have these
-// ids, each titled with its id in brackets, the first one open. React and
-// the tabs come from the playground's Vite dev server, the same copies its
-// pages run.
-const mountTabs = (page: Page, ids: string[]) =>
-  page.evaluate(
-    async ({ reactDomUrl, reactUrl, tabsUrl, wanted }) => {
-      const served: ServedReact = await import(reactUrl);
-      const servedDom: ServedReactDom = await import(reactDomUrl);
-
-      const { AppShellTabs }: ServedTabs = await import(tabsUrl);
-      const react = served.default;
-
-      const Strip = () => {
-        const [tabs, setTabs] = react.useState(() =>
-          wanted.map((id) => ({ id, title: `[${id}]` }))
-        );
-
-        const [active, setActive] = react.useState(wanted[0] ?? "");
-
-        return react.createElement(AppShellTabs, {
-          activeTabId: active,
-          onCloseTab: (id) =>
-            setTabs((list) => list.filter((tab) => tab.id !== id)),
-          onSelectTab: setActive,
-          panelId: "mounted-panel",
-          tabs,
-        });
-      };
-
-      const host = document.createElement("div");
-
-      document.body.append(host);
-      servedDom.default.createRoot(host).render(react.createElement(Strip));
-    },
-    {
-      reactDomUrl: "/node_modules/.vite/deps/react-dom_client.js",
-      reactUrl: "/node_modules/.vite/deps/react.js",
-      tabsUrl: `/@fs${REPO}/packages/composerkit/src/components/app-shell/tabs.tsx`,
-      wanted: ids,
-    }
-  );
+// The stress page's tab strip with tabs that have the ids a, "" and c,
+// each titled with its id in brackets, the first one open.
+const EMPTY_ID_TABS = "part=tabs&id=a&id=&id=c";
 
 test("tab ids: a tab whose id is empty takes focus when Delete closes the tab before it, and Delete on it focuses the next", async ({
   page,
 }) => {
-  await openHarness(page, "part=tabs&data=empty", "light");
-  await mountTabs(page, ["a", "", "c"]);
+  await openHarness(page, EMPTY_ID_TABS, "light");
 
   const tab = (title: string) => page.getByRole("tab", { name: title });
 
@@ -1266,8 +1202,7 @@ test("tab ids: a tab whose id is empty takes focus when Delete closes the tab be
 test("tab ids: Delete on the last tab focuses the open tab to its left, also when that tab's id is empty", async ({
   page,
 }) => {
-  await openHarness(page, "part=tabs&data=empty", "light");
-  await mountTabs(page, ["a", "", "c"]);
+  await openHarness(page, EMPTY_ID_TABS, "light");
 
   const tab = (title: string) => page.getByRole("tab", { name: title });
 
@@ -1900,69 +1835,21 @@ test("labels: in a German browser, a two-line row's age comes from the English l
   await context.close();
 });
 
-const STRESS_ROW =
-  "packages/composerkit/src/components/chat-sidebar/conversation-row.tsx";
+// Opens the stress page's row-title part: one row, 288 px wide, whose
+// title follows the Row title field, the way an app passes a new title.
+const openTitleRow = async (page: Page) => {
+  await openHarness(page, "part=row-title", "light");
 
-// Mounts a ConversationRow, 288 px wide, from the stress page's own React
-// and modules, so a test can pass it a new title the way an app does.
-const mountRow = async (page: Page) => {
-  await openHarness(page, "part=row&data=demo", "light");
-  await page.evaluate(
-    async (rowUrl) => {
-      const loaded = performance
-        .getEntriesByType("resource")
-        .map((entry) => entry.name);
-
-      const dependency = (name: string) =>
-        loaded.find((url) => url.includes(`/.vite/deps/${name}.js`)) ?? name;
-
-      // Vite serves React as CommonJS wrapped in a default export.
-      const [{ default: react }, { default: client }, rows] = await Promise.all(
-        [
-          import(dependency("react")),
-          import(dependency("react-dom_client")),
-          import(rowUrl),
-        ]
-      );
-
-      const host = document.createElement("div");
-
-      host.dataset.mountedRow = "";
-      host.style.width = "288px";
-      document.body.prepend(host);
-
-      const root = client.createRoot(host);
-
-      window.renderRowTitle = (title) =>
-        root.render(
-          react.createElement(rows.ConversationRow, {
-            active: false,
-            conversation: {
-              id: "mounted",
-              pinned: false,
-              projectId: null,
-              title,
-              updatedAt: "2026-01-01T00:00:00Z",
-            },
-            onArchive: () => null,
-            onOpen: () => null,
-            onTogglePin: () => null,
-          })
-        );
-    },
-    `/@fs${path.join(REPO, STRESS_ROW)}`
-  );
-
-  return page.locator('[data-mounted-row] [data-slot="conversation-row"]');
+  return page.locator('[data-stress-stage] [data-slot="conversation-row"]');
 };
 
 const renderRowTitle = (page: Page, title: string) =>
-  page.evaluate((next) => window.renderRowTitle?.(next), title);
+  page.getByRole("textbox", { name: "Row title" }).fill(title);
 
 test("marquee: a row whose title changes to a long one scrolls it on hover, and stops when it changes back", async ({
   page,
 }) => {
-  const row = await mountRow(page);
+  const row = await openTitleRow(page);
   const title = row.locator('[data-slot="row-title"]');
 
   await renderRowTitle(page, "Short");

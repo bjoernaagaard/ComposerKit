@@ -3912,11 +3912,11 @@
   },
   {
     "cutRings": [
-      "button \"Name ideas for a plant-watering app\", bottom",
-      "button \"Plan meals for a week on a budget\", bottom",
-      "button \"How do I read a flame graph?\", bottom",
-      "button \"Estimate how long the migration will tak\", bottom",
-      "button \"Sketch a schema for recurring events\", bottom"
+      "button \"Turn the onboarding steps into a checkli\", bottom",
+      "button \"What should go in a README for a small l\", bottom",
+      "button \"Write alt text for the product photos\", bottom",
+      "button \"Pick colors that pass contrast checks\", bottom",
+      "button \"Write test data for the invoice page\", bottom"
     ],
     "end": "Tab left the last control and focus went back to the page",
     "escapes": [
@@ -5555,6 +5555,7 @@
       "button \"unpinfunction\"",
       "button \"archiveChatstring\"",
       "button \"archiveChatDescriptionstring\"",
+      "button \"agefunction\"",
       "button \"rowDetailsfunction\"",
       "button \"newChatInfunction\"",
       "button \"projectNamestring\"",
@@ -5580,9 +5581,9 @@
   },
   {
     "cutRings": [
-      "button \"What should go in a README for a small l\", bottom",
-      "button \"Shorten the release notes for 0.3\", bottom",
-      "button \"Sketch a schema for recurring events\", bottom"
+      "button \"Rewrite the error messages on the signup\", bottom",
+      "button \"Turn this spreadsheet into a chart\", bottom",
+      "button \"Write test data for the invoice page\", bottom"
     ],
     "end": "Tab left the last control and focus went back to the page",
     "escapes": [
