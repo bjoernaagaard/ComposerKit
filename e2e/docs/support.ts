@@ -20,10 +20,23 @@ export const ARTIFACTS = path.join(REPO, "artifacts/docs-e2e");
 export const RESULTS = path.join(ARTIFACTS, "results");
 export const SPEC_FILE = path.join(REPO, "spec/functional.md");
 
-export const DOCS_PORT = 4320;
+// Each checkout gets its own ports, picked from its path, so runs in two
+// worktrees at once don't stop each other's servers.
+const PORT_SLOTS = 100;
+const PORT_STEP = 20;
+
+const portSlot = [...REPO].reduce(
+  (hash, character) =>
+    (hash * 31 + (character.codePointAt(0) ?? 0)) % PORT_SLOTS,
+  0
+);
+
+const PORT_BASE = 4320 + portSlot * PORT_STEP;
+
+export const DOCS_PORT = PORT_BASE;
 export const DOCS_URL = `http://127.0.0.1:${DOCS_PORT}`;
-export const LOCAL_REGISTRY_PORT = 4321;
-export const PLAYGROUND_PORT = 4330;
+export const LOCAL_REGISTRY_PORT = PORT_BASE + 1;
+export const PLAYGROUND_PORT = PORT_BASE + 10;
 export const PLAYGROUND_URL = `http://127.0.0.1:${PLAYGROUND_PORT}`;
 
 export const PUBLISHED_REGISTRY =

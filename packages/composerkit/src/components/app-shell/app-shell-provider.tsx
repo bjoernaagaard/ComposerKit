@@ -62,6 +62,10 @@ export interface AppShellContextValue {
   setWidth: (px: number) => void;
   // Toggles open, or openNarrow when narrow.
   toggleSidebar: () => void;
+  // Closes the narrow drawer and moves focus to the main region, for a
+  // choice inside the drawer that changes the page, such as opening a chat.
+  // Does nothing when the drawer is not open.
+  closeNarrowAndFocusMain: () => void;
   // The last input type. Shell motion runs only for a pointer.
   input: AppShellInput;
   ids: { main: string; sidebar: string; toggle: string };
@@ -69,7 +73,18 @@ export interface AppShellContextValue {
     toggle: RefObject<HTMLButtonElement | null>;
     main: RefObject<HTMLElement | null>;
     sidebar: RefObject<HTMLElement | null>;
+    // The AppShell root, where the narrow drawer mounts.
+    root: RefObject<HTMLElement | null>;
   };
+  // Where focus goes when the narrow drawer has closed, as its finalFocus:
+  // the sidebar toggle, or the main region after closeNarrowAndFocusMain.
+  // The main region takes focus here, because the drawer would focus its
+  // first control instead.
+  narrowFinalFocus: () => HTMLElement | boolean;
+  // The row at the top of the narrow drawer that AppShellRail moves into.
+  // AppShellSidebar sets it.
+  railSlot: HTMLElement | null;
+  setRailSlot: (element: HTMLElement | null) => void;
   labels: AppShellLabels;
   // The shortcut as aria-keyshortcuts reads it and as a tooltip shows it.
   shortcut: { aria: string; display: string } | null;
@@ -174,6 +189,14 @@ export const AppShellProvider = ({
   // change renders again before the first paint, so the first frame is
   // measured.
   const [rootElement, setRootElement] = useState<HTMLElement | null>(null);
+  const [railSlot, setRailSlot] = useState<HTMLElement | null>(null);
+  const rootElementRef = useRef<HTMLElement>(null);
+  const narrowReturnRef = useRef<"toggle" | "main">("toggle");
+
+  const setRoot = useCallback((element: HTMLElement | null) => {
+    rootElementRef.current = element;
+    setRootElement(element);
+  }, []);
 
   const open = openProp ?? ownOpen;
 
@@ -198,6 +221,12 @@ export const AppShellProvider = ({
   );
 
   const isNarrow = useSyncExternalStore(subscribeToWidth, readNarrow, onServer);
+
+  // The drawer is gone while the shell is wide, so it closes then. Turning
+  // narrow again leaves it closed and focus where it is.
+  if (!isNarrow && narrowOpen) {
+    setNarrowOpen(false);
+  }
 
   const apple = useSyncExternalStore(subscribeNever, isApplePlatform, onServer);
 
@@ -247,16 +276,30 @@ export const AppShellProvider = ({
     writeShellCookie({ open, width: widthPx });
   }, [open, persist, widthPx]);
 
-  const setOpenNarrow = useCallback(
-    (next: boolean) => {
-      if (!next) {
-        handOffFocus();
-      }
+  // The drawer moves focus in when it opens and back out when it closes.
+  const setOpenNarrow = useCallback((next: boolean) => {
+    setNarrowOpen(next);
+  }, []);
 
-      setNarrowOpen(next);
-    },
-    [handOffFocus]
-  );
+  const narrowFinalFocus = useCallback(() => {
+    if (narrowReturnRef.current === "main") {
+      narrowReturnRef.current = "toggle";
+      mainRef.current?.focus();
+
+      return false;
+    }
+
+    return toggleRef.current ?? true;
+  }, []);
+
+  const closeNarrowAndFocusMain = useCallback(() => {
+    if (!(isNarrow && narrowOpen)) {
+      return;
+    }
+
+    narrowReturnRef.current = "main";
+    setNarrowOpen(false);
+  }, [isNarrow, narrowOpen]);
 
   const toggleSidebar = useCallback(() => {
     if (isNarrow) {
@@ -334,6 +377,7 @@ export const AppShellProvider = ({
     const key = shortcut ? shortcut.toUpperCase() : "";
 
     return {
+      closeNarrowAndFocusMain,
       ids: {
         main: `${base}main`,
         sidebar: `${base}sidebar`,
@@ -342,12 +386,20 @@ export const AppShellProvider = ({
       input,
       isNarrow,
       labels: { ...APP_SHELL_LABELS, ...labelOverrides },
+      narrowFinalFocus,
       open,
       openNarrow: narrowOpen,
-      refs: { main: mainRef, sidebar: sidebarRef, toggle: toggleRef },
-      rootRef: setRootElement,
+      railSlot,
+      refs: {
+        main: mainRef,
+        root: rootElementRef,
+        sidebar: sidebarRef,
+        toggle: toggleRef,
+      },
+      rootRef: setRoot,
       setOpen,
       setOpenNarrow,
+      setRailSlot,
       setWidth: setWidthPx,
       shortcut: shortcut
         ? {
@@ -361,13 +413,17 @@ export const AppShellProvider = ({
   }, [
     apple,
     base,
+    closeNarrowAndFocusMain,
     input,
     isNarrow,
     labelOverrides,
+    narrowFinalFocus,
     open,
     narrowOpen,
+    railSlot,
     setOpen,
     setOpenNarrow,
+    setRoot,
     shortcut,
     toggleSidebar,
     widthPx,

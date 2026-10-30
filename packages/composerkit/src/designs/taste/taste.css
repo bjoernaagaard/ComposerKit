@@ -261,6 +261,11 @@ body[data-design="taste"] [data-slot="icon-rail"] {
   background: var(--window);
 }
 
+/* In the narrow drawer the rail is a row above the chats. */
+body[data-design="taste"] [data-slot="icon-rail"][data-placement="drawer"] {
+  border-inline-end: 0;
+}
+
 body[data-design="taste"] [data-rail-item],
 body[data-design="taste"] [data-slot="rail-footer"] [data-slot="button"] {
   border-radius: 6px;

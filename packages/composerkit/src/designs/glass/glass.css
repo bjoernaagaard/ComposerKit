@@ -255,6 +255,29 @@ body[data-design="glass"] [data-slot="sidebar"] {
   box-shadow: var(--glass-rim), var(--glass-lift);
 }
 
+/*
+ * On narrow shells the sidebar is a drawer over the sheet. The drawer is
+ * the material, thick enough that the page does not read through it, and
+ * the sidebar fills it instead of floating inside it.
+ */
+body[data-design="glass"] [data-slot="sidebar-panel"][data-variant="overlay"] {
+  background: var(--glass-thick);
+  backdrop-filter: var(--glass-filter);
+  box-shadow: var(--glass-rim), var(--shadow-drawer);
+}
+
+body[data-design="glass"]
+  [data-slot="sidebar-panel"][data-variant="overlay"]
+  [data-slot="sidebar"] {
+  width: 100%;
+  height: 100%;
+  margin-inline-end: 0;
+  border-radius: 0;
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
 body[data-design="glass"] [data-slot="conversation-row"] > button {
   border-radius: 12px;
   transition-property: background-color, color;

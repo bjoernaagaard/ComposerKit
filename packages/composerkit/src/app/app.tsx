@@ -208,10 +208,6 @@ const ShellApp = ({ density }: { density?: RowDensity }) => {
   // a landmark.
   const [popupLayer, setPopupLayer] = useState<HTMLDivElement | null>(null);
 
-  // On narrow screens the sidebar overlays the page, and the covered page
-  // goes inert.
-  const overlay = shell.isNarrow && shell.openNarrow;
-
   const onSent = useCallback((sent: ComposerState) => {
     const conversation: Conversation = {
       id: newId("c"),
@@ -236,15 +232,11 @@ const ShellApp = ({ density }: { density?: RowDensity }) => {
     initialComposer(COMPOSER_OPTIONS, DEFAULT_CHOICES)
   );
 
-  const closeSidebarIfNarrow = () => {
-    if (shell.isNarrow) {
-      shell.setOpenNarrow(false);
-    }
-  };
-
+  // A choice made in the narrow drawer closes it and moves focus to the
+  // page it opened.
   const go = (next: View) => {
     navigate({ tabId: activeTabId, type: "push", view: next });
-    closeSidebarIfNarrow();
+    shell.closeNarrowAndFocusMain();
   };
 
   const updateConversation = (id: string, patch: Partial<Conversation>) =>
@@ -375,7 +367,6 @@ const ShellApp = ({ density }: { density?: RowDensity }) => {
                   const tab = { id: newId("t"), title: "New chat" };
                   setTabs((list) => [...list, tab]);
                   setActiveTabId(tab.id);
-                  closeSidebarIfNarrow();
                 }}
               />
             </AppShellTitleBarTabs>
@@ -449,7 +440,6 @@ const ShellApp = ({ density }: { density?: RowDensity }) => {
               aria-labelledby={appShellTabId(panelId, activeTabId)}
               className="h-full"
               id={panelId}
-              inert={overlay}
               role="tabpanel"
             >
               {main}
