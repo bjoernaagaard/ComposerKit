@@ -12,7 +12,7 @@ cd ComposerKit
 npm ci
 ```
 
-The repository is an npm workspace, so `npm ci` installs the packages for the library, the docs site and the demo app at once.
+The repository is an npm workspace, so `npm ci` installs the packages for the library, the docs site and the demo app at once. It also installs a Git pre-commit hook with Lefthook. The hook runs `ultracite fix` on the files you commit, stages the fixes, and stops the commit when a problem is left that it can't fix.
 
 ## Run the apps
 
@@ -77,7 +77,7 @@ The Pages workflow fails when the committed files in `apps/docs/public/r` don't 
 
 ## Check your change
 
-Run the checks below before you open a pull request. The CI builds the package, the docs site and the demo app. It doesn't run the linter, the type check or the end to end tests, so run them yourself. The end to end run takes a few minutes.
+Run the checks below before you open a pull request. The CI runs the linter, the format check and the type check, and builds the package, the docs site and the demo app. It doesn't run the end to end tests, so run them yourself. The end to end run takes a few minutes.
 
 1. Run `npm run check` to lint and check the formatting. Run `npm run fix` to fix most problems.
 2. Run `npm run typecheck` to check the types in every workspace.
