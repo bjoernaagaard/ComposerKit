@@ -146,7 +146,7 @@
   {
     "consoleErrors": [],
     "design": "apple",
-    "firstFrames": ["apple", "apple"],
+    "firstFrames": ["apple"],
     "keptAfterNavigation": true,
     "page": "/conversation",
     "scheme": "dark",
