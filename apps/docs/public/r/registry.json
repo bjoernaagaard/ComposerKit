@@ -567,6 +567,19 @@
         },
         "[data-slot=\"title-bar-nav\"]": {
           "padding-inline-start": "max(var(--space-titlebar-inset-start), env(titlebar-area-x, 0px))"
+        },
+        "@media (prefers-reduced-motion: reduce)": {
+          "[data-slot=\"app-shell\"], [data-slot=\"app-shell\"] *": {
+            "--motion-duration": "var(--motion-reduced-fade) !important",
+            "--motion-sidebar-enter": "var(--motion-reduced-fade) !important",
+            "--motion-sidebar-exit": "var(--motion-reduced-fade) !important",
+            "--motion-overlay-enter": "var(--motion-reduced-fade) !important",
+            "--motion-overlay-exit": "var(--motion-reduced-fade) !important",
+            "--motion-tab-enter": "var(--motion-reduced-fade) !important",
+            "--motion-tab-exit": "var(--motion-reduced-fade) !important",
+            "transition-property": "opacity, color, background-color, border-color, outline-color, text-decoration-color, fill, stroke !important",
+            "transition-delay": "0s !important"
+          }
         }
       }
     },

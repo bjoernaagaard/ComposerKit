@@ -16,9 +16,10 @@ export const TabStripExample = ({
 }: {
   appearance: AppShellTabAppearance;
 }) => {
-  // Ids carry the appearance so two strips on a page never share a tab id.
+  // A tab id can be any string, such as the chat's title in quotes. Ids
+  // carry the appearance so two strips on a page never share a tab id.
   const tabs = SAMPLE_CONVERSATIONS.slice(0, 3).map((conversation) => ({
-    id: `${appearance}-${conversation.id}`,
+    id: `${appearance} "${conversation.title}"`,
     title: conversation.title,
   }));
 

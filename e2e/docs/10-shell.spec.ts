@@ -6,11 +6,18 @@
 // short color fades and drops the movement, and switching the color scheme
 // swaps every color at once instead of fading each element on its own.
 // The skip link, the landmarks, the sidebar shortcut, the sidebar's motion,
-// and its state across a close and a reload.
+// and its state across a close and a reload. Then the shell as an app gets
+// it: the npm module a server calls, reduced motion and two shells on the
+// docs page, a controlled shell's cookie, blocked cookies, and tab ids.
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+
 import { expect, test } from "@playwright/test";
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 
 import { openApp } from "./stress-support";
+import { PLAYGROUND_URL, REPO, openPage, run } from "./support";
 
 const REDUCED_FADE = "0.15s";
 
@@ -372,4 +379,214 @@ test("reduced motion: the sidebar toggle fades the sidebar and does not slide it
   expect(
     started.filter((entry) => /translate|transform|width/u.test(entry))
   ).toEqual([]);
+});
+
+// The shell as an app gets it: the npm package, the docs site, which loads
+// app-shell.css but not the demo's main.css, and the docs examples.
+const docsExample = (page: Page, name: string) =>
+  page.locator(`[data-example="${name}"]`);
+
+const shellIn = (root: Locator) => root.locator('[data-slot="app-shell"]');
+
+const savedShell = async (page: Page) => {
+  const cookies = await page.context().cookies();
+
+  return cookies
+    .filter((cookie) => cookie.name === "composerkit_shell")
+    .map((cookie) => decodeURIComponent(cookie.value));
+};
+
+test('npm package: persist.js has no "use client", so a server component can call readShellCookie', async () => {
+  const build = await run(
+    "npm",
+    ["run", "build", "--workspace", "composerkit"],
+    REPO
+  );
+
+  expect(build.exitCode).toBe(0);
+
+  const file = path.join(
+    REPO,
+    "packages/composerkit/dist/components/app-shell/persist.js"
+  );
+
+  expect(readFileSync(file, "utf-8").slice(0, 200)).not.toContain("use client");
+
+  // SAFETY: persist.js is built from persist.ts, which exports
+  // readShellCookie with this signature.
+  const persist = (await import(pathToFileURL(file).href)) as {
+    readShellCookie: (header: string) => { open?: boolean; width?: number };
+  };
+
+  expect(
+    persist.readShellCookie("composerkit_shell=open%3Dfalse%26width%3D300")
+  ).toEqual({ open: false, width: 300 });
+
+  // The parts with hooks still load on the client.
+  const provider = readFileSync(
+    path.join(
+      REPO,
+      "packages/composerkit/dist/components/app-shell/app-shell-provider.js"
+    ),
+    "utf-8"
+  );
+
+  expect(provider.slice(0, 200)).toContain('"use client"');
+});
+
+test("reduced motion on /app-shell: the sidebar and the title bar only fade, from app-shell.css alone", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await openPage(page, "/app-shell", "light");
+
+  const demo = docsExample(page, "app-shell--demo");
+  const panel = demo.locator('[data-slot="sidebar-panel"]');
+
+  await listenForTransitions(page);
+  await demo.getByRole("button", { name: "Hide sidebar" }).click();
+  await expect(panel).toHaveAttribute("data-state", "closed");
+
+  const transitions = await startedTransitions(page);
+
+  const started = transitions.filter((entry) =>
+    /^(?:sidebar-|title-bar)/u.test(entry)
+  );
+
+  expect(started).toContain("sidebar-panel opacity");
+  expect(
+    started.filter((entry) => /translate|transform|width/u.test(entry))
+  ).toEqual([]);
+
+  // The shell's motion tokens become the reduced fade. The docs make
+  // their previews instant on top, so the duration itself is the page's.
+  const tokens = await panel.evaluate((element) => {
+    const style = getComputedStyle(element);
+
+    return {
+      enter: style.getPropertyValue("--motion-sidebar-enter"),
+      exit: style.getPropertyValue("--motion-sidebar-exit"),
+      fade: style.getPropertyValue("--motion-reduced-fade"),
+    };
+  });
+
+  expect(tokens.fade).not.toBe("");
+  expect(tokens).toEqual({
+    enter: tokens.fade,
+    exit: tokens.fade,
+    fade: tokens.fade,
+  });
+});
+
+test("controlled: the cookie follows open when the app changes it, and a reload restores it", async ({
+  page,
+}) => {
+  await openPage(page, "/app-shell", "light");
+
+  const controlled = docsExample(page, "app-shell--controlled");
+  const outside = controlled.getByRole("button", { name: "Sidebar open" });
+
+  await expect(shellIn(controlled)).toHaveAttribute("data-sidebar", "expanded");
+  await outside.click();
+  await expect(outside).toHaveAttribute("aria-pressed", "false");
+  await expect(shellIn(controlled)).toHaveAttribute(
+    "data-sidebar",
+    "collapsed"
+  );
+
+  await expect
+    .poll(() => savedShell(page))
+    .toEqual([expect.stringContaining("open=false")]);
+
+  await page.reload();
+  await page.waitForLoadState("networkidle");
+
+  await expect(shellIn(controlled)).toHaveAttribute(
+    "data-sidebar",
+    "collapsed"
+  );
+  await expect(outside).toHaveAttribute("aria-pressed", "false");
+
+  await outside.click();
+  await expect(shellIn(controlled)).toHaveAttribute("data-sidebar", "expanded");
+  await expect
+    .poll(() => savedShell(page))
+    .toEqual([expect.stringContaining("open=true")]);
+});
+
+test("blocked cookies: in a sandboxed iframe the playground renders one shell and no error", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+
+  page.on("pageerror", (error) => errors.push(error.message));
+  // A sandboxed frame has an opaque origin, so its module scripts need a
+  // CORS header, which the Vite dev server only sends to localhost. The
+  // header is added here, as a host that serves the app to embeds would.
+  await page.route(`${PLAYGROUND_URL}/**`, async (route) => {
+    const response = await route.fetch();
+
+    await route.fulfill({
+      headers: { ...response.headers(), "access-control-allow-origin": "*" },
+      response,
+    });
+  });
+  await page.setContent(
+    `<iframe sandbox="allow-scripts" src="${PLAYGROUND_URL}/" style="width:1200px;height:800px"></iframe>`
+  );
+
+  const frame = page.frameLocator("iframe");
+
+  await expect(frame.locator('[data-slot="app-shell"]')).toHaveCount(1);
+  await expect(frame.getByRole("main")).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("shortcut with two shells: the shell that holds focus toggles, and the first one when focus is in none", async ({
+  page,
+}) => {
+  await openPage(page, "/app-shell", "light");
+
+  const first = shellIn(docsExample(page, "app-shell--demo"));
+  const second = shellIn(docsExample(page, "app-shell--controlled"));
+
+  const keys = await first
+    .getByRole("button", { name: "Hide sidebar" })
+    .getAttribute("aria-keyshortcuts");
+
+  await second.getByRole("button", { name: "New chat" }).focus();
+  await page.keyboard.press(keys ?? "");
+
+  await expect(second).toHaveAttribute("data-sidebar", "collapsed");
+  await expect(first).toHaveAttribute("data-sidebar", "expanded");
+
+  // Focus on the page, outside both shells.
+  await page.locator("h1").first().click();
+  await page.keyboard.press(keys ?? "");
+
+  await expect(first).toHaveAttribute("data-sidebar", "collapsed");
+  await expect(second).toHaveAttribute("data-sidebar", "collapsed");
+});
+
+test('tab ids: a tab whose id has quotes, such as filled "…", opens by click and by arrow key', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+
+  page.on("pageerror", (error) => errors.push(error.message));
+  await openPage(page, "/app-shell", "light");
+
+  const strip = docsExample(page, "title-bar-tabs--filled");
+  const tabs = strip.getByRole("tab");
+
+  await expect(tabs).toHaveCount(3);
+  await tabs.nth(1).click();
+  await expect(tabs.nth(1)).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("ArrowRight");
+  await expect(tabs.nth(2)).toHaveAttribute("aria-selected", "true");
+  await expect(tabs.nth(2)).toBeFocused();
+  await expect(strip.getByRole("tabpanel")).toHaveAccessibleName(
+    ((await tabs.nth(2).textContent()) ?? "").trim()
+  );
+  expect(errors).toEqual([]);
 });

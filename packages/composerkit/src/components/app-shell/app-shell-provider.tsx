@@ -123,6 +123,39 @@ const isApplePlatform = () => APPLE_PLATFORM.test(navigator.platform);
 
 const onServer = () => false;
 
+interface ShortcutShell {
+  // The shortcut's key, in lower case.
+  key: string;
+  // The shell's root element, null until AppShell mounts.
+  root: HTMLElement | null;
+}
+
+// The mounted shells whose shortcut is on.
+const shortcutShells = new Set<ShortcutShell>();
+
+// One press toggles one shell: of the shells with that key, the one that
+// holds focus, the innermost when shells nest, or the first on the page
+// when focus is in none. Shells are compared in page order, where an outer
+// shell comes before the shells inside it, and a shell whose root hasn't
+// mounted comes last.
+const shortcutOwner = (key: string): ShortcutShell | undefined => {
+  const onPage = [...document.querySelectorAll('[data-slot="app-shell"]')];
+
+  const place = (shell: ShortcutShell) => {
+    const index = shell.root ? onPage.indexOf(shell.root) : -1;
+
+    return index === -1 ? onPage.length : index;
+  };
+
+  const shells = [...shortcutShells]
+    .filter((shell) => shell.key === key)
+    .toSorted((a, b) => place(a) - place(b));
+
+  const focused = document.activeElement;
+
+  return shells.findLast((shell) => shell.root?.contains(focused)) ?? shells[0];
+};
+
 export const AppShellProvider = ({
   open: openProp,
   defaultOpen = true,
@@ -192,13 +225,27 @@ export const AppShellProvider = ({
       }
 
       onOpenChange?.(next);
-
-      if (persist) {
-        writeShellCookie({ open: next, width: widthPx });
-      }
     },
-    [handOffFocus, onOpenChange, openProp, persist, widthPx]
+    [handOffFocus, onOpenChange, openProp]
   );
+
+  // The cookie follows the open state and width the shell shows, whether
+  // the shell or the app owns them, so a reload restores what was last on
+  // screen. The first render's values came from the cookie or the app, so
+  // only a change is written.
+  const saved = useRef({ open, width: widthPx });
+
+  useEffect(() => {
+    if (
+      !persist ||
+      (saved.current.open === open && saved.current.width === widthPx)
+    ) {
+      return;
+    }
+
+    saved.current = { open, width: widthPx };
+    writeShellCookie({ open, width: widthPx });
+  }, [open, persist, widthPx]);
 
   const setOpenNarrow = useCallback(
     (next: boolean) => {
@@ -209,17 +256,6 @@ export const AppShellProvider = ({
       setNarrowOpen(next);
     },
     [handOffFocus]
-  );
-
-  const setWidth = useCallback(
-    (px: number) => {
-      setWidthPx(px);
-
-      if (persist) {
-        writeShellCookie({ open, width: px });
-      }
-    },
-    [open, persist]
   );
 
   const toggleSidebar = useCallback(() => {
@@ -257,6 +293,13 @@ export const AppShellProvider = ({
       return;
     }
 
+    const shell: ShortcutShell = {
+      key: shortcut.toLowerCase(),
+      root: rootElement,
+    };
+
+    shortcutShells.add(shell);
+
     const onKey = (event: KeyboardEvent) => {
       const modifier = isApplePlatform()
         ? event.metaKey && !event.ctrlKey
@@ -268,7 +311,8 @@ export const AppShellProvider = ({
         event.altKey ||
         event.shiftKey ||
         event.repeat ||
-        event.key.toLowerCase() !== shortcut.toLowerCase()
+        event.key.toLowerCase() !== shell.key ||
+        shortcutOwner(shell.key) !== shell
       ) {
         return;
       }
@@ -280,8 +324,11 @@ export const AppShellProvider = ({
 
     window.addEventListener("keydown", onKey);
 
-    return () => window.removeEventListener("keydown", onKey);
-  }, [shortcut]);
+    return () => {
+      shortcutShells.delete(shell);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [rootElement, shortcut]);
 
   const value = useMemo<AppShellContextValue>(() => {
     const key = shortcut ? shortcut.toUpperCase() : "";
@@ -301,7 +348,7 @@ export const AppShellProvider = ({
       rootRef: setRootElement,
       setOpen,
       setOpenNarrow,
-      setWidth,
+      setWidth: setWidthPx,
       shortcut: shortcut
         ? {
             aria: apple ? `Meta+${key}` : `Control+${key}`,
@@ -321,7 +368,6 @@ export const AppShellProvider = ({
     narrowOpen,
     setOpen,
     setOpenNarrow,
-    setWidth,
     shortcut,
     toggleSidebar,
     widthPx,

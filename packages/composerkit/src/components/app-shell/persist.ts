@@ -9,8 +9,11 @@
 //   const shell = readShellCookie((await cookies()).toString());
 //   <AppShellProvider defaultOpen={shell.open} defaultWidth={shell.width}>
 //
-// A browser-only app passes document.cookie before it renders. Reading and
-// writing never throw: a missing, broken or blocked cookie means defaults.
+// A browser-only app calls readDocumentShellCookie() before it renders. It
+// reads document.cookie, whose getter throws where cookies are blocked, such
+// as in a sandboxed iframe. Reading and writing never throw: a missing,
+// broken or blocked cookie means defaults. This module has no hooks, so a
+// server component can call it.
 export const SHELL_COOKIE = "composerkit_shell";
 
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
@@ -53,6 +56,16 @@ export const readShellCookie = (
     }
 
     return saved;
+  } catch {
+    return {};
+  }
+};
+
+// The saved values in this document's cookie, for an app without a server.
+// Where the cookie is blocked or there is no document, there are none.
+export const readDocumentShellCookie = (): ShellCookie => {
+  try {
+    return readShellCookie(document.cookie);
   } catch {
     return {};
   }

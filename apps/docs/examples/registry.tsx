@@ -5,6 +5,7 @@ import type { ReactElement } from "react";
 
 import { FIXTURES } from "@/states/composer/fixtures";
 
+import { AppShellControlled } from "./app-shell-controlled";
 import { AppShellDemo } from "./app-shell-demo";
 import { ButtonDemo } from "./button-demo";
 import { ButtonRow } from "./button-row";
@@ -47,6 +48,12 @@ export interface Example {
 }
 
 const CATALOG = {
+  "app-shell--controlled": {
+    element: <AppShellControlled />,
+    file: "app-shell-controlled.tsx",
+    label: "open and onOpenChange",
+    note: "The app owns the open state. The cookie saves what the shell shows, so a reload keeps it.",
+  },
   "app-shell--demo": {
     element: <AppShellDemo />,
     file: "app-shell-demo.tsx",

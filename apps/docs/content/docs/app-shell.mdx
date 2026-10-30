@@ -40,7 +40,9 @@ export default async function Layout({ children }: { children: ReactNode }) {
 }
 ```
 
-An app without a server passes `readShellCookie(document.cookie)` before it renders.
+An app without a server passes `readDocumentShellCookie()` before it renders. It reads `document.cookie`, which throws where cookies are blocked, such as in a sandboxed iframe, and returns no saved values there. `persist.ts` has no hooks, so a server component can call it.
+
+When the app owns the open state with `open` and `onOpenChange`, the provider still saves what the shell shows, so a reload restores it.
 
 ## Demo
 
@@ -79,6 +81,10 @@ An app without a server passes `readShellCookie(document.cookie)` before it rend
 Each part is its own module under `components/app-shell/`. Leave out the parts you don't need, such as the tabs or the rail. `useAppShell()` returns the provider's state, such as `open`, `setOpen` and `toggleSidebar`.
 
 ## Examples
+
+### Controlled
+
+<ComponentPreview name="app-shell--controlled" />
 
 ### Title bar tabs
 
@@ -219,7 +225,7 @@ Every word the shell shows or announces. Pass `labels` to the provider, or to on
 | --- | --- | --- |
 | Tab | The page | The first stop is the Skip to content link. It shows when it has focus. |
 | Enter | Skip to content | Moves focus to the main region, past the title bar, the rail and the sidebar. |
-| Cmd+B (macOS), Ctrl+B (elsewhere) | Anywhere | Shows or hides the sidebar, at once and without motion. Pass `shortcut={false}` to turn it off, or another key. |
+| Cmd+B (macOS), Ctrl+B (elsewhere) | Anywhere | Shows or hides the sidebar, at once and without motion. With several shells on a page, the one that holds focus toggles, or the first one when focus is in none. Pass `shortcut={false}` to turn it off, or another key. |
 | Left, Right | A title bar tab | Opens the previous or next tab, and wraps around. |
 | Home, End | A title bar tab | Opens the first or last tab. |
 
@@ -234,6 +240,10 @@ The shell's regions are [WAI-ARIA Authoring Practices landmark regions](https://
 ## Theming
 
 Tokens that the shell's files use.
+
+With reduced motion, the shell's sidebar and title bar snap to their place, and only opacity and color fade, at `--motion-reduced-fade`. These rules come with `app-shell.css` and with the registry item's CSS.
+
+Apps bring their own color scheme switcher, so have it turn off transitions while the scheme changes, as next-themes does with `disableTransitionOnChange`, and every color swaps at once.
 
 <TokenTable item="app-shell" />
 

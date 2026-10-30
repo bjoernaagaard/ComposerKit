@@ -27,3 +27,24 @@
     env(titlebar-area-x, 0px)
   );
 }
+
+/* Reduced motion: no part of the shell moves or grows. The sidebar, its
+   space and the title bar's leading group snap to their place, and only
+   opacity and color still fade, at --motion-reduced-fade. A change from
+   the keyboard stays instant. */
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="app-shell"],
+  [data-slot="app-shell"] * {
+    --motion-duration: var(--motion-reduced-fade) !important;
+    --motion-sidebar-enter: var(--motion-reduced-fade) !important;
+    --motion-sidebar-exit: var(--motion-reduced-fade) !important;
+    --motion-overlay-enter: var(--motion-reduced-fade) !important;
+    --motion-overlay-exit: var(--motion-reduced-fade) !important;
+    --motion-tab-enter: var(--motion-reduced-fade) !important;
+    --motion-tab-exit: var(--motion-reduced-fade) !important;
+    transition-property:
+      opacity, color, background-color, border-color, outline-color,
+      text-decoration-color, fill, stroke !important;
+    transition-delay: 0s !important;
+  }
+}

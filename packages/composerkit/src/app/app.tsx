@@ -13,7 +13,7 @@ import {
   AppShellProvider,
   useAppShell,
 } from "@/components/app-shell/app-shell-provider";
-import { readShellCookie } from "@/components/app-shell/persist";
+import { readDocumentShellCookie } from "@/components/app-shell/persist";
 import {
   AppShellRail,
   AppShellRailContent,
@@ -468,7 +468,7 @@ const ShellApp = ({ density }: { density?: RowDensity }) => {
 // The demo app on the released shell parts. The sidebar's saved state is
 // read before the first render, so the first frame matches the last visit.
 export const App = ({ density }: { density?: RowDensity }) => {
-  const saved = useMemo(() => readShellCookie(document.cookie), []);
+  const saved = useMemo(() => readDocumentShellCookie(), []);
 
   return (
     <AppShellProvider defaultOpen={saved.open} defaultWidth={saved.width}>

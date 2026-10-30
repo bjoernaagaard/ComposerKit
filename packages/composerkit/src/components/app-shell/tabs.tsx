@@ -25,9 +25,20 @@ export const TAB_APPEARANCES: AppShellTabAppearance[] = ["filled", "underline"];
 
 // The id of a tab's element, so the panel it controls can name it with
 // aria-labelledby. It starts with the panel's id, which comes from useId,
-// so two strips on one page never share an id.
+// so two strips on one page never share an id. A tab id can be any string,
+// so it is encoded: aria-labelledby splits on spaces.
 export const appShellTabId = (panelId: string, tabId: string): string =>
-  `${panelId}-tab-${tabId}`;
+  `${panelId}-tab-${encodeURIComponent(tabId)}`;
+
+// The tab element for an id. It compares each tab's data-tab-id instead of
+// building a selector, so any string works as an id.
+const findTab = (
+  strip: HTMLElement | null,
+  tabId: string
+): HTMLElement | undefined =>
+  [...(strip?.querySelectorAll<HTMLElement>('[role="tab"]') ?? [])].find(
+    (tab) => tab.dataset.tabId === tabId
+  );
 
 // filled: the open tab is a raised box, the default. Other tabs show hover
 // by text color, because a hover fill would make them look open.
@@ -83,7 +94,7 @@ export const AppShellTabs = ({
   // scrolls; the page stays put.
   useEffect(() => {
     const strip = list.current;
-    const tab = strip?.querySelector(`[data-tab-id="${activeTabId}"]`);
+    const tab = findTab(strip, activeTabId);
 
     if (!strip || !tab) {
       return;
@@ -124,9 +135,7 @@ export const AppShellTabs = ({
 
     event.preventDefault();
     onSelectTab(next.id);
-    list.current
-      ?.querySelector<HTMLElement>(`[data-tab-id="${next.id}"]`)
-      ?.focus({ preventScroll: true });
+    findTab(list.current, next.id)?.focus({ preventScroll: true });
   };
 
   return (
