@@ -5,8 +5,8 @@
 
 import { useState } from "react";
 
-import { ModeToggle } from "@/app/mode-toggle";
-import type { ModeToggleAppearance } from "@/app/mode-toggle";
+import { ModeToggle } from "@/blocks/chat-app/mode-toggle";
+import type { ModeToggleAppearance } from "@/blocks/chat-app/mode-toggle";
 import type { ComposerMode } from "@/components/composer/composer";
 
 // The Chat and Work switch in one appearance.

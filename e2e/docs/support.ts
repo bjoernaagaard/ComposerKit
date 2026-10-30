@@ -36,6 +36,8 @@ const PORT_BASE = 4320 + portSlot * PORT_STEP;
 export const DOCS_PORT = PORT_BASE;
 export const DOCS_URL = `http://127.0.0.1:${DOCS_PORT}`;
 export const LOCAL_REGISTRY_PORT = PORT_BASE + 1;
+export const CONSUMER_PORT = PORT_BASE + 2;
+export const CONSUMER_URL = `http://127.0.0.1:${CONSUMER_PORT}`;
 export const PLAYGROUND_PORT = PORT_BASE + 10;
 export const PLAYGROUND_URL = `http://127.0.0.1:${PLAYGROUND_PORT}`;
 
@@ -51,6 +53,7 @@ export const ITEMS = [
   "conversation",
   "app-shell",
   "chat-sidebar",
+  "chat-app",
 ] as const;
 
 // Every docs page. sample-data is a registry item with a short page of its
@@ -75,7 +78,13 @@ export type Scheme = (typeof SCHEMES)[number];
 // The design directions the docs' Design picker offers besides base, and
 // the pages with the most ComposerKit examples to see them on.
 export const DESIGNS = ["apple", "glass", "taste", "emil"] as const;
-export const DESIGN_PAGES = ["/composer", "/conversation", "/app-shell"];
+
+export const DESIGN_PAGES = [
+  "/composer",
+  "/conversation",
+  "/app-shell",
+  "/chat-app",
+];
 
 export interface ManifestEntry {
   id: string;
@@ -228,6 +237,15 @@ export const serve = (directory: string, port: number) =>
     path.join(REPO, "node_modules/.bin/serve"),
     ["--no-clipboard", "--no-port-switching", "-l", String(port), directory],
     REPO,
+    port
+  );
+
+// A built Next.js app, with next start.
+export const serveNextApp = (app: string, port: number) =>
+  startServer(
+    path.join(app, "node_modules/.bin/next"),
+    ["start", "--port", String(port), "--hostname", "127.0.0.1"],
+    app,
     port
   );
 

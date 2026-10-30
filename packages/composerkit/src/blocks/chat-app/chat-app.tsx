@@ -1,8 +1,26 @@
 // SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 // SPDX-License-Identifier: MIT
 
-import { BellIcon, ChevronDownIcon } from "lucide-react";
-import { useCallback, useId, useMemo, useReducer, useState } from "react";
+"use client";
+
+// The whole chat app: the app shell, the chat sidebar, the home view with
+// the composer, and the conversation, on the sample data. It is starter
+// code. Replace the sample data with your own chats, projects and replies,
+// and the in-memory history in tab-history.ts with your routes.
+import {
+  BellIcon,
+  BlocksIcon,
+  CalendarClockIcon,
+  ChevronDownIcon,
+  FilesIcon,
+  FolderIcon,
+  HouseIcon,
+  InboxIcon,
+  NotebookPenIcon,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { useCallback, useId, useReducer, useState } from "react";
+import type { ReactNode } from "react";
 
 import {
   AppShell,
@@ -11,7 +29,6 @@ import {
   AppShellSkipLink,
 } from "@/components/app-shell/app-shell";
 import { AppShellProvider } from "@/components/app-shell/app-shell-provider";
-import { readDocumentShellCookie } from "@/components/app-shell/persist";
 import {
   AppShellRail,
   AppShellRailContent,
@@ -37,6 +54,7 @@ import { initialComposer } from "@/components/composer/machine";
 import type { ComposerState } from "@/components/composer/machine";
 import { useComposerController } from "@/components/composer/use-composer-controller";
 import { ConversationView } from "@/components/conversation/conversation-view";
+import { DEFAULT_CONVERSATION_LAYOUT } from "@/components/conversation/layouts";
 import type { ConversationLayout } from "@/components/conversation/layouts";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,77 +79,53 @@ import {
   SAMPLE_PROJECTS,
 } from "@/content/sample";
 import type { Conversation, Project } from "@/content/sample";
-import { DirectionSelector } from "@/designs/direction";
 
 import { HomeView } from "./home-view";
-import { AppearanceMenu, DESTINATIONS } from "./icon-rail";
-import type { Destination } from "./icon-rail";
 import { PlaceholderView } from "./placeholder-view";
-import { readConversationLayout, saveConversationLayout } from "./saved-layout";
+import { HOME, START, tabHistoriesReducer } from "./tab-history";
+import type { Destination, View } from "./tab-history";
 
-type View =
-  | { kind: "destination"; id: Destination }
-  | { kind: "conversation"; id: string };
-
-interface History {
-  entries: View[];
-  index: number;
+export interface ChatAppProps {
+  // The height of the chat rows in the sidebar.
+  density?: RowDensity;
+  // How the open chat lays out its turns.
+  conversationLayout?: ConversationLayout;
+  // The app's own actions at the end of the title bar.
+  titleBarEnd?: ReactNode;
+  // The foot of the rail, such as the account button. On narrow screens it
+  // moves into the drawer with the rail.
+  railFooter?: ReactNode;
+  // The sidebar's saved open state and width, such as readShellCookie's
+  // open and width, so the first frame matches the last visit.
+  defaultOpen?: boolean;
+  defaultWidth?: number;
+  // For an app inside a page that already has its own main region, such
+  // as a docs page. The sidebar renders as a <section>, the main region as
+  // a <div>, and the layout is not saved in the cookie.
+  embedded?: boolean;
 }
 
-type HistoryAction =
-  | { type: "push"; view: View }
-  | { type: "back" }
-  | { type: "forward" };
-
-// Each tab keeps its own back and forward history, keyed by tab id.
-type TabHistories = Record<string, History>;
-
-const HOME: View = { id: "home", kind: "destination" };
-const START: History = { entries: [HOME], index: 0 };
+// The app's destinations. The rail shows a rule between the two groups.
+const DESTINATIONS: {
+  id: Destination;
+  label: string;
+  icon: LucideIcon;
+  group: 1 | 2;
+}[] = [
+  { group: 1, icon: HouseIcon, id: "home", label: "Home" },
+  { group: 1, icon: InboxIcon, id: "inbox", label: "Inbox" },
+  { group: 1, icon: CalendarClockIcon, id: "schedule", label: "Schedule" },
+  { group: 1, icon: BlocksIcon, id: "extensions", label: "Extensions" },
+  { group: 2, icon: FolderIcon, id: "projects", label: "Projects" },
+  { group: 2, icon: FilesIcon, id: "files", label: "Files" },
+  { group: 2, icon: NotebookPenIcon, id: "notes", label: "Notes" },
+];
 
 const SAMPLE_TITLE = SAMPLE_CONVERSATIONS.find(
   (item) => item.id === SAMPLE_CONVERSATION_ID
 )?.title;
 
 const TITLE_LENGTH = 60;
-
-const historyReducer = (history: History, action: HistoryAction): History => {
-  if (action.type === "back") {
-    return { ...history, index: Math.max(0, history.index - 1) };
-  }
-
-  if (action.type === "forward") {
-    return {
-      ...history,
-      index: Math.min(history.entries.length - 1, history.index + 1),
-    };
-  }
-
-  const entries = [...history.entries.slice(0, history.index + 1), action.view];
-
-  return { entries, index: entries.length - 1 };
-};
-
-// A closed tab takes its history with it.
-type TabHistoryAction =
-  | (HistoryAction & { tabId: string })
-  | { type: "close"; tabId: string };
-
-const tabHistoriesReducer = (
-  histories: TabHistories,
-  action: TabHistoryAction
-) => {
-  if (action.type === "close") {
-    return Object.fromEntries(
-      Object.entries(histories).filter(([tabId]) => tabId !== action.tabId)
-    );
-  }
-
-  return {
-    ...histories,
-    [action.tabId]: historyReducer(histories[action.tabId] ?? START, action),
-  };
-};
 
 const titleFor = (sent: ComposerState): string => {
   const text = sent.draft.trim().replaceAll(/\s+/gu, " ");
@@ -243,7 +237,15 @@ const newId = (prefix: string): string => {
   return `${prefix}-${nextId}`;
 };
 
-const ShellApp = ({ density }: { density?: RowDensity }) => {
+type ShellAppProps = Omit<ChatAppProps, "defaultOpen" | "defaultWidth">;
+
+const ShellApp = ({
+  density,
+  conversationLayout = DEFAULT_CONVERSATION_LAYOUT,
+  titleBarEnd,
+  railFooter,
+  embedded = false,
+}: ShellAppProps) => {
   // The tab panel inside the main region.
   const panelId = useId();
 
@@ -257,10 +259,6 @@ const ShellApp = ({ density }: { density?: RowDensity }) => {
   const view = history.entries[history.index] ?? HOME;
 
   const [mode, setMode] = useState<ComposerMode>("work");
-
-  const [conversationLayout, setConversationLayout] = useState(
-    readConversationLayout
-  );
 
   const [conversations, setConversations] =
     useState<Conversation[]>(SAMPLE_CONVERSATIONS);
@@ -440,9 +438,9 @@ const ShellApp = ({ density }: { density?: RowDensity }) => {
                 tabs={tabs}
               />
             </AppShellTitleBarTabs>
-            <AppShellTitleBarEnd>
-              <DirectionSelector />
-            </AppShellTitleBarEnd>
+            {titleBarEnd ? (
+              <AppShellTitleBarEnd>{titleBarEnd}</AppShellTitleBarEnd>
+            ) : null}
           </AppShellTitleBar>
           <AppShellRail>
             <AppShellRailContent>
@@ -464,17 +462,11 @@ const ShellApp = ({ density }: { density?: RowDensity }) => {
                 </div>
               ))}
             </AppShellRailContent>
-            <AppShellRailFooter>
-              <AppearanceMenu
-                conversationLayout={conversationLayout}
-                onConversationLayoutChange={(layout) => {
-                  saveConversationLayout(layout);
-                  setConversationLayout(layout);
-                }}
-              />
-            </AppShellRailFooter>
+            {railFooter ? (
+              <AppShellRailFooter>{railFooter}</AppShellRailFooter>
+            ) : null}
           </AppShellRail>
-          <AppShellSidebar>
+          <AppShellSidebar render={embedded ? <section /> : undefined}>
             <ChatSidebar
               density={density}
               header={<SidebarHeader />}
@@ -507,7 +499,7 @@ const ShellApp = ({ density }: { density?: RowDensity }) => {
             />
           </AppShellSidebar>
           <AppShellSplitter />
-          <AppShellMain>
+          <AppShellMain render={embedded ? <div /> : undefined}>
             <div
               aria-labelledby={appShellTabId(panelId, activeTabId)}
               className="h-full"
@@ -527,15 +519,18 @@ const ShellApp = ({ density }: { density?: RowDensity }) => {
   );
 };
 
-// The demo app on the released shell parts. The sidebar's saved state and
-// width are read before the first render, so the first frame matches the
-// last visit.
-export const App = ({ density }: { density?: RowDensity }) => {
-  const saved = useMemo(() => readDocumentShellCookie(), []);
-
-  return (
-    <AppShellProvider defaultOpen={saved.open} defaultWidth={saved.width}>
-      <ShellApp density={density} />
-    </AppShellProvider>
-  );
-};
+// The provider keeps the sidebar's open state and width, and saves them in
+// the composerkit_shell cookie unless the app is embedded.
+export const ChatApp = ({
+  defaultOpen,
+  defaultWidth,
+  ...props
+}: ChatAppProps) => (
+  <AppShellProvider
+    defaultOpen={defaultOpen}
+    defaultWidth={defaultWidth}
+    persist={!props.embedded}
+  >
+    <ShellApp {...props} />
+  </AppShellProvider>
+);

@@ -5,8 +5,9 @@
 // item and the sample data from a local copy of the docs export. Then every
 // example on the item pages is copied the way a reader copies it, with
 // the Code tab's Copy button, into the app, and the app type checks and
-// builds. Examples whose tab says Repo code use the demo app's own parts,
-// which no item installs, so they are listed and left out of the build.
+// builds. The chat-app item's page, app/chat/page.tsx, is then served with
+// next start and opened in a browser: the server HTML already holds the
+// shell, and the page hydrates with no errors.
 // registry.json points dependencies at the published site, so the copy has
 // that prefix replaced with the local server's URL. The repo's export is
 // not changed.
@@ -28,12 +29,15 @@ import {
   DOCS_APP,
   DOCS_URL,
   EXPORT_DIR,
+  CONSUMER_PORT,
+  CONSUMER_URL,
   ITEMS,
   LOCAL_REGISTRY_PORT,
   PUBLISHED_REGISTRY,
   openPage,
   run,
   serve,
+  serveNextApp,
   writeResult,
 } from "./support";
 import type { CommandRun, CopiedExample } from "./support";
@@ -48,8 +52,8 @@ const EXAMPLES_DIR = "components/examples";
 // The same header the docs leave out of the Code tab.
 const LICENSE_HEADER = /^(?:\/\/ SPDX-[^\n]*\n)+\n?/u;
 
-// The Code tab's name for an example built on the demo app's own parts.
-const REPO_CODE_TAB = "Repo code";
+// Where the chat-app item installs its page.
+const CHAT_PAGE = "/chat";
 
 const EXAMPLE_TITLE = /^examples\/[\w-]+\.tsx$/u;
 
@@ -193,12 +197,11 @@ const copyFromTab = async (page: Page, name: string) => {
   return { file: path.basename(title), tabLabel, text };
 };
 
-// Every example file on the item pages, copied once each, and the repo
-// code files, which are not copied into the app.
+// Every example file on the item pages, copied once each.
 const copyExamples = async (
   browser: Browser,
   app: string
-): Promise<{ copied: CopiedExample[]; repoOnly: string[] }> => {
+): Promise<CopiedExample[]> => {
   const context = await browser.newContext();
 
   await context.grantPermissions(["clipboard-read", "clipboard-write"], {
@@ -207,7 +210,6 @@ const copyExamples = async (
 
   const page = await context.newPage();
   const copied: CopiedExample[] = [];
-  const repoOnly: string[] = [];
 
   mkdirSync(path.join(app, EXAMPLES_DIR), { recursive: true });
 
@@ -227,11 +229,7 @@ const copyExamples = async (
       // oxlint-disable-next-line no-await-in-loop -- one Code tab at a time
       const { file, tabLabel, text } = await copyFromTab(page, name);
 
-      if (tabLabel === REPO_CODE_TAB) {
-        if (!repoOnly.includes(file)) {
-          repoOnly.push(file);
-        }
-      } else if (!copied.some((entry) => entry.file === file)) {
+      if (!copied.some((entry) => entry.file === file)) {
         const repoFile = readFileSync(
           path.join(DOCS_APP, "examples", file),
           "utf-8"
@@ -253,7 +251,70 @@ const copyExamples = async (
 
   await context.close();
 
-  return { copied, repoOnly };
+  return copied;
+};
+
+export interface ChatPageCheck {
+  url: string;
+  serverRendered: boolean;
+  landmarks: string[];
+  heading: string;
+  errors: string[];
+}
+
+// The chat-app page from next start. The HTML the server sends already
+// has the shell, and in a browser it hydrates into the whole app.
+const checkChatPage = async (browser: Browser): Promise<ChatPageCheck> => {
+  const url = `${CONSUMER_URL}${CHAT_PAGE}`;
+  const response = await fetch(url);
+  const html = await response.text();
+  const page = await browser.newPage();
+  const errors: string[] = [];
+
+  page.on("console", (message) => {
+    if (message.type() === "error") {
+      errors.push(message.text());
+    }
+  });
+  page.on("pageerror", (error) => {
+    errors.push(error.message);
+  });
+
+  await page.goto(url);
+  await page.waitForLoadState("networkidle");
+
+  const heading = page.getByRole("heading", { level: 1 });
+
+  await heading.waitFor();
+
+  const landmarks = await Promise.all(
+    (
+      [
+        ["banner", page.getByRole("banner")],
+        ["navigation Main", page.getByRole("navigation", { name: "Main" })],
+        [
+          "complementary Sidebar",
+          page.getByRole("complementary", { name: "Sidebar" }),
+        ],
+        ["navigation Chats", page.getByRole("navigation", { name: "Chats" })],
+        ["main", page.getByRole("main")],
+      ] as const
+    ).map(async ([name, landmark]) =>
+      (await landmark.count()) === 1 ? name : ""
+    )
+  );
+
+  const check = {
+    errors,
+    heading: (await heading.textContent()) ?? "",
+    landmarks: landmarks.filter(Boolean),
+    serverRendered: html.includes('data-slot="app-shell"'),
+    url,
+  };
+
+  await page.close();
+
+  return check;
 };
 
 // Imports every copied example, so next build compiles each one.
@@ -309,7 +370,7 @@ test("a new shadcn app installs every item and builds", async ({ browser }) => {
   const stop = await serve(site, LOCAL_REGISTRY_PORT);
   const steps: CommandRun[] = [];
   let copied: CopiedExample[] = [];
-  let repoOnly: string[] = [];
+  let chatPage: ChatPageCheck | null = null;
 
   try {
     steps.push(
@@ -357,7 +418,7 @@ test("a new shadcn app installs every item and builds", async ({ browser }) => {
       )
     );
 
-    ({ copied, repoOnly } = await copyExamples(browser, app));
+    copied = await copyExamples(browser, app);
 
     writeFileSync(path.join(app, "app/page.tsx"), PAGE);
     mkdirSync(path.join(app, "app/examples"), { recursive: true });
@@ -369,28 +430,36 @@ test("a new shadcn app installs every item and builds", async ({ browser }) => {
       await run("npx", ["tsc", "--noEmit"], app),
       await run("npx", ["next", "build"], app)
     );
+
+    if (steps.every((step) => step.exitCode === 0)) {
+      const stopApp = await serveNextApp(app, CONSUMER_PORT);
+
+      try {
+        chatPage = await checkChatPage(browser);
+      } finally {
+        stopApp();
+      }
+    }
   } finally {
     stop();
   }
 
   const onPages = examplesOnPages();
 
-  const expected = [...new Set(onPages.flatMap((entry) => entry.files))].filter(
-    (file) => !repoOnly.includes(file)
-  );
+  const expected = [...new Set(onPages.flatMap((entry) => entry.files))];
 
   const copiedFiles = copied.map((entry) => entry.file);
   const missing = expected.filter((file) => !copiedFiles.includes(file));
   const extra = copiedFiles.filter((file) => !expected.includes(file));
 
   writeResult("shadcn-add", {
+    chatPage,
     copied,
     expected: onPages,
     extra,
     localRegistry: LOCAL_REGISTRY,
     missing,
     note: `The export was copied to ${site}. In that copy only, ${PUBLISHED_REGISTRY} was replaced with ${LOCAL_REGISTRY} in ${rewritten.join(", ")}, so registry dependencies also come from the local server.`,
-    repoOnly,
     rewritten,
     steps,
     tempFolder: root,
@@ -410,4 +479,12 @@ test("a new shadcn app installs every item and builds", async ({ browser }) => {
       .map((entry) => entry.page)
   ).toEqual([]);
   expect({ extra, missing }).toEqual({ extra: [], missing: [] });
+  // The installed chat-app page renders on the server and hydrates into
+  // the shell with its five landmarks, with no errors.
+  expect(chatPage).toMatchObject({
+    errors: [],
+    heading: "Start with a task",
+    serverRendered: true,
+  });
+  expect(chatPage?.landmarks).toHaveLength(5);
 });

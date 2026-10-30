@@ -9,6 +9,7 @@ import { AppShellControlled } from "./app-shell-controlled";
 import { AppShellDemo } from "./app-shell-demo";
 import { ButtonDemo } from "./button-demo";
 import { ButtonRow } from "./button-row";
+import { ChatAppDemo } from "./chat-app-demo";
 import { ChatSidebarDemo } from "./chat-sidebar-demo";
 import { ChatSidebarLinks } from "./chat-sidebar-links";
 import { ComposerLayoutExample } from "./composer-layout";
@@ -31,9 +32,9 @@ import { TipOnIconButtons } from "./tip-icon-buttons";
 // variants and the composer states from src/states/composer/fixtures.ts;
 // the E2E finds each one by its data-example attribute. Labels and notes
 // are the captions the catalog printed. file is shown on the Code tab.
-// Example files that use the demo app's own parts in src/app. No registry
-// item installs those, so their Code tab says the code is repo code.
-export const REPO_ONLY_FILES = new Set(["mode-toggle.tsx"]);
+// Every example installs from the registry now, so none is repo code.
+// The sample data page still reads this set.
+export const REPO_ONLY_FILES = new Set<string>();
 
 export interface Example {
   element: ReactElement;
@@ -81,6 +82,12 @@ const CATALOG = {
     file: "button-row.tsx",
     label: 'variant="outline"',
     note: "A second choice that sits beside the main one.",
+  },
+  "chat-app--demo": {
+    element: <ChatAppDemo />,
+    file: "chat-app-demo.tsx",
+    label: "ChatApp",
+    note: "Open a chat, send a message from Home, close a tab, or narrow the window to see the drawer.",
   },
   "chat-sidebar--demo": {
     element: <ChatSidebarDemo />,

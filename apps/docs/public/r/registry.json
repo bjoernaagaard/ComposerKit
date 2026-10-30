@@ -723,6 +723,56 @@
       }
     },
     {
+      "name": "chat-app",
+      "type": "registry:block",
+      "title": "Chat app",
+      "description": "A whole chat app on one page: the app shell, the chat sidebar, a home view with the composer and a Chat and Work toggle, and the conversation, on the sample data. It is starter code, so replace the data with your own.",
+      "dependencies": [
+        "lucide-react",
+        "react"
+      ],
+      "registryDependencies": [
+        "utils",
+        "https://bjoernaagaard.github.io/ComposerKit/r/app-shell.json",
+        "https://bjoernaagaard.github.io/ComposerKit/r/chat-sidebar.json",
+        "https://bjoernaagaard.github.io/ComposerKit/r/composer.json",
+        "https://bjoernaagaard.github.io/ComposerKit/r/conversation.json",
+        "https://bjoernaagaard.github.io/ComposerKit/r/sample-data.json"
+      ],
+      "files": [
+        {
+          "path": "src/blocks/chat-app/chat-app.tsx",
+          "type": "registry:component",
+          "target": "blocks/chat-app/chat-app.tsx"
+        },
+        {
+          "path": "src/blocks/chat-app/tab-history.ts",
+          "type": "registry:component",
+          "target": "blocks/chat-app/tab-history.ts"
+        },
+        {
+          "path": "src/blocks/chat-app/home-view.tsx",
+          "type": "registry:component",
+          "target": "blocks/chat-app/home-view.tsx"
+        },
+        {
+          "path": "src/blocks/chat-app/mode-toggle.tsx",
+          "type": "registry:component",
+          "target": "blocks/chat-app/mode-toggle.tsx"
+        },
+        {
+          "path": "src/blocks/chat-app/placeholder-view.tsx",
+          "type": "registry:component",
+          "target": "blocks/chat-app/placeholder-view.tsx"
+        },
+        {
+          "path": "src/blocks/chat-app/page.tsx",
+          "type": "registry:page",
+          "target": "app/chat/page.tsx"
+        }
+      ]
+    },
+    {
       "name": "sample-data",
       "type": "registry:item",
       "title": "Sample data",
