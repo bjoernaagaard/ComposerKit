@@ -21,6 +21,7 @@ import {
   AppShellRailItem,
   AppShellRailSeparator,
 } from "@/components/app-shell/rail";
+import { AppShellSplitter } from "@/components/app-shell/splitter";
 import { AppShellTabs, appShellTabId } from "@/components/app-shell/tabs";
 import type { AppShellTab } from "@/components/app-shell/tabs";
 import {
@@ -435,6 +436,7 @@ const ShellApp = ({ density }: { density?: RowDensity }) => {
               projects={projects}
             />
           </AppShellSidebar>
+          <AppShellSplitter />
           <AppShellMain>
             <div
               aria-labelledby={appShellTabId(panelId, activeTabId)}
@@ -455,8 +457,9 @@ const ShellApp = ({ density }: { density?: RowDensity }) => {
   );
 };
 
-// The demo app on the released shell parts. The sidebar's saved state is
-// read before the first render, so the first frame matches the last visit.
+// The demo app on the released shell parts. The sidebar's saved state and
+// width are read before the first render, so the first frame matches the
+// last visit.
 export const App = ({ density }: { density?: RowDensity }) => {
   const saved = useMemo(() => readDocumentShellCookie(), []);
 

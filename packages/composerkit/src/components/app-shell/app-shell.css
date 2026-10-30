@@ -48,3 +48,26 @@
     transition-delay: 0s !important;
   }
 }
+
+/* While the splitter is dragged, the sidebar and the title bar follow the
+   pointer with no transition, the cursor stays col-resize wherever the
+   pointer goes, and no text is selected. */
+[data-slot="app-shell"][data-resizing] {
+  cursor: col-resize;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+[data-slot="app-shell"][data-resizing] * {
+  cursor: inherit;
+  transition: none !important;
+}
+
+/* Forced colors drop the splitter line's color, so it is Highlight there. */
+@media (forced-colors: active) {
+  [data-slot="sidebar-splitter"]:is(:hover, :focus-visible)::after,
+  [data-slot="app-shell"][data-resizing] [data-slot="sidebar-splitter"]::after {
+    background-color: Highlight;
+    forced-color-adjust: none;
+  }
+}

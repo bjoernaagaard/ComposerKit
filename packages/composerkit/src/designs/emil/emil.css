@@ -27,6 +27,12 @@ body[data-design="emil"] [data-slot="sidebar"] {
   border-right: 1px solid var(--border);
 }
 
+/* The splitter line darkens the sidebar's rule. */
+body[data-design="emil"] [data-slot="sidebar-splitter"] {
+  --shell-splitter-offset: -0.5px;
+  --shell-splitter-line: var(--muted-foreground);
+}
+
 body[data-design="emil"] [data-slot="button"] {
   border-radius: var(--radius-control);
 }

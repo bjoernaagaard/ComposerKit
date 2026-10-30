@@ -1690,3 +1690,45 @@ walk(
     };
   }
 );
+
+walk(
+  {
+    context: "App shell, wide, the sidebar's splitter focused",
+    expected:
+      "Right and Left widen and narrow the sidebar by 16 px, or 8 with Shift. Home and End jump to 220 and 480. Enter hides the sidebar and moves focus to the sidebar toggle.",
+    keys: "Right, Shift+Left, Home, End, Enter",
+    line: 430,
+  },
+  APP,
+  async (page) => {
+    const splitter = page.getByRole("separator", { name: "Resize sidebar" });
+    const sidebar = page.getByRole("complementary", { name: "Sidebar" });
+    const widths: string[] = [];
+
+    await splitter.focus();
+
+    for (const key of ["ArrowRight", "Shift+ArrowLeft", "Home", "End"]) {
+      // oxlint-disable-next-line no-await-in-loop -- each key moves from where the last one left the edge
+      await press(page, key);
+      // oxlint-disable-next-line no-await-in-loop -- each key moves from where the last one left the edge
+      widths.push((await splitter.getAttribute("aria-valuenow")) ?? "none");
+    }
+
+    const box = await sidebar.boundingBox();
+    const drawn = Math.round(box?.width ?? 0);
+
+    await press(page, "Enter");
+
+    const hidden = await sidebar.isHidden();
+    const after = await focused(page);
+
+    return {
+      actual: `widths ${widths.join(", ")}, drawn ${drawn}; Enter: sidebar hidden ${hidden}, focus on ${after}`,
+      pass:
+        widths.join(",") === "304,296,220,480" &&
+        drawn === 480 &&
+        hidden &&
+        after.includes("Show sidebar"),
+    };
+  }
+);

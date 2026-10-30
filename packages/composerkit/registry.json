@@ -548,6 +548,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/app-shell/splitter.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/app-shell/persist.ts",
           "type": "registry:component"
         },
@@ -579,6 +583,21 @@
             "--motion-tab-exit": "var(--motion-reduced-fade) !important",
             "transition-property": "opacity, color, background-color, border-color, outline-color, text-decoration-color, fill, stroke !important",
             "transition-delay": "0s !important"
+          }
+        },
+        "[data-slot=\"app-shell\"][data-resizing]": {
+          "cursor": "col-resize",
+          "-webkit-user-select": "none",
+          "user-select": "none"
+        },
+        "[data-slot=\"app-shell\"][data-resizing] *": {
+          "cursor": "inherit",
+          "transition": "none !important"
+        },
+        "@media (forced-colors: active)": {
+          "[data-slot=\"sidebar-splitter\"]:is(:hover, :focus-visible)::after, [data-slot=\"app-shell\"][data-resizing] [data-slot=\"sidebar-splitter\"]::after": {
+            "background-color": "Highlight",
+            "forced-color-adjust": "none"
           }
         }
       }

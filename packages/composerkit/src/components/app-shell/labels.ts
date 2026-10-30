@@ -15,6 +15,8 @@ export interface AppShellLabels {
   sidebar: string;
   showSidebar: string;
   hideSidebar: string;
+  // The splitter on the sidebar's edge.
+  resizeSidebar: string;
   // The sidebar toggle's tooltip: its action and the shortcut that runs it,
   // such as "Hide sidebar ⌘B".
   withShortcut: (action: string, keys: string) => string;
@@ -31,6 +33,7 @@ export const APP_SHELL_LABELS: AppShellLabels = {
   hideSidebar: "Hide sidebar",
   newTab: "New tab",
   rail: "Main",
+  resizeSidebar: "Resize sidebar",
   showSidebar: "Show sidebar",
   sidebar: "Sidebar",
   skipToContent: "Skip to content",

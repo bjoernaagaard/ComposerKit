@@ -179,6 +179,17 @@ body[data-design="apple"] [data-slot="sidebar"] {
   box-shadow: var(--apple-rim), var(--apple-lift);
 }
 
+/* The splitter line runs down the middle of the gap between the floating
+   sidebar and the sheet. */
+body[data-design="apple"] [data-slot="sidebar-splitter"] {
+  --shell-splitter-offset: -4px;
+  --shell-splitter-line: color-mix(
+    in oklab,
+    var(--foreground) 24%,
+    transparent
+  );
+}
+
 /* On narrow shells the sidebar is a drawer over the sheet: the drawer is a
    thick material the page does not read through, and the sidebar fills it. */
 body[data-design="apple"] [data-slot="sidebar-panel"][data-variant="overlay"] {

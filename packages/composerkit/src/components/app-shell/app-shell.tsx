@@ -24,13 +24,22 @@ import { cn } from "@/lib/utils";
 //   data-sidebar          expanded or collapsed
 //   data-sidebar-variant  push (beside the main region) or overlay (narrow)
 //   data-input            pointer or keyboard, the last input type
+//   data-resizing         while a pointer drags the splitter
 // --shell-sidebar-width is the room the sidebar takes: its width when it
-// is expanded beside the main region, and 0 otherwise.
+// is expanded beside the main region, and 0 otherwise. A width the person
+// chose with the splitter is drawn as --size-sidebar here, so until then
+// the theme's width applies.
 export type AppShellProps = Omit<ComponentProps<"div">, "ref">;
 
-export const AppShell = ({ className, ...props }: AppShellProps) => {
-  const { rootRef, isNarrow, open, openNarrow, input } = useAppShell();
+export const AppShell = ({ className, style, ...props }: AppShellProps) => {
+  const { rootRef, isNarrow, open, openNarrow, input, resizing, chosenWidth } =
+    useAppShell();
+
   const expanded = isNarrow ? openNarrow : open;
+
+  // Spread in, so it type-checks in apps whose CSSProperties doesn't list
+  // custom properties.
+  const drawnWidth = { "--size-sidebar": `${chosenWidth}px` };
 
   return (
     <div
@@ -39,10 +48,12 @@ export const AppShell = ({ className, ...props }: AppShellProps) => {
         className
       )}
       data-input={input}
+      data-resizing={resizing ? "" : undefined}
       data-sidebar={expanded ? "expanded" : "collapsed"}
       data-sidebar-variant={isNarrow ? "overlay" : "push"}
       data-slot="app-shell"
       ref={rootRef}
+      style={chosenWidth === null ? style : { ...drawnWidth, ...style }}
       {...props}
     />
   );
