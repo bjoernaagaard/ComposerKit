@@ -32,7 +32,7 @@ const buttonVariants = cva(
     variants: {
       size: {
         default:
-          "h-(--size-button-medium) gap-1 px-2.5 text-(length:--text-label-size) has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 [&_svg:not([class*='size-'])]:size-3.5",
+          "h-(--size-button-medium) gap-1 px-2.5 text-(length:--text-label-size) has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2 [&_svg:not([class*='size-'])]:size-3.5",
         icon: "size-(--size-icon-button) rounded-(--radius-control)",
         // 27 by 26 with a rounded square fill, for actions under a message.
         "icon-action":
@@ -54,10 +54,10 @@ const buttonVariants = cva(
         // meets WCAG 2.5.8's 24px target. Use it with the inset variant.
         "icon-xs":
           "size-[calc(var(--size-row-action)+4px)] rounded-(--radius-small) before:inset-0.5 before:rounded-(--radius-small) [&_svg:not([class*='size-'])]:size-3.5",
-        lg: "h-(--size-button-large) gap-1.5 px-3.5 text-(length:--text-label-size) has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
+        lg: "h-(--size-button-large) gap-1.5 px-3.5 text-(length:--text-label-size) has-data-[icon=inline-end]:pe-3 has-data-[icon=inline-start]:ps-3",
         // A pill in the composer footer or tray, in caption text.
         pill: "h-(--size-composer-control) min-w-0 shrink gap-1 px-2 text-(length:--text-caption-size) leading-(--text-caption-leading) font-(--weight-regular) has-data-[icon=inline-start]:px-1.5 [&_svg:not([class*='size-'])]:size-4",
-        sm: "h-(--size-button-small) gap-1 px-2 text-(length:--text-caption-size) has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+        sm: "h-(--size-button-small) gap-1 px-2 text-(length:--text-caption-size) has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5",
         // The tray spaces its icons wider and tightens in a narrow composer.
         tray: "h-(--size-composer-control) min-w-0 gap-1.5 px-2 text-(length:--text-caption-size) leading-(--text-caption-leading) font-(--weight-regular) @max-[480px]/composer:px-1.5 [&_svg:not([class*='size-'])]:size-4",
       },

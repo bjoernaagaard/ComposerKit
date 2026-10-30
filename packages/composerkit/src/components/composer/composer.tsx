@@ -135,7 +135,7 @@ const fieldClasses = ({
     conversation && !twoRows && DOCKED_ONE_ROW_FIELD,
     layout === "roomy" && "mt-4 min-h-(--size-composer-roomy-text-min-height)",
     showExpand &&
-      "mr-[calc(var(--space-composer-padding-x)+var(--space-composer-expand-reserve))]",
+      "me-[calc(var(--space-composer-padding-x)+var(--space-composer-expand-reserve))]",
     expanded && "max-h-none min-h-0 flex-1"
   );
 
@@ -222,7 +222,7 @@ const ExpandToggle = ({
   const Glyph = expanded ? Minimize2Icon : Maximize2Icon;
 
   return (
-    <div className="absolute top-(--space-composer-expand-inset) right-(--space-composer-expand-inset)">
+    <div className="absolute inset-e-(--space-composer-expand-inset) top-(--space-composer-expand-inset)">
       <Tip label={expanded ? "Exit full height" : "Full height"} side="top">
         <Button
           aria-label="Full height"
@@ -338,7 +338,7 @@ const TrailingControls = ({
   dictationBlocked: boolean;
   children: ReactNode;
 }) => (
-  <div className="ml-auto flex items-center" ref={ref}>
+  <div className="ms-auto flex items-center" ref={ref}>
     <ModelMenu
       compact={layout === "inline"}
       dispatch={dispatch}
@@ -349,7 +349,7 @@ const TrailingControls = ({
     <IconButton
       aria-disabled={handlers.dictationSupported ? undefined : "true"}
       aria-pressed={state.dictating}
-      className="mr-(--space-composer-trailing-gap)"
+      className="me-(--space-composer-trailing-gap)"
       disabled={dictationBlocked}
       icon={MicIcon}
       kind="composer"
@@ -644,6 +644,9 @@ export const Composer = ({
         twoRows,
       })}
       data-slot="composer-field"
+      // Text runs the way its first letters do, so an Arabic or Hebrew
+      // draft reads right to left in an English app, and the other way.
+      dir="auto"
       key="field"
       onBlur={() => {
         setKeyboardFocus(false);

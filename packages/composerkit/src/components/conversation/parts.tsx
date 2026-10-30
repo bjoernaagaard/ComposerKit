@@ -187,6 +187,7 @@ const Inline = ({ text }: { text: string }) =>
     segment.code ? (
       <code
         className="bg-accent rounded-(--radius-small) px-1 py-px font-mono wrap-anywhere"
+        dir="ltr"
         key={segment.start}
       >
         {segment.text}
@@ -200,7 +201,7 @@ const Inline = ({ text }: { text: string }) =>
 const StreamCaret = () => (
   <span
     aria-hidden="true"
-    className="bg-foreground ml-0.5 inline-block h-3.5 w-1.5 align-middle motion-safe:animate-pulse"
+    className="bg-foreground ms-0.5 inline-block h-3.5 w-1.5 align-middle motion-safe:animate-pulse"
   />
 );
 
@@ -226,8 +227,8 @@ export const CodeBlock = ({
     >
       <div
         className={cn(
-          "border-border flex items-center gap-2 border-b-(length:--border-hairline) pl-3",
-          compact ? "py-0.5 pr-1" : "py-1 pr-1.5"
+          "border-border flex items-center gap-2 border-b-(length:--border-hairline) ps-3",
+          compact ? "py-0.5 pe-1" : "py-1 pe-1.5"
         )}
       >
         <figcaption className="text-muted-foreground min-w-0 flex-1 text-(length:--text-caption-size) leading-(--text-caption-leading)">
@@ -247,6 +248,7 @@ export const CodeBlock = ({
           inside the region, following the figure's bottom corners. */}
       <pre
         aria-label={`${block.language} code`}
+        dir="ltr"
         className={cn(
           "overflow-x-auto rounded-b-(--radius-control) font-mono text-(length:--text-caption-size) leading-(--text-caption-leading) focus-visible:-outline-offset-2",
           compact ? "px-3 py-2" : "p-3"
@@ -308,13 +310,13 @@ export const RichText = ({
           return (
             <List
               className={cn(
-                "flex flex-col gap-1 pl-5",
+                "flex flex-col gap-1 ps-5",
                 block.ordered ? "list-decimal" : "list-disc"
               )}
               key={block.id}
             >
               {block.items.map((item, index) => (
-                <li className="wrap-break-word" key={item}>
+                <li className="wrap-break-word" dir="auto" key={item}>
                   <Inline text={item} />
                   {caret && index === block.items.length - 1 ? caret : null}
                 </li>
@@ -325,7 +327,11 @@ export const RichText = ({
 
         return (
           // A line break inside a paragraph, as Shift+Enter types, stays.
-          <p className="wrap-break-word whitespace-pre-line" key={block.id}>
+          <p
+            className="wrap-break-word whitespace-pre-line"
+            dir="auto"
+            key={block.id}
+          >
             <Inline text={block.text} />
             {caret}
           </p>
@@ -348,17 +354,23 @@ export const AttachmentChip = ({
 }) => (
   <div
     data-slot="turn-attachment"
-    className="border-border bg-muted flex max-w-full min-w-0 items-center gap-2 rounded-(--radius-control) border-(length:--border-hairline) py-1.5 pr-3 pl-2"
+    className="border-border bg-muted flex max-w-full min-w-0 items-center gap-2 rounded-(--radius-control) border-(length:--border-hairline) py-1.5 ps-2 pe-3"
   >
     <FileIcon
       aria-hidden="true"
       className="text-subtle-foreground size-4 shrink-0"
     />
     <span className="flex min-w-0 flex-col">
-      <span className="text-(length:--text-label-size) leading-(--text-label-leading) wrap-anywhere">
+      <span
+        className="text-(length:--text-label-size) leading-(--text-label-leading) wrap-anywhere"
+        dir="auto"
+      >
         {attachment.name}
       </span>
-      <span className="text-subtle-foreground text-(length:--text-caption-size) leading-(--text-caption-leading) tabular-nums">
+      <span
+        className="text-subtle-foreground text-(length:--text-caption-size) leading-(--text-caption-leading) tabular-nums"
+        dir="auto"
+      >
         {attachment.size}
       </span>
     </span>

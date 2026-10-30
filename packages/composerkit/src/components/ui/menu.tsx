@@ -329,7 +329,7 @@ export const MenuSubmenu = ({
         <ItemText label={label} />
         <ChevronRightIcon
           aria-hidden="true"
-          className="text-subtle-foreground size-4"
+          className="text-subtle-foreground size-4 rtl:-scale-x-100"
         />
       </Menu.SubmenuTrigger>
       <Menu.Portal container={layer}>

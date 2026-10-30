@@ -46,8 +46,8 @@ const BubbleTurn = (props: TurnViewProps) => {
         className={cn(
           "flex max-w-[85%] min-w-0 flex-col gap-2 rounded-(--radius-tray) px-4 py-(--space-bubble-padding-y)",
           mine
-            ? "bg-muted rounded-br-(--radius-small)"
-            : "border-input rounded-bl-(--radius-small) border-(length:--border-hairline)"
+            ? "bg-muted rounded-ee-(--radius-small)"
+            : "border-input rounded-es-(--radius-small) border-(length:--border-hairline)"
         )}
       >
         <RichText
@@ -95,7 +95,7 @@ const DocumentTurn = (props: TurnViewProps) => {
         <>
           <div
             data-slot="bubble"
-            className="bg-muted mr-(--space-bubble-end-inset) max-w-[85%] min-w-0 rounded-(--radius-user-bubble) px-(--space-user-bubble-padding-x) py-(--space-user-bubble-padding-y) @min-[560px]/conversation:max-w-[70%]"
+            className="bg-muted me-(--space-bubble-end-inset) max-w-[85%] min-w-0 rounded-(--radius-user-bubble) px-(--space-user-bubble-padding-x) py-(--space-user-bubble-padding-y) @min-[560px]/conversation:max-w-[70%]"
           >
             <RichText
               blocks={props.blocks}
@@ -107,7 +107,7 @@ const DocumentTurn = (props: TurnViewProps) => {
           </div>
           <TurnActions
             {...props}
-            className="mt-(--space-prompt-action-gap) mr-(--space-bubble-end-inset) opacity-0 group-hover/turn:opacity-100 focus-within:opacity-100 pointer-coarse:opacity-100"
+            className="me-(--space-bubble-end-inset) mt-(--space-prompt-action-gap) opacity-0 group-hover/turn:opacity-100 focus-within:opacity-100 pointer-coarse:opacity-100"
           />
         </>
       ) : (
@@ -122,7 +122,7 @@ const DocumentTurn = (props: TurnViewProps) => {
           <StreamStatus status={props.status} />
           <TurnActions
             {...props}
-            className="mt-(--space-reply-action-gap) -ml-(--space-document-action-inset)"
+            className="-ms-(--space-document-action-inset) mt-(--space-reply-action-gap)"
           />
         </>
       )}
@@ -153,7 +153,7 @@ const TranscriptTurn = (props: TurnViewProps) => (
       {/* Each button is 2px wider than its fill on every side. */}
       <TurnActions
         {...props}
-        className="-ml-[calc(var(--space-transcript-action-inset)+2px)]"
+        className="-ms-[calc(var(--space-transcript-action-inset)+2px)]"
         size="row"
       />
     </div>

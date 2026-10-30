@@ -364,7 +364,7 @@ export const ModelMenu = ({
               {modelName}
               <ChevronRightIcon
                 aria-hidden="true"
-                className="text-subtle-foreground size-4"
+                className="text-subtle-foreground size-4 rtl:-scale-x-100"
               />
             </Menu.Item>
             <EffortSteps
