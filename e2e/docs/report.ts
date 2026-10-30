@@ -9,6 +9,7 @@ import { readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 import type {
+  AppRow,
   EmptyRow,
   Flag,
   KeyboardStressRow,
@@ -360,29 +361,37 @@ const flagged = <T extends { flags: Flag[] }>(rows: T[]) =>
 
 interface StressResults {
   render: RenderRow[];
+  app: AppRow[];
   keyboard: KeyboardStressRow[];
   paste: PasteRow[];
   labels: LabelRow[];
   empty: EmptyRow[];
 }
 
-const stressRender = (render: RenderRow[]) => [
-  "### Every docs example at 320 and 1440 wide",
-  "One image per example and width, light on the left and dark on the right, in `stress/render/`. A flag is sideways page scroll, a box wider than the window, text cut off with no ellipsis, text over other text, or a control pushed out of view. Content inside a box that scrolls sideways, such as a code block or the tab strip, counts as reachable.",
-  table(
-    ["Width", "Examples", "With a flag"],
-    [320, 1440].map((width) => {
-      const rows = render.filter((row) => row.width === width);
+const RENDER_DESIGNS = ["base", "apple", "glass", "taste", "emil"];
 
-      return [width, rows.length, flagged(rows).length];
-    })
+const stressRender = (render: RenderRow[]) => [
+  "### Every docs example at 320 and 1440 wide, in each design",
+  "In the base design, one image per example and width, light on the left and dark on the right, in `stress/render/`. In the other designs each example is inspected in light, and an image is kept only when it has a flag. A flag is sideways page scroll, a box wider than the window, text cut off with no ellipsis, text over other text, a control pushed out of view, or an empty field too narrow for its placeholder. Content inside a box that scrolls sideways, such as a code block or the tab strip, counts as reachable.",
+  table(
+    ["Design", "Width", "Examples", "With a flag"],
+    RENDER_DESIGNS.flatMap((design) =>
+      [320, 1440].map((width) => {
+        const rows = render.filter(
+          (row) => row.design === design && row.width === width
+        );
+
+        return [design, width, rows.length, flagged(rows).length];
+      })
+    )
   ),
   ...(flagged(render).length > 0
     ? [
         table(
-          ["Example", "Width", "Flags", "Image"],
+          ["Example", "Design", "Width", "Flags", "Image"],
           flagged(render).map((row) => [
             row.id,
+            row.design,
             row.width,
             flagText(row.flags),
             row.image,
@@ -390,6 +399,22 @@ const stressRender = (render: RenderRow[]) => [
         ),
       ]
     : []),
+];
+
+const stressApp = (app: AppRow[]) => [
+  "### The demo app in every design at 320 and 1440 wide",
+  "The playground's home page, with the composer in work mode and in chat mode, inspected in light with the same flags as the examples. Images are light on the left and dark on the right, in `stress/app/`: the base design in both modes and the other designs in work mode.",
+  table(
+    ["Design", "Mode", "Width", "Flags", "Errors", "Image"],
+    app.map((row) => [
+      row.design,
+      row.mode,
+      row.width,
+      flagText(row.flags) || "none",
+      row.errors.join("; ") || "none",
+      row.image ?? "not kept",
+    ])
+  ),
 ];
 
 // The same finding on many examples of a page is one entry with a count.
@@ -407,17 +432,17 @@ const placeOf = (focus: string) => focus.split(" ")[0] ?? focus;
 const escapeText = (row: KeyboardStressRow) =>
   grouped(
     row.escapes.flatMap((escape) =>
-      escape.opened && escape.closed && escape.backOnTrigger
+      escape.opened && escape.closed && escape.focusAsExpected
         ? []
         : [
-            `${escape.kind} on ${escape.stop}: ${escape.closed ? "closed" : "stayed open"}, focus went to a ${placeOf(escape.focusAfter)}`,
+            `${escape.kind} on ${escape.stop}: ${escape.closed ? "closed" : "stayed open"}, focus went to a ${placeOf(escape.focusAfter)} instead of ${escape.expectedFocus}`,
           ]
     )
   );
 
 const stressKeyboard = (keyboard: KeyboardStressRow[]) => [
-  "### Keyboard only, every docs page",
-  "Tab from the top of the page to the end, then Shift+Tab back, with no mouse events. Each stop is checked for a visible change against its resting look. Every menu trigger and tooltip in the examples is opened, closed with Escape, and checked for focus back on its trigger. The full focus order of each page is in `results/stress-keyboard.json`.",
+  "### Keyboard only, every docs page and the demo app",
+  "Tab from the top of the page to the end, then Shift+Tab back, with no mouse events. Each stop is checked for a visible change against its resting look, and for a focus ring cut off by a box that clips its overflow. Every menu trigger and tooltip in the examples is opened, closed with Escape, and checked for focus back on its trigger. A list that a text field drives, such as the composer's add menu, keeps focus in that field, as spec/functional.md says. The full focus order of each page is in `results/stress-keyboard.json`.",
   table(
     [
       "Page",
@@ -425,6 +450,7 @@ const stressKeyboard = (keyboard: KeyboardStressRow[]) => [
       "Walk ended",
       "Trap",
       "No visible focus",
+      "Focus ring cut off",
       "Not reachable by Tab",
       "Shift+Tab gives the same order",
       "Escape did not return focus",
@@ -435,6 +461,7 @@ const stressKeyboard = (keyboard: KeyboardStressRow[]) => [
       row.end,
       row.trap ?? "none",
       row.noIndicator.length === 0 ? "none" : row.noIndicator.join("; "),
+      row.cutRings.length === 0 ? "none" : grouped(row.cutRings),
       row.unreachable.length === 0 ? "none" : grouped(row.unreachable),
       row.reverseMatches ? "yes" : `no: ${row.reverseDifference}`,
       escapeText(row) || "none",
@@ -492,12 +519,15 @@ const stressEmpty = (empty: EmptyRow[]) => [
 const stressSection = (stress: StressResults) => {
   const breaks =
     flagged(stress.render).length +
+    stress.app.filter((row) => row.flags.length > 0 || row.errors.length > 0)
+      .length +
     flagged(stress.labels).length +
     stress.empty.filter((row) => row.broken).length +
     stress.keyboard.filter(
       (row) =>
         row.trap !== null ||
         row.noIndicator.length > 0 ||
+        row.cutRings.length > 0 ||
         row.unreachable.length > 0 ||
         !row.reverseMatches ||
         escapeText(row) !== ""
@@ -507,6 +537,7 @@ const stressSection = (stress: StressResults) => {
     "## 6. Stress",
     `Listed, not gated. ${breaks} row${breaks === 1 ? "" : "s"} below still show a flag or a break.`,
     ...stressRender(stress.render),
+    ...stressApp(stress.app),
     ...stressKeyboard(stress.keyboard),
     ...stressPaste(stress.paste),
     ...stressLabels(stress.labels),
@@ -629,6 +660,7 @@ export const writeReport = (): void => {
   const links = readResult<LinksResult>("links");
 
   const stress: StressResults = {
+    app: readResult<AppRow[]>("stress-app") ?? [],
     empty: readResult<EmptyRow[]>("stress-empty") ?? [],
     keyboard: readResult<KeyboardStressRow[]>("stress-keyboard") ?? [],
     labels: readResult<LabelRow[]>("stress-labels") ?? [],
