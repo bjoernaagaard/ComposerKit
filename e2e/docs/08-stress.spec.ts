@@ -430,9 +430,13 @@ const fieldDrivingList = (page: Page, index: number) =>
   page.evaluate((stop) => {
     const element = document.activeElement;
 
+    // A field inside the popup, such as a search dialog's input, is part
+    // of the popup, so Escape still goes back to the trigger.
     const drives =
-      element instanceof HTMLTextAreaElement ||
-      element instanceof HTMLInputElement;
+      (element instanceof HTMLTextAreaElement ||
+        element instanceof HTMLInputElement) &&
+      element.closest('[role="dialog"], [role="menu"], [role="listbox"]') ===
+        null;
 
     if (!drives || element.dataset.stressStop === String(stop)) {
       return null;
