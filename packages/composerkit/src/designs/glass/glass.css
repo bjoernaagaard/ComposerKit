@@ -255,6 +255,17 @@ body[data-design="glass"] [data-slot="sidebar"] {
   box-shadow: var(--glass-rim), var(--glass-lift);
 }
 
+/* The splitter line runs down the middle of the gap between the floating
+   sidebar and the sheet. */
+body[data-design="glass"] [data-slot="sidebar-splitter"] {
+  --shell-splitter-offset: -4px;
+  --shell-splitter-line: color-mix(
+    in oklab,
+    var(--foreground) 28%,
+    transparent
+  );
+}
+
 /*
  * On narrow shells the sidebar is a drawer over the sheet. The drawer is
  * the material, thick enough that the page does not read through it, and

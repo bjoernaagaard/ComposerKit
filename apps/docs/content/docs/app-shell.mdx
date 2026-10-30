@@ -20,7 +20,7 @@ From the npm package, import each part from its own module, and load `composerki
 import { AppShellProvider } from "composerkit/components/app-shell/app-shell-provider";
 ```
 
-The provider saves whether the sidebar is open in the `composerkit_shell` cookie. Read it on the server and pass it in, so the first frame matches the last visit:
+The provider saves whether the sidebar is open, and the width someone resized it to, in the `composerkit_shell` cookie. Read it on the server and pass it in, so the first frame matches the last visit:
 
 ```tsx title="app/layout.tsx"
 import { cookies } from "next/headers";
@@ -73,12 +73,13 @@ When the app owns the open state with `open` and `onOpenChange`, the provider st
       <AppShellRailFooter />       // such as the account button
     </AppShellRail>
     <AppShellSidebar />            // <aside> "Sidebar", stays mounted, inert when hidden
+    <AppShellSplitter />           // separator "Resize sidebar", 220 to 480 px
     <AppShellMain />               // <main>, also the tab panel
   </AppShell>
 </AppShellProvider>
 ```
 
-Each part is its own module under `components/app-shell/`. Leave out the parts you don't need, such as the tabs or the rail. `useAppShell()` returns the provider's state, such as `open`, `setOpen` and `toggleSidebar`.
+Each part is its own module under `components/app-shell/`. Leave out the parts you don't need, such as the tabs or the rail. `useAppShell()` returns the provider's state, such as `open`, `setOpen`, `toggleSidebar`, `width` and `setWidth`.
 
 ## Examples
 
@@ -150,6 +151,16 @@ AppShellSidebar also takes the props of an `<aside>`, except `id`, which it sets
   path="../../packages/composerkit/src/components/app-shell/app-shell.tsx"
   name="AppShellSidebarOwnProps"
   type="Omit<AppShellSidebarProps, keyof ComponentProps<'aside'>>"
+/>
+
+### AppShellSplitter
+
+AppShellSplitter also takes the props of a `<div>`, except `children`, `role`, `tabIndex` and the key, pointer and double click handlers, which it sets itself. Place it after `AppShellSidebar`. It renders nothing while the sidebar is hidden or the shell is narrow.
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/app-shell/splitter.tsx"
+  name="AppShellSplitterOwnProps"
+  type="Omit<AppShellSplitterProps, keyof ComponentProps<'div'>>"
 />
 
 ### AppShellMain
@@ -226,16 +237,22 @@ Every word the shell shows or announces. Pass `labels` to the provider, or to on
 | Tab | The page | The first stop is the Skip to content link. It shows when it has focus. |
 | Enter | Skip to content | Moves focus to the main region, past the title bar, the rail and the sidebar. |
 | Cmd+B (macOS), Ctrl+B (elsewhere) | Anywhere | Shows or hides the sidebar, at once and without motion. With several shells on a page, the one that holds focus toggles, or the first one when focus is in none. Pass `shortcut={false}` to turn it off, or another key. |
+| Left, Right | The sidebar splitter | Narrows or widens the sidebar by 16 px, between 220 and 480. In right-to-left layouts, Left widens it. |
+| Shift+Left, Shift+Right | The sidebar splitter | The same, by 8 px. |
+| Home, End | The sidebar splitter | Makes the sidebar 220 or 480 px wide. |
+| Enter | The sidebar splitter | Hides the sidebar and moves focus to the sidebar toggle. Enter there shows it again at the same width. |
 | Left, Right | A title bar tab | Opens the previous or next tab, and wraps around. |
 | Home, End | A title bar tab | Opens the first or last tab. |
 | Tab, Shift+Tab | The narrow drawer | Move through the drawer's controls and wrap around inside it. The page behind it can't take focus. |
 | Escape | The narrow drawer | Closes the drawer and moves focus back to the sidebar toggle. |
 
-The tabs follow the [WAI-ARIA Authoring Practices tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/), so only the open tab is a Tab stop. The sidebar toggle names its shortcut with `aria-keyshortcuts` and in its tooltip.
+The splitter follows the [WAI-ARIA Authoring Practices window splitter pattern](https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/), so the keys are a way to resize without dragging. The tabs follow the [WAI-ARIA Authoring Practices tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/), so only the open tab is a Tab stop. The sidebar toggle names its shortcut with `aria-keyshortcuts` and in its tooltip.
 
 ## Accessibility
 
 The shell's regions are [WAI-ARIA Authoring Practices landmark regions](https://www.w3.org/WAI/ARIA/apg/practices/landmark-regions/): a banner for the title bar, a navigation named Main for the rail, a complementary region named Sidebar, and the main region, which is also the tab panel. A hidden sidebar is inert, so Tab and screen readers skip it. The current destination in the rail has `aria-current="page"`, a fill and a bar on its leading edge, and the bar stays in forced colors.
+
+The splitter on the sidebar's edge is a focusable separator named Resize sidebar. It controls the sidebar, and its value is the sidebar's width in px, from 220 to 480. Its hit area is 16 px wide and draws a 1 px line on hover, on focus and during a drag. Dragging it moves the edge with the pointer, and a double click goes back to the theme's width. While a drag runs, the shell turns its transitions off, so the sidebar follows the pointer, and the width is saved when the drag ends. Until someone resizes the sidebar, it takes `--size-sidebar`, so a design that changes the token still applies.
 
 When the shell is narrower than 48rem, measured on the shell and not the window, the sidebar becomes a modal [Base UI Drawer](https://base-ui.com/react/components/drawer). It is a dialog named Sidebar, and the rail's destinations move into a row at its top. Opening it moves focus into it: to its first control from the keyboard, and to the dialog itself from a pointer. Focus stays inside while it is open, and the rest of the shell is hidden from screen readers. Escape, a tap on the backdrop or a swipe toward its edge closes it, and focus goes back to the sidebar toggle. Picking a destination or a chat inside it closes it and moves focus to the main region, through `useAppShell().closeNarrowAndFocusMain()`. The drawer leaves a strip of backdrop at least 48 px wide to tap, even on a 320 px screen. Under reduced motion it fades instead of sliding.
 
@@ -255,9 +272,11 @@ Design directions style the shell through these hooks instead of its structure:
 
 | Hook | On |
 | --- | --- |
-| `data-slot="app-shell"`, with `data-sidebar` (expanded or collapsed), `data-sidebar-variant` (push or overlay) and `data-input` (pointer or keyboard) | The window |
+| `data-slot="app-shell"`, with `data-sidebar` (expanded or collapsed), `data-sidebar-variant` (push or overlay), `data-input` (pointer or keyboard) and `data-resizing` during a drag | The window |
 | `data-slot="title-bar"`, `"title-bar-nav"`, `"title-bar-tabs"`, `"title-bar-actions"` | The title bar and its three groups |
 | `data-slot="icon-rail"`, `"rail-content"`, `"rail-separator"`, `"rail-footer"`, and `data-rail-item` on each destination | The rail |
 | `data-slot="sidebar-gap"` and `"sidebar-panel"`, with `data-state` (open or closed) | The sidebar's space and its panel |
+| `data-slot="sidebar-splitter"`, with `--shell-splitter-line` for the line's color and `--shell-splitter-offset` to move the line from the sidebar's edge | The splitter |
 | `data-slot="main-sheet"` | The main region |
 | `--shell-sidebar-width` | The room the sidebar takes: its width when it sits beside the main region, otherwise 0 |
+| `--size-sidebar` on `data-slot="app-shell"` | The width someone resized the sidebar to. Until then the root doesn't set it, and the theme's applies |

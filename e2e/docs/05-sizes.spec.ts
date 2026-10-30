@@ -2089,13 +2089,44 @@ measure(
   }
 );
 
+measure(
+  {
+    expected: "288 wide, rail plus sidebar 340, a 16 wide splitter on its edge",
+    line: 430,
+    part: "Sidebar",
+  },
+  APP,
+  async (page) => {
+    const rail = await rect(page.getByRole("navigation", { name: "Main" }));
+
+    const sidebar = await rect(
+      page.getByRole("complementary", { name: "Sidebar" })
+    );
+
+    const splitter = await rect(
+      page.getByRole("separator", { name: "Resize sidebar" })
+    );
+
+    const both = sidebar.right - rail.left;
+    const middle = (splitter.left + splitter.right) / 2;
+
+    return {
+      actual: `${fmt(sidebar.width)} wide, rail plus sidebar ${fmt(both)}, splitter ${fmt(splitter.width)} wide centered at ${fmt(middle - sidebar.right)} from the sidebar's edge`,
+      pass:
+        near(sidebar.width, 288) &&
+        near(both, 340) &&
+        near(splitter.width, 16) &&
+        near(middle, sidebar.right),
+    };
+  }
+);
+
 const SHELL_ONLY = [
   {
     expected: "two 28 x 28 view toggles, 6 apart",
     line: 428,
     part: "Title bar right side",
   },
-  { expected: "288 wide, 16 pt splitter", line: 430, part: "Sidebar" },
   {
     expected: "mode switcher about 109 x 32, two 28 x 28 buttons 6 apart",
     line: 431,

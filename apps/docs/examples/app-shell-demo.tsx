@@ -18,6 +18,7 @@ import {
   AppShellRailContent,
   AppShellRailItem,
 } from "@/components/app-shell/rail";
+import { AppShellSplitter } from "@/components/app-shell/splitter";
 import {
   AppShellSidebarToggle,
   AppShellTitleBar,
@@ -31,7 +32,7 @@ const DESTINATIONS = [
 
 // A bare shell: a title bar with the sidebar toggle, a rail with two
 // destinations, a sidebar and a main region. The sidebar toggle, Cmd+B or
-// Ctrl+B show and hide the sidebar.
+// Ctrl+B show and hide the sidebar, and the splitter on its edge resizes it.
 // This one sits inside a docs page that already has its own main region,
 // so its sidebar renders as a <section> and its main region as a <div>.
 // In an app, leave render out.
@@ -67,6 +68,7 @@ export const AppShellDemo = () => {
               Sidebar content goes here, such as a list of chats.
             </p>
           </AppShellSidebar>
+          <AppShellSplitter />
           <AppShellMain render={<div />}>
             <div className="p-6">
               <h2 className="text-(length:--text-brand-size) leading-(--text-brand-leading) font-(--weight-semibold)">

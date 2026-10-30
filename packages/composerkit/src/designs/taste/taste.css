@@ -288,6 +288,12 @@ body[data-design="taste"] [data-slot="sidebar"] {
   background: var(--window);
 }
 
+/* The splitter line darkens the sidebar's rule. */
+body[data-design="taste"] [data-slot="sidebar-splitter"] {
+  --shell-splitter-offset: -0.5px;
+  --shell-splitter-line: var(--foreground);
+}
+
 body[data-design="taste"] [data-slot="sidebar"] button {
   border-radius: 6px;
 }

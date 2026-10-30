@@ -877,3 +877,233 @@ test("touch: a 220 px swipe toward the leading edge closes the drawer", async ({
   await expect(drawer(page)).toBeHidden();
   await context.close();
 });
+
+// --- The splitter on the sidebar's edge resizes it ---
+
+const splitter = (page: Page) =>
+  page.getByRole("separator", { name: "Resize sidebar" });
+
+// The splitter reads the width, and the sidebar is drawn at it.
+const expectWidth = async (page: Page, px: number) => {
+  await expect(splitter(page)).toHaveAttribute("aria-valuenow", String(px));
+  await expect
+    .poll(async () => {
+      const box = await sidebar(page).boundingBox();
+
+      return box?.width;
+    })
+    .toBe(px);
+};
+
+// Drags the splitter from its middle by dx px with the mouse, and leaves
+// the button down when hold is set.
+const dragSplitter = async (page: Page, dx: number, hold = false) => {
+  const box = await splitter(page).boundingBox();
+  const x = (box?.x ?? 0) + (box?.width ?? 0) / 2;
+  const y = (box?.y ?? 0) + (box?.height ?? 0) / 2;
+
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x + dx, y, { steps: 8 });
+
+  if (!hold) {
+    await page.mouse.up();
+  }
+};
+
+test("splitter: a WAI-ARIA window splitter that names the sidebar and its range", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+
+  const sidebarId = await sidebar(page).getAttribute("id");
+
+  await expect(splitter(page)).toHaveAttribute("aria-orientation", "vertical");
+  await expect(splitter(page)).toHaveAttribute("aria-valuemin", "220");
+  await expect(splitter(page)).toHaveAttribute("aria-valuemax", "480");
+  await expect(splitter(page)).toHaveAttribute(
+    "aria-controls",
+    sidebarId ?? ""
+  );
+  await expect(splitter(page)).toHaveAttribute("tabindex", "0");
+  await expectWidth(page, 288);
+});
+
+test("splitter: arrow keys move the edge 16 px, or 8 with Shift, and Home and End jump to 220 and 480", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await splitter(page).focus();
+
+  await page.keyboard.press("ArrowRight");
+  await expectWidth(page, 304);
+  await page.keyboard.press("Shift+ArrowRight");
+  await expectWidth(page, 312);
+  await page.keyboard.press("ArrowLeft");
+  await expectWidth(page, 296);
+  await page.keyboard.press("Shift+ArrowLeft");
+  await expectWidth(page, 288);
+
+  await page.keyboard.press("Home");
+  await expectWidth(page, 220);
+  await page.keyboard.press("ArrowLeft");
+  await expectWidth(page, 220);
+
+  await page.keyboard.press("End");
+  await expectWidth(page, 480);
+  await page.keyboard.press("ArrowRight");
+  await expectWidth(page, 480);
+});
+
+test("splitter: dragging from 288 to 400 sets 400 with no transition, and the cookie is written when the drag ends", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await listenForTransitions(page);
+  await dragSplitter(page, 112, true);
+
+  const shell = page.locator('[data-slot="app-shell"]');
+
+  await expectWidth(page, 400);
+  await expect(shell).toHaveAttribute("data-resizing", "");
+  expect(await savedShell(page)).toEqual([]);
+
+  await page.mouse.up();
+
+  await expect(shell).not.toHaveAttribute("data-resizing");
+  await expect
+    .poll(() => savedShell(page))
+    .toEqual([expect.stringContaining("width=400")]);
+  // Neither the sidebar nor the title bar's leading group animates width.
+  const started = await startedTransitions(page);
+
+  expect(started.filter((entry) => entry.endsWith(" width"))).toEqual([]);
+  expect(await page.evaluate(() => getSelection()?.toString() ?? "")).toBe("");
+
+  // Past the end of the range, the edge stops at 480.
+  await dragSplitter(page, 200);
+  await expectWidth(page, 480);
+});
+
+test("splitter: a chosen width is drawn on the first frame after a reload", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await dragSplitter(page, 112);
+  await expectWidth(page, 400);
+  await expect
+    .poll(() => savedShell(page))
+    .toEqual([expect.stringContaining("width=400")]);
+
+  // Notes the sidebar's width in the first DOM React writes, before any
+  // effect runs or the page paints.
+  await page.addInitScript(() => {
+    const observer = new MutationObserver(() => {
+      const gap = document.querySelector('[data-slot="sidebar-gap"]');
+
+      if (gap) {
+        observer.disconnect();
+        document.documentElement.dataset.firstSidebarWidth = String(
+          gap.getBoundingClientRect().width
+        );
+      }
+    });
+
+    observer.observe(document, { childList: true, subtree: true });
+  });
+  await page.reload();
+  await page.locator('[data-slot="composer"]').first().waitFor();
+
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-first-sidebar-width",
+    "400"
+  );
+  await expectWidth(page, 400);
+});
+
+test("splitter: a double click goes back to 288, and the cookie keeps no width", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await splitter(page).focus();
+  await page.keyboard.press("End");
+  await expectWidth(page, 480);
+
+  await splitter(page).dblclick();
+
+  await expectWidth(page, 288);
+  // No chosen width is saved as 0, which reads back as none.
+  await expect
+    .poll(() => savedShell(page))
+    .toEqual([expect.stringContaining("width=0")]);
+});
+
+test("splitter: Enter hides the sidebar and focuses the toggle, and Enter there shows it at the same width", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await splitter(page).focus();
+  await page.keyboard.press("ArrowRight");
+  await expectWidth(page, 304);
+
+  await page.keyboard.press("Enter");
+
+  await expect(sidebar(page)).toBeHidden();
+  await expect(showToggle(page)).toBeFocused();
+  await expect(splitter(page)).toHaveCount(0);
+
+  await page.keyboard.press("Enter");
+
+  await expect(sidebar(page)).toBeVisible();
+  await expectWidth(page, 304);
+});
+
+test("splitter: in right-to-left layouts, ArrowLeft and a drag to the left widen the sidebar", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await page.evaluate(() => {
+    document.documentElement.dir = "rtl";
+  });
+  await splitter(page).focus();
+
+  await page.keyboard.press("ArrowLeft");
+  await expectWidth(page, 304);
+  await page.keyboard.press("ArrowRight");
+  await expectWidth(page, 288);
+
+  await dragSplitter(page, -112);
+  await expectWidth(page, 400);
+});
+
+test("splitter: absent while the sidebar is hidden and on narrow shells", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await expect(splitter(page)).toHaveCount(1);
+
+  await hideToggle(page).click();
+  await expect(splitter(page)).toHaveCount(0);
+  await showToggle(page).click();
+  await expect(splitter(page)).toHaveCount(1);
+
+  await page.setViewportSize(NARROW_SIZES[0]);
+  await expect(splitter(page)).toHaveCount(0);
+  await openDrawer(page);
+  await expect(splitter(page)).toHaveCount(0);
+});
+
+test("splitter: a design's sidebar width holds until the person resizes", async ({
+  page,
+}) => {
+  await openApp(page, "taste", "light");
+  await expectWidth(page, 260);
+  await expect(page.locator('[data-slot="app-shell"]')).not.toHaveAttribute(
+    "style",
+    /--size-sidebar/u
+  );
+
+  await splitter(page).focus();
+  await page.keyboard.press("ArrowRight");
+  await expectWidth(page, 276);
+});

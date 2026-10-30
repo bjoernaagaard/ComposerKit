@@ -19,13 +19,26 @@ import type { ReactNode, RefObject } from "react";
 import { APP_SHELL_LABELS } from "@/components/app-shell/labels";
 import type { AppShellLabels } from "@/components/app-shell/labels";
 import { writeShellCookie } from "@/components/app-shell/persist";
+import { pixelsOf } from "@/components/ui/theme-value";
 
 // The shell is narrow below 48rem of its own width, not the window's, so a
 // shell inside a docs page or a split view follows the room it has.
 const NARROW_REM = 48;
 const FALLBACK_REM_PX = 16;
-const DEFAULT_WIDTH = 288;
 const DEFAULT_SHORTCUT = "b";
+
+// The range a person can resize the sidebar in, in px. The same values are
+// the --size-sidebar-min and --size-sidebar-max tokens.
+export const SIDEBAR_MIN_WIDTH = 220;
+export const SIDEBAR_MAX_WIDTH = 480;
+
+// A width inside the range, in whole px.
+const clampSidebarWidth = (px: number): number =>
+  Math.round(Math.min(SIDEBAR_MAX_WIDTH, Math.max(SIDEBAR_MIN_WIDTH, px)));
+
+// The cookie keeps "no width chosen" as 0, which readShellCookie leaves
+// out, so the next visit uses --size-sidebar again.
+const NO_WIDTH = 0;
 
 export type AppShellInput = "pointer" | "keyboard";
 
@@ -36,8 +49,9 @@ export interface AppShellProviderProps {
   // from readShellCookie, so the first frame matches the last visit.
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
-  // The sidebar width in px. Kept and saved now; resizing arrives with the
-  // splitter.
+  // The sidebar width in px that the person chose last time, such as the
+  // cookie's width. Leave it out to use --size-sidebar, the theme's width,
+  // until they resize the sidebar. Kept between 220 and 480.
   defaultWidth?: number;
   // Saves the open state and width in the composerkit_shell cookie.
   persist?: boolean;
@@ -58,8 +72,20 @@ export interface AppShellContextValue {
   setOpenNarrow: (open: boolean) => void;
   // The shell's own width is under 48rem. Always false on the server.
   isNarrow: boolean;
+  // The sidebar's width in px: the one the person chose, or --size-sidebar,
+  // the theme's, until they choose one.
   width: number;
-  setWidth: (px: number) => void;
+  // The width the person chose, with the splitter or as defaultWidth, or
+  // null. AppShell draws it as --size-sidebar on its root.
+  chosenWidth: number | null;
+  // Sets the width, kept between 220 and 480. null goes back to the
+  // theme's width.
+  setWidth: (px: number | null) => void;
+  // A pointer is dragging the splitter. AppShell marks its root with
+  // data-resizing, which turns transitions off, and the cookie is written
+  // when the drag ends.
+  resizing: boolean;
+  setResizing: (resizing: boolean) => void;
   // Toggles open, or openNarrow when narrow.
   toggleSidebar: () => void;
   // Closes the narrow drawer and moves focus to the main region, for a
@@ -126,6 +152,20 @@ const isNarrowElement = (element: HTMLElement) => {
   return element.getBoundingClientRect().width < NARROW_REM * rem;
 };
 
+// --size-sidebar on an element, in px. The tokens set it to 288, and a
+// design can change it.
+const THEME_WIDTH = 288;
+
+const sidebarWidthOf = (element: HTMLElement) => {
+  const px = pixelsOf(
+    getComputedStyle(element).getPropertyValue("--size-sidebar").trim()
+  );
+
+  return Number.isNaN(px) ? THEME_WIDTH : px;
+};
+
+const onServerWidth = () => THEME_WIDTH;
+
 const noUpdates = () => {
   // Nothing to watch until the root mounts.
 };
@@ -175,7 +215,7 @@ export const AppShellProvider = ({
   open: openProp,
   defaultOpen = true,
   onOpenChange,
-  defaultWidth = DEFAULT_WIDTH,
+  defaultWidth,
   persist = true,
   shortcut = DEFAULT_SHORTCUT,
   labels: labelOverrides,
@@ -183,7 +223,12 @@ export const AppShellProvider = ({
 }: AppShellProviderProps) => {
   const [ownOpen, setOwnOpen] = useState(defaultOpen);
   const [narrowOpen, setNarrowOpen] = useState(false);
-  const [widthPx, setWidthPx] = useState(defaultWidth);
+  const [resizing, setResizing] = useState(false);
+
+  const [widthPx, setWidthPx] = useState<number | null>(() =>
+    defaultWidth === undefined ? null : clampSidebarWidth(defaultWidth)
+  );
+
   const [input, setInput] = useState<AppShellInput>("pointer");
   // AppShell hands over its root element during the commit. The state
   // change renders again before the first paint, so the first frame is
@@ -235,6 +280,43 @@ export const AppShellProvider = ({
   const mainRef = useRef<HTMLElement>(null);
   const sidebarRef = useRef<HTMLElement>(null);
 
+  // The width the sidebar is drawn at: --size-sidebar on the root, which
+  // is the chosen width once there is one, and the theme's until then. A
+  // design can change the theme's, so it is read again whenever the shell
+  // or the sidebar beside the main region changes size.
+  const subscribeToSidebar = useCallback(
+    (notify: () => void) => {
+      if (!rootElement) {
+        return noUpdates;
+      }
+
+      const observer = new ResizeObserver(notify);
+      const sidebar = isNarrow ? null : sidebarRef.current;
+
+      observer.observe(rootElement);
+
+      if (sidebar) {
+        observer.observe(sidebar);
+      }
+
+      return () => observer.disconnect();
+    },
+    [isNarrow, rootElement]
+  );
+
+  const readSidebarWidth = useCallback(
+    () => (rootElement ? sidebarWidthOf(rootElement) : THEME_WIDTH),
+    [rootElement]
+  );
+
+  const drawnWidth = useSyncExternalStore(
+    subscribeToSidebar,
+    readSidebarWidth,
+    onServerWidth
+  );
+
+  const width = widthPx ?? drawnWidth;
+
   // A sidebar that closes around the focused control would drop focus to
   // the page, so focus moves to the toggle first.
   const handOffFocus = useCallback(() => {
@@ -258,23 +340,28 @@ export const AppShellProvider = ({
     [handOffFocus, onOpenChange, openProp]
   );
 
+  const setWidth = useCallback((px: number | null) => {
+    setWidthPx(px === null ? null : clampSidebarWidth(px));
+  }, []);
+
   // The cookie follows the open state and width the shell shows, whether
   // the shell or the app owns them, so a reload restores what was last on
   // screen. The first render's values came from the cookie or the app, so
-  // only a change is written.
+  // only a change is written. During a drag it waits for the drag to end.
   const saved = useRef({ open, width: widthPx });
 
   useEffect(() => {
     if (
       !persist ||
+      resizing ||
       (saved.current.open === open && saved.current.width === widthPx)
     ) {
       return;
     }
 
     saved.current = { open, width: widthPx };
-    writeShellCookie({ open, width: widthPx });
-  }, [open, persist, widthPx]);
+    writeShellCookie({ open, width: widthPx ?? NO_WIDTH });
+  }, [open, persist, resizing, widthPx]);
 
   // The drawer moves focus in when it opens and back out when it closes.
   const setOpenNarrow = useCallback((next: boolean) => {
@@ -377,6 +464,7 @@ export const AppShellProvider = ({
     const key = shortcut ? shortcut.toUpperCase() : "";
 
     return {
+      chosenWidth: widthPx,
       closeNarrowAndFocusMain,
       ids: {
         main: `${base}main`,
@@ -396,11 +484,13 @@ export const AppShellProvider = ({
         sidebar: sidebarRef,
         toggle: toggleRef,
       },
+      resizing,
       rootRef: setRoot,
       setOpen,
       setOpenNarrow,
       setRailSlot,
-      setWidth: setWidthPx,
+      setResizing,
+      setWidth,
       shortcut: shortcut
         ? {
             aria: apple ? `Meta+${key}` : `Control+${key}`,
@@ -408,7 +498,7 @@ export const AppShellProvider = ({
           }
         : null,
       toggleSidebar,
-      width: widthPx,
+      width,
     };
   }, [
     apple,
@@ -421,11 +511,14 @@ export const AppShellProvider = ({
     open,
     narrowOpen,
     railSlot,
+    resizing,
     setOpen,
     setOpenNarrow,
     setRoot,
+    setWidth,
     shortcut,
     toggleSidebar,
+    width,
     widthPx,
   ]);
 
