@@ -9,15 +9,10 @@
    registry item carries the same rules in its css field, so keep the two
    in step. */
 
-/* How fast a long title scrolls: the time per pixel it travels. A theme
-   that sets it wins over this default. */
-:where(:root) {
-  --motion-marquee-ms-per-pixel: 14ms;
-}
-
-/* Row actions. With a pointer that can hover they show on hover, while
-   focus is inside the row and while their menu is open. Until then they
-   don't take a click, which goes to the row instead, and the title keeps
+/* Row actions. With a pointer that can hover they show while a mouse
+   hovers the row (data-hover, which a finger's tap never sets), while the
+   keyboard focuses the row and while their menu is open. Until then they
+   take no click or tap, which goes to the row instead, and the title keeps
    their width. */
 @media (hover: hover) {
   [data-slot="row-actions"] {
@@ -26,8 +21,8 @@
   }
 
   :is([data-slot="conversation-row"], [data-slot="project-row"]):is(
-      :hover,
-      :focus-within,
+      [data-hover],
+      :has(:focus-visible),
       :has([data-popup-open])
     )
     [data-slot="row-actions"] {
@@ -38,8 +33,8 @@
   /* While they show, the title gives up their width so its end stays
      visible: two 20px action fills, the 8px between them and the inset. */
   [data-slot="conversation-row"]:is(
-      :hover,
-      :focus-within,
+      [data-hover],
+      :has(:focus-visible),
       :has([data-popup-open])
     )
     [data-slot="row-button"] {
@@ -66,11 +61,12 @@
 }
 
 /* Without reduced motion, a long title fades out at its end, and scrolls
-   toward its end from its start, which is where it rests. It scrolls on
-   hover only with a fine pointer that can hover, as a tap would leave it
-   scrolled, and while the keyboard focuses its row. The two motion
-   preferences get separate blocks, so neither depends on the order the
-   rules land in an app's CSS file. */
+   toward its end from its start, which is where it rests, at
+   --motion-marquee-ms-per-pixel from the theme. It scrolls while the
+   keyboard focuses its row, and while a fine mouse pointer hovers it
+   (data-hover, as a finger's tap would leave :hover behind). The two
+   motion preferences get separate blocks, so neither depends on the order
+   the rules land in an app's CSS file. */
 @media (prefers-reduced-motion: no-preference) {
   [data-slot="row-title-track"] {
     display: inline-block;
@@ -119,7 +115,7 @@
 }
 
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  :is([data-slot="conversation-row"], [data-slot="project-row"]):hover
+  :is([data-slot="conversation-row"], [data-slot="project-row"])[data-hover]
     [data-slot="row-title-track"][data-overflowing="true"] {
     translate: calc(var(--overflow) * -1) 0;
     transition: translate
@@ -127,12 +123,12 @@
       var(--motion-marquee-delay);
   }
 
-  :is([data-slot="conversation-row"], [data-slot="project-row"]):hover
+  :is([data-slot="conversation-row"], [data-slot="project-row"])[data-hover]
     [data-slot="row-title-track"][data-overflowing="true"]:dir(rtl) {
     translate: var(--overflow) 0;
   }
 
-  :is([data-slot="conversation-row"], [data-slot="project-row"]):hover
+  :is([data-slot="conversation-row"], [data-slot="project-row"])[data-hover]
     [data-slot="row-title"][data-overflowing="true"] {
     mask-image: none;
   }

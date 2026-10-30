@@ -6,10 +6,13 @@
 import { useRender } from "@base-ui/react/use-render";
 import { EllipsisIcon, PinIcon, PinOffIcon } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import type { MouseEvent, ReactElement } from "react";
+import type { MouseEvent, PointerEvent, ReactElement } from "react";
 
 import { chatSidebarLabels } from "@/components/chat-sidebar/labels";
-import type { ChatSidebarLabels } from "@/components/chat-sidebar/labels";
+import type {
+  ChatSidebarAgeUnit,
+  ChatSidebarLabels,
+} from "@/components/chat-sidebar/labels";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import {
@@ -43,8 +46,24 @@ export type ChatSidebarRenderLink = (
   conversation: ChatSidebarConversation
 ) => ReactElement;
 
-// A title that scrolls sideways to show the rest. It scrolls on hover with
-// a fine pointer, and while the keyboard focuses its row, starting from the
+// Puts data-hover on a row while a mouse is over it. :hover also matches
+// where a finger tapped on a screen whose main pointer hovers, such as a
+// touchscreen laptop, which would show the row's hidden actions under the
+// finger and scroll its title. So chat-sidebar.css reads data-hover.
+const mouseHover = (event: PointerEvent<HTMLElement>, over: boolean) => {
+  if (event.pointerType === "mouse") {
+    event.currentTarget.toggleAttribute("data-hover", over);
+  }
+};
+
+export const MOUSE_HOVER_PROPS = {
+  onPointerEnter: (event: PointerEvent<HTMLElement>) => mouseHover(event, true),
+  onPointerLeave: (event: PointerEvent<HTMLElement>) =>
+    mouseHover(event, false),
+};
+
+// A title that scrolls sideways to show the rest. It scrolls while a mouse
+// hovers its row, and while the keyboard focuses its row, starting from the
 // title's start, at --motion-marquee-ms-per-pixel after
 // --motion-marquee-delay. A touch never scrolls it, and with reduced
 // motion it never moves: it stays on one line and ends in an ellipsis, so
@@ -62,7 +81,7 @@ export const MarqueeLabel = ({
 
   // The distance to scroll goes straight onto the text as --overflow, in
   // px, and --overflow-px, as a number. It is measured again when the
-  // title's box resizes.
+  // text changes or the title's box resizes.
   useLayoutEffect(() => {
     const element = viewport.current;
     const content = track.current;
@@ -80,10 +99,20 @@ export const MarqueeLabel = ({
     };
 
     measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(element);
+    const resized = new ResizeObserver(measure);
+    const retitled = new MutationObserver(measure);
 
-    return () => observer.disconnect();
+    resized.observe(element);
+    retitled.observe(content, {
+      characterData: true,
+      childList: true,
+      subtree: true,
+    });
+
+    return () => {
+      resized.disconnect();
+      retitled.disconnect();
+    };
   }, []);
 
   return (
@@ -115,10 +144,10 @@ export interface RowActionsProps {
 }
 
 // The row's More menu and Pin button. With a pointer that can hover they
-// show on hover, while focus is inside the row and while the menu is open,
-// and until then a click goes to the row. A touch screen can't hover, so
-// there the More button always shows and Pin waits in its menu, beside
-// Archive. They sit over the row's end on no fill of their own, and the
+// show while a mouse hovers the row, while the keyboard focuses it and
+// while the menu is open, and until then a click or a tap goes to the
+// row. A touch screen can't hover, so there the More button always shows
+// and Pin waits in its menu, beside Archive. They sit over the row's end on no fill of their own, and the
 // title gives up their width while they show (chat-sidebar.css).
 export const RowActions = ({
   conversation,
@@ -174,20 +203,23 @@ const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;
 
-const AGO = new Intl.RelativeTimeFormat(undefined, { style: "narrow" });
-
-const relativeTime = (iso: string, now: Date): string => {
+// How long ago iso was, in whole minutes, hours or days, at least one
+// minute.
+const elapsedSince = (
+  iso: string,
+  now: Date
+): [amount: number, unit: ChatSidebarAgeUnit] => {
   const elapsed = Math.max(0, now.getTime() - Date.parse(iso));
 
   if (elapsed < HOUR) {
-    return AGO.format(-Math.max(1, Math.round(elapsed / MINUTE)), "minute");
+    return [Math.max(1, Math.round(elapsed / MINUTE)), "minute"];
   }
 
   if (elapsed < DAY) {
-    return AGO.format(-Math.round(elapsed / HOUR), "hour");
+    return [Math.round(elapsed / HOUR), "hour"];
   }
 
-  return AGO.format(-Math.round(elapsed / DAY), "day");
+  return [Math.round(elapsed / DAY), "day"];
 };
 
 // The two-line row's second line: how long ago the chat changed, and its
@@ -228,7 +260,10 @@ const RowDetails = ({
       data-slot="row-details"
     >
       {from
-        ? labels.rowDetails(relativeTime(updatedAt, from), project)
+        ? labels.rowDetails(
+            labels.age(...elapsedSince(updatedAt, from)),
+            project
+          )
         : project}
     </span>
   );
@@ -334,6 +369,7 @@ export const ConversationRow = ({
       data-active={active ? "" : undefined}
       data-density={density}
       data-slot="conversation-row"
+      {...MOUSE_HOVER_PROPS}
     >
       {opener}
       <RowActions

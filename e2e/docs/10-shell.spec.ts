@@ -34,6 +34,8 @@ declare global {
     // The transitions that started since listenForTransitions, each as
     // "slot property", where slot is the target's data-slot or tag name.
     shellTransitions?: string[];
+    // Renders the row mounted by mountRow again with this title.
+    renderRowTitle?: (title: string) => void;
   }
 }
 
@@ -1824,6 +1826,156 @@ test("marquee: on a touch screen, a tap or a hover never scrolls a long title", 
 
   expect(await titleStart(row)).toBeCloseTo(0, 0);
   await context.close();
+});
+
+// A finger's tap at the middle of target, on a screen whose main pointer
+// hovers, such as a touchscreen laptop. Playwright's own tap needs
+// hasTouch, which also makes the page match hover: none.
+const tapWithFinger = async (page: Page, target: Locator) => {
+  const box = await target.boundingBox();
+
+  const point = {
+    x: (box?.x ?? 0) + (box?.width ?? 0) / 2,
+    y: (box?.y ?? 0) + (box?.height ?? 0) / 2,
+  };
+
+  const cdp = await page.context().newCDPSession(page);
+
+  await cdp.send("Input.dispatchTouchEvent", {
+    touchPoints: [point],
+    type: "touchStart",
+  });
+  await cdp.send("Input.dispatchTouchEvent", {
+    touchPoints: [],
+    type: "touchEnd",
+  });
+  await cdp.detach();
+};
+
+test("touch on a screen that hovers: a tap on a row's hidden Pin opens the chat and never pins it", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+
+  const pinned = await pinnedRows(sidebar(page)).count();
+  const row = chatRow(sidebar(page), RETRIES);
+
+  await tapWithFinger(page, row.locator('[data-row-action="pin"]'));
+
+  await expect(page.getByRole("tab", { name: RETRIES })).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+  await expect(pinnedRows(sidebar(page))).toHaveCount(pinned);
+});
+
+test("marquee on a screen that hovers: a finger's tap never scrolls a long title", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+
+  const row = longTitleRow(page);
+  const title = row.locator('[data-slot="row-title"]');
+
+  await tapWithFinger(page, title);
+  await page.waitForTimeout(MARQUEE_SETTLE_MS);
+
+  expect(await titleStart(row)).toBeCloseTo(0, 0);
+});
+
+test("labels: in a German browser, a two-line row's age comes from the English labels", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({ locale: "de-DE" });
+  const page = await context.newPage();
+
+  await openPage(page, "/chat-sidebar", "light");
+
+  const details = docsExample(page, "conversation-row--two-line").locator(
+    '[data-slot="row-details"]'
+  );
+
+  await expect(details.first()).toHaveText(/\bago\b/u);
+  await expect(details.filter({ hasText: "vor" })).toHaveCount(0);
+  await context.close();
+});
+
+const STRESS_ROW =
+  "packages/composerkit/src/components/chat-sidebar/conversation-row.tsx";
+
+// Mounts a ConversationRow, 288 px wide, from the stress page's own React
+// and modules, so a test can pass it a new title the way an app does.
+const mountRow = async (page: Page) => {
+  await openHarness(page, "part=row&data=demo", "light");
+  await page.evaluate(
+    async (rowUrl) => {
+      const loaded = performance
+        .getEntriesByType("resource")
+        .map((entry) => entry.name);
+
+      const dependency = (name: string) =>
+        loaded.find((url) => url.includes(`/.vite/deps/${name}.js`)) ?? name;
+
+      // Vite serves React as CommonJS wrapped in a default export.
+      const [{ default: react }, { default: client }, rows] = await Promise.all(
+        [
+          import(dependency("react")),
+          import(dependency("react-dom_client")),
+          import(rowUrl),
+        ]
+      );
+
+      const host = document.createElement("div");
+
+      host.dataset.mountedRow = "";
+      host.style.width = "288px";
+      document.body.prepend(host);
+
+      const root = client.createRoot(host);
+
+      window.renderRowTitle = (title) =>
+        root.render(
+          react.createElement(rows.ConversationRow, {
+            active: false,
+            conversation: {
+              id: "mounted",
+              pinned: false,
+              projectId: null,
+              title,
+              updatedAt: "2026-01-01T00:00:00Z",
+            },
+            onArchive: () => null,
+            onOpen: () => null,
+            onTogglePin: () => null,
+          })
+        );
+    },
+    `/@fs${path.join(REPO, STRESS_ROW)}`
+  );
+
+  return page.locator('[data-mounted-row] [data-slot="conversation-row"]');
+};
+
+const renderRowTitle = (page: Page, title: string) =>
+  page.evaluate((next) => window.renderRowTitle?.(next), title);
+
+test("marquee: a row whose title changes to a long one scrolls it on hover, and stops when it changes back", async ({
+  page,
+}) => {
+  const row = await mountRow(page);
+  const title = row.locator('[data-slot="row-title"]');
+
+  await renderRowTitle(page, "Short");
+  await expect(title).toHaveAttribute("data-overflowing", "false");
+
+  await renderRowTitle(page, `${RETRIES}, then the ${RETRIES.toLowerCase()}`);
+  await expect(title).toHaveAttribute("data-overflowing", "true");
+
+  await row.hover();
+  await expect.poll(() => titleEnd(row), { timeout: 5000 }).toBeCloseTo(0, 0);
+
+  await renderRowTitle(page, "Short");
+  await expect(title).toHaveAttribute("data-overflowing", "false");
 });
 
 test("marquee under reduced motion: hovering a long title keeps the row 30 px tall and the title on one line", async ({

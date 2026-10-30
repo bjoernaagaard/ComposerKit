@@ -7,7 +7,10 @@ import { FolderIcon, SquarePenIcon } from "lucide-react";
 import { useId, useState } from "react";
 import type { FormEvent } from "react";
 
-import { MarqueeLabel } from "@/components/chat-sidebar/conversation-row";
+import {
+  MOUSE_HOVER_PROPS,
+  MarqueeLabel,
+} from "@/components/chat-sidebar/conversation-row";
 import type { ChatSidebarProject } from "@/components/chat-sidebar/conversation-row";
 import { chatSidebarLabels } from "@/components/chat-sidebar/labels";
 import type { ChatSidebarLabels } from "@/components/chat-sidebar/labels";
@@ -75,7 +78,12 @@ export const ProjectList = ({
   return (
     <ul className="flex flex-col gap-(--size-row-gap)">
       {projects.map((project) => (
-        <li className="relative" data-slot="project-row" key={project.id}>
+        <li
+          className="relative"
+          data-slot="project-row"
+          key={project.id}
+          {...MOUSE_HOVER_PROPS}
+        >
           <div className="text-muted-foreground flex min-h-(--size-row) items-center gap-2 rounded-(--radius-control) py-(--space-row-padding-y) ps-(--space-row-padding-x) pe-8 text-(length:--text-body-size) leading-(--text-body-leading)">
             <FolderIcon
               aria-hidden="true"

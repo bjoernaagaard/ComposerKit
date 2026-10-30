@@ -11,6 +11,9 @@
 // ones in none.
 export type ChatSidebarFilter = "all" | "project" | "loose";
 
+// The unit of a chat's age on the two-line row.
+export type ChatSidebarAgeUnit = "minute" | "hour" | "day";
+
 export interface ChatSidebarLabels {
   // The chat list's navigation landmark.
   chats: string;
@@ -50,8 +53,10 @@ export interface ChatSidebarLabels {
   unpin: (title: string) => string;
   archiveChat: string;
   archiveChatDescription: string;
-  // The two-line row's second line: how long ago, and the project if the
-  // chat is in one.
+  // How long ago a chat changed, such as 5 minutes, at least 1.
+  age: (amount: number, unit: ChatSidebarAgeUnit) => string;
+  // The two-line row's second line: the age, and the project if the chat
+  // is in one.
   rowDetails: (age: string, project: string | undefined) => string;
   // The button on a project row that starts a chat in it.
   newChatIn: (project: string) => string;
@@ -82,8 +87,13 @@ const FILTER_BUTTONS: Record<ChatSidebarFilter, string> = {
   project: "Filter chats, now showing chats in a project",
 };
 
+// The language of the defaults. Ages are formatted in it, not in the
+// browser's, so they match the words around them.
+const AGO = new Intl.RelativeTimeFormat("en", { style: "narrow" });
+
 export const CHAT_SIDEBAR_LABELS: ChatSidebarLabels = {
   addProject: "Add project",
+  age: (amount, unit) => AGO.format(-amount, unit),
   archiveChat: "Archive chat",
   archiveChatDescription: "You can undo it right away",
   archived: (title) => `“${title}” archived`,

@@ -273,6 +273,7 @@
       "motion-ease-out": "cubic-bezier(0, 0, 0.2, 1)",
       "motion-ease-enter": "cubic-bezier(0.19, 1, 0.22, 1)",
       "motion-marquee-delay": "400ms",
+      "motion-marquee-ms-per-pixel": "14ms",
       "motion-jump-duration": "0ms",
       "motion-tooltip-delay": "200ms",
       "motion-tooltip-close-delay": "0ms",

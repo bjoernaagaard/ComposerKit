@@ -28,7 +28,7 @@ export const SidebarSection = ({
   return (
     <section
       aria-label={title}
-      className="mt-2 first:mt-0"
+      className="mt-4 first:mt-0"
       data-slot="sidebar-section"
     >
       <div
