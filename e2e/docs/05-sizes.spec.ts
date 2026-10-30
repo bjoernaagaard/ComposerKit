@@ -1287,8 +1287,6 @@ notMeasurable(
   "The title bar tabs example shows only the tab strip; the back, forward, sidebar and view buttons are not in any example."
 );
 
-// The demo app's sidebar header: its notifications button and the chat
-// sidebar's search button.
 measure(
   {
     expected: "28 x 28",
@@ -2221,8 +2219,6 @@ measure(
   }
 );
 
-// The chat sidebar in the demo app, which runs the shipped chat-sidebar
-// parts with the demo's own workspace menu and notifications in its header.
 const chats = (page: Page) => page.getByRole("navigation", { name: "Chats" });
 
 measure(

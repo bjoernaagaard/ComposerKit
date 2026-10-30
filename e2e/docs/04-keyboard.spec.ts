@@ -1624,8 +1624,6 @@ walk(
   }
 );
 
-// --- 6. App shell ----------------------------------------------------------
-
 // The whole shell renders only in the playground's demo app, which runs the
 // shipped app-shell parts.
 const APP = { example: "app-shell", url: `${PLAYGROUND_URL}/` };

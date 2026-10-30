@@ -964,8 +964,6 @@ for (const part of LABEL_PARTS) {
   });
 }
 
-// Where a tab's close button sits against the tab and its title, in px
-// from the left of the page.
 const closePlace = async (tab: Locator, close: Locator) => {
   const [tabBox, closeBox, titleBox] = await Promise.all([
     tab.boundingBox(),
@@ -982,8 +980,6 @@ const closePlace = async (tab: Locator, close: Locator) => {
   };
 };
 
-// Long titles keep the close button inside the tab, clear of the title,
-// and the tab menu reaches every tab when 30 are open.
 test("tabs: 200 character titles keep their close button inside the tab, and 30 tabs all sit in the tab menu", async ({
   page,
 }) => {

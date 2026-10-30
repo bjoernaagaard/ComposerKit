@@ -15,7 +15,6 @@ import {
 import type { AppShellLabels } from "@/components/app-shell/labels";
 import { cn } from "@/lib/utils";
 
-// An arrow key moves the edge this far, or FINE_STEP with Shift.
 const STEP = 16;
 const FINE_STEP = 8;
 
@@ -39,10 +38,8 @@ export interface AppShellSplitterProps extends Omit<
 
 interface Drag {
   pointerId: number;
-  // Where the pointer went down, and the width then.
   startX: number;
   startWidth: number;
-  // In right-to-left layouts the sidebar grows toward the left.
   rtl: boolean;
 }
 
@@ -149,8 +146,6 @@ export const AppShellSplitter = ({
     setWidth(current.startWidth + (current.rtl ? -moved : moved));
   };
 
-  // The drag ends when the pointer comes up, the browser cancels it, or
-  // the splitter loses the pointer. The cookie is written then.
   const endDrag = (event: PointerEvent<HTMLDivElement>) => {
     if (drag.current?.pointerId !== event.pointerId) {
       return;

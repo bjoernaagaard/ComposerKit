@@ -209,10 +209,8 @@ const MenuPart = ({ data }: { data: Dataset }) => {
   );
 };
 
-// ?tabs= sets how many tabs the strip opens with, 3 by default.
 const TAB_COUNT = Number(params.get("tabs")) || 3;
 
-// ?id= gives the strip tabs with exactly these ids, which may be empty.
 const GIVEN_TAB_IDS = params.getAll("id");
 
 // Tab ids may be any string, so each carries a space and a lone surrogate,
@@ -297,8 +295,6 @@ const RowsPart = ({ data }: { data: Dataset }) => {
   );
 };
 
-// One row whose title follows the field, the way an app passes a chat's
-// new title when it is renamed.
 const RowTitlePart = () => {
   const [title, setTitle] = useState("Short");
   const fieldId = useId();

@@ -5,10 +5,7 @@
    installed web app with window controls overlay. Its empty space drags
    the window, and its controls stay clickable. The leading group starts
    after the window controls, or at --space-titlebar-inset-start when there
-   are none, as on the web. In a browser tab nothing here changes the look.
-
-   The npm package loads this file from styles.css. The app-shell registry
-   item carries the same rules in its css field, so keep the two in step. */
+   are none, as on the web. In a browser tab nothing here changes the look. */
 
 [data-slot="title-bar"] {
   -webkit-app-region: drag;
@@ -73,10 +70,6 @@
   );
 }
 
-/* Reduced motion: no part of the shell moves or grows. The sidebar, its
-   space and the title bar's leading group snap to their place, and only
-   opacity and color still fade, at --motion-reduced-fade. A change from
-   the keyboard stays instant. */
 @media (prefers-reduced-motion: reduce) {
   [data-slot="app-shell"],
   [data-slot="app-shell"] * {
@@ -94,9 +87,6 @@
   }
 }
 
-/* While the splitter is dragged, the sidebar and the title bar follow the
-   pointer with no transition, the cursor stays col-resize wherever the
-   pointer goes, and no text is selected. */
 [data-slot="app-shell"][data-resizing] {
   cursor: col-resize;
   -webkit-user-select: none;

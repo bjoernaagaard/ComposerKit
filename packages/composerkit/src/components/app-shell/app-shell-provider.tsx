@@ -27,12 +27,9 @@ const NARROW_REM = 48;
 const FALLBACK_REM_PX = 16;
 const DEFAULT_SHORTCUT = "b";
 
-// The range a person can resize the sidebar in, in px. The same values are
-// the --size-sidebar-min and --size-sidebar-max tokens.
 export const SIDEBAR_MIN_WIDTH = 220;
 export const SIDEBAR_MAX_WIDTH = 480;
 
-// A width inside the range, in whole px.
 const clampSidebarWidth = (px: number): number =>
   Math.round(Math.min(SIDEBAR_MAX_WIDTH, Math.max(SIDEBAR_MIN_WIDTH, px)));
 
@@ -138,7 +135,6 @@ export const useAppShellLabels = (
   return { ...(context?.labels ?? APP_SHELL_LABELS), ...labels };
 };
 
-// Whether an element is narrower than 48rem.
 const isNarrowElement = (element: HTMLElement) => {
   const rem =
     Number(
@@ -148,8 +144,6 @@ const isNarrowElement = (element: HTMLElement) => {
   return element.getBoundingClientRect().width < NARROW_REM * rem;
 };
 
-// --size-sidebar on an element, in px. The tokens set it to 288, and a
-// design can change it.
 const THEME_WIDTH = 288;
 
 const sidebarWidthOf = (element: HTMLElement) => {
@@ -175,13 +169,10 @@ const isApplePlatform = () => APPLE_PLATFORM.test(navigator.platform);
 const onServer = () => false;
 
 interface ShortcutShell {
-  // The shortcut's key, in lower case.
   key: string;
-  // The shell's root element, null until AppShell mounts.
   root: HTMLElement | null;
 }
 
-// The mounted shells whose shortcut is on.
 const shortcutShells = new Set<ShortcutShell>();
 
 // One press toggles one shell: of the shells with that key, the one that
@@ -369,8 +360,6 @@ export const AppShellProvider = ({
     }
 
     saved.current = { open, width: widthPx };
-    // With no width chosen the cookie keeps none, so the next visit uses
-    // --size-sidebar again.
     writeShellCookie({ open, width: widthPx ?? undefined });
   }, [open, persist, resizing, widthPx]);
 
@@ -407,7 +396,6 @@ export const AppShellProvider = ({
     }
   }, [isNarrow, narrowOpen, open, setOpen, setOpenNarrow]);
 
-  // The listeners below are added once and call the latest toggle.
   const toggleLatest = useRef(toggleSidebar);
 
   useEffect(() => {

@@ -105,7 +105,6 @@ export interface ChatAppProps {
   embedded?: boolean;
 }
 
-// The app's destinations. The rail shows a rule between the two groups.
 const DESTINATIONS: {
   id: Destination;
   label: string;
@@ -141,7 +140,6 @@ const titleFor = (sent: ComposerState): string => {
 
 const placeholderReply = () => PLACEHOLDER_REPLY;
 
-// Only the sample chat has messages. Every other chat shows a placeholder.
 const ConversationMain = ({
   id,
   title,
@@ -179,7 +177,6 @@ const ConversationMain = ({
   );
 };
 
-// The top of the demo's sidebar: the workspace menu and notifications.
 const SidebarHeader = () => (
   <>
     <MenuRoot>
@@ -246,7 +243,6 @@ const ShellApp = ({
   railFooter,
   embedded = false,
 }: ShellAppProps) => {
-  // The tab panel inside the main region.
   const panelId = useId();
 
   const [tabs, setTabs] = useState<AppShellTab[]>([
@@ -519,8 +515,6 @@ const ShellApp = ({
   );
 };
 
-// The provider keeps the sidebar's open state and width, and saves them in
-// the composerkit_shell cookie unless the app is embedded.
 export const ChatApp = ({
   defaultOpen,
   defaultWidth,

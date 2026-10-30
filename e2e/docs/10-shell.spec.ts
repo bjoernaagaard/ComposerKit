@@ -1,16 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 // SPDX-License-Identifier: MIT
 
-// The app shell in the playground's demo app: the current page in the
-// icon rail keeps a visible cue in forced colors, reduced motion keeps the
-// short color fades and drops the movement, and switching the color scheme
-// swaps every color at once instead of fading each element on its own.
-// The skip link, the landmarks, the sidebar shortcut, the sidebar's motion,
-// and its state across a close and a reload. Then the shell as an app gets
-// it: the npm module a server calls, reduced motion and two shells on the
-// docs page, a controlled shell's cookie, blocked cookies, and tab ids.
-// Then the narrow drawer, closing tabs by key, pointer and touch, the tab
-// menu when tabs overflow, and the shortcut inside a shadow root.
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -130,7 +120,6 @@ test("reduced motion: the mode toggle's labels still fade and its thumb does not
   expect(labelTransition.duration).toBe(REDUCED_FADE);
   expect(thumbTransition.property).not.toMatch(/transform|translate/u);
 
-  // Moving the choice changes both labels' color and the thumb's place.
   const thumbBefore = await thumb.boundingBox();
 
   await listenForTransitions(page);
@@ -156,7 +145,6 @@ test("theme switch: picking the other scheme starts no transitions", async ({
 
   await expect(dark).toBeVisible();
 
-  // The frame after the root's class changes, when every color has swapped.
   await page.evaluate(() => {
     const observer = new MutationObserver(() => {
       observer.disconnect();
@@ -198,7 +186,6 @@ const hideToggle = (page: Page) =>
 const showToggle = (page: Page) =>
   page.getByRole("button", { name: "Show sidebar" });
 
-// The sidebar's own moving parts: the spacer and the panel.
 const sidebarMotion = (started: string[]) =>
   started.filter((entry) => entry.startsWith("sidebar-"));
 
@@ -242,7 +229,6 @@ test("shortcut: Meta+B, or Control+B off Apple platforms, hides and shows the si
 }) => {
   await openApp(page, "base", "light");
 
-  // The toggle names its own shortcut, Meta+B or Control+B by platform.
   const keys = await hideToggle(page).getAttribute("aria-keyshortcuts");
 
   expect(keys).toMatch(/^(?:Meta|Control)\+B$/u);
@@ -292,7 +278,6 @@ test("reload: a hidden sidebar is still hidden on the first frame", async ({
   await hideToggle(page).click();
   await expect(sidebar(page)).toBeHidden();
 
-  // The layout is saved in the composerkit_shell cookie.
   await expect
     .poll(async () => {
       const cookies = await page.context().cookies();
@@ -341,7 +326,6 @@ test("state: the sidebar keeps its search text and scroll position when it close
 
   await search.fill("e");
 
-  // The list scrolls under the pointer, so its first row moves up.
   const row = sidebar(page).getByRole("listitem").first();
   const resting = await row.boundingBox();
 
@@ -424,7 +408,6 @@ test('npm package: persist.js has no "use client", so a server component can cal
     persist.readShellCookie("composerkit_shell=open%3Dfalse%26width%3D300")
   ).toEqual({ open: false, width: 300 });
 
-  // The parts with hooks still load on the client.
   const provider = readFileSync(
     path.join(
       REPO,
@@ -615,8 +598,6 @@ test('tab ids: a tab whose id has quotes, such as filled "…", opens by click a
   expect(errors).toEqual([]);
 });
 
-// --- Narrow shells: the sidebar is a modal drawer with the rail in it ---
-
 const NARROW_SIZES = [
   { height: 844, width: 390 },
   { height: 640, width: 320 },
@@ -626,7 +607,6 @@ const WIDE = { height: 900, width: 1440 } as const;
 
 const drawer = (page: Page) => page.getByRole("dialog", { name: "Sidebar" });
 
-// The drawer itself or a control in it has focus.
 const focusInDrawer = (page: Page) =>
   page.locator('[role="dialog"]:focus-within');
 
@@ -645,8 +625,6 @@ for (const size of NARROW_SIZES) {
 
     await expect(focusInDrawer(page)).toHaveCount(1);
 
-    // The page behind is out of reach for assistive technology, and Tab
-    // never reaches the title bar.
     await expect(drawer(page)).toHaveAttribute("aria-modal", "true");
     await expect(page.getByRole("banner")).toHaveCount(0);
 
@@ -729,7 +707,6 @@ for (const size of NARROW_SIZES) {
     await expect(page.getByRole("navigation", { name: "Main" })).toHaveCount(0);
     await expect(page.locator("[data-rail-item]").first()).toBeHidden();
 
-    // Opened from the keyboard, focus goes to the first destination.
     await showToggle(page).focus();
     await page.keyboard.press("Enter");
     await expect(drawer(page)).toBeVisible();
@@ -814,8 +791,6 @@ test("resize: going narrow and back keeps the wide sidebar's open state", async 
   await expect(showToggle(page)).toHaveAttribute("aria-expanded", "false");
   await expect(sidebar(page)).toBeHidden();
 
-  // Shown on wide, the drawer still starts closed on narrow, and the
-  // sidebar is back beside the page on wide.
   await showToggle(page).click();
   await expect(sidebar(page)).toBeVisible();
 
@@ -827,8 +802,6 @@ test("resize: going narrow and back keeps the wide sidebar's open state", async 
   await expect(sidebar(page)).toBeVisible();
   await expect(hideToggle(page)).toHaveAttribute("aria-expanded", "true");
 });
-
-// --- Tabs: close them, and reach the hidden ones from the tab menu ---
 
 const tabStrip = (page: Page) =>
   page.getByRole("tablist", { name: "Open chats" });
@@ -887,7 +860,6 @@ test("tabs: Delete closes the focused tab and focuses the one to its right, or t
   await expect(focusedTab(page)).toHaveAttribute("data-tab-id", second ?? "");
   await expect(focusedTab(page)).toHaveAttribute("aria-selected", "true");
 
-  // The only tab has no close button, and Delete leaves it open.
   await expect(shellTabs(page).first()).not.toHaveAttribute(
     "aria-keyshortcuts"
   );
@@ -1005,7 +977,6 @@ test("tabs with a pointer: close buttons show on hover and on the open tab, a cl
   await expect(closeButton(page, 0)).toHaveAttribute("aria-hidden", "true");
   await expect(closeButton(page, 0)).toHaveAttribute("tabindex", "-1");
 
-  // With a fine pointer and every tab in view, there is no tab menu.
   await expect(tabStrip(page)).not.toHaveAttribute("data-overflow");
   await expect(tabMenuButton(page)).toBeHidden();
 
@@ -1018,7 +989,6 @@ test("tabs with a pointer: close buttons show on hover and on the open tab, a cl
   expect(box?.width).toBeGreaterThanOrEqual(24);
   expect(box?.height).toBeGreaterThanOrEqual(24);
 
-  // Closing a tab in the background leaves the open tab open.
   await closeButton(page, 0).click();
   await expect.poll(() => tabIds(page)).toEqual([second, third]);
   await expect(shellTabs(page).last()).toHaveAttribute("aria-selected", "true");
@@ -1122,7 +1092,6 @@ test("tab overflow: ten tabs at 1024 px fade at the clipped edge, and the tab me
 
   await expect(shellTabs(page)).toHaveCount(10);
 
-  // The newest tab is open and in view, so the strip is clipped at its start.
   await expect(tabStrip(page)).toHaveAttribute("data-overflow", "start");
   expect(
     await tabStrip(page).evaluate((strip) => getComputedStyle(strip).maskImage)
@@ -1176,8 +1145,6 @@ test("tab ids: a lone surrogate such as \\uD800 in a tab id renders, and its tab
   expect(errors).toEqual([]);
 });
 
-// The stress page's tab strip with tabs that have the ids a, "" and c,
-// each titled with its id in brackets, the first one open.
 const EMPTY_ID_TABS = "part=tabs&id=a&id=&id=c";
 
 test("tab ids: a tab whose id is empty takes focus when Delete closes the tab before it, and Delete on it focuses the next", async ({
@@ -1284,8 +1251,6 @@ test("touch: a 220 px swipe toward the leading edge closes the drawer", async ({
     })
     .toBe(0);
 
-  // A finger from x 240 to x 20 in 20 px steps, 220 px toward the leading
-  // edge.
   const cdp = await context.newCDPSession(page);
   const y = 300;
   const steps = [220, 200, 180, 160, 140, 120, 100, 80, 60, 40, 20];
@@ -1316,12 +1281,9 @@ test("touch: a 220 px swipe toward the leading edge closes the drawer", async ({
   await context.close();
 });
 
-// --- The splitter on the sidebar's edge resizes it ---
-
 const splitter = (page: Page) =>
   page.getByRole("separator", { name: "Resize sidebar" });
 
-// The splitter reads the width, and the sidebar is drawn at it.
 const expectWidth = async (page: Page, px: number) => {
   await expect(splitter(page)).toHaveAttribute("aria-valuenow", String(px));
   await expect
@@ -1333,8 +1295,6 @@ const expectWidth = async (page: Page, px: number) => {
     .toBe(px);
 };
 
-// Drags the splitter from its middle by dx px with the mouse, and leaves
-// the button down when hold is set.
 const dragSplitter = async (page: Page, dx: number, hold = false) => {
   const box = await splitter(page).boundingBox();
   const x = (box?.x ?? 0) + (box?.width ?? 0) / 2;
@@ -1412,13 +1372,11 @@ test("splitter: dragging from 288 to 400 sets 400 with no transition, and the co
   await expect
     .poll(() => savedShell(page))
     .toEqual([expect.stringContaining("width=400")]);
-  // Neither the sidebar nor the title bar's leading group animates width.
   const started = await startedTransitions(page);
 
   expect(started.filter((entry) => entry.endsWith(" width"))).toEqual([]);
   expect(await page.evaluate(() => getSelection()?.toString() ?? "")).toBe("");
 
-  // Past the end of the range, the edge stops at 480.
   await dragSplitter(page, 200);
   await expectWidth(page, 480);
 });
@@ -1470,7 +1428,6 @@ test("splitter: a double click goes back to 288, and the cookie keeps no width",
   await splitter(page).dblclick();
 
   await expectWidth(page, 288);
-  // With no chosen width, the cookie keeps none.
   await expect.poll(() => savedShell(page)).toEqual(["open=true"]);
 });
 
@@ -1570,11 +1527,8 @@ test("splitter: a design's sidebar width holds until the person resizes", async 
   await expectWidth(page, 276);
 });
 
-// --- The chat sidebar: rows on touch, long titles, rows as links ---
-
 const RETRIES = "Add retries to the sync client";
 
-// A chat row by its chat's title.
 const chatRow = (root: Locator, title: string) =>
   root.locator('[data-slot="conversation-row"]').filter({
     has: root.page().getByRole("button", { exact: true, name: title }),
@@ -1583,7 +1537,6 @@ const chatRow = (root: Locator, title: string) =>
 const pinnedRows = (root: Locator) =>
   root.getByRole("region", { name: "Pinned" }).getByRole("listitem");
 
-// The first chat row whose title is too long to fit.
 const longTitleRow = (page: Page) =>
   sidebar(page)
     .locator('[data-slot="conversation-row"]')
@@ -1651,7 +1604,6 @@ test("touch: a tap on a chat row opens the chat and never pins it, and the row's
     name: `More actions for ${RETRIES}`,
   });
 
-  // The More button shows with no hover, and Pin waits in its menu.
   await expect(more).toBeVisible();
   await expect(more).toHaveCSS("opacity", "1");
   await expect(
@@ -1680,7 +1632,6 @@ test("touch: a tap on a chat row opens the chat and never pins it, and the row's
   await expect(menu).toBeHidden();
   expect(await pinnedRows(drawer(page)).count()).toBe(pinned);
 
-  // The end of the title, just before the More button, opens the chat.
   const moreBox = await more.boundingBox();
 
   await row.tap({
@@ -1709,7 +1660,6 @@ test("pointer: a row's actions take no click until the row is hovered, and then 
   await page.mouse.move(0, 0);
   await expect(actions).toHaveCSS("opacity", "0");
   await expect(actions).toHaveCSS("pointer-events", "none");
-  // No patch over the row: the actions have no fill of their own.
   await expect(actions).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
 
   await row.hover();
@@ -1729,7 +1679,6 @@ test("marquee: with a fine pointer, hovering a long title scrolls it from its st
 
   await row.hover();
 
-  // It waits --motion-marquee-delay with the title's start in view.
   expect(await titleStart(row)).toBeCloseTo(0, 0);
 
   await expect
@@ -1835,8 +1784,6 @@ test("labels: in a German browser, a two-line row's age comes from the English l
   await context.close();
 });
 
-// Opens the stress page's row-title part: one row, 288 px wide, whose
-// title follows the Row title field, the way an app passes a new title.
 const openTitleRow = async (page: Page) => {
   await openHarness(page, "part=row-title", "light");
 
@@ -1906,7 +1853,6 @@ test("links: a row with renderLink is an <a>, Cmd-click or Ctrl-click opens it i
 
   expect(popup.url()).toMatch(/#\/c\//u);
   await popup.close();
-  // A click meant for a new page doesn't open the chat here.
   await expect(link).not.toHaveAttribute("aria-current");
 
   await link.click();

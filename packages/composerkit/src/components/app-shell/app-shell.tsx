@@ -103,16 +103,10 @@ export const AppShellSkipLink = ({
   );
 };
 
-// The narrow sidebar: a modal Base UI Drawer over the shell, below the
-// title bar. It is a dialog named by labels.sidebar. Focus moves in when it
-// opens and stays in, and the rest of the shell is hidden from assistive
-// technology. Escape, a press on the backdrop or a swipe toward the
-// leading edge closes it, and focus goes back to the sidebar toggle, or to
-// the main region after closeNarrowAndFocusMain. It is at most
-// 100% - 48px wide, so a strip of backdrop is always there to tap. The
-// rail's destinations move into the row at its top. It stays mounted while
-// closed, so the sidebar keeps its search and scroll. Menus and tooltips
-// inside it mount inside it too, because the page behind is hidden.
+// It is at most 100% - 48px wide, so a strip of backdrop is always there
+// to tap. It stays mounted while closed, so the sidebar keeps its search
+// and scroll. Menus and tooltips inside it mount inside it too, because
+// the page behind is hidden.
 const AppShellSidebarDrawer = ({
   title,
   children,

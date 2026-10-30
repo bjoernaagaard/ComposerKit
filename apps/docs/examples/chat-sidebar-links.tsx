@@ -43,7 +43,6 @@ export const ChatSidebarLinks = () => {
                 )
               )
             }
-            // The row fills the link with the chat's title.
             // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- the row renders the title inside it
             renderLink={(chat) => <a href={`#/c/${chat.id}`} />}
           />
