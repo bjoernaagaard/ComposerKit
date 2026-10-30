@@ -9,6 +9,8 @@ import { AppShellControlled } from "./app-shell-controlled";
 import { AppShellDemo } from "./app-shell-demo";
 import { ButtonDemo } from "./button-demo";
 import { ButtonRow } from "./button-row";
+import { ChatSidebarDemo } from "./chat-sidebar-demo";
+import { ChatSidebarLinks } from "./chat-sidebar-links";
 import { ComposerLayoutExample } from "./composer-layout";
 import { ComposerStateExample } from "./composer-state";
 import { ConversationDemo } from "./conversation-demo";
@@ -31,10 +33,7 @@ import { TipOnIconButtons } from "./tip-icon-buttons";
 // are the captions the catalog printed. file is shown on the Code tab.
 // Example files that use the demo app's own parts in src/app. No registry
 // item installs those, so their Code tab says the code is repo code.
-export const REPO_ONLY_FILES = new Set([
-  "conversation-rows.tsx",
-  "mode-toggle.tsx",
-]);
+export const REPO_ONLY_FILES = new Set(["mode-toggle.tsx"]);
 
 export interface Example {
   element: ReactElement;
@@ -82,6 +81,19 @@ const CATALOG = {
     file: "button-row.tsx",
     label: 'variant="outline"',
     note: "A second choice that sits beside the main one.",
+  },
+  "chat-sidebar--demo": {
+    element: <ChatSidebarDemo />,
+    file: "chat-sidebar-demo.tsx",
+    fit: true,
+    label: "ChatSidebar",
+    note: "Open, pin or archive a chat, search the titles, or filter Recent.",
+  },
+  "chat-sidebar--links": {
+    element: <ChatSidebarLinks />,
+    file: "chat-sidebar-links.tsx",
+    label: "renderLink",
+    note: "Each row is a link. Cmd-click or Ctrl-click opens the chat in a new tab.",
   },
   "composer--demo": {
     element: <ComposerLayoutExample layout="stacked" mode="chat" />,

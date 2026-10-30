@@ -1,0 +1,147 @@
+/* SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+   SPDX-License-Identifier: MIT */
+
+/* The chat sidebar's row actions and long titles. They depend on what the
+   screen can do, hover or touch, and on reduced motion, so they are rules
+   here rather than classes on the parts.
+
+   The npm package loads this file from styles.css. The chat-sidebar
+   registry item carries the same rules in its css field, so keep the two
+   in step. */
+
+/* How fast a long title scrolls: the time per pixel it travels. A theme
+   that sets it wins over this default. */
+:where(:root) {
+  --motion-marquee-ms-per-pixel: 14ms;
+}
+
+/* Row actions. With a pointer that can hover they show on hover, while
+   focus is inside the row and while their menu is open. Until then they
+   don't take a click, which goes to the row instead, and the title keeps
+   their width. */
+@media (hover: hover) {
+  [data-slot="row-actions"] {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  :is([data-slot="conversation-row"], [data-slot="project-row"]):is(
+      :hover,
+      :focus-within,
+      :has([data-popup-open])
+    )
+    [data-slot="row-actions"] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* While they show, the title gives up their width so its end stays
+     visible: two 20px action fills, the 8px between them and the inset. */
+  [data-slot="conversation-row"]:is(
+      :hover,
+      :focus-within,
+      :has([data-popup-open])
+    )
+    [data-slot="row-button"] {
+    padding-inline-end: calc(var(--size-row-action) * 2 + 12px);
+  }
+}
+
+/* A touch screen can't hover, so a tap on a hidden action would pin a chat
+   by surprise. There the More button always shows, Pin waits in its menu,
+   and the title always keeps the More button's width. */
+@media (hover: none) {
+  [data-slot="row-actions"] [data-row-action="pin"] {
+    display: none;
+  }
+
+  [data-slot="conversation-row"] [data-slot="row-button"] {
+    padding-inline-end: calc(var(--size-row-action) + 12px);
+  }
+}
+
+/* A long title stays on one line. */
+[data-slot="row-title-track"] {
+  white-space: nowrap;
+}
+
+/* Without reduced motion, a long title fades out at its end, and scrolls
+   toward its end from its start, which is where it rests. It scrolls on
+   hover only with a fine pointer that can hover, as a tap would leave it
+   scrolled, and while the keyboard focuses its row. The two motion
+   preferences get separate blocks, so neither depends on the order the
+   rules land in an app's CSS file. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-slot="row-title-track"] {
+    display: inline-block;
+    transition: translate 0s;
+  }
+
+  [data-slot="row-title"][data-overflowing="true"] {
+    mask-image: linear-gradient(
+      to right,
+      #000 calc(100% - var(--space-fade-end)),
+      transparent
+    );
+  }
+
+  [data-slot="row-title"][data-overflowing="true"]:dir(rtl) {
+    mask-image: linear-gradient(
+      to left,
+      #000 calc(100% - var(--space-fade-end)),
+      transparent
+    );
+  }
+
+  :is([data-slot="conversation-row"], [data-slot="project-row"]):has(
+      :focus-visible
+    )
+    [data-slot="row-title-track"][data-overflowing="true"] {
+    translate: calc(var(--overflow) * -1) 0;
+    transition: translate
+      calc(var(--overflow-px) * var(--motion-marquee-ms-per-pixel)) linear
+      var(--motion-marquee-delay);
+  }
+
+  :is([data-slot="conversation-row"], [data-slot="project-row"]):has(
+      :focus-visible
+    )
+    [data-slot="row-title-track"][data-overflowing="true"]:dir(rtl) {
+    translate: var(--overflow) 0;
+  }
+
+  :is([data-slot="conversation-row"], [data-slot="project-row"]):has(
+      :focus-visible
+    )
+    [data-slot="row-title"][data-overflowing="true"] {
+    mask-image: none;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  :is([data-slot="conversation-row"], [data-slot="project-row"]):hover
+    [data-slot="row-title-track"][data-overflowing="true"] {
+    translate: calc(var(--overflow) * -1) 0;
+    transition: translate
+      calc(var(--overflow-px) * var(--motion-marquee-ms-per-pixel)) linear
+      var(--motion-marquee-delay);
+  }
+
+  :is([data-slot="conversation-row"], [data-slot="project-row"]):hover
+    [data-slot="row-title-track"][data-overflowing="true"]:dir(rtl) {
+    translate: var(--overflow) 0;
+  }
+
+  :is([data-slot="conversation-row"], [data-slot="project-row"]):hover
+    [data-slot="row-title"][data-overflowing="true"] {
+    mask-image: none;
+  }
+}
+
+/* Reduced motion: a long title never moves and never wraps, so the row
+   keeps its height. It stays on one line and ends in an ellipsis. */
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="row-title"] {
+    text-overflow: ellipsis;
+  }
+}

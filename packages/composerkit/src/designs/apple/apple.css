@@ -210,20 +210,13 @@ body[data-design="apple"]
   box-shadow: none;
 }
 
-body[data-design="apple"] [data-slot="conversation-row"] > button {
+body[data-design="apple"] [data-slot="row-button"] {
   transition-property: background-color, color;
 }
 
-body[data-design="apple"]
-  [data-slot="conversation-row"]
-  > button[aria-current="page"] {
+body[data-design="apple"] [data-slot="row-button"][aria-current="page"] {
   background: var(--apple-fill);
   font-weight: var(--weight-medium);
-}
-
-/* Row actions sat on the old sidebar color; on glass they show the row. */
-body[data-design="apple"] [data-slot="conversation-row"] > span {
-  background: transparent;
 }
 
 /* ---------- Composer: a solid field with controls set into it ---------- */

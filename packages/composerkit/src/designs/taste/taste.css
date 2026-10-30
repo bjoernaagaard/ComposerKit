@@ -305,7 +305,7 @@ body[data-design="taste"] [data-slot="sidebar"] input {
 }
 
 /* Section headings are sentence-case text on a shared left edge. */
-body[data-design="taste"] [data-slot="sidebar"] section > div:first-child {
+body[data-design="taste"] [data-slot="sidebar-section-heading"] {
   border-bottom: 1px solid var(--border);
 }
 
@@ -319,34 +319,31 @@ body[data-design="taste"] [data-slot="conversation-row"] {
   border-bottom: 1px solid var(--border);
 }
 
-body[data-design="taste"] [data-slot="conversation-row"] > button {
+body[data-design="taste"] [data-slot="row-button"] {
   border-radius: 4px;
 }
 
-body[data-design="taste"]
-  [data-slot="conversation-row"]
-  > button[aria-current="page"] {
+body[data-design="taste"] [data-slot="row-button"][aria-current="page"] {
   background: var(--accent);
   color: var(--foreground);
   font-weight: var(--weight-medium);
   box-shadow: inset 2px 0 0 0 var(--foreground);
 }
 
-body[data-design="taste"] [data-slot="conversation-row"] > span {
+body[data-design="taste"] [data-slot="row-actions"] {
   border-radius: 4px;
 }
 
 /* Forward-compatible row density markers. */
 body[data-design="taste"]
   [data-slot="conversation-row"][data-density="compact"]
-  > button {
+  [data-slot="row-button"] {
   border-radius: 4px;
 }
 
 body[data-design="taste"]
   [data-slot="conversation-row"][data-density="two-line"]
-  > button
-  > span:last-child {
+  [data-slot="row-details"] {
   font-variant-numeric: tabular-nums;
 }
 
@@ -648,9 +645,7 @@ html.dark body[data-design="taste"] [data-slot="mode-toggle-track"] {
 /* lost when shadows and fills are removed by the system.             */
 @media (forced-colors: active) {
   body[data-design="taste"] [data-slot="tab"][aria-selected="true"],
-  body[data-design="taste"]
-    [data-slot="conversation-row"]
-    > button[aria-current="page"],
+  body[data-design="taste"] [data-slot="row-button"][aria-current="page"],
   body[data-design="taste"] [data-rail-item][aria-current="page"] {
     box-shadow: none;
     outline: 2px solid Highlight;

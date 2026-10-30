@@ -6,6 +6,7 @@
 @import "shadcn/tailwind.css";
 @import "./theme/tokens.css";
 @import "./components/app-shell/app-shell.css";
+@import "./components/chat-sidebar/chat-sidebar.css";
 
 /* Apps that load this file from another folder still get the library classes. */
 @source "./";
@@ -49,41 +50,12 @@
   }
 }
 
-@layer components {
-  /* Long titles scroll into view on hover or keyboard focus. */
-  .marquee-track {
-    display: inline-block;
-    white-space: nowrap;
-    transition: translate 0s;
-  }
-
-  .group:hover .marquee-track[data-overflowing="true"],
-  .group:focus-within .marquee-track[data-overflowing="true"] {
-    translate: calc(var(--overflow) * -1) 0;
-    transition: translate calc(var(--overflow-ms) * 1ms) linear
-      var(--motion-marquee-delay);
-  }
-
-  .marquee-mask[data-overflowing="true"] {
-    mask-image: linear-gradient(
-      to right,
-      black calc(100% - var(--space-fade-end)),
-      transparent
-    );
-  }
-
-  .group:hover .marquee-mask[data-overflowing="true"],
-  .group:focus-within .marquee-mask[data-overflowing="true"] {
-    mask-image: none;
-  }
-}
-
 /* Reduced motion: nothing moves, grows or blurs, but a change can still
    fade. Transitions run on opacity and color only, so transform, translate,
    scale, width and blur snap to their end. The shell's motion tokens all
    become --motion-reduced-fade, so what still fades takes that long. The
    enter and exit animations of tw-animate-css keep their fade and lose
-   their slide, zoom, spin and blur. Titles wrap instead of scrolling. */
+   their slide, zoom, spin and blur. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -109,12 +81,6 @@
       opacity, color, background-color, border-color, outline-color,
       text-decoration-color, fill, stroke !important;
     transition-delay: 0s !important;
-  }
-
-  .group:hover .marquee-track,
-  .group:focus-within .marquee-track {
-    translate: none;
-    white-space: normal;
   }
 }
 

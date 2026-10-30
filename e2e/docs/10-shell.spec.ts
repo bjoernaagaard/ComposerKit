@@ -1510,3 +1510,245 @@ test("splitter: a design's sidebar width holds until the person resizes", async 
   await page.keyboard.press("ArrowRight");
   await expectWidth(page, 276);
 });
+
+// --- The chat sidebar: rows on touch, long titles, rows as links ---
+
+const RETRIES = "Add retries to the sync client";
+
+// A chat row by its chat's title.
+const chatRow = (root: Locator, title: string) =>
+  root.locator('[data-slot="conversation-row"]').filter({
+    has: root.page().getByRole("button", { exact: true, name: title }),
+  });
+
+const pinnedRows = (root: Locator) =>
+  root.getByRole("region", { name: "Pinned" }).getByRole("listitem");
+
+// The first chat row whose title is too long to fit.
+const longTitleRow = (page: Page) =>
+  sidebar(page)
+    .locator('[data-slot="conversation-row"]')
+    .filter({
+      has: page.locator('[data-slot="row-title"][data-overflowing="true"]'),
+    })
+    .first();
+
+// Where the title's text sits in its box: start is how far the text's
+// start is past the box's start, end how far its end is past the box's end.
+const titleOffsets = (row: Locator) =>
+  row.evaluate((element) => {
+    const title = element.querySelector('[data-slot="row-title"]');
+    const track = element.querySelector('[data-slot="row-title-track"]');
+    const box = title?.getBoundingClientRect();
+    const text = track?.getBoundingClientRect();
+
+    return {
+      end: (text?.right ?? 0) - (box?.right ?? 0),
+      start: (text?.left ?? 0) - (box?.left ?? 0),
+    };
+  });
+
+const titleStart = async (row: Locator) => {
+  const offsets = await titleOffsets(row);
+
+  return offsets.start;
+};
+
+const titleEnd = async (row: Locator) => {
+  const offsets = await titleOffsets(row);
+
+  return offsets.end;
+};
+
+const heightOf = async (locator: Locator) => {
+  const box = await locator.boundingBox();
+
+  return box?.height;
+};
+
+// Longer than the marquee's 400 ms delay and the scroll of any sample title.
+const MARQUEE_SETTLE_MS = 1500;
+
+test("touch: a tap on a chat row opens the chat and never pins it, and the row's More button shows and holds Pin and Archive", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    hasTouch: true,
+    isMobile: true,
+    viewport: NARROW_SIZES[0],
+  });
+
+  const page = await context.newPage();
+
+  await openApp(page, "base", "light");
+  await showToggle(page).tap();
+  await expect(drawer(page)).toBeVisible();
+
+  const pinned = await pinnedRows(drawer(page)).count();
+  const row = chatRow(drawer(page), RETRIES);
+
+  const more = row.getByRole("button", {
+    exact: true,
+    name: `More actions for ${RETRIES}`,
+  });
+
+  // The More button shows with no hover, and Pin waits in its menu.
+  await expect(more).toBeVisible();
+  await expect(more).toHaveCSS("opacity", "1");
+  await expect(
+    row.getByRole("button", { exact: true, name: `Pin ${RETRIES}` })
+  ).toBeHidden();
+
+  // 14 px from the row's end, where the hidden Pin button used to take
+  // the tap, is now the More button, which opens its menu.
+  // A tap on the row waits for the drawer to stop moving.
+  await row.tap({ position: { x: 1, y: 1 }, trial: true });
+
+  const box = await row.boundingBox();
+  const width = box?.width ?? 0;
+  const middle = (box?.height ?? 0) / 2;
+
+  await row.tap({ position: { x: width - 14, y: middle } });
+
+  const menu = page.getByRole("menu", { name: "More actions" });
+
+  await expect(menu).toBeVisible();
+  await expect(menu.getByRole("menuitem")).toHaveText([
+    "Pin chat",
+    /^Archive chat/u,
+  ]);
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+  expect(await pinnedRows(drawer(page)).count()).toBe(pinned);
+
+  // The end of the title, just before the More button, opens the chat.
+  const moreBox = await more.boundingBox();
+
+  await row.tap({
+    position: { x: (moreBox?.x ?? 0) - (box?.x ?? 0) - 4, y: middle },
+  });
+  await expect(drawer(page)).toBeHidden();
+  await expect(page.getByRole("tab", { name: RETRIES })).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+
+  await showToggle(page).tap();
+  await expect(drawer(page)).toBeVisible();
+  expect(await pinnedRows(drawer(page)).count()).toBe(pinned);
+  await context.close();
+});
+
+test("pointer: a row's actions take no click until the row is hovered, and then show", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+
+  const row = chatRow(sidebar(page), RETRIES);
+  const actions = row.locator('[data-slot="row-actions"]');
+
+  await page.mouse.move(0, 0);
+  await expect(actions).toHaveCSS("opacity", "0");
+  await expect(actions).toHaveCSS("pointer-events", "none");
+  // No patch over the row: the actions have no fill of their own.
+  await expect(actions).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+
+  await row.hover();
+  await expect(actions).toHaveCSS("opacity", "1");
+  await expect(actions).toHaveCSS("pointer-events", "auto");
+});
+
+test("marquee: with a fine pointer, hovering a long title scrolls it from its start to its end", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+
+  const row = longTitleRow(page);
+
+  await page.mouse.move(0, 0);
+  expect(await titleStart(row)).toBeCloseTo(0, 0);
+
+  await row.hover();
+
+  // It waits --motion-marquee-delay with the title's start in view.
+  expect(await titleStart(row)).toBeCloseTo(0, 0);
+
+  await expect
+    .poll(() => titleEnd(row), {
+      timeout: 5000,
+    })
+    .toBeCloseTo(0, 0);
+  expect(await titleStart(row)).toBeLessThan(0);
+});
+
+test("marquee: on a touch screen, a tap or a hover never scrolls a long title", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    hasTouch: true,
+    isMobile: true,
+    viewport: WIDE,
+  });
+
+  const page = await context.newPage();
+
+  await openApp(page, "base", "light");
+
+  const row = longTitleRow(page);
+
+  await row.hover();
+  await row.locator('[data-slot="row-button"]').tap();
+  await page.waitForTimeout(MARQUEE_SETTLE_MS);
+
+  expect(await titleStart(row)).toBeCloseTo(0, 0);
+  await context.close();
+});
+
+test("marquee under reduced motion: hovering a long title keeps the row 30 px tall and the title on one line", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await openApp(page, "base", "light");
+
+  const row = longTitleRow(page);
+  const opener = row.locator('[data-slot="row-button"]');
+
+  expect(await heightOf(opener)).toBeCloseTo(30, 0);
+
+  await row.hover();
+  await page.waitForTimeout(MARQUEE_SETTLE_MS);
+
+  expect(await heightOf(opener)).toBeCloseTo(30, 0);
+  expect(await titleStart(row)).toBeCloseTo(0, 0);
+  await expect(row.locator('[data-slot="row-title"]')).toHaveCSS(
+    "text-overflow",
+    "ellipsis"
+  );
+});
+
+test("links: a row with renderLink is an <a>, Cmd-click or Ctrl-click opens it in a new page, and a click opens it here", async ({
+  page,
+}) => {
+  await openPage(page, "/chat-sidebar", "light");
+
+  const links = docsExample(page, "chat-sidebar--links");
+  const link = links.locator('[data-slot="row-button"]').first();
+
+  await expect(link).toHaveJSProperty("tagName", "A");
+  await expect(link).toHaveAttribute("href", /^#\/c\//u);
+
+  const opened = page.context().waitForEvent("page");
+
+  await link.click({ modifiers: ["ControlOrMeta"] });
+
+  const popup = await opened;
+
+  expect(popup.url()).toMatch(/#\/c\//u);
+  await popup.close();
+  // A click meant for a new page doesn't open the chat here.
+  await expect(link).not.toHaveAttribute("aria-current");
+
+  await link.click();
+  await expect(link).toHaveAttribute("aria-current", "page");
+  expect(page.url()).toMatch(/#\/c\//u);
+});

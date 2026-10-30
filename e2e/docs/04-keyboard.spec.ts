@@ -431,7 +431,7 @@ notCheckable(
     keys: "Typing a letter",
     line: 155,
   },
-  "No docs page puts a sidebar row and a type-to-focus composer together; the rows are on /app-shell, the composer on /conversation."
+  "No docs page puts a sidebar row and a type-to-focus composer together; the rows are on /chat-sidebar, the composer on /conversation."
 );
 
 notCheckable(

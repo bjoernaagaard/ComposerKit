@@ -5,8 +5,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { ConversationRow } from "@/app/sidebar/conversation-row";
-import type { RowDensity } from "@/app/sidebar/conversation-row";
+import { ConversationRow } from "@/components/chat-sidebar/conversation-row";
+import type { RowDensity } from "@/components/chat-sidebar/conversation-row";
 import { Button } from "@/components/ui/button";
 import {
   SAMPLE_CONVERSATIONS,
@@ -15,6 +15,7 @@ import {
 } from "@/content/sample";
 
 const ROW_SAMPLE_SIZE = 8;
+const NOW = new Date(SAMPLE_NOW);
 
 // A sidebar list in one density. Open, pin and archive all work; archived
 // rows can be restored.
@@ -52,7 +53,7 @@ export const ConversationRows = ({ density }: { density: RowDensity }) => {
               active={conversation.id === activeId}
               conversation={conversation}
               density={density}
-              now={SAMPLE_NOW}
+              now={NOW}
               onArchive={() =>
                 setConversations((items) =>
                   items.filter((item) => item.id !== conversation.id)
