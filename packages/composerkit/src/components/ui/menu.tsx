@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 // SPDX-License-Identifier: MIT
 
+import { useDirection } from "@base-ui/react/direction-provider";
 import { Menu } from "@base-ui/react/menu";
 import { CheckIcon, ChevronRightIcon } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
@@ -84,7 +85,7 @@ export interface MenuContentProps {
 }
 
 const ITEM =
-  "flex min-h-(--size-menu-item) w-full items-center gap-2 rounded-(--radius-menu-item) px-(--space-menu-item-padding-x) py-(--space-menu-item-padding-y) text-left text-(length:--text-label-size) leading-(--text-label-leading) outline-none select-none data-disabled:text-subtle-foreground data-highlighted:bg-accent data-highlighted:text-accent-foreground data-popup-open:bg-accent group-data-[density=compact]/menu:min-h-0 group-data-[density=compact]/menu:rounded-(--radius-menu-item-compact) group-data-[density=compact]/menu:px-(--space-menu-item-padding-x-compact) group-data-[density=compact]/menu:py-(--space-menu-item-padding-y-compact)";
+  "flex min-h-(--size-menu-item) w-full items-center gap-2 rounded-(--radius-menu-item) px-(--space-menu-item-padding-x) py-(--space-menu-item-padding-y) text-start text-(length:--text-label-size) leading-(--text-label-leading) outline-none select-none data-disabled:text-subtle-foreground data-highlighted:bg-accent data-highlighted:text-accent-foreground data-popup-open:bg-accent group-data-[density=compact]/menu:min-h-0 group-data-[density=compact]/menu:rounded-(--radius-menu-item-compact) group-data-[density=compact]/menu:px-(--space-menu-item-padding-x-compact) group-data-[density=compact]/menu:py-(--space-menu-item-padding-y-compact)";
 
 const ItemText = ({
   label,
@@ -321,6 +322,9 @@ export const MenuSubmenu = ({
   width = "submenu",
 }: MenuSubmenuProps) => {
   const layer = usePopupLayer();
+  // Base UI opens the submenu on the side its DirectionProvider gives, so
+  // the arrow follows that too.
+  const direction = useDirection();
 
   return (
     <Menu.SubmenuRoot>
@@ -329,7 +333,10 @@ export const MenuSubmenu = ({
         <ItemText label={label} />
         <ChevronRightIcon
           aria-hidden="true"
-          className="text-subtle-foreground size-4 rtl:-scale-x-100"
+          className={cn(
+            "text-subtle-foreground size-4",
+            direction === "rtl" && "-scale-x-100"
+          )}
         />
       </Menu.SubmenuTrigger>
       <Menu.Portal container={layer}>

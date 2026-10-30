@@ -313,10 +313,11 @@ export const RichText = ({
                 "flex flex-col gap-1 ps-5",
                 block.ordered ? "list-decimal" : "list-disc"
               )}
+              dir="auto"
               key={block.id}
             >
               {block.items.map((item, index) => (
-                <li className="wrap-break-word" dir="auto" key={item}>
+                <li className="wrap-break-word" key={item}>
                   <Inline text={item} />
                   {caret && index === block.items.length - 1 ? caret : null}
                 </li>

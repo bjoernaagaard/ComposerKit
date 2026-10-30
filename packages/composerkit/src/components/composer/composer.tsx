@@ -646,7 +646,9 @@ export const Composer = ({
       data-slot="composer-field"
       // Text runs the way its first letters do, so an Arabic or Hebrew
       // draft reads right to left in an English app, and the other way.
-      dir="auto"
+      // An empty field has no letters, so it keeps the page's direction
+      // for the placeholder.
+      dir={state.draft === "" ? undefined : "auto"}
       key="field"
       onBlur={() => {
         setKeyboardFocus(false);
