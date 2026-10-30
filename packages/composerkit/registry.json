@@ -572,6 +572,21 @@
         "[data-slot=\"title-bar-nav\"]": {
           "padding-inline-start": "max(var(--space-titlebar-inset-start), env(titlebar-area-x, 0px))"
         },
+        "[data-slot=\"tab-strip\"][data-overflow=\"end\"]": {
+          "mask-image": "linear-gradient(to right, #000 calc(100% - var(--space-fade-end)), transparent)"
+        },
+        "[data-slot=\"tab-strip\"][data-overflow=\"start\"]": {
+          "mask-image": "linear-gradient(to left, #000 calc(100% - var(--space-fade-end)), transparent)"
+        },
+        "[data-slot=\"tab-strip\"][data-overflow=\"both\"]": {
+          "mask-image": "linear-gradient(to right, transparent, #000 var(--space-fade-end), #000 calc(100% - var(--space-fade-end)), transparent)"
+        },
+        "[data-slot=\"tab-strip\"][data-overflow=\"end\"]:dir(rtl)": {
+          "mask-image": "linear-gradient(to left, #000 calc(100% - var(--space-fade-end)), transparent)"
+        },
+        "[data-slot=\"tab-strip\"][data-overflow=\"start\"]:dir(rtl)": {
+          "mask-image": "linear-gradient(to right, #000 calc(100% - var(--space-fade-end)), transparent)"
+        },
         "@media (prefers-reduced-motion: reduce)": {
           "[data-slot=\"app-shell\"], [data-slot=\"app-shell\"] *": {
             "--motion-duration": "var(--motion-reduced-fade) !important",

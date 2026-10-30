@@ -25,10 +25,15 @@ export interface AppShellLabels {
   // The tab list's name.
   tabs: string;
   newTab: string;
+  // The menu button that lists every tab, and the menu's name.
+  tabMenu: string;
+  // The tab menu's item that closes the open tab, such as "Close Notes".
+  closeTab: (title: string) => string;
 }
 
 export const APP_SHELL_LABELS: AppShellLabels = {
   back: "Back",
+  closeTab: (title) => `Close ${title}`,
   forward: "Forward",
   hideSidebar: "Hide sidebar",
   newTab: "New tab",
@@ -37,6 +42,7 @@ export const APP_SHELL_LABELS: AppShellLabels = {
   showSidebar: "Show sidebar",
   sidebar: "Sidebar",
   skipToContent: "Skip to content",
+  tabMenu: "All tabs",
   tabs: "Open chats",
   withShortcut: (action, keys) => `${action} ${keys}`,
 };

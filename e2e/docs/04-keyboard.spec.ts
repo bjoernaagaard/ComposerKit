@@ -1732,3 +1732,46 @@ walk(
     };
   }
 );
+
+walk(
+  {
+    context: "App shell, a title bar tab with another tab open",
+    expected:
+      "Closes the focused tab at once. Focus and selection move to the tab on its right, or on its left for the last tab. The only tab can't close.",
+    keys: "Delete",
+    line: 427,
+  },
+  APP,
+  async (page) => {
+    const strip = page.getByRole("tablist", { name: "Open chats" });
+    const tabs = strip.getByRole("tab");
+
+    await page.getByRole("button", { exact: true, name: "New tab" }).click();
+    await tabs.first().click();
+
+    const before = await tabs.count();
+    const right = await tabs.nth(1).getAttribute("data-tab-id");
+
+    await press(page, "Delete");
+
+    const after = await tabs.count();
+
+    const focusedId = await strip
+      .locator('[role="tab"]:focus')
+      .getAttribute("data-tab-id");
+
+    await press(page, "Delete");
+
+    const last = await tabs.count();
+
+    return {
+      actual: `${before} tabs; Delete left ${after}, focus on tab ${focusedId}; Delete on the only tab left ${last}`,
+      pass:
+        before === 2 &&
+        after === 1 &&
+        focusedId !== null &&
+        focusedId === right &&
+        last === 1,
+    };
+  }
+);

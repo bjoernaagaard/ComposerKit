@@ -26,7 +26,6 @@ import { AppShellTabs, appShellTabId } from "@/components/app-shell/tabs";
 import type { AppShellTab } from "@/components/app-shell/tabs";
 import {
   AppShellHistory,
-  AppShellNewTab,
   AppShellSidebarToggle,
   AppShellTitleBar,
   AppShellTitleBarEnd,
@@ -106,13 +105,26 @@ const historyReducer = (history: History, action: HistoryAction): History => {
   return { entries, index: entries.length - 1 };
 };
 
+// A closed tab takes its history with it.
+type TabHistoryAction =
+  | (HistoryAction & { tabId: string })
+  | { type: "close"; tabId: string };
+
 const tabHistoriesReducer = (
   histories: TabHistories,
-  action: HistoryAction & { tabId: string }
-) => ({
-  ...histories,
-  [action.tabId]: historyReducer(histories[action.tabId] ?? START, action),
-});
+  action: TabHistoryAction
+) => {
+  if (action.type === "close") {
+    return Object.fromEntries(
+      Object.entries(histories).filter(([tabId]) => tabId !== action.tabId)
+    );
+  }
+
+  return {
+    ...histories,
+    [action.tabId]: historyReducer(histories[action.tabId] ?? START, action),
+  };
+};
 
 const titleFor = (sent: ComposerState): string => {
   const text = sent.draft.trim().replaceAll(/\s+/gu, " ");
@@ -359,16 +371,18 @@ const ShellApp = ({ density }: { density?: RowDensity }) => {
             <AppShellTitleBarTabs>
               <AppShellTabs
                 activeTabId={activeTabId}
-                onSelectTab={setActiveTabId}
-                panelId={panelId}
-                tabs={tabs}
-              />
-              <AppShellNewTab
+                onCloseTab={(id) => {
+                  setTabs((list) => list.filter((tab) => tab.id !== id));
+                  navigate({ tabId: id, type: "close" });
+                }}
                 onNewTab={() => {
                   const tab = { id: newId("t"), title: "New chat" };
                   setTabs((list) => [...list, tab]);
                   setActiveTabId(tab.id);
                 }}
+                onSelectTab={setActiveTabId}
+                panelId={panelId}
+                tabs={tabs}
               />
             </AppShellTitleBarTabs>
             <AppShellTitleBarEnd>

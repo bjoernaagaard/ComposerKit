@@ -28,6 +28,51 @@
   );
 }
 
+/* A tab row that hides tabs fades out at each end that hides them, so the
+   cut reads as more to scroll to. data-overflow names those ends in
+   reading order. */
+[data-slot="tab-strip"][data-overflow="end"] {
+  mask-image: linear-gradient(
+    to right,
+    #000 calc(100% - var(--space-fade-end)),
+    transparent
+  );
+}
+
+[data-slot="tab-strip"][data-overflow="start"] {
+  mask-image: linear-gradient(
+    to left,
+    #000 calc(100% - var(--space-fade-end)),
+    transparent
+  );
+}
+
+[data-slot="tab-strip"][data-overflow="both"] {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--space-fade-end),
+    #000 calc(100% - var(--space-fade-end)),
+    transparent
+  );
+}
+
+[data-slot="tab-strip"][data-overflow="end"]:dir(rtl) {
+  mask-image: linear-gradient(
+    to left,
+    #000 calc(100% - var(--space-fade-end)),
+    transparent
+  );
+}
+
+[data-slot="tab-strip"][data-overflow="start"]:dir(rtl) {
+  mask-image: linear-gradient(
+    to right,
+    #000 calc(100% - var(--space-fade-end)),
+    transparent
+  );
+}
+
 /* Reduced motion: no part of the shell moves or grows. The sidebar, its
    space and the title bar's leading group snap to their place, and only
    opacity and color still fade, at --motion-reduced-fade. A change from

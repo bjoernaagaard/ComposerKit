@@ -9,13 +9,14 @@
 // ?bare hides it so screenshots show the part alone. For an empty menu,
 // ?empty= picks how the app passes no items: nothing, an empty fragment,
 // a fragment around an empty list, or a radio group with no items.
+// ?tabs= sets how many tabs the tab strip opens with.
 import { CopyIcon } from "lucide-react";
 import { useId, useState } from "react";
 import type { ReactNode } from "react";
 
 import { ConversationRow, ROW_DENSITIES } from "@/app/sidebar/conversation-row";
 import { Sidebar } from "@/app/sidebar/sidebar";
-import { AppShellTabs } from "@/components/app-shell/tabs";
+import { AppShellTabs, appShellTabId } from "@/components/app-shell/tabs";
 import type { AppShellTab } from "@/components/app-shell/tabs";
 import { ConversationView } from "@/components/conversation/conversation-view";
 import { toBlocks } from "@/components/conversation/types";
@@ -198,18 +199,31 @@ const MenuPart = ({ data }: { data: Dataset }) => {
   );
 };
 
-const TabsPart = ({ data }: { data: Dataset }) => {
-  const tabs: AppShellTab[] =
-    data === "empty"
-      ? []
-      : SAMPLE_CONVERSATIONS.slice(0, 3).map((conversation, index) => ({
-          id: `stress-${conversation.id}`,
-          title:
-            index === 1
-              ? conversation.title
-              : labelFor(data, conversation.title),
-        }));
+// ?tabs= sets how many tabs the strip opens with, 3 by default.
+const TAB_COUNT = Number(params.get("tabs")) || 3;
 
+// Tab ids may be any string, so each carries a space and a lone surrogate,
+// which no encoding step may choke on.
+const stressTabs = (data: Dataset): AppShellTab[] => {
+  if (data === "empty") {
+    return [];
+  }
+
+  return Array.from({ length: TAB_COUNT }, (_, index) => {
+    const conversation =
+      SAMPLE_CONVERSATIONS[index % SAMPLE_CONVERSATIONS.length];
+
+    const title = conversation?.title ?? "Chat";
+
+    return {
+      id: `stress \uD800 ${index}`,
+      title: index === 1 ? title : labelFor(data, title),
+    };
+  });
+};
+
+const TabsPart = ({ data }: { data: Dataset }) => {
+  const [tabs, setTabs] = useState(() => stressTabs(data));
   const [active, setActive] = useState(tabs[0]?.id ?? "");
   const panelId = useId();
 
@@ -218,11 +232,17 @@ const TabsPart = ({ data }: { data: Dataset }) => {
       <AppShellTabs
         activeTabId={active}
         labels={{ tabs: "Stress tabs" }}
+        onCloseTab={(id) =>
+          setTabs((list) => list.filter((tab) => tab.id !== id))
+        }
         onSelectTab={setActive}
         panelId={panelId}
         tabs={tabs}
       />
       <div
+        aria-labelledby={
+          tabs.length > 0 ? appShellTabId(panelId, active) : undefined
+        }
         className="text-muted-foreground px-2.5 wrap-anywhere"
         id={panelId}
         role="tabpanel"
