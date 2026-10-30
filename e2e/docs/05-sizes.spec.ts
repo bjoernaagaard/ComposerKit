@@ -177,20 +177,20 @@ const lines = (count: number) =>
 
 const COMPOSERS = [
   {
+    height: 44,
     name: "empty chat",
     picker: [102, 102],
     text: 20,
     where: EMPTY,
     width: 641,
-    height: 44,
   },
   {
+    height: 48,
     name: "docked",
     picker: [102, 103],
     text: 36,
     where: DOCKED,
     width: 737,
-    height: 48,
   },
 ] as const;
 
@@ -1115,14 +1115,14 @@ measure(
 
 const HEADINGS = [
   {
+    index: PROMPT,
     line: 258,
     part: "Heading at the start of each prompt turn",
-    index: PROMPT,
   },
   {
+    index: REPLY,
     line: 259,
     part: "Heading at the start of each reply turn",
-    index: REPLY,
   },
 ] as const;
 

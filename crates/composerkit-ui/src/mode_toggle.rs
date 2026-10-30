@@ -115,6 +115,10 @@ fn border_width<E: Styled>(mut element: E, width: Pixels) -> E {
 }
 
 impl RenderOnce for ModeToggle {
+    #[expect(
+        clippy::too_many_lines,
+        reason = "each part of the toggle matches on the appearance in turn, top to bottom"
+    )]
     fn render(self, window: &mut Window, cx: &mut App) -> impl IntoElement {
         let tokens = composerkit_theme::tokens();
         let colors = *composerkit_theme::colors(cx);

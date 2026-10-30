@@ -48,3 +48,9 @@ allow = ["0BSD"]
 [[licenses.exceptions]]
 crate = "enum-iterator-derive"
 allow = ["0BSD"]
+
+# gpui-kit pulls in crates that RustSec lists as unmaintained, such as paste
+# and ttf-parser. Only a crate this workspace depends on directly is ours to
+# replace, so only those are reported.
+[advisories]
+unmaintained = "workspace"
