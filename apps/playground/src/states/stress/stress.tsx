@@ -14,10 +14,13 @@ import { CopyIcon } from "lucide-react";
 import { useId, useState } from "react";
 import type { ReactNode } from "react";
 
-import { ConversationRow, ROW_DENSITIES } from "@/app/sidebar/conversation-row";
-import { Sidebar } from "@/app/sidebar/sidebar";
 import { AppShellTabs, appShellTabId } from "@/components/app-shell/tabs";
 import type { AppShellTab } from "@/components/app-shell/tabs";
+import { ChatSidebar } from "@/components/chat-sidebar/chat-sidebar";
+import {
+  ConversationRow,
+  ROW_DENSITIES,
+} from "@/components/chat-sidebar/conversation-row";
 import { ConversationView } from "@/components/conversation/conversation-view";
 import { toBlocks } from "@/components/conversation/types";
 import type { Turn } from "@/components/conversation/types";
@@ -101,6 +104,8 @@ const labelFor = (data: Dataset, demo: string) => {
 };
 
 const ignore = () => null;
+
+const SAMPLE_DATE = new Date(SAMPLE_NOW);
 
 const stressConversations = (data: Dataset): Conversation[] => {
   if (data === "empty") {
@@ -268,7 +273,7 @@ const RowsPart = ({ data }: { data: Dataset }) => {
             active={index === 0}
             conversation={conversation}
             density={density}
-            now={SAMPLE_NOW}
+            now={SAMPLE_DATE}
             onArchive={ignore}
             onOpen={ignore}
             onTogglePin={ignore}
@@ -282,11 +287,11 @@ const RowsPart = ({ data }: { data: Dataset }) => {
 
 const SidebarPart = ({ data }: { data: Dataset }) => (
   <div className="h-160 w-(--size-sidebar)">
-    <Sidebar
+    <ChatSidebar
       activeConversationId={null}
       archived={null}
       conversations={stressConversations(data)}
-      now={SAMPLE_NOW}
+      now={SAMPLE_DATE}
       onAddProject={ignore}
       onArchive={ignore}
       onNewChat={ignore}

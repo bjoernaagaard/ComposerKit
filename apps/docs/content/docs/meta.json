@@ -10,6 +10,7 @@
     "composer",
     "conversation",
     "app-shell",
+    "chat-sidebar",
     "sample-data"
   ]
 }

@@ -401,7 +401,8 @@ export const AppShellTabs = ({
       onSelectTab(neighbour.id);
     }
 
-    if (nextFocus && holdsFocus(strip)) {
+    // A tab id may be the empty string, so this checks for undefined.
+    if (nextFocus !== undefined && holdsFocus(strip)) {
       findTab(strip, nextFocus)?.focus({ preventScroll: true });
     }
 

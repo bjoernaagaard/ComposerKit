@@ -50,6 +50,7 @@ export const ITEMS = [
   "composer",
   "conversation",
   "app-shell",
+  "chat-sidebar",
 ] as const;
 
 // Every docs page. sample-data is a registry item with a short page of its

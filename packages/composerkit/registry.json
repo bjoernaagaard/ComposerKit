@@ -275,6 +275,7 @@
           "motion-ease-out": "cubic-bezier(0, 0, 0.2, 1)",
           "motion-ease-enter": "cubic-bezier(0.19, 1, 0.22, 1)",
           "motion-marquee-delay": "400ms",
+          "motion-marquee-ms-per-pixel": "14ms",
           "motion-jump-duration": "0ms",
           "motion-tooltip-delay": "200ms",
           "motion-tooltip-close-delay": "0ms",
@@ -613,6 +614,110 @@
           "[data-slot=\"sidebar-splitter\"]:is(:hover, :focus-visible)::after, [data-slot=\"app-shell\"][data-resizing] [data-slot=\"sidebar-splitter\"]::after": {
             "background-color": "Highlight",
             "forced-color-adjust": "none"
+          }
+        }
+      }
+    },
+    {
+      "name": "chat-sidebar",
+      "type": "registry:block",
+      "title": "Chat sidebar",
+      "description": "The sidebar of a chat app: chat rows that can be links, the project list, folding sections, search, and archive with undo. Every word comes from labels.",
+      "dependencies": [
+        "@base-ui/react",
+        "lucide-react",
+        "react"
+      ],
+      "registryDependencies": [
+        "utils",
+        "https://bjoernaagaard.github.io/ComposerKit/r/app-shell.json",
+        "https://bjoernaagaard.github.io/ComposerKit/r/menu.json",
+        "https://bjoernaagaard.github.io/ComposerKit/r/tip.json"
+      ],
+      "files": [
+        {
+          "path": "src/components/chat-sidebar/chat-sidebar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/chat-sidebar/conversation-row.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/chat-sidebar/project-list.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/chat-sidebar/sidebar-section.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/chat-sidebar/labels.ts",
+          "type": "registry:component"
+        }
+      ],
+      "css": {
+        "@media (hover: hover)": {
+          "[data-slot=\"row-actions\"]": {
+            "opacity": "0",
+            "pointer-events": "none"
+          },
+          ":is([data-slot=\"conversation-row\"], [data-slot=\"project-row\"]):is([data-hover], :has(:focus-visible), :has([data-popup-open])) [data-slot=\"row-actions\"]": {
+            "opacity": "1",
+            "pointer-events": "auto"
+          },
+          "[data-slot=\"conversation-row\"]:is([data-hover], :has(:focus-visible), :has([data-popup-open])) [data-slot=\"row-button\"]": {
+            "padding-inline-end": "calc(var(--size-row-action) * 2 + 12px)"
+          }
+        },
+        "@media (hover: none)": {
+          "[data-slot=\"row-actions\"] [data-row-action=\"pin\"]": {
+            "display": "none"
+          },
+          "[data-slot=\"conversation-row\"] [data-slot=\"row-button\"]": {
+            "padding-inline-end": "calc(var(--size-row-action) + 12px)"
+          }
+        },
+        "[data-slot=\"row-title-track\"]": {
+          "white-space": "nowrap"
+        },
+        "@media (prefers-reduced-motion: no-preference)": {
+          "[data-slot=\"row-title-track\"]": {
+            "display": "inline-block",
+            "transition": "translate 0s"
+          },
+          "[data-slot=\"row-title\"][data-overflowing=\"true\"]": {
+            "mask-image": "linear-gradient(to right, #000 calc(100% - var(--space-fade-end)), transparent)"
+          },
+          "[data-slot=\"row-title\"][data-overflowing=\"true\"]:dir(rtl)": {
+            "mask-image": "linear-gradient(to left, #000 calc(100% - var(--space-fade-end)), transparent)"
+          },
+          ":is([data-slot=\"conversation-row\"], [data-slot=\"project-row\"]):has(:focus-visible) [data-slot=\"row-title-track\"][data-overflowing=\"true\"]": {
+            "translate": "calc(var(--overflow) * -1) 0",
+            "transition": "translate calc(var(--overflow-px) * var(--motion-marquee-ms-per-pixel)) linear var(--motion-marquee-delay)"
+          },
+          ":is([data-slot=\"conversation-row\"], [data-slot=\"project-row\"]):has(:focus-visible) [data-slot=\"row-title-track\"][data-overflowing=\"true\"]:dir(rtl)": {
+            "translate": "var(--overflow) 0"
+          },
+          ":is([data-slot=\"conversation-row\"], [data-slot=\"project-row\"]):has(:focus-visible) [data-slot=\"row-title\"][data-overflowing=\"true\"]": {
+            "mask-image": "none"
+          }
+        },
+        "@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)": {
+          ":is([data-slot=\"conversation-row\"], [data-slot=\"project-row\"])[data-hover] [data-slot=\"row-title-track\"][data-overflowing=\"true\"]": {
+            "translate": "calc(var(--overflow) * -1) 0",
+            "transition": "translate calc(var(--overflow-px) * var(--motion-marquee-ms-per-pixel)) linear var(--motion-marquee-delay)"
+          },
+          ":is([data-slot=\"conversation-row\"], [data-slot=\"project-row\"])[data-hover] [data-slot=\"row-title-track\"][data-overflowing=\"true\"]:dir(rtl)": {
+            "translate": "var(--overflow) 0"
+          },
+          ":is([data-slot=\"conversation-row\"], [data-slot=\"project-row\"])[data-hover] [data-slot=\"row-title\"][data-overflowing=\"true\"]": {
+            "mask-image": "none"
+          }
+        },
+        "@media (prefers-reduced-motion: reduce)": {
+          "[data-slot=\"row-title\"]": {
+            "text-overflow": "ellipsis"
           }
         }
       }

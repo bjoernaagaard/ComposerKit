@@ -17,6 +17,8 @@ import { pathToFileURL } from "node:url";
 
 import { expect, test } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
+import type { ComponentType, createElement, useState } from "react";
+import type { createRoot } from "react-dom/client";
 
 import { openApp, openHarness } from "./stress-support";
 import { PLAYGROUND_URL, REPO, openPage, run } from "./support";
@@ -32,6 +34,8 @@ declare global {
     // The transitions that started since listenForTransitions, each as
     // "slot property", where slot is the target's data-slot or tag name.
     shellTransitions?: string[];
+    // Renders the row mounted by mountRow again with this title.
+    renderRowTitle?: (title: string) => void;
   }
 }
 
@@ -514,6 +518,28 @@ test("controlled: the cookie follows open when the app changes it, and a reload 
   await expect
     .poll(() => savedShell(page))
     .toEqual([expect.stringContaining("open=true")]);
+});
+
+test("cookie: a sidebar closed before anyone picks a width saves no width, and a reload keeps the design's width", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+
+  const designBox = await sidebar(page).boundingBox();
+
+  await hideToggle(page).click();
+  await expect(sidebar(page)).toBeHidden();
+  await expect.poll(() => savedShell(page)).toEqual(["open=false"]);
+
+  await showToggle(page).click();
+  await expect(sidebar(page)).toBeVisible();
+  await expect.poll(() => savedShell(page)).toEqual(["open=true"]);
+
+  await page.reload();
+  await expect(sidebar(page)).toBeVisible();
+  const reloadedBox = await sidebar(page).boundingBox();
+
+  expect(reloadedBox?.width).toBe(designBox?.width);
 });
 
 test("blocked cookies: in a sandboxed iframe the playground renders one shell and no error", async ({
@@ -1154,6 +1180,106 @@ test("tab ids: a lone surrogate such as \\uD800 in a tab id renders, and its tab
   expect(errors).toEqual([]);
 });
 
+// The parts of React, react-dom/client and the tabs module that
+// mountTabs uses, as the playground's dev server serves them.
+interface ServedReact {
+  default: { createElement: typeof createElement; useState: typeof useState };
+}
+
+interface ServedReactDom {
+  default: { createRoot: typeof createRoot };
+}
+
+interface ServedTabs {
+  AppShellTabs: ComponentType<{
+    activeTabId: string;
+    onCloseTab: (id: string) => void;
+    onSelectTab: (id: string) => void;
+    panelId: string;
+    tabs: { id: string; title: string }[];
+  }>;
+}
+
+// Renders AppShellTabs on a playground page with tabs that have these
+// ids, each titled with its id in brackets, the first one open. React and
+// the tabs come from the playground's Vite dev server, the same copies its
+// pages run.
+const mountTabs = (page: Page, ids: string[]) =>
+  page.evaluate(
+    async ({ reactDomUrl, reactUrl, tabsUrl, wanted }) => {
+      const served: ServedReact = await import(reactUrl);
+      const servedDom: ServedReactDom = await import(reactDomUrl);
+
+      const { AppShellTabs }: ServedTabs = await import(tabsUrl);
+      const react = served.default;
+
+      const Strip = () => {
+        const [tabs, setTabs] = react.useState(() =>
+          wanted.map((id) => ({ id, title: `[${id}]` }))
+        );
+
+        const [active, setActive] = react.useState(wanted[0] ?? "");
+
+        return react.createElement(AppShellTabs, {
+          activeTabId: active,
+          onCloseTab: (id) =>
+            setTabs((list) => list.filter((tab) => tab.id !== id)),
+          onSelectTab: setActive,
+          panelId: "mounted-panel",
+          tabs,
+        });
+      };
+
+      const host = document.createElement("div");
+
+      document.body.append(host);
+      servedDom.default.createRoot(host).render(react.createElement(Strip));
+    },
+    {
+      reactDomUrl: "/node_modules/.vite/deps/react-dom_client.js",
+      reactUrl: "/node_modules/.vite/deps/react.js",
+      tabsUrl: `/@fs${REPO}/packages/composerkit/src/components/app-shell/tabs.tsx`,
+      wanted: ids,
+    }
+  );
+
+test("tab ids: a tab whose id is empty takes focus when Delete closes the tab before it, and Delete on it focuses the next", async ({
+  page,
+}) => {
+  await openHarness(page, "part=tabs&data=empty", "light");
+  await mountTabs(page, ["a", "", "c"]);
+
+  const tab = (title: string) => page.getByRole("tab", { name: title });
+
+  await tab("[a]").click();
+  await page.keyboard.press("Delete");
+  await expect(tab("[a]")).toHaveCount(0);
+  await expect(tab("[]")).toHaveAttribute("aria-selected", "true");
+  await expect(tab("[]")).toBeFocused();
+
+  await page.keyboard.press("Delete");
+  await expect(tab("[]")).toHaveCount(0);
+  await expect(tab("[c]")).toHaveAttribute("aria-selected", "true");
+  await expect(tab("[c]")).toBeFocused();
+});
+
+test("tab ids: Delete on the last tab focuses the open tab to its left, also when that tab's id is empty", async ({
+  page,
+}) => {
+  await openHarness(page, "part=tabs&data=empty", "light");
+  await mountTabs(page, ["a", "", "c"]);
+
+  const tab = (title: string) => page.getByRole("tab", { name: title });
+
+  await tab("[]").click();
+  // Focus without opening, as a tab pressed and dragged off does.
+  await tab("[c]").focus();
+  await page.keyboard.press("Delete");
+  await expect(tab("[c]")).toHaveCount(0);
+  await expect(tab("[]")).toHaveAttribute("aria-selected", "true");
+  await expect(tab("[]")).toBeFocused();
+});
+
 test("shortcut in a shadow root: the shell that holds focus toggles, even when it sits inside one", async ({
   page,
 }) => {
@@ -1409,10 +1535,8 @@ test("splitter: a double click goes back to 288, and the cookie keeps no width",
   await splitter(page).dblclick();
 
   await expectWidth(page, 288);
-  // No chosen width is saved as 0, which reads back as none.
-  await expect
-    .poll(() => savedShell(page))
-    .toEqual([expect.stringContaining("width=0")]);
+  // With no chosen width, the cookie keeps none.
+  await expect.poll(() => savedShell(page)).toEqual(["open=true"]);
 });
 
 test("splitter: Enter hides the sidebar and focuses the toggle, and Enter there shows it at the same width", async ({
@@ -1509,4 +1633,396 @@ test("splitter: a design's sidebar width holds until the person resizes", async 
   await splitter(page).focus();
   await page.keyboard.press("ArrowRight");
   await expectWidth(page, 276);
+});
+
+// --- The chat sidebar: rows on touch, long titles, rows as links ---
+
+const RETRIES = "Add retries to the sync client";
+
+// A chat row by its chat's title.
+const chatRow = (root: Locator, title: string) =>
+  root.locator('[data-slot="conversation-row"]').filter({
+    has: root.page().getByRole("button", { exact: true, name: title }),
+  });
+
+const pinnedRows = (root: Locator) =>
+  root.getByRole("region", { name: "Pinned" }).getByRole("listitem");
+
+// The first chat row whose title is too long to fit.
+const longTitleRow = (page: Page) =>
+  sidebar(page)
+    .locator('[data-slot="conversation-row"]')
+    .filter({
+      has: page.locator('[data-slot="row-title"][data-overflowing="true"]'),
+    })
+    .first();
+
+// Where the title's text sits in its box: start is how far the text's
+// start is past the box's start, end how far its end is past the box's end.
+const titleOffsets = (row: Locator) =>
+  row.evaluate((element) => {
+    const title = element.querySelector('[data-slot="row-title"]');
+    const track = element.querySelector('[data-slot="row-title-track"]');
+    const box = title?.getBoundingClientRect();
+    const text = track?.getBoundingClientRect();
+
+    return {
+      end: (text?.right ?? 0) - (box?.right ?? 0),
+      start: (text?.left ?? 0) - (box?.left ?? 0),
+    };
+  });
+
+const titleStart = async (row: Locator) => {
+  const offsets = await titleOffsets(row);
+
+  return offsets.start;
+};
+
+const titleEnd = async (row: Locator) => {
+  const offsets = await titleOffsets(row);
+
+  return offsets.end;
+};
+
+const heightOf = async (locator: Locator) => {
+  const box = await locator.boundingBox();
+
+  return box?.height;
+};
+
+// Longer than the marquee's 400 ms delay and the scroll of any sample title.
+const MARQUEE_SETTLE_MS = 1500;
+
+test("touch: a tap on a chat row opens the chat and never pins it, and the row's More button shows and holds Pin and Archive", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    hasTouch: true,
+    isMobile: true,
+    viewport: NARROW_SIZES[0],
+  });
+
+  const page = await context.newPage();
+
+  await openApp(page, "base", "light");
+  await showToggle(page).tap();
+  await expect(drawer(page)).toBeVisible();
+
+  const pinned = await pinnedRows(drawer(page)).count();
+  const row = chatRow(drawer(page), RETRIES);
+
+  const more = row.getByRole("button", {
+    exact: true,
+    name: `More actions for ${RETRIES}`,
+  });
+
+  // The More button shows with no hover, and Pin waits in its menu.
+  await expect(more).toBeVisible();
+  await expect(more).toHaveCSS("opacity", "1");
+  await expect(
+    row.getByRole("button", { exact: true, name: `Pin ${RETRIES}` })
+  ).toBeHidden();
+
+  // 14 px from the row's end, where the hidden Pin button used to take
+  // the tap, is now the More button, which opens its menu.
+  // A tap on the row waits for the drawer to stop moving.
+  await row.tap({ position: { x: 1, y: 1 }, trial: true });
+
+  const box = await row.boundingBox();
+  const width = box?.width ?? 0;
+  const middle = (box?.height ?? 0) / 2;
+
+  await row.tap({ position: { x: width - 14, y: middle } });
+
+  const menu = page.getByRole("menu", { name: "More actions" });
+
+  await expect(menu).toBeVisible();
+  await expect(menu.getByRole("menuitem")).toHaveText([
+    "Pin chat",
+    /^Archive chat/u,
+  ]);
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+  expect(await pinnedRows(drawer(page)).count()).toBe(pinned);
+
+  // The end of the title, just before the More button, opens the chat.
+  const moreBox = await more.boundingBox();
+
+  await row.tap({
+    position: { x: (moreBox?.x ?? 0) - (box?.x ?? 0) - 4, y: middle },
+  });
+  await expect(drawer(page)).toBeHidden();
+  await expect(page.getByRole("tab", { name: RETRIES })).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+
+  await showToggle(page).tap();
+  await expect(drawer(page)).toBeVisible();
+  expect(await pinnedRows(drawer(page)).count()).toBe(pinned);
+  await context.close();
+});
+
+test("pointer: a row's actions take no click until the row is hovered, and then show", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+
+  const row = chatRow(sidebar(page), RETRIES);
+  const actions = row.locator('[data-slot="row-actions"]');
+
+  await page.mouse.move(0, 0);
+  await expect(actions).toHaveCSS("opacity", "0");
+  await expect(actions).toHaveCSS("pointer-events", "none");
+  // No patch over the row: the actions have no fill of their own.
+  await expect(actions).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+
+  await row.hover();
+  await expect(actions).toHaveCSS("opacity", "1");
+  await expect(actions).toHaveCSS("pointer-events", "auto");
+});
+
+test("marquee: with a fine pointer, hovering a long title scrolls it from its start to its end", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+
+  const row = longTitleRow(page);
+
+  await page.mouse.move(0, 0);
+  expect(await titleStart(row)).toBeCloseTo(0, 0);
+
+  await row.hover();
+
+  // It waits --motion-marquee-delay with the title's start in view.
+  expect(await titleStart(row)).toBeCloseTo(0, 0);
+
+  await expect
+    .poll(() => titleEnd(row), {
+      timeout: 5000,
+    })
+    .toBeCloseTo(0, 0);
+  expect(await titleStart(row)).toBeLessThan(0);
+});
+
+test("marquee: on a touch screen, a tap or a hover never scrolls a long title", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    hasTouch: true,
+    isMobile: true,
+    viewport: WIDE,
+  });
+
+  const page = await context.newPage();
+
+  await openApp(page, "base", "light");
+
+  const row = longTitleRow(page);
+
+  await row.hover();
+  await row.locator('[data-slot="row-button"]').tap();
+  await page.waitForTimeout(MARQUEE_SETTLE_MS);
+
+  expect(await titleStart(row)).toBeCloseTo(0, 0);
+  await context.close();
+});
+
+// A finger's tap at the middle of target, on a screen whose main pointer
+// hovers, such as a touchscreen laptop. Playwright's own tap needs
+// hasTouch, which also makes the page match hover: none.
+const tapWithFinger = async (page: Page, target: Locator) => {
+  const box = await target.boundingBox();
+
+  const point = {
+    x: (box?.x ?? 0) + (box?.width ?? 0) / 2,
+    y: (box?.y ?? 0) + (box?.height ?? 0) / 2,
+  };
+
+  const cdp = await page.context().newCDPSession(page);
+
+  await cdp.send("Input.dispatchTouchEvent", {
+    touchPoints: [point],
+    type: "touchStart",
+  });
+  await cdp.send("Input.dispatchTouchEvent", {
+    touchPoints: [],
+    type: "touchEnd",
+  });
+  await cdp.detach();
+};
+
+test("touch on a screen that hovers: a tap on a row's hidden Pin opens the chat and never pins it", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+
+  const pinned = await pinnedRows(sidebar(page)).count();
+  const row = chatRow(sidebar(page), RETRIES);
+
+  await tapWithFinger(page, row.locator('[data-row-action="pin"]'));
+
+  await expect(page.getByRole("tab", { name: RETRIES })).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+  await expect(pinnedRows(sidebar(page))).toHaveCount(pinned);
+});
+
+test("marquee on a screen that hovers: a finger's tap never scrolls a long title", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+
+  const row = longTitleRow(page);
+  const title = row.locator('[data-slot="row-title"]');
+
+  await tapWithFinger(page, title);
+  await page.waitForTimeout(MARQUEE_SETTLE_MS);
+
+  expect(await titleStart(row)).toBeCloseTo(0, 0);
+});
+
+test("labels: in a German browser, a two-line row's age comes from the English labels", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({ locale: "de-DE" });
+  const page = await context.newPage();
+
+  await openPage(page, "/chat-sidebar", "light");
+
+  const details = docsExample(page, "conversation-row--two-line").locator(
+    '[data-slot="row-details"]'
+  );
+
+  await expect(details.first()).toHaveText(/\bago\b/u);
+  await expect(details.filter({ hasText: "vor" })).toHaveCount(0);
+  await context.close();
+});
+
+const STRESS_ROW =
+  "packages/composerkit/src/components/chat-sidebar/conversation-row.tsx";
+
+// Mounts a ConversationRow, 288 px wide, from the stress page's own React
+// and modules, so a test can pass it a new title the way an app does.
+const mountRow = async (page: Page) => {
+  await openHarness(page, "part=row&data=demo", "light");
+  await page.evaluate(
+    async (rowUrl) => {
+      const loaded = performance
+        .getEntriesByType("resource")
+        .map((entry) => entry.name);
+
+      const dependency = (name: string) =>
+        loaded.find((url) => url.includes(`/.vite/deps/${name}.js`)) ?? name;
+
+      // Vite serves React as CommonJS wrapped in a default export.
+      const [{ default: react }, { default: client }, rows] = await Promise.all(
+        [
+          import(dependency("react")),
+          import(dependency("react-dom_client")),
+          import(rowUrl),
+        ]
+      );
+
+      const host = document.createElement("div");
+
+      host.dataset.mountedRow = "";
+      host.style.width = "288px";
+      document.body.prepend(host);
+
+      const root = client.createRoot(host);
+
+      window.renderRowTitle = (title) =>
+        root.render(
+          react.createElement(rows.ConversationRow, {
+            active: false,
+            conversation: {
+              id: "mounted",
+              pinned: false,
+              projectId: null,
+              title,
+              updatedAt: "2026-01-01T00:00:00Z",
+            },
+            onArchive: () => null,
+            onOpen: () => null,
+            onTogglePin: () => null,
+          })
+        );
+    },
+    `/@fs${path.join(REPO, STRESS_ROW)}`
+  );
+
+  return page.locator('[data-mounted-row] [data-slot="conversation-row"]');
+};
+
+const renderRowTitle = (page: Page, title: string) =>
+  page.evaluate((next) => window.renderRowTitle?.(next), title);
+
+test("marquee: a row whose title changes to a long one scrolls it on hover, and stops when it changes back", async ({
+  page,
+}) => {
+  const row = await mountRow(page);
+  const title = row.locator('[data-slot="row-title"]');
+
+  await renderRowTitle(page, "Short");
+  await expect(title).toHaveAttribute("data-overflowing", "false");
+
+  await renderRowTitle(page, `${RETRIES}, then the ${RETRIES.toLowerCase()}`);
+  await expect(title).toHaveAttribute("data-overflowing", "true");
+
+  await row.hover();
+  await expect.poll(() => titleEnd(row), { timeout: 5000 }).toBeCloseTo(0, 0);
+
+  await renderRowTitle(page, "Short");
+  await expect(title).toHaveAttribute("data-overflowing", "false");
+});
+
+test("marquee under reduced motion: hovering a long title keeps the row 30 px tall and the title on one line", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await openApp(page, "base", "light");
+
+  const row = longTitleRow(page);
+  const opener = row.locator('[data-slot="row-button"]');
+
+  expect(await heightOf(opener)).toBeCloseTo(30, 0);
+
+  await row.hover();
+  await page.waitForTimeout(MARQUEE_SETTLE_MS);
+
+  expect(await heightOf(opener)).toBeCloseTo(30, 0);
+  expect(await titleStart(row)).toBeCloseTo(0, 0);
+  await expect(row.locator('[data-slot="row-title"]')).toHaveCSS(
+    "text-overflow",
+    "ellipsis"
+  );
+});
+
+test("links: a row with renderLink is an <a>, Cmd-click or Ctrl-click opens it in a new page, and a click opens it here", async ({
+  page,
+}) => {
+  await openPage(page, "/chat-sidebar", "light");
+
+  const links = docsExample(page, "chat-sidebar--links");
+  const link = links.locator('[data-slot="row-button"]').first();
+
+  await expect(link).toHaveJSProperty("tagName", "A");
+  await expect(link).toHaveAttribute("href", /^#\/c\//u);
+
+  const opened = page.context().waitForEvent("page");
+
+  await link.click({ modifiers: ["ControlOrMeta"] });
+
+  const popup = await opened;
+
+  expect(popup.url()).toMatch(/#\/c\//u);
+  await popup.close();
+  // A click meant for a new page doesn't open the chat here.
+  await expect(link).not.toHaveAttribute("aria-current");
+
+  await link.click();
+  await expect(link).toHaveAttribute("aria-current", "page");
+  expect(page.url()).toMatch(/#\/c\//u);
 });

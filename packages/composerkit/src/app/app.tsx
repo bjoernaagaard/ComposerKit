@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 // SPDX-License-Identifier: MIT
 
+import { BellIcon, ChevronDownIcon } from "lucide-react";
 import { useCallback, useId, useMemo, useReducer, useState } from "react";
 
 import {
@@ -9,10 +10,7 @@ import {
   AppShellSidebar,
   AppShellSkipLink,
 } from "@/components/app-shell/app-shell";
-import {
-  AppShellProvider,
-  useAppShell,
-} from "@/components/app-shell/app-shell-provider";
+import { AppShellProvider } from "@/components/app-shell/app-shell-provider";
 import { readDocumentShellCookie } from "@/components/app-shell/persist";
 import {
   AppShellRail,
@@ -32,14 +30,25 @@ import {
   AppShellTitleBarStart,
   AppShellTitleBarTabs,
 } from "@/components/app-shell/title-bar";
+import { ChatSidebar } from "@/components/chat-sidebar/chat-sidebar";
+import type { RowDensity } from "@/components/chat-sidebar/conversation-row";
 import type { ComposerMode } from "@/components/composer/composer";
 import { initialComposer } from "@/components/composer/machine";
 import type { ComposerState } from "@/components/composer/machine";
 import { useComposerController } from "@/components/composer/use-composer-controller";
 import { ConversationView } from "@/components/conversation/conversation-view";
 import type { ConversationLayout } from "@/components/conversation/layouts";
+import { Button } from "@/components/ui/button";
+import {
+  MenuContent,
+  MenuItem,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuRoot,
+  MenuTrigger,
+} from "@/components/ui/menu";
 import { PopupLayer } from "@/components/ui/popup-layer";
-import { TipProvider } from "@/components/ui/tip";
+import { Tip, TipProvider } from "@/components/ui/tip";
 import { COMPOSER_OPTIONS, DEFAULT_CHOICES } from "@/content/catalog";
 import {
   PLACEHOLDER_REPLY,
@@ -59,8 +68,6 @@ import { AppearanceMenu, DESTINATIONS } from "./icon-rail";
 import type { Destination } from "./icon-rail";
 import { PlaceholderView } from "./placeholder-view";
 import { readConversationLayout, saveConversationLayout } from "./saved-layout";
-import type { RowDensity } from "./sidebar/conversation-row";
-import { Sidebar } from "./sidebar/sidebar";
 
 type View =
   | { kind: "destination"; id: Destination }
@@ -178,6 +185,56 @@ const ConversationMain = ({
   );
 };
 
+// The top of the demo's sidebar: the workspace menu and notifications.
+const SidebarHeader = () => (
+  <>
+    <MenuRoot>
+      <MenuTrigger render={<Button size="lg" variant="ghost" />}>
+        <span className="text-(length:--text-brand-size) leading-(--text-brand-leading) font-(--weight-semibold)">
+          ComposerKit
+        </span>
+        <span className="sr-only">, workspace Personal, change</span>
+        <ChevronDownIcon
+          aria-hidden="true"
+          className="text-subtle-foreground"
+          data-icon="inline-end"
+        />
+      </MenuTrigger>
+      <MenuContent label="Workspace" width="medium">
+        <MenuRadioGroup value="personal">
+          <MenuRadioItem label="Personal" value="personal" />
+          <MenuRadioItem
+            description="Not in this demo"
+            disabled
+            label="Team"
+            value="team"
+          />
+        </MenuRadioGroup>
+      </MenuContent>
+    </MenuRoot>
+    <span className="flex-1" />
+    <MenuRoot>
+      <Tip label="Notifications">
+        <MenuTrigger
+          aria-label="Notifications"
+          render={<Button size="icon-sm" variant="quiet" />}
+        >
+          <BellIcon aria-hidden="true" />
+        </MenuTrigger>
+      </Tip>
+      <MenuContent align="end" label="Notifications" width="wide">
+        <MenuItem
+          description="Finished tasks appear here."
+          disabled
+          label="Nothing new"
+        />
+      </MenuContent>
+    </MenuRoot>
+  </>
+);
+
+const SAMPLE_DATE = new Date(SAMPLE_NOW);
+
 let nextId = 0;
 
 const newId = (prefix: string): string => {
@@ -187,7 +244,6 @@ const newId = (prefix: string): string => {
 };
 
 const ShellApp = ({ density }: { density?: RowDensity }) => {
-  const shell = useAppShell();
   // The tab panel inside the main region.
   const panelId = useId();
 
@@ -245,12 +301,11 @@ const ShellApp = ({ density }: { density?: RowDensity }) => {
     initialComposer(COMPOSER_OPTIONS, DEFAULT_CHOICES)
   );
 
-  // A choice made in the narrow drawer closes it and moves focus to the
-  // page it opened.
-  const go = (next: View) => {
+  // A choice made in the narrow drawer, in the rail or the chat sidebar,
+  // closes it and moves focus to the page it opened. Those parts do that
+  // themselves.
+  const go = (next: View) =>
     navigate({ tabId: activeTabId, type: "push", view: next });
-    shell.closeNarrowAndFocusMain();
-  };
 
   const updateConversation = (id: string, patch: Partial<Conversation>) =>
     setConversations((list) =>
@@ -420,14 +475,15 @@ const ShellApp = ({ density }: { density?: RowDensity }) => {
             </AppShellRailFooter>
           </AppShellRail>
           <AppShellSidebar>
-            <Sidebar
+            <ChatSidebar
               density={density}
+              header={<SidebarHeader />}
               activeConversationId={
                 view.kind === "conversation" ? view.id : null
               }
               archived={archived?.conversation ?? null}
               conversations={conversations}
-              now={SAMPLE_NOW}
+              now={SAMPLE_DATE}
               onAddProject={(name) =>
                 setProjects((list) => [...list, { id: newId("p"), name }])
               }

@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 // SPDX-License-Identifier: MIT
 
+"use client";
+
 import {
-  BellIcon,
-  ChevronDownIcon,
   FolderPlusIcon,
   ListFilterIcon,
   SearchIcon,
@@ -11,39 +11,42 @@ import {
   XIcon,
 } from "lucide-react";
 import { useRef, useState } from "react";
+import type { ReactNode } from "react";
 
+import { useOptionalAppShell } from "@/components/app-shell/app-shell-provider";
+import { ConversationRow } from "@/components/chat-sidebar/conversation-row";
+import type {
+  ChatSidebarConversation,
+  ChatSidebarProject,
+  ChatSidebarRenderLink,
+  RowDensity,
+} from "@/components/chat-sidebar/conversation-row";
+import { chatSidebarLabels } from "@/components/chat-sidebar/labels";
+import type {
+  ChatSidebarFilter,
+  ChatSidebarLabels,
+} from "@/components/chat-sidebar/labels";
+import { ProjectList } from "@/components/chat-sidebar/project-list";
+import { SidebarSection } from "@/components/chat-sidebar/sidebar-section";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import {
   MenuContent,
-  MenuItem,
   MenuRadioGroup,
   MenuRadioItem,
   MenuRoot,
   MenuTrigger,
 } from "@/components/ui/menu";
 import { Tip } from "@/components/ui/tip";
-import type { Conversation, Project } from "@/content/sample";
 
-import { ConversationRow } from "./conversation-row";
-import type { RowDensity } from "./conversation-row";
-import { ProjectList } from "./project-list";
-import { SidebarSection } from "./sidebar-section";
+const FILTERS: ChatSidebarFilter[] = ["all", "project", "loose"];
 
-type RecentsFilter = "all" | "project" | "loose";
-
-const FILTERS: { id: RecentsFilter; label: string }[] = [
-  { id: "all", label: "All chats" },
-  { id: "project", label: "Chats in a project" },
-  { id: "loose", label: "Chats without a project" },
-];
-
-const isFilter = (value: string): value is RecentsFilter =>
-  FILTERS.some((filter) => filter.id === value);
+const isFilter = (value: unknown): value is ChatSidebarFilter =>
+  FILTERS.some((filter) => filter === value);
 
 const matchesFilter = (
-  conversation: Conversation,
-  filter: RecentsFilter
+  conversation: ChatSidebarConversation,
+  filter: ChatSidebarFilter
 ): boolean => {
   if (filter === "project") {
     return conversation.projectId !== null;
@@ -63,36 +66,66 @@ const RecentsEmpty = ({
   filtered,
   pinned,
   onShowAll,
+  labels,
 }: {
   filtered: boolean;
   pinned: boolean;
   onShowAll: () => void;
+  labels: ChatSidebarLabels;
 }) => {
   if (!filtered) {
     return (
       <p className="text-muted-foreground px-2 py-2 text-(length:--text-body-size)">
-        {pinned ? "No other chats." : "No chats yet."}
+        {pinned ? labels.noOtherChats : labels.noChatsYet}
       </p>
     );
   }
 
   return (
     <div className="text-muted-foreground flex flex-col items-start gap-2 px-2 py-2 text-(length:--text-body-size)">
-      <p>No chats match this filter.</p>
+      <p>{labels.noFilterMatches}</p>
       <Button variant="ghost" onClick={onShowAll}>
-        Show all chats
+        {labels.showAllChats}
       </Button>
     </div>
   );
 };
 
-export interface SidebarProps {
-  conversations: Conversation[];
-  projects: Project[];
+const NewChatButton = ({
+  label,
+  onNewChat,
+}: {
+  label: string;
+  onNewChat: () => void;
+}) => (
+  <button
+    className="text-muted-foreground hover:bg-accent flex h-(--size-row) w-full items-center gap-2 rounded-(--radius-control) px-(--space-row-padding-x) text-start text-(length:--text-heading-size) leading-(--text-heading-leading) transition-colors duration-(--motion-duration)"
+    data-slot="new-chat"
+    onClick={onNewChat}
+    type="button"
+  >
+    <SquarePenIcon aria-hidden="true" className="size-4 shrink-0" />
+    {label}
+  </button>
+);
+
+export interface ChatSidebarProps {
+  conversations: ChatSidebarConversation[];
+  projects: ChatSidebarProject[];
+  // The chat on screen, if any.
   activeConversationId: string | null;
-  archived: Conversation | null;
-  now: number;
+  // The chat archived last, while its Undo still shows above the list.
+  archived: ChatSidebarConversation | null;
+  // When chat ages are measured from. Defaults to the current time, read
+  // once the row is on screen and again each minute.
+  now?: Date;
   density?: RowDensity;
+  // The top of the sidebar, before the search button, such as the app's
+  // name, a workspace menu or notifications.
+  header?: ReactNode;
+  // Renders each chat row as a link instead of a button. See
+  // ConversationRow.
+  renderLink?: ChatSidebarRenderLink;
   onNewChat: () => void;
   onOpenConversation: (id: string) => void;
   onTogglePin: (id: string) => void;
@@ -100,26 +133,24 @@ export interface SidebarProps {
   onUndoArchive: () => void;
   onAddProject: (name: string) => void;
   onStartProjectChat: (projectId: string) => void;
+  labels?: Partial<ChatSidebarLabels>;
 }
 
-const HeaderButton = ({ onNewChat }: { onNewChat: () => void }) => (
-  <button
-    className="text-muted-foreground hover:bg-accent flex h-(--size-row) w-full items-center gap-2 rounded-(--radius-control) px-(--space-row-padding-x) text-left text-(length:--text-heading-size) leading-(--text-heading-leading) transition-colors duration-(--motion-duration)"
-    onClick={onNewChat}
-    type="button"
-  >
-    <SquarePenIcon aria-hidden="true" className="size-4 shrink-0" />
-    New chat
-  </button>
-);
-
-export const Sidebar = ({
+// The sidebar of a chat app: New chat, search, the pinned chats, the
+// projects and the recent chats with a filter, and Undo after an archive.
+// It is a navigation landmark named by labels.chats. The app owns the
+// data and gets a callback for each change. Inside an AppShellSidebar on a
+// narrow shell, picking a chat or starting one closes the drawer and moves
+// focus to the main region.
+export const ChatSidebar = ({
   conversations,
   projects,
   activeConversationId,
   archived,
   now,
   density,
+  header,
+  renderLink,
   onNewChat,
   onOpenConversation,
   onTogglePin,
@@ -127,10 +158,13 @@ export const Sidebar = ({
   onUndoArchive,
   onAddProject,
   onStartProjectChat,
-}: SidebarProps) => {
+  labels,
+}: ChatSidebarProps) => {
+  const text = chatSidebarLabels(labels);
+  const shell = useOptionalAppShell();
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
-  const [filter, setFilter] = useState<RecentsFilter>("all");
+  const [filter, setFilter] = useState<ChatSidebarFilter>("all");
   // Clearing removes the button that was focused, so focus moves to what
   // the person changes next.
   const searchInput = useRef<HTMLInputElement>(null);
@@ -151,78 +185,52 @@ export const Sidebar = ({
       !conversation.pinned && matchesFilter(conversation, filter)
   );
 
-  const renderRow = (conversation: Conversation) => (
+  // A choice that changes the page closes the narrow drawer.
+  const thenShowMain =
+    <T extends unknown[]>(action: (...args: T) => void) =>
+    (...args: T) => {
+      action(...args);
+      shell?.closeNarrowAndFocusMain();
+    };
+
+  const newChat = thenShowMain(onNewChat);
+
+  const renderRow = (conversation: ChatSidebarConversation) => (
     <li key={conversation.id}>
       <ConversationRow
         active={conversation.id === activeConversationId}
         conversation={conversation}
         density={density}
+        labels={text}
         now={now}
         onArchive={() => onArchive(conversation.id)}
-        onOpen={() => onOpenConversation(conversation.id)}
+        onOpen={thenShowMain(() => onOpenConversation(conversation.id))}
         onTogglePin={() => onTogglePin(conversation.id)}
         project={projects.find(
           (project) => project.id === conversation.projectId
         )}
+        renderLink={renderLink}
       />
     </li>
   );
 
   return (
     <nav
-      data-slot="sidebar"
-      aria-label="Chats"
+      aria-label={text.chats}
       className="bg-sidebar flex h-full min-h-0 w-(--size-sidebar) max-w-full flex-col"
+      data-slot="sidebar"
     >
-      <div className="flex flex-col gap-1.5 px-(--space-sidebar-padding) pt-2.5 pb-1">
+      <div
+        className="flex flex-col gap-1.5 px-(--space-sidebar-padding) pt-2.5 pb-1"
+        data-slot="sidebar-header"
+      >
         <div className="flex h-8 items-center">
-          <MenuRoot>
-            <MenuTrigger render={<Button size="lg" variant="ghost" />}>
-              <span className="text-(length:--text-brand-size) leading-(--text-brand-leading) font-(--weight-semibold)">
-                ComposerKit
-              </span>
-              <span className="sr-only">, workspace Personal, change</span>
-              <ChevronDownIcon
-                aria-hidden="true"
-                className="text-subtle-foreground"
-                data-icon="inline-end"
-              />
-            </MenuTrigger>
-            <MenuContent label="Workspace" width="medium">
-              <MenuRadioGroup value="personal">
-                <MenuRadioItem label="Personal" value="personal" />
-                <MenuRadioItem
-                  description="Not in this demo"
-                  disabled
-                  label="Team"
-                  value="team"
-                />
-              </MenuRadioGroup>
-            </MenuContent>
-          </MenuRoot>
-          <span className="flex-1" />
-          <MenuRoot>
-            <Tip label="Notifications">
-              <MenuTrigger
-                aria-label="Notifications"
-                render={<Button size="icon-sm" variant="quiet" />}
-              >
-                <BellIcon aria-hidden="true" />
-              </MenuTrigger>
-            </Tip>
-            <MenuContent align="end" label="Notifications" width="wide">
-              <MenuItem
-                description="Finished tasks appear here."
-                disabled
-                label="Nothing new"
-              />
-            </MenuContent>
-          </MenuRoot>
+          <div className="flex min-w-0 flex-1 items-center">{header}</div>
           <IconButton
             aria-expanded={searching}
-            className="ml-1.5"
+            className="ms-1.5"
             icon={searching ? XIcon : SearchIcon}
-            label={searching ? "Close search" : "Search chats"}
+            label={searching ? text.closeSearch : text.searchChats}
             onClick={() => {
               setSearching((value) => !value);
               setQuery("");
@@ -230,17 +238,14 @@ export const Sidebar = ({
             kind="small"
           />
         </div>
-        <HeaderButton onNewChat={onNewChat} />
+        <NewChatButton label={text.newChat} onNewChat={newChat} />
         {searching ? (
           <div className="px-0.5">
-            <label className="sr-only" htmlFor="chat-search">
-              Search chats
-            </label>
             <input
+              aria-label={text.searchChats}
               // oxlint-disable-next-line jsx-a11y/no-autofocus -- focus follows the explicit Search action
               autoFocus
               className="border-input bg-background text-foreground placeholder:text-subtle-foreground focus-visible:border-ring h-(--size-row) w-full rounded-(--radius-control) border px-2 text-(length:--text-body-size) outline-none"
-              id="chat-search"
               onChange={(event) => setQuery(event.target.value)}
               onKeyDown={(event) => {
                 if (event.key === "Escape") {
@@ -248,7 +253,7 @@ export const Sidebar = ({
                   setQuery("");
                 }
               }}
-              placeholder="Search chats"
+              placeholder={text.searchChats}
               ref={searchInput}
               type="search"
               value={query}
@@ -256,11 +261,14 @@ export const Sidebar = ({
           </div>
         ) : null}
       </div>
-      <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain [mask-image:linear-gradient(to_bottom,transparent,black_var(--space-sidebar-fade-start),black_calc(100%-var(--space-fade-end)),transparent)] px-(--space-sidebar-padding) pt-1 pb-4">
+      <div
+        className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain [mask-image:linear-gradient(to_bottom,transparent,black_var(--space-sidebar-fade-start),black_calc(100%-var(--space-fade-end)),transparent)] px-(--space-sidebar-padding) pt-1 pb-4"
+        data-slot="sidebar-list"
+      >
         {archived ? (
-          <div className="bg-accent mb-2 flex items-center gap-2 rounded-(--radius-control) py-1 pr-1 pl-2 text-(length:--text-caption-size) leading-(--text-caption-leading)">
+          <div className="bg-accent mb-2 flex items-center gap-2 rounded-(--radius-control) py-1 ps-2 pe-1 text-(length:--text-caption-size) leading-(--text-caption-leading)">
             <span className="min-w-0 flex-1 wrap-anywhere">
-              “{archived.title}” archived
+              {text.archived(archived.title)}
             </span>
             <Button
               // oxlint-disable-next-line jsx-a11y/no-autofocus -- the archived row is gone, so focus lands on its undo
@@ -269,13 +277,13 @@ export const Sidebar = ({
               size="sm"
               variant="ghost"
             >
-              Undo
+              {text.undo}
             </Button>
           </div>
         ) : null}
         {needle && pinned.length === 0 && recents.length === 0 ? (
           <div className="text-muted-foreground flex flex-col items-start gap-2 px-2 py-3 text-(length:--text-body-size)">
-            <p>No chat titles contain “{query.trim()}”.</p>
+            <p>{text.noSearchMatches(query.trim())}</p>
             <Button
               variant="ghost"
               onClick={() => {
@@ -283,12 +291,12 @@ export const Sidebar = ({
                 searchInput.current?.focus();
               }}
             >
-              Clear search
+              {text.clearSearch}
             </Button>
           </div>
         ) : null}
         {pinned.length > 0 ? (
-          <SidebarSection title="Pinned">
+          <SidebarSection title={text.pinned}>
             <ul className="flex flex-col gap-(--size-row-gap)">
               {pinned.map(renderRow)}
             </ul>
@@ -299,21 +307,22 @@ export const Sidebar = ({
             actions={
               <IconButton
                 icon={FolderPlusIcon}
-                label="New project"
+                label={text.newProject}
                 onClick={() => setAddingProject(true)}
                 kind="header"
               />
             }
-            title="Projects"
+            title={text.projects}
           >
             <ProjectList
               adding={addingProject}
+              labels={text}
               onAdd={(name) => {
                 onAddProject(name);
                 setAddingProject(false);
               }}
               onCancelAdd={() => setAddingProject(false)}
-              onStartChat={onStartProjectChat}
+              onStartChat={thenShowMain(onStartProjectChat)}
               projects={projects}
             />
           </SidebarSection>
@@ -323,9 +332,9 @@ export const Sidebar = ({
             actions={
               <>
                 <MenuRoot>
-                  <Tip label="Filter chats">
+                  <Tip label={text.filterChats}>
                     <MenuTrigger
-                      aria-label={`Filter chats, now showing ${FILTERS.find((item) => item.id === filter)?.label.toLowerCase()}`}
+                      aria-label={text.filterButton(filter)}
                       render={
                         <Button
                           data-active={filter === "all" ? undefined : ""}
@@ -338,7 +347,11 @@ export const Sidebar = ({
                       <ListFilterIcon aria-hidden="true" />
                     </MenuTrigger>
                   </Tip>
-                  <MenuContent align="end" label="Filter chats" width="narrow">
+                  <MenuContent
+                    align="end"
+                    label={text.filterChats}
+                    width="narrow"
+                  >
                     <MenuRadioGroup
                       onValueChange={(value) => {
                         if (isFilter(value)) {
@@ -349,9 +362,9 @@ export const Sidebar = ({
                     >
                       {FILTERS.map((item) => (
                         <MenuRadioItem
-                          key={item.id}
-                          label={item.label}
-                          value={item.id}
+                          key={item}
+                          label={text.filterOption(item)}
+                          value={item}
                         />
                       ))}
                     </MenuRadioGroup>
@@ -360,17 +373,13 @@ export const Sidebar = ({
                 <IconButton
                   className="size-6"
                   icon={SquarePenIcon}
-                  label="New chat"
-                  onClick={onNewChat}
+                  label={text.newChat}
+                  onClick={newChat}
                   kind="small"
                 />
               </>
             }
-            title={
-              filter === "all"
-                ? "Recent"
-                : `Recent, ${FILTERS.find((item) => item.id === filter)?.label.toLowerCase()}`
-            }
+            title={text.recent(filter)}
           >
             {recents.length > 0 ? (
               <ul className="flex flex-col gap-(--size-row-gap)">
@@ -379,6 +388,7 @@ export const Sidebar = ({
             ) : (
               <RecentsEmpty
                 filtered={filter !== "all"}
+                labels={text}
                 onShowAll={() => {
                   setFilter("all");
                   filterTrigger.current?.focus();

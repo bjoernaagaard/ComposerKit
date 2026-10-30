@@ -10,6 +10,7 @@
 @import "fumadocs-ui/css/preset.css";
 @import "../../../packages/composerkit/src/theme/tokens.css";
 @import "../../../packages/composerkit/src/components/app-shell/app-shell.css";
+@import "../../../packages/composerkit/src/components/chat-sidebar/chat-sidebar.css";
 @import "../../../packages/composerkit/src/designs/emil/emil.css";
 @import "../../../packages/composerkit/src/designs/apple/apple.css";
 @import "../../../packages/composerkit/src/designs/glass/glass.css";
@@ -77,34 +78,6 @@ body[data-design="glass"] [data-slot="preview"] {
   }
 }
 
-@layer components {
-  .marquee-track {
-    display: inline-block;
-    white-space: nowrap;
-    transition: translate 0s;
-  }
-
-  .group:hover .marquee-track[data-overflowing="true"],
-  .group:focus-within .marquee-track[data-overflowing="true"] {
-    translate: calc(var(--overflow) * -1) 0;
-    transition: translate calc(var(--overflow-ms) * 1ms) linear
-      var(--motion-marquee-delay);
-  }
-
-  .marquee-mask[data-overflowing="true"] {
-    mask-image: linear-gradient(
-      to right,
-      black calc(100% - var(--space-fade-end)),
-      transparent
-    );
-  }
-
-  .group:hover .marquee-mask[data-overflowing="true"],
-  .group:focus-within .marquee-mask[data-overflowing="true"] {
-    mask-image: none;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   [data-slot="preview"] *,
   [data-slot="preview"] *::before,
@@ -112,11 +85,5 @@ body[data-design="glass"] [data-slot="preview"] {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
     transition-delay: 0s !important;
-  }
-
-  .group:hover .marquee-track,
-  .group:focus-within .marquee-track {
-    translate: none;
-    white-space: normal;
   }
 }

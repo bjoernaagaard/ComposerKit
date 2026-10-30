@@ -74,10 +74,15 @@ export const cssVariables = (tokens: Tokens) => {
   // Durations end in Ms in the token file and become CSS times, so
   // tooltipDelayMs is --motion-tooltip-delay: 200ms. Curves start with ease
   // and pass through. Scales end in Scale and keep their own name, so
-  // pressScale is --press-scale: 1.
-  // Other numbers, such as marqueeMsPerPixel, are for native code only.
+  // pressScale is --press-scale: 1. Rates end in MsPerPixel and become a
+  // time per pixel, so marqueeMsPerPixel is
+  // --motion-marquee-ms-per-pixel: 14ms.
   const motion = () =>
     Object.entries(tokens.motion).flatMap(([name, value]) => {
+      if (name.endsWith("MsPerPixel")) {
+        return [[`motion-${kebab(name)}`, `${value}ms`]];
+      }
+
       if (name.startsWith("ease")) {
         return [[`motion-${kebab(name)}`, String(value)]];
       }

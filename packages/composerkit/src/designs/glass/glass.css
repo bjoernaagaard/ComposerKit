@@ -289,22 +289,15 @@ body[data-design="glass"]
   box-shadow: none;
 }
 
-body[data-design="glass"] [data-slot="conversation-row"] > button {
+body[data-design="glass"] [data-slot="row-button"] {
   border-radius: 12px;
   transition-property: background-color, color;
 }
 
-body[data-design="glass"]
-  [data-slot="conversation-row"]
-  > button[aria-current="page"] {
+body[data-design="glass"] [data-slot="row-button"][aria-current="page"] {
   background: var(--glass-fill);
   box-shadow: var(--glass-rim);
   font-weight: var(--weight-medium);
-}
-
-/* Row actions sat on the old sidebar color; on glass they show the row. */
-body[data-design="glass"] [data-slot="conversation-row"] > span {
-  background: transparent;
 }
 
 /* ---------- Controls on the wallpaper: clear glass ---------- */

@@ -37,7 +37,7 @@ const TABS: Where = { example: "title-bar-tabs--filled", url: "/app-shell" };
 
 const ROWS: Where = {
   example: "conversation-row--measured",
-  url: "/app-shell",
+  url: "/chat-sidebar",
 };
 
 interface SizeRow {
@@ -1287,13 +1287,33 @@ notMeasurable(
   "The title bar tabs example shows only the tab strip; the back, forward, sidebar and view buttons are not in any example."
 );
 
-notMeasurable(
+// The demo app's sidebar header: its notifications button and the chat
+// sidebar's search button.
+measure(
   {
     expected: "28 x 28",
     line: 275,
     part: "Sidebar header buttons (activity, search)",
   },
-  "No example renders the sidebar header."
+  { example: "app-shell", url: `${PLAYGROUND_URL}/` },
+  async (page) => {
+    const header = page
+      .getByRole("navigation", { name: "Chats" })
+      .locator('[data-slot="sidebar-header"]');
+
+    const boxes = await boxesOf(
+      header.getByRole("button", {
+        name: /^(?:Notifications|Search chats)$/u,
+      })
+    );
+
+    return {
+      actual: boxes.map(size).join(", "),
+      pass:
+        boxes.length === 2 &&
+        boxes.every((box) => near(box.width, 28) && near(box.height, 28)),
+    };
+  }
 );
 
 notMeasurable(
@@ -2149,22 +2169,93 @@ measure(
   }
 );
 
-const SHELL_ONLY = [
-  {
-    expected: "two 28 x 28 view toggles, 6 apart",
-    line: 428,
-    part: "Title bar right side",
-  },
+// The chat sidebar in the demo app, which runs the shipped chat-sidebar
+// parts with the demo's own workspace menu and notifications in its header.
+const chats = (page: Page) => page.getByRole("navigation", { name: "Chats" });
+
+measure(
   {
     expected: "mode switcher about 109 x 32, two 28 x 28 buttons 6 apart",
     line: 431,
     part: "Sidebar header",
   },
+  APP,
+  async (page) => {
+    const header = chats(page).locator('[data-slot="sidebar-header"]');
+
+    const menu = await rect(
+      header.getByRole("button", { name: /^ComposerKit/u })
+    );
+
+    const bell = await rect(
+      header.getByRole("button", { exact: true, name: "Notifications" })
+    );
+
+    const search = await rect(
+      header.getByRole("button", { exact: true, name: "Search chats" })
+    );
+
+    const apart = search.left - bell.right;
+
+    return {
+      actual: `workspace menu ${size(menu)}, notifications ${size(bell)} and search ${size(search)} ${fmt(apart)} apart`,
+      pass:
+        near(menu.height, 32) &&
+        [bell, search].every(
+          (button) => near(button.width, 28) && near(button.height, 28)
+        ) &&
+        near(apart, 6),
+    };
+  }
+);
+
+measure(
   { expected: "272 x 30", line: 432, part: "New chat row" },
+  APP,
+  async (page) => {
+    const box = await rect(chats(page).locator('[data-slot="new-chat"]'));
+
+    return {
+      actual: size(box),
+      pass: near(box.width, 272) && near(box.height, 30),
+    };
+  }
+);
+
+measure(
   {
     expected: "25 tall, 16 to 20 between sections",
     line: 433,
     part: "Section header",
+  },
+  APP,
+  async (page) => {
+    const headings = await boxesOf(
+      chats(page).locator('[data-slot="sidebar-section-heading"]')
+    );
+
+    const sections = await boxesOf(
+      chats(page).locator('[data-slot="sidebar-section"]')
+    );
+
+    const [first, second] = sections;
+    const gap = (second?.top ?? 0) - (first?.bottom ?? 0);
+
+    return {
+      actual: `${[...new Set(headings.map((box) => fmt(box.height)))].join(", ")} tall, ${fmt(gap)} between the first two sections`,
+      pass:
+        headings.length > 1 &&
+        headings.every((box) => near(box.height, 25)) &&
+        between(gap, 16 - TOLERANCE, 20 + TOLERANCE),
+    };
+  }
+);
+
+const SHELL_ONLY = [
+  {
+    expected: "two 28 x 28 view toggles, 6 apart",
+    line: 428,
+    part: "Title bar right side",
   },
   {
     expected: "heading 34 tall, composer 24 below, suggestion rows 40 tall",
