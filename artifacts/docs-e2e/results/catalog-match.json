@@ -444,7 +444,7 @@
     },
     "id": "mode-toggle--pill",
     "page": "/app-shell",
-    "ratio": 0.04685308145515758,
+    "ratio": 0.04273823997007388,
     "scheme": "light"
   },
   {
@@ -458,7 +458,7 @@
     },
     "id": "mode-toggle--segmented",
     "page": "/app-shell",
-    "ratio": 0.06976554868121133,
+    "ratio": 0.06797460110713123,
     "scheme": "light"
   },
   {
@@ -500,7 +500,7 @@
     },
     "id": "title-bar-tabs--filled",
     "page": "/app-shell",
-    "ratio": 0.07002155567785727,
+    "ratio": 0.05860163272793983,
     "scheme": "light"
   },
   {
@@ -514,7 +514,7 @@
     },
     "id": "title-bar-tabs--underline",
     "page": "/app-shell",
-    "ratio": 0.07539900935608146,
+    "ratio": 0.06389882590350394,
     "scheme": "light"
   },
   {
@@ -962,7 +962,7 @@
     },
     "id": "mode-toggle--pill",
     "page": "/app-shell",
-    "ratio": 0.053586458430749086,
+    "ratio": 0.049004021322360425,
     "scheme": "dark"
   },
   {
@@ -976,7 +976,7 @@
     },
     "id": "mode-toggle--segmented",
     "page": "/app-shell",
-    "ratio": 0.052995766851188536,
+    "ratio": 0.051123412569195704,
     "scheme": "dark"
   },
   {
@@ -1018,7 +1018,7 @@
     },
     "id": "title-bar-tabs--filled",
     "page": "/app-shell",
-    "ratio": 0.07546780407264722,
+    "ratio": 0.06386442854522106,
     "scheme": "dark"
   },
   {
@@ -1032,7 +1032,7 @@
     },
     "id": "title-bar-tabs--underline",
     "page": "/app-shell",
-    "ratio": 0.07585764079985324,
+    "ratio": 0.06413960741148413,
     "scheme": "dark"
   }
 ]

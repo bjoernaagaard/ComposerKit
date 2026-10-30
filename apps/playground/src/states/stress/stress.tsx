@@ -15,8 +15,8 @@ import type { ReactNode } from "react";
 
 import { ConversationRow, ROW_DENSITIES } from "@/app/sidebar/conversation-row";
 import { Sidebar } from "@/app/sidebar/sidebar";
-import { TabStrip } from "@/app/title-bar";
-import type { Tab } from "@/app/title-bar";
+import { AppShellTabs } from "@/components/app-shell/tabs";
+import type { AppShellTab } from "@/components/app-shell/tabs";
 import { ConversationView } from "@/components/conversation/conversation-view";
 import { toBlocks } from "@/components/conversation/types";
 import type { Turn } from "@/components/conversation/types";
@@ -199,7 +199,7 @@ const MenuPart = ({ data }: { data: Dataset }) => {
 };
 
 const TabsPart = ({ data }: { data: Dataset }) => {
-  const tabs: Tab[] =
+  const tabs: AppShellTab[] =
     data === "empty"
       ? []
       : SAMPLE_CONVERSATIONS.slice(0, 3).map((conversation, index) => ({
@@ -215,9 +215,9 @@ const TabsPart = ({ data }: { data: Dataset }) => {
 
   return (
     <div className="bg-window flex flex-col gap-2 p-2">
-      <TabStrip
+      <AppShellTabs
         activeTabId={active}
-        label="Stress tabs"
+        labels={{ tabs: "Stress tabs" }}
         onSelectTab={setActive}
         panelId={panelId}
         tabs={tabs}

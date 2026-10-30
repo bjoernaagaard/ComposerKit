@@ -25,6 +25,9 @@ export interface Tokens {
     composerLight: string;
     composerDarkEdge: string;
   };
+  // Overlay colors and shadows that are not palette steps, such as the scrim
+  // behind a drawer, set per scheme.
+  overlay: Record<Scheme, Record<string, string>>;
   blur: Record<string, number>;
   motion: Record<string, string | number>;
 }
@@ -39,6 +42,11 @@ const group = (prefix: string, values: Record<string, number>) =>
     `${prefix}-${kebab(name)}`,
     px(value),
   ]);
+
+const overlay = (values: Record<string, string>): Variables =>
+  Object.fromEntries(
+    Object.entries(values).map(([name, value]) => [kebab(name), value])
+  );
 
 export const cssVariables = (tokens: Tokens) => {
   // "neutral.900" names a step of a palette ramp.
@@ -65,12 +73,17 @@ export const cssVariables = (tokens: Tokens) => {
 
   // Durations end in Ms in the token file and become CSS times, so
   // tooltipDelayMs is --motion-tooltip-delay: 200ms. Curves start with ease
-  // and pass through.
+  // and pass through. Scales end in Scale and keep their own name, so
+  // pressScale is --press-scale: 1.
   // Other numbers, such as marqueeMsPerPixel, are for native code only.
   const motion = () =>
     Object.entries(tokens.motion).flatMap(([name, value]) => {
       if (name.startsWith("ease")) {
         return [[`motion-${kebab(name)}`, String(value)]];
+      }
+
+      if (name.endsWith("Scale")) {
+        return [[kebab(name), String(value)]];
       }
 
       return name.endsWith("Ms")
@@ -130,10 +143,12 @@ export const cssVariables = (tokens: Tokens) => {
     dark: {
       ...colors("dark"),
       "shadow-composer": tokens.shadow.composerDarkEdge,
+      ...overlay(tokens.overlay.dark),
     },
     light: {
       ...colors("light"),
       "shadow-composer": tokens.shadow.composerLight,
+      ...overlay(tokens.overlay.light),
       ...shared(),
     },
     theme: theme(),

@@ -2,10 +2,12 @@
    SPDX-License-Identifier: MIT */
 
 /* The stylesheet the npm package ships as composerkit/styles.css. Import it
-   after Tailwind. It adds the theme and tells Tailwind to scan the
-   components for the classes they use. */
+   after Tailwind. It adds the theme and the app shell's desktop title bar
+   rules, and tells Tailwind to scan the components for the classes they
+   use. */
 
 @import "./theme/tokens.css";
+@import "./components/app-shell/app-shell.css";
 
 @source "./components";
 

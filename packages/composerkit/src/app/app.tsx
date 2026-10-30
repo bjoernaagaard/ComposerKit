@@ -1,8 +1,37 @@
 // SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 // SPDX-License-Identifier: MIT
 
-import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { useCallback, useId, useMemo, useReducer, useState } from "react";
 
+import {
+  AppShell,
+  AppShellMain,
+  AppShellSidebar,
+  AppShellSkipLink,
+} from "@/components/app-shell/app-shell";
+import {
+  AppShellProvider,
+  useAppShell,
+} from "@/components/app-shell/app-shell-provider";
+import { readDocumentShellCookie } from "@/components/app-shell/persist";
+import {
+  AppShellRail,
+  AppShellRailContent,
+  AppShellRailFooter,
+  AppShellRailItem,
+  AppShellRailSeparator,
+} from "@/components/app-shell/rail";
+import { AppShellTabs, appShellTabId } from "@/components/app-shell/tabs";
+import type { AppShellTab } from "@/components/app-shell/tabs";
+import {
+  AppShellHistory,
+  AppShellNewTab,
+  AppShellSidebarToggle,
+  AppShellTitleBar,
+  AppShellTitleBarEnd,
+  AppShellTitleBarStart,
+  AppShellTitleBarTabs,
+} from "@/components/app-shell/title-bar";
 import type { ComposerMode } from "@/components/composer/composer";
 import { initialComposer } from "@/components/composer/machine";
 import type { ComposerState } from "@/components/composer/machine";
@@ -23,16 +52,15 @@ import {
   SAMPLE_PROJECTS,
 } from "@/content/sample";
 import type { Conversation, Project } from "@/content/sample";
+import { DirectionSelector } from "@/designs/direction";
 
 import { HomeView } from "./home-view";
-import { DESTINATIONS, IconRail } from "./icon-rail";
+import { AppearanceMenu, DESTINATIONS } from "./icon-rail";
 import type { Destination } from "./icon-rail";
 import { PlaceholderView } from "./placeholder-view";
 import { readConversationLayout, saveConversationLayout } from "./saved-layout";
 import type { RowDensity } from "./sidebar/conversation-row";
 import { Sidebar } from "./sidebar/sidebar";
-import { MAIN_PANEL_ID, SIDEBAR_TOGGLE_ID, TitleBar } from "./title-bar";
-import type { Tab } from "./title-bar";
 
 type View =
   | { kind: "destination"; id: Destination }
@@ -58,7 +86,6 @@ const SAMPLE_TITLE = SAMPLE_CONVERSATIONS.find(
   (item) => item.id === SAMPLE_CONVERSATION_ID
 )?.title;
 
-const WIDE_QUERY = "(min-width: 768px)";
 const TITLE_LENGTH = 60;
 
 const historyReducer = (history: History, action: HistoryAction): History => {
@@ -146,19 +173,20 @@ const newId = (prefix: string): string => {
   return `${prefix}-${nextId}`;
 };
 
-export const App = ({ density }: { density?: RowDensity }) => {
-  const [tabs, setTabs] = useState<Tab[]>([{ id: "t1", title: "Chat" }]);
+const ShellApp = ({ density }: { density?: RowDensity }) => {
+  const shell = useAppShell();
+  // The tab panel inside the main region.
+  const panelId = useId();
+
+  const [tabs, setTabs] = useState<AppShellTab[]>([
+    { id: "t1", title: "Chat" },
+  ]);
 
   const [activeTabId, setActiveTabId] = useState("t1");
   const [histories, navigate] = useReducer(tabHistoriesReducer, { t1: START });
   const history = histories[activeTabId] ?? START;
   const view = history.entries[history.index] ?? HOME;
 
-  const [isWide, setIsWide] = useState(
-    () => window.matchMedia(WIDE_QUERY).matches
-  );
-
-  const [sidebarOpen, setSidebarOpen] = useState(isWide);
   const [mode, setMode] = useState<ComposerMode>("work");
 
   const [conversationLayout, setConversationLayout] = useState(
@@ -180,47 +208,9 @@ export const App = ({ density }: { density?: RowDensity }) => {
   // a landmark.
   const [popupLayer, setPopupLayer] = useState<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    const query = window.matchMedia(WIDE_QUERY);
-
-    const sync = () => {
-      setIsWide(query.matches);
-      setSidebarOpen(query.matches);
-    };
-
-    query.addEventListener("change", sync);
-
-    return () => query.removeEventListener("change", sync);
-  }, []);
-
-  // On narrow screens the sidebar overlays the page. Focus moves into it,
-  // the covered page goes inert, and closing hands focus back to the toggle.
-  const overlay = sidebarOpen && !isWide;
-  const sidebarPanel = useRef<HTMLDivElement>(null);
-
-  const closeOverlay = useCallback(() => {
-    setSidebarOpen(false);
-    document.querySelector<HTMLElement>(`#${SIDEBAR_TOGGLE_ID}`)?.focus();
-  }, []);
-
-  useEffect(() => {
-    if (!overlay) {
-      return;
-    }
-
-    sidebarPanel.current?.querySelector<HTMLElement>("button")?.focus();
-
-    // An Escape that a menu already handled is skipped.
-    const handleKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !event.defaultPrevented) {
-        closeOverlay();
-      }
-    };
-
-    window.addEventListener("keydown", handleKey);
-
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [overlay, closeOverlay]);
+  // On narrow screens the sidebar overlays the page, and the covered page
+  // goes inert.
+  const overlay = shell.isNarrow && shell.openNarrow;
 
   const onSent = useCallback((sent: ComposerState) => {
     const conversation: Conversation = {
@@ -247,8 +237,8 @@ export const App = ({ density }: { density?: RowDensity }) => {
   );
 
   const closeSidebarIfNarrow = () => {
-    if (!isWide) {
-      setSidebarOpen(false);
+    if (shell.isNarrow) {
+      shell.setOpenNarrow(false);
     }
   };
 
@@ -359,99 +349,130 @@ export const App = ({ density }: { density?: RowDensity }) => {
   return (
     <TipProvider>
       <PopupLayer container={popupLayer}>
-        <div className="bg-window text-foreground flex h-full min-h-0 flex-col">
-          <TitleBar
-            activeTabId={activeTabId}
-            canGoBack={history.index > 0}
-            canGoForward={history.index < history.entries.length - 1}
-            onBack={() => navigate({ tabId: activeTabId, type: "back" })}
-            onForward={() => navigate({ tabId: activeTabId, type: "forward" })}
-            onNewTab={() => {
-              const tab = { id: newId("t"), title: "New chat" };
-              setTabs((list) => [...list, tab]);
-              setActiveTabId(tab.id);
-              closeSidebarIfNarrow();
-            }}
-            onSelectTab={setActiveTabId}
-            onToggleSidebar={() => setSidebarOpen((open) => !open)}
-            sidebarOpen={sidebarOpen}
-            tabs={tabs}
-          />
-          <div className="relative flex min-h-0 flex-1">
-            <IconRail
-              active={view.kind === "destination" ? view.id : "home"}
-              conversationLayout={conversationLayout}
-              onConversationLayoutChange={(layout) => {
-                saveConversationLayout(layout);
-                setConversationLayout(layout);
-              }}
-              onSelect={(id) => go({ id, kind: "destination" })}
-            />
-            {sidebarOpen ? (
-              <div
-                className="max-md:bg-window max-md:absolute max-md:inset-y-0 max-md:left-(--size-rail) max-md:z-30 max-md:max-w-[calc(100vw-var(--size-rail))] max-md:shadow-(--shadow-menu)"
-                ref={sidebarPanel}
-              >
-                <Sidebar
-                  density={density}
-                  activeConversationId={
-                    view.kind === "conversation" ? view.id : null
-                  }
-                  archived={archived?.conversation ?? null}
-                  conversations={conversations}
-                  now={SAMPLE_NOW}
-                  onAddProject={(name) =>
-                    setProjects((list) => [...list, { id: newId("p"), name }])
-                  }
-                  onArchive={archive}
-                  onNewChat={newChat}
-                  onOpenConversation={openConversation}
-                  onStartProjectChat={(projectId) => {
-                    setMode("work");
-                    composer.dispatch({ projectId, type: "projectChanged" });
-                    newChat();
-                  }}
-                  onTogglePin={(id) => {
-                    const conversation = conversations.find(
-                      (item) => item.id === id
-                    );
-
-                    updateConversation(id, { pinned: !conversation?.pinned });
-                  }}
-                  onUndoArchive={undoArchive}
-                  projects={projects}
-                />
-              </div>
-            ) : null}
-            {overlay ? (
-              <button
-                aria-label="Close sidebar"
-                className="absolute inset-0 z-20 bg-black/30"
-                onClick={closeOverlay}
-                type="button"
+        <AppShell>
+          <AppShellSkipLink />
+          <AppShellTitleBar>
+            <AppShellTitleBarStart>
+              <AppShellHistory
+                canGoBack={history.index > 0}
+                canGoForward={history.index < history.entries.length - 1}
+                onBack={() => navigate({ tabId: activeTabId, type: "back" })}
+                onForward={() =>
+                  navigate({ tabId: activeTabId, type: "forward" })
+                }
               />
-            ) : null}
-            <main
-              data-slot="main"
-              className={`bg-background relative min-w-0 flex-1 overflow-y-auto ${sidebarOpen && isWide ? "border-border border-l-(length:--border-hairline)" : ""}`}
+              <AppShellSidebarToggle />
+            </AppShellTitleBarStart>
+            <AppShellTitleBarTabs>
+              <AppShellTabs
+                activeTabId={activeTabId}
+                onSelectTab={setActiveTabId}
+                panelId={panelId}
+                tabs={tabs}
+              />
+              <AppShellNewTab
+                onNewTab={() => {
+                  const tab = { id: newId("t"), title: "New chat" };
+                  setTabs((list) => [...list, tab]);
+                  setActiveTabId(tab.id);
+                  closeSidebarIfNarrow();
+                }}
+              />
+            </AppShellTitleBarTabs>
+            <AppShellTitleBarEnd>
+              <DirectionSelector />
+            </AppShellTitleBarEnd>
+          </AppShellTitleBar>
+          <AppShellRail>
+            <AppShellRailContent>
+              {DESTINATIONS.map((item, index) => (
+                <div className="contents" key={item.id}>
+                  {index > 0 &&
+                  DESTINATIONS[index - 1]?.group !== item.group ? (
+                    <AppShellRailSeparator />
+                  ) : null}
+                  <AppShellRailItem
+                    current={
+                      (view.kind === "destination" ? view.id : "home") ===
+                      item.id
+                    }
+                    icon={item.icon}
+                    label={item.label}
+                    onClick={() => go({ id: item.id, kind: "destination" })}
+                  />
+                </div>
+              ))}
+            </AppShellRailContent>
+            <AppShellRailFooter>
+              <AppearanceMenu
+                conversationLayout={conversationLayout}
+                onConversationLayoutChange={(layout) => {
+                  saveConversationLayout(layout);
+                  setConversationLayout(layout);
+                }}
+              />
+            </AppShellRailFooter>
+          </AppShellRail>
+          <AppShellSidebar>
+            <Sidebar
+              density={density}
+              activeConversationId={
+                view.kind === "conversation" ? view.id : null
+              }
+              archived={archived?.conversation ?? null}
+              conversations={conversations}
+              now={SAMPLE_NOW}
+              onAddProject={(name) =>
+                setProjects((list) => [...list, { id: newId("p"), name }])
+              }
+              onArchive={archive}
+              onNewChat={newChat}
+              onOpenConversation={openConversation}
+              onStartProjectChat={(projectId) => {
+                setMode("work");
+                composer.dispatch({ projectId, type: "projectChanged" });
+                newChat();
+              }}
+              onTogglePin={(id) => {
+                const conversation = conversations.find(
+                  (item) => item.id === id
+                );
+
+                updateConversation(id, { pinned: !conversation?.pinned });
+              }}
+              onUndoArchive={undoArchive}
+              projects={projects}
+            />
+          </AppShellSidebar>
+          <AppShellMain>
+            <div
+              aria-labelledby={appShellTabId(panelId, activeTabId)}
+              className="h-full"
+              id={panelId}
+              inert={overlay}
+              role="tabpanel"
             >
-              <div
-                aria-labelledby={`tab-${activeTabId}`}
-                className="h-full"
-                id={MAIN_PANEL_ID}
-                inert={overlay}
-                role="tabpanel"
-              >
-                {main}
-              </div>
-              <div ref={setPopupLayer} />
-            </main>
-          </div>
+              {main}
+            </div>
+            <div ref={setPopupLayer} />
+          </AppShellMain>
           <p aria-live="polite" className="sr-only">
             {announcement}
           </p>
-        </div>
+        </AppShell>
       </PopupLayer>
     </TipProvider>
+  );
+};
+
+// The demo app on the released shell parts. The sidebar's saved state is
+// read before the first render, so the first frame matches the last visit.
+export const App = ({ density }: { density?: RowDensity }) => {
+  const saved = useMemo(() => readDocumentShellCookie(), []);
+
+  return (
+    <AppShellProvider defaultOpen={saved.open} defaultWidth={saved.width}>
+      <ShellApp density={density} />
+    </AppShellProvider>
   );
 };

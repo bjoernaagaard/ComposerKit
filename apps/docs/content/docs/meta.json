@@ -9,8 +9,7 @@
     "menu",
     "composer",
     "conversation",
-    "sample-data",
-    "---Not in the registry---",
-    "app-shell"
+    "app-shell",
+    "sample-data"
   ]
 }

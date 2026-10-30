@@ -1,0 +1,592 @@
+// SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+// SPDX-License-Identifier: MIT
+
+// The app shell in the playground's demo app: the current page in the
+// icon rail keeps a visible cue in forced colors, reduced motion keeps the
+// short color fades and drops the movement, and switching the color scheme
+// swaps every color at once instead of fading each element on its own.
+// The skip link, the landmarks, the sidebar shortcut, the sidebar's motion,
+// and its state across a close and a reload. Then the shell as an app gets
+// it: the npm module a server calls, reduced motion and two shells on the
+// docs page, a controlled shell's cookie, blocked cookies, and tab ids.
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+
+import { expect, test } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
+
+import { openApp } from "./stress-support";
+import { PLAYGROUND_URL, REPO, openPage, run } from "./support";
+
+const REDUCED_FADE = "0.15s";
+
+// How long the spec listens for transitions after a change: longer than
+// any shell fade, so one that started would be seen.
+const LISTEN_MS = 400;
+
+declare global {
+  interface Window {
+    // The transitions that started since listenForTransitions, each as
+    // "slot property", where slot is the target's data-slot or tag name.
+    shellTransitions?: string[];
+  }
+}
+
+const listenForTransitions = (page: Page) =>
+  page.evaluate(() => {
+    window.shellTransitions = [];
+    document.addEventListener("transitionrun", (event) => {
+      const { target } = event;
+
+      const slot =
+        target instanceof HTMLElement
+          ? (target.dataset.slot ?? target.tagName.toLowerCase())
+          : String(target);
+
+      window.shellTransitions?.push(`${slot} ${event.propertyName}`);
+    });
+  });
+
+const startedTransitions = async (page: Page) => {
+  await page.waitForTimeout(LISTEN_MS);
+
+  return page.evaluate(() => window.shellTransitions ?? []);
+};
+
+const rail = (page: Page) => page.getByRole("navigation", { name: "Main" });
+
+test("forced colors: the current rail item draws a Highlight bar the others don't", async ({
+  page,
+}) => {
+  await page.emulateMedia({ forcedColors: "active" });
+  await openApp(page, "base", "light");
+
+  const home = rail(page).getByRole("button", { name: "Home" });
+  const inbox = rail(page).getByRole("button", { name: "Inbox" });
+
+  await expect(home).toHaveAttribute("aria-current", "page");
+  await expect(inbox).not.toHaveAttribute("aria-current");
+
+  const bar = (button: typeof home) =>
+    button.evaluate((element) => {
+      const after = getComputedStyle(element, "::after");
+
+      return {
+        background: after.backgroundColor,
+        content: after.content,
+        width: after.width,
+      };
+    });
+
+  const highlight = await page.evaluate(() => {
+    const probe = document.createElement("span");
+
+    probe.style.color = "Highlight";
+    document.body.append(probe);
+    const { color } = getComputedStyle(probe);
+
+    probe.remove();
+
+    return color;
+  });
+
+  const current = await bar(home);
+  const other = await bar(inbox);
+
+  expect(current.content).not.toBe("none");
+  expect(current.width).toBe("2px");
+  expect(current.background).toBe(highlight);
+  expect(current.background).not.toBe("rgba(0, 0, 0, 0)");
+  expect(other.content).toBe("none");
+});
+
+test("reduced motion: the mode toggle's labels still fade and its thumb does not slide", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await openApp(page, "base", "light");
+
+  const toggle = page.locator('[data-slot="mode-toggle"]').first();
+  const thumb = toggle.locator('[data-slot="mode-toggle-thumb"]');
+  const label = toggle.getByRole("button", { name: "Chat" });
+
+  const transition = (element: typeof thumb) =>
+    element.evaluate((node) => {
+      const style = getComputedStyle(node);
+
+      return {
+        duration: style.transitionDuration,
+        property: style.transitionProperty,
+      };
+    });
+
+  const labelTransition = await transition(label);
+  const thumbTransition = await transition(thumb);
+
+  expect(labelTransition.property).toContain("color");
+  expect(labelTransition.duration).toBe(REDUCED_FADE);
+  expect(thumbTransition.property).not.toMatch(/transform|translate/u);
+
+  // Moving the choice changes both labels' color and the thumb's place.
+  const thumbBefore = await thumb.boundingBox();
+
+  await listenForTransitions(page);
+  await label.click();
+  await expect(label).toHaveAttribute("aria-pressed", "true");
+
+  const started = await startedTransitions(page);
+
+  expect(await thumb.boundingBox()).not.toEqual(thumbBefore);
+  expect(started).toContain("button color");
+  expect(
+    started.filter((entry) => entry.startsWith("mode-toggle-thumb"))
+  ).toEqual([]);
+});
+
+test("theme switch: picking the other scheme starts no transitions", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await rail(page).getByRole("button", { name: "Appearance" }).click();
+
+  const dark = page.getByRole("menuitemradio", { name: "Dark" });
+
+  await expect(dark).toBeVisible();
+
+  // The frame after the root's class changes, when every color has swapped.
+  await page.evaluate(() => {
+    const observer = new MutationObserver(() => {
+      observer.disconnect();
+      requestAnimationFrame(() => {
+        document.documentElement.dataset.shellFrameTransitions = String(
+          document
+            .getAnimations()
+            .filter(
+              (animation) =>
+                animation instanceof CSSTransition &&
+                animation.playState === "running"
+            ).length
+        );
+      });
+    });
+
+    observer.observe(document.documentElement, { attributeFilter: ["class"] });
+  });
+  await listenForTransitions(page);
+  await dark.click();
+
+  await expect(page.locator("html")).toHaveClass(/\bdark\b/u);
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-shell-frame-transitions",
+    "0"
+  );
+  expect(await startedTransitions(page)).toEqual([]);
+  await expect(page.locator("html")).not.toHaveAttribute(
+    "data-theme-switching"
+  );
+});
+
+const sidebar = (page: Page) =>
+  page.getByRole("complementary", { name: "Sidebar" });
+
+const hideToggle = (page: Page) =>
+  page.getByRole("button", { name: "Hide sidebar" });
+
+const showToggle = (page: Page) =>
+  page.getByRole("button", { name: "Show sidebar" });
+
+// The sidebar's own moving parts: the spacer and the panel.
+const sidebarMotion = (started: string[]) =>
+  started.filter((entry) => entry.startsWith("sidebar-"));
+
+test("skip link: the first Tab shows Skip to content, and Enter moves focus to main", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await page.keyboard.press("Tab");
+
+  const skip = page.getByRole("link", { name: "Skip to content" });
+
+  await expect(skip).toBeFocused();
+  const shown = await skip.boundingBox();
+
+  expect(shown?.width).toBeGreaterThan(24);
+
+  await page.keyboard.press("Enter");
+
+  await expect(page.getByRole("main")).toBeFocused();
+});
+
+test("landmarks: banner, the Main navigation, the Sidebar complementary and main, in that order", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+
+  await expect(page.locator("body")).toMatchAriaSnapshot(`
+    - link "Skip to content"
+    - banner
+    - navigation "Main"
+    - complementary "Sidebar"
+    - main
+  `);
+  await expect(page.getByRole("banner")).toHaveCount(1);
+  await expect(page.getByRole("complementary")).toHaveCount(1);
+  await expect(page.getByRole("main")).toHaveCount(1);
+});
+
+test("shortcut: Meta+B, or Control+B off Apple platforms, hides and shows the sidebar at once", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+
+  // The toggle names its own shortcut, Meta+B or Control+B by platform.
+  const keys = await hideToggle(page).getAttribute("aria-keyshortcuts");
+
+  expect(keys).toMatch(/^(?:Meta|Control)\+B$/u);
+
+  await listenForTransitions(page);
+  await page.keyboard.press(keys ?? "");
+
+  await expect(sidebar(page)).toBeHidden();
+  await expect(showToggle(page)).toHaveAttribute("aria-expanded", "false");
+  expect(await startedTransitions(page)).toEqual([]);
+
+  await listenForTransitions(page);
+  await page.keyboard.press(keys ?? "");
+
+  await expect(sidebar(page)).toBeVisible();
+  await expect(hideToggle(page)).toHaveAttribute("aria-expanded", "true");
+  expect(await startedTransitions(page)).toEqual([]);
+});
+
+test("pointer: a click on the sidebar toggle slides the sidebar out and back", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await listenForTransitions(page);
+  await hideToggle(page).click();
+
+  const closing = await startedTransitions(page);
+
+  await expect(sidebar(page)).toBeHidden();
+  expect(closing).toContain("sidebar-gap width");
+  expect(closing).toContain("sidebar-panel translate");
+
+  await listenForTransitions(page);
+  await showToggle(page).click();
+
+  const opening = await startedTransitions(page);
+
+  await expect(sidebar(page)).toBeVisible();
+  expect(opening).toContain("sidebar-gap width");
+  expect(opening).toContain("sidebar-panel translate");
+});
+
+test("reload: a hidden sidebar is still hidden on the first frame", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await hideToggle(page).click();
+  await expect(sidebar(page)).toBeHidden();
+
+  // The layout is saved in the composerkit_shell cookie.
+  await expect
+    .poll(async () => {
+      const cookies = await page.context().cookies();
+
+      return cookies
+        .filter((cookie) => cookie.name === "composerkit_shell")
+        .map((cookie) => decodeURIComponent(cookie.value));
+    })
+    .toEqual([expect.stringContaining("open=false")]);
+
+  // Notes the shell's state in the first DOM React writes, before any
+  // effect runs or the page paints.
+  await page.addInitScript(() => {
+    const observer = new MutationObserver(() => {
+      const shell = document.querySelector<HTMLElement>(
+        '[data-slot="app-shell"]'
+      );
+
+      if (shell) {
+        observer.disconnect();
+        document.documentElement.dataset.firstSidebar =
+          shell.dataset.sidebar ?? "";
+      }
+    });
+
+    observer.observe(document, { childList: true, subtree: true });
+  });
+  await page.reload();
+  await page.locator('[data-slot="composer"]').first().waitFor();
+
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-first-sidebar",
+    "collapsed"
+  );
+  await expect(sidebar(page)).toBeHidden();
+  await expect(showToggle(page)).toBeVisible();
+});
+
+test("state: the sidebar keeps its search text and scroll position when it closes and opens", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await sidebar(page).getByRole("button", { name: "Search chats" }).click();
+
+  const search = sidebar(page).getByRole("searchbox", { name: "Search chats" });
+
+  await search.fill("e");
+
+  // The list scrolls under the pointer, so its first row moves up.
+  const row = sidebar(page).getByRole("listitem").first();
+  const resting = await row.boundingBox();
+
+  await row.hover();
+  await page.mouse.wheel(0, 200);
+  await expect
+    .poll(async () => {
+      const box = await row.boundingBox();
+
+      return box?.y;
+    })
+    .toBeLessThan(resting?.y ?? 0);
+
+  const before = await row.boundingBox();
+
+  await hideToggle(page).click();
+  await expect(sidebar(page)).toBeHidden();
+  await showToggle(page).click();
+  await expect(sidebar(page)).toBeVisible();
+
+  await expect(search).toHaveValue("e");
+  await expect.poll(() => row.boundingBox()).toEqual(before);
+});
+
+test("reduced motion: the sidebar toggle fades the sidebar and does not slide it", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await openApp(page, "base", "light");
+  await listenForTransitions(page);
+  await hideToggle(page).click();
+
+  const started = sidebarMotion(await startedTransitions(page));
+
+  await expect(sidebar(page)).toBeHidden();
+  expect(started).toContain("sidebar-panel opacity");
+  expect(
+    started.filter((entry) => /translate|transform|width/u.test(entry))
+  ).toEqual([]);
+});
+
+// The shell as an app gets it: the npm package, the docs site, which loads
+// app-shell.css but not the demo's main.css, and the docs examples.
+const docsExample = (page: Page, name: string) =>
+  page.locator(`[data-example="${name}"]`);
+
+const shellIn = (root: Locator) => root.locator('[data-slot="app-shell"]');
+
+const savedShell = async (page: Page) => {
+  const cookies = await page.context().cookies();
+
+  return cookies
+    .filter((cookie) => cookie.name === "composerkit_shell")
+    .map((cookie) => decodeURIComponent(cookie.value));
+};
+
+test('npm package: persist.js has no "use client", so a server component can call readShellCookie', async () => {
+  const build = await run(
+    "npm",
+    ["run", "build", "--workspace", "composerkit"],
+    REPO
+  );
+
+  expect(build.exitCode).toBe(0);
+
+  const file = path.join(
+    REPO,
+    "packages/composerkit/dist/components/app-shell/persist.js"
+  );
+
+  expect(readFileSync(file, "utf-8").slice(0, 200)).not.toContain("use client");
+
+  // SAFETY: persist.js is built from persist.ts, which exports
+  // readShellCookie with this signature.
+  const persist = (await import(pathToFileURL(file).href)) as {
+    readShellCookie: (header: string) => { open?: boolean; width?: number };
+  };
+
+  expect(
+    persist.readShellCookie("composerkit_shell=open%3Dfalse%26width%3D300")
+  ).toEqual({ open: false, width: 300 });
+
+  // The parts with hooks still load on the client.
+  const provider = readFileSync(
+    path.join(
+      REPO,
+      "packages/composerkit/dist/components/app-shell/app-shell-provider.js"
+    ),
+    "utf-8"
+  );
+
+  expect(provider.slice(0, 200)).toContain('"use client"');
+});
+
+test("reduced motion on /app-shell: the sidebar and the title bar only fade, from app-shell.css alone", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await openPage(page, "/app-shell", "light");
+
+  const demo = docsExample(page, "app-shell--demo");
+  const panel = demo.locator('[data-slot="sidebar-panel"]');
+
+  await listenForTransitions(page);
+  await demo.getByRole("button", { name: "Hide sidebar" }).click();
+  await expect(panel).toHaveAttribute("data-state", "closed");
+
+  const transitions = await startedTransitions(page);
+
+  const started = transitions.filter((entry) =>
+    /^(?:sidebar-|title-bar)/u.test(entry)
+  );
+
+  expect(started).toContain("sidebar-panel opacity");
+  expect(
+    started.filter((entry) => /translate|transform|width/u.test(entry))
+  ).toEqual([]);
+
+  // The shell's motion tokens become the reduced fade. The docs make
+  // their previews instant on top, so the duration itself is the page's.
+  const tokens = await panel.evaluate((element) => {
+    const style = getComputedStyle(element);
+
+    return {
+      enter: style.getPropertyValue("--motion-sidebar-enter"),
+      exit: style.getPropertyValue("--motion-sidebar-exit"),
+      fade: style.getPropertyValue("--motion-reduced-fade"),
+    };
+  });
+
+  expect(tokens.fade).not.toBe("");
+  expect(tokens).toEqual({
+    enter: tokens.fade,
+    exit: tokens.fade,
+    fade: tokens.fade,
+  });
+});
+
+test("controlled: the cookie follows open when the app changes it, and a reload restores it", async ({
+  page,
+}) => {
+  await openPage(page, "/app-shell", "light");
+
+  const controlled = docsExample(page, "app-shell--controlled");
+  const outside = controlled.getByRole("button", { name: "Sidebar open" });
+
+  await expect(shellIn(controlled)).toHaveAttribute("data-sidebar", "expanded");
+  await outside.click();
+  await expect(outside).toHaveAttribute("aria-pressed", "false");
+  await expect(shellIn(controlled)).toHaveAttribute(
+    "data-sidebar",
+    "collapsed"
+  );
+
+  await expect
+    .poll(() => savedShell(page))
+    .toEqual([expect.stringContaining("open=false")]);
+
+  await page.reload();
+  await page.waitForLoadState("networkidle");
+
+  await expect(shellIn(controlled)).toHaveAttribute(
+    "data-sidebar",
+    "collapsed"
+  );
+  await expect(outside).toHaveAttribute("aria-pressed", "false");
+
+  await outside.click();
+  await expect(shellIn(controlled)).toHaveAttribute("data-sidebar", "expanded");
+  await expect
+    .poll(() => savedShell(page))
+    .toEqual([expect.stringContaining("open=true")]);
+});
+
+test("blocked cookies: in a sandboxed iframe the playground renders one shell and no error", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+
+  page.on("pageerror", (error) => errors.push(error.message));
+  // A sandboxed frame has an opaque origin, so its module scripts need a
+  // CORS header, which the Vite dev server only sends to localhost. The
+  // header is added here, as a host that serves the app to embeds would.
+  await page.route(`${PLAYGROUND_URL}/**`, async (route) => {
+    const response = await route.fetch();
+
+    await route.fulfill({
+      headers: { ...response.headers(), "access-control-allow-origin": "*" },
+      response,
+    });
+  });
+  await page.setContent(
+    `<iframe sandbox="allow-scripts" src="${PLAYGROUND_URL}/" style="width:1200px;height:800px"></iframe>`
+  );
+
+  const frame = page.frameLocator("iframe");
+
+  await expect(frame.locator('[data-slot="app-shell"]')).toHaveCount(1);
+  await expect(frame.getByRole("main")).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("shortcut with two shells: the shell that holds focus toggles, and the first one when focus is in none", async ({
+  page,
+}) => {
+  await openPage(page, "/app-shell", "light");
+
+  const first = shellIn(docsExample(page, "app-shell--demo"));
+  const second = shellIn(docsExample(page, "app-shell--controlled"));
+
+  const keys = await first
+    .getByRole("button", { name: "Hide sidebar" })
+    .getAttribute("aria-keyshortcuts");
+
+  await second.getByRole("button", { name: "New chat" }).focus();
+  await page.keyboard.press(keys ?? "");
+
+  await expect(second).toHaveAttribute("data-sidebar", "collapsed");
+  await expect(first).toHaveAttribute("data-sidebar", "expanded");
+
+  // Focus on the page, outside both shells.
+  await page.locator("h1").first().click();
+  await page.keyboard.press(keys ?? "");
+
+  await expect(first).toHaveAttribute("data-sidebar", "collapsed");
+  await expect(second).toHaveAttribute("data-sidebar", "collapsed");
+});
+
+test('tab ids: a tab whose id has quotes, such as filled "…", opens by click and by arrow key', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+
+  page.on("pageerror", (error) => errors.push(error.message));
+  await openPage(page, "/app-shell", "light");
+
+  const strip = docsExample(page, "title-bar-tabs--filled");
+  const tabs = strip.getByRole("tab");
+
+  await expect(tabs).toHaveCount(3);
+  await tabs.nth(1).click();
+  await expect(tabs.nth(1)).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("ArrowRight");
+  await expect(tabs.nth(2)).toHaveAttribute("aria-selected", "true");
+  await expect(tabs.nth(2)).toBeFocused();
+  await expect(strip.getByRole("tabpanel")).toHaveAccessibleName(
+    ((await tabs.nth(2).textContent()) ?? "").trim()
+  );
+  expect(errors).toEqual([]);
+});

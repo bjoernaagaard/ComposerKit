@@ -5,6 +5,11 @@
 // crates/composerkit-theme/design-tokens.json. This file only picks the
 // scheme: it sets the .dark class on the root element, which tokens.css keys
 // the dark colors on.
+// For the frame the colors change in, the root also gets
+// data-theme-switching, which main.css uses to stop every transition.
+// Without it, each element with a color transition fades on its own, a few
+// hundred at once. It works before React mounts, since it only needs the
+// root element and requestAnimationFrame.
 
 export type Variant = "light" | "dark";
 
@@ -28,14 +33,31 @@ const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
 const listeners = new Set<() => void>();
 const systemVariant = (): Variant => (systemDark.matches ? "dark" : "light");
 
+const SWITCHING = "data-theme-switching";
+
 let root: HTMLElement | null = null;
 let state: ThemeState = { scheme: "system", variant: systemVariant() };
+let settleFrame = 0;
+
+// The attribute stays for one rendered frame, so that frame's style pass
+// sees the new colors with transitions off, and comes off in the next one.
+// Another change before then starts the count again.
+const suppressTransitions = (element: HTMLElement): void => {
+  element.setAttribute(SWITCHING, "");
+  cancelAnimationFrame(settleFrame);
+  settleFrame = requestAnimationFrame(() => {
+    settleFrame = requestAnimationFrame(() => {
+      element.removeAttribute(SWITCHING);
+    });
+  });
+};
 
 const render = (): void => {
   if (!root) {
     return;
   }
 
+  suppressTransitions(root);
   root.classList.toggle("dark", state.variant === "dark");
   root.style.colorScheme = state.variant;
 };

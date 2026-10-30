@@ -9,6 +9,7 @@
 @import "fumadocs-ui/css/shadcn.css";
 @import "fumadocs-ui/css/preset.css";
 @import "../../../packages/composerkit/src/theme/tokens.css";
+@import "../../../packages/composerkit/src/components/app-shell/app-shell.css";
 @import "../../../packages/composerkit/src/designs/emil/emil.css";
 @import "../../../packages/composerkit/src/designs/apple/apple.css";
 @import "../../../packages/composerkit/src/designs/glass/glass.css";

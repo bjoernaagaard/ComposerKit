@@ -290,6 +290,30 @@
   {
     "design": "base",
     "flags": [],
+    "id": "app-shell--demo",
+    "image": "stress/render/app-shell--demo--320.png",
+    "page": "/app-shell",
+    "width": 320
+  },
+  {
+    "design": "base",
+    "flags": [],
+    "id": "title-bar-tabs--filled",
+    "image": "stress/render/title-bar-tabs--filled--320.png",
+    "page": "/app-shell",
+    "width": 320
+  },
+  {
+    "design": "base",
+    "flags": [],
+    "id": "title-bar-tabs--underline",
+    "image": "stress/render/title-bar-tabs--underline--320.png",
+    "page": "/app-shell",
+    "width": 320
+  },
+  {
+    "design": "base",
+    "flags": [],
     "id": "conversation-row--compact",
     "image": "stress/render/conversation-row--compact--320.png",
     "page": "/app-shell",
@@ -332,22 +356,6 @@
     "flags": [],
     "id": "mode-toggle--underline",
     "image": "stress/render/mode-toggle--underline--320.png",
-    "page": "/app-shell",
-    "width": 320
-  },
-  {
-    "design": "base",
-    "flags": [],
-    "id": "title-bar-tabs--filled",
-    "image": "stress/render/title-bar-tabs--filled--320.png",
-    "page": "/app-shell",
-    "width": 320
-  },
-  {
-    "design": "base",
-    "flags": [],
-    "id": "title-bar-tabs--underline",
-    "image": "stress/render/title-bar-tabs--underline--320.png",
     "page": "/app-shell",
     "width": 320
   },
@@ -642,6 +650,30 @@
   {
     "design": "base",
     "flags": [],
+    "id": "app-shell--demo",
+    "image": "stress/render/app-shell--demo--1440.png",
+    "page": "/app-shell",
+    "width": 1440
+  },
+  {
+    "design": "base",
+    "flags": [],
+    "id": "title-bar-tabs--filled",
+    "image": "stress/render/title-bar-tabs--filled--1440.png",
+    "page": "/app-shell",
+    "width": 1440
+  },
+  {
+    "design": "base",
+    "flags": [],
+    "id": "title-bar-tabs--underline",
+    "image": "stress/render/title-bar-tabs--underline--1440.png",
+    "page": "/app-shell",
+    "width": 1440
+  },
+  {
+    "design": "base",
+    "flags": [],
     "id": "conversation-row--compact",
     "image": "stress/render/conversation-row--compact--1440.png",
     "page": "/app-shell",
@@ -688,22 +720,6 @@
     "width": 1440
   },
   {
-    "design": "base",
-    "flags": [],
-    "id": "title-bar-tabs--filled",
-    "image": "stress/render/title-bar-tabs--filled--1440.png",
-    "page": "/app-shell",
-    "width": 1440
-  },
-  {
-    "design": "base",
-    "flags": [],
-    "id": "title-bar-tabs--underline",
-    "image": "stress/render/title-bar-tabs--underline--1440.png",
-    "page": "/app-shell",
-    "width": 1440
-  },
-  {
     "design": "apple",
     "flags": [],
     "id": "theme--demo",
@@ -994,6 +1010,30 @@
   {
     "design": "apple",
     "flags": [],
+    "id": "app-shell--demo",
+    "image": "",
+    "page": "/app-shell",
+    "width": 320
+  },
+  {
+    "design": "apple",
+    "flags": [],
+    "id": "title-bar-tabs--filled",
+    "image": "",
+    "page": "/app-shell",
+    "width": 320
+  },
+  {
+    "design": "apple",
+    "flags": [],
+    "id": "title-bar-tabs--underline",
+    "image": "",
+    "page": "/app-shell",
+    "width": 320
+  },
+  {
+    "design": "apple",
+    "flags": [],
     "id": "conversation-row--compact",
     "image": "",
     "page": "/app-shell",
@@ -1035,22 +1075,6 @@
     "design": "apple",
     "flags": [],
     "id": "mode-toggle--underline",
-    "image": "",
-    "page": "/app-shell",
-    "width": 320
-  },
-  {
-    "design": "apple",
-    "flags": [],
-    "id": "title-bar-tabs--filled",
-    "image": "",
-    "page": "/app-shell",
-    "width": 320
-  },
-  {
-    "design": "apple",
-    "flags": [],
-    "id": "title-bar-tabs--underline",
     "image": "",
     "page": "/app-shell",
     "width": 320
@@ -1346,6 +1370,30 @@
   {
     "design": "glass",
     "flags": [],
+    "id": "app-shell--demo",
+    "image": "",
+    "page": "/app-shell",
+    "width": 320
+  },
+  {
+    "design": "glass",
+    "flags": [],
+    "id": "title-bar-tabs--filled",
+    "image": "",
+    "page": "/app-shell",
+    "width": 320
+  },
+  {
+    "design": "glass",
+    "flags": [],
+    "id": "title-bar-tabs--underline",
+    "image": "",
+    "page": "/app-shell",
+    "width": 320
+  },
+  {
+    "design": "glass",
+    "flags": [],
     "id": "conversation-row--compact",
     "image": "",
     "page": "/app-shell",
@@ -1387,22 +1435,6 @@
     "design": "glass",
     "flags": [],
     "id": "mode-toggle--underline",
-    "image": "",
-    "page": "/app-shell",
-    "width": 320
-  },
-  {
-    "design": "glass",
-    "flags": [],
-    "id": "title-bar-tabs--filled",
-    "image": "",
-    "page": "/app-shell",
-    "width": 320
-  },
-  {
-    "design": "glass",
-    "flags": [],
-    "id": "title-bar-tabs--underline",
     "image": "",
     "page": "/app-shell",
     "width": 320
@@ -1698,6 +1730,30 @@
   {
     "design": "taste",
     "flags": [],
+    "id": "app-shell--demo",
+    "image": "",
+    "page": "/app-shell",
+    "width": 320
+  },
+  {
+    "design": "taste",
+    "flags": [],
+    "id": "title-bar-tabs--filled",
+    "image": "",
+    "page": "/app-shell",
+    "width": 320
+  },
+  {
+    "design": "taste",
+    "flags": [],
+    "id": "title-bar-tabs--underline",
+    "image": "",
+    "page": "/app-shell",
+    "width": 320
+  },
+  {
+    "design": "taste",
+    "flags": [],
     "id": "conversation-row--compact",
     "image": "",
     "page": "/app-shell",
@@ -1739,22 +1795,6 @@
     "design": "taste",
     "flags": [],
     "id": "mode-toggle--underline",
-    "image": "",
-    "page": "/app-shell",
-    "width": 320
-  },
-  {
-    "design": "taste",
-    "flags": [],
-    "id": "title-bar-tabs--filled",
-    "image": "",
-    "page": "/app-shell",
-    "width": 320
-  },
-  {
-    "design": "taste",
-    "flags": [],
-    "id": "title-bar-tabs--underline",
     "image": "",
     "page": "/app-shell",
     "width": 320
@@ -2050,6 +2090,30 @@
   {
     "design": "emil",
     "flags": [],
+    "id": "app-shell--demo",
+    "image": "",
+    "page": "/app-shell",
+    "width": 320
+  },
+  {
+    "design": "emil",
+    "flags": [],
+    "id": "title-bar-tabs--filled",
+    "image": "",
+    "page": "/app-shell",
+    "width": 320
+  },
+  {
+    "design": "emil",
+    "flags": [],
+    "id": "title-bar-tabs--underline",
+    "image": "",
+    "page": "/app-shell",
+    "width": 320
+  },
+  {
+    "design": "emil",
+    "flags": [],
     "id": "conversation-row--compact",
     "image": "",
     "page": "/app-shell",
@@ -2091,22 +2155,6 @@
     "design": "emil",
     "flags": [],
     "id": "mode-toggle--underline",
-    "image": "",
-    "page": "/app-shell",
-    "width": 320
-  },
-  {
-    "design": "emil",
-    "flags": [],
-    "id": "title-bar-tabs--filled",
-    "image": "",
-    "page": "/app-shell",
-    "width": 320
-  },
-  {
-    "design": "emil",
-    "flags": [],
-    "id": "title-bar-tabs--underline",
     "image": "",
     "page": "/app-shell",
     "width": 320
@@ -2402,6 +2450,30 @@
   {
     "design": "apple",
     "flags": [],
+    "id": "app-shell--demo",
+    "image": "",
+    "page": "/app-shell",
+    "width": 1440
+  },
+  {
+    "design": "apple",
+    "flags": [],
+    "id": "title-bar-tabs--filled",
+    "image": "",
+    "page": "/app-shell",
+    "width": 1440
+  },
+  {
+    "design": "apple",
+    "flags": [],
+    "id": "title-bar-tabs--underline",
+    "image": "",
+    "page": "/app-shell",
+    "width": 1440
+  },
+  {
+    "design": "apple",
+    "flags": [],
     "id": "conversation-row--compact",
     "image": "",
     "page": "/app-shell",
@@ -2443,22 +2515,6 @@
     "design": "apple",
     "flags": [],
     "id": "mode-toggle--underline",
-    "image": "",
-    "page": "/app-shell",
-    "width": 1440
-  },
-  {
-    "design": "apple",
-    "flags": [],
-    "id": "title-bar-tabs--filled",
-    "image": "",
-    "page": "/app-shell",
-    "width": 1440
-  },
-  {
-    "design": "apple",
-    "flags": [],
-    "id": "title-bar-tabs--underline",
     "image": "",
     "page": "/app-shell",
     "width": 1440
@@ -2754,6 +2810,30 @@
   {
     "design": "glass",
     "flags": [],
+    "id": "app-shell--demo",
+    "image": "",
+    "page": "/app-shell",
+    "width": 1440
+  },
+  {
+    "design": "glass",
+    "flags": [],
+    "id": "title-bar-tabs--filled",
+    "image": "",
+    "page": "/app-shell",
+    "width": 1440
+  },
+  {
+    "design": "glass",
+    "flags": [],
+    "id": "title-bar-tabs--underline",
+    "image": "",
+    "page": "/app-shell",
+    "width": 1440
+  },
+  {
+    "design": "glass",
+    "flags": [],
     "id": "conversation-row--compact",
     "image": "",
     "page": "/app-shell",
@@ -2795,22 +2875,6 @@
     "design": "glass",
     "flags": [],
     "id": "mode-toggle--underline",
-    "image": "",
-    "page": "/app-shell",
-    "width": 1440
-  },
-  {
-    "design": "glass",
-    "flags": [],
-    "id": "title-bar-tabs--filled",
-    "image": "",
-    "page": "/app-shell",
-    "width": 1440
-  },
-  {
-    "design": "glass",
-    "flags": [],
-    "id": "title-bar-tabs--underline",
     "image": "",
     "page": "/app-shell",
     "width": 1440
@@ -3106,6 +3170,30 @@
   {
     "design": "taste",
     "flags": [],
+    "id": "app-shell--demo",
+    "image": "",
+    "page": "/app-shell",
+    "width": 1440
+  },
+  {
+    "design": "taste",
+    "flags": [],
+    "id": "title-bar-tabs--filled",
+    "image": "",
+    "page": "/app-shell",
+    "width": 1440
+  },
+  {
+    "design": "taste",
+    "flags": [],
+    "id": "title-bar-tabs--underline",
+    "image": "",
+    "page": "/app-shell",
+    "width": 1440
+  },
+  {
+    "design": "taste",
+    "flags": [],
     "id": "conversation-row--compact",
     "image": "",
     "page": "/app-shell",
@@ -3147,22 +3235,6 @@
     "design": "taste",
     "flags": [],
     "id": "mode-toggle--underline",
-    "image": "",
-    "page": "/app-shell",
-    "width": 1440
-  },
-  {
-    "design": "taste",
-    "flags": [],
-    "id": "title-bar-tabs--filled",
-    "image": "",
-    "page": "/app-shell",
-    "width": 1440
-  },
-  {
-    "design": "taste",
-    "flags": [],
-    "id": "title-bar-tabs--underline",
     "image": "",
     "page": "/app-shell",
     "width": 1440
@@ -3458,6 +3530,30 @@
   {
     "design": "emil",
     "flags": [],
+    "id": "app-shell--demo",
+    "image": "",
+    "page": "/app-shell",
+    "width": 1440
+  },
+  {
+    "design": "emil",
+    "flags": [],
+    "id": "title-bar-tabs--filled",
+    "image": "",
+    "page": "/app-shell",
+    "width": 1440
+  },
+  {
+    "design": "emil",
+    "flags": [],
+    "id": "title-bar-tabs--underline",
+    "image": "",
+    "page": "/app-shell",
+    "width": 1440
+  },
+  {
+    "design": "emil",
+    "flags": [],
     "id": "conversation-row--compact",
     "image": "",
     "page": "/app-shell",
@@ -3499,22 +3595,6 @@
     "design": "emil",
     "flags": [],
     "id": "mode-toggle--underline",
-    "image": "",
-    "page": "/app-shell",
-    "width": 1440
-  },
-  {
-    "design": "emil",
-    "flags": [],
-    "id": "title-bar-tabs--filled",
-    "image": "",
-    "page": "/app-shell",
-    "width": 1440
-  },
-  {
-    "design": "emil",
-    "flags": [],
-    "id": "title-bar-tabs--underline",
     "image": "",
     "page": "/app-shell",
     "width": 1440

@@ -1,0 +1,50 @@
+/* SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+   SPDX-License-Identifier: MIT */
+
+/* The title bar in a desktop window with no frame: Electron, Tauri, or an
+   installed web app with window controls overlay. Its empty space drags
+   the window, and its controls stay clickable. The leading group starts
+   after the window controls, or at --space-titlebar-inset-start when there
+   are none, as on the web. In a browser tab nothing here changes the look.
+
+   The npm package loads this file from styles.css. The app-shell registry
+   item carries the same rules in its css field, so keep the two in step. */
+
+[data-slot="title-bar"] {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+
+[data-slot="title-bar"]
+  :is(a, button, input, select, textarea, [role="tablist"]) {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+[data-slot="title-bar-nav"] {
+  padding-inline-start: max(
+    var(--space-titlebar-inset-start),
+    env(titlebar-area-x, 0px)
+  );
+}
+
+/* Reduced motion: no part of the shell moves or grows. The sidebar, its
+   space and the title bar's leading group snap to their place, and only
+   opacity and color still fade, at --motion-reduced-fade. A change from
+   the keyboard stays instant. */
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="app-shell"],
+  [data-slot="app-shell"] * {
+    --motion-duration: var(--motion-reduced-fade) !important;
+    --motion-sidebar-enter: var(--motion-reduced-fade) !important;
+    --motion-sidebar-exit: var(--motion-reduced-fade) !important;
+    --motion-overlay-enter: var(--motion-reduced-fade) !important;
+    --motion-overlay-exit: var(--motion-reduced-fade) !important;
+    --motion-tab-enter: var(--motion-reduced-fade) !important;
+    --motion-tab-exit: var(--motion-reduced-fade) !important;
+    transition-property:
+      opacity, color, background-color, border-color, outline-color,
+      text-decoration-color, fill, stroke !important;
+    transition-delay: 0s !important;
+  }
+}

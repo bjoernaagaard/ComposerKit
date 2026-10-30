@@ -110,6 +110,7 @@ Each component has its own page in the docs, with examples, the props, the keybo
 | [Menu](https://bjoernaagaard.github.io/ComposerKit/menu/) | A dropdown menu with items, choices and submenus | `components/ui/menu` |
 | [Composer](https://bjoernaagaard.github.io/ComposerKit/composer/) | The message box with attachments, model and access menus, and send | `components/composer/composer` |
 | [Conversation](https://bjoernaagaard.github.io/ComposerKit/conversation/) | An open chat with its turns and the composer below | `components/conversation/conversation-view` |
+| [App shell](https://bjoernaagaard.github.io/ComposerKit/app-shell/) | The window around an app: a title bar with tabs, a rail, a sidebar that remembers its state, and the main region | `components/app-shell/app-shell-provider`, `components/app-shell/app-shell` and one module for each other part |
 
 The module paths are the same after `@/` in a shadcn app and after `composerkit/` in the npm package. The registry also has a [sample data](https://bjoernaagaard.github.io/ComposerKit/sample-data/) item, which holds the data that the docs examples import. The npm package doesn't include the sample data.
 

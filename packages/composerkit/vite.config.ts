@@ -28,6 +28,17 @@ const external = [
 const isExternal = (id: string): boolean =>
   external.some((name) => id === name || id.startsWith(`${name}/`));
 
+// A module that renders or uses React must load on the client in React
+// Server Components frameworks such as Next.js, so it starts with
+// "use client". Plain logic that imports nothing from React, such as
+// app-shell/persist, ships without it, so a server component can call it.
+const REACT_PACKAGES = ["react", "react-dom", "@base-ui/react", "lucide-react"];
+
+const usesReact = (imports: string[]): boolean =>
+  imports.some((id) =>
+    REACT_PACKAGES.some((name) => id === name || id.startsWith(`${name}/`))
+  );
+
 export default defineConfig({
   build: {
     copyPublicDir: false,
@@ -43,9 +54,7 @@ export default defineConfig({
     rolldownOptions: {
       external: isExternal,
       output: {
-        // The components use hooks, so React Server Components frameworks
-        // such as Next.js must load them on the client.
-        banner: '"use client";',
+        banner: (chunk) => (usesReact(chunk.imports) ? '"use client";' : ""),
         entryFileNames: "[name].js",
         preserveModules: true,
         preserveModulesRoot: SRC,

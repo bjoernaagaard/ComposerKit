@@ -190,7 +190,7 @@ body[data-design="glass"] {
   background-attachment: fixed;
 }
 
-body[data-design="glass"] .bg-window {
+body[data-design="glass"] [data-slot="app-shell"] {
   background: transparent;
 }
 
@@ -201,7 +201,7 @@ body[data-design="glass"] .bg-window {
  * it from blurring the messages they cover.
  */
 
-body[data-design="glass"] main:has(> #main-panel) {
+body[data-design="glass"] [data-slot="main-sheet"] {
   margin: 0 8px 8px 0;
   border-inline-start-width: 0;
   border-radius: 26px;
@@ -309,11 +309,12 @@ body[data-design="glass"]
   box-shadow: var(--glass-rim), var(--glass-lift);
 }
 
-body[data-design="glass"] [data-slot="icon-rail"] button {
+body[data-design="glass"] [data-rail-item],
+body[data-design="glass"] [data-slot="rail-footer"] [data-slot="button"] {
   border-radius: 9999px;
 }
 
-body[data-design="glass"] [data-slot="icon-rail"] button[aria-current="page"] {
+body[data-design="glass"] [data-rail-item][aria-current="page"] {
   background: var(--glass-regular);
   backdrop-filter: var(--glass-filter);
   box-shadow: var(--glass-rim), var(--glass-lift);
@@ -488,9 +489,11 @@ body[data-design="glass"]
     [data-slot="icon-button"],
     [data-slot="tab"]
   ):focus-visible,
+body[data-design="glass"] [data-rail-item]:focus-visible,
 body[data-design="glass"]
-  :is([data-slot="icon-rail"], [data-slot="mode-toggle"])
-  button:focus-visible {
+  [data-slot="rail-footer"]
+  [data-slot="button"]:focus-visible,
+body[data-design="glass"] [data-slot="mode-toggle"] button:focus-visible {
   outline-offset: 2px;
 }
 

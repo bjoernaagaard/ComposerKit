@@ -3,9 +3,10 @@
 
 // Check 2: a new app, made in a temp folder outside the repo, installs every
 // item and the sample data from a local copy of the docs export. Then every
-// example on the six item pages is copied the way a reader copies it, with
+// example on the item pages is copied the way a reader copies it, with
 // the Code tab's Copy button, into the app, and the app type checks and
-// builds.
+// builds. Examples whose tab says Repo code use the demo app's own parts,
+// which no item installs, so they are listed and left out of the build.
 // registry.json points dependencies at the published site, so the copy has
 // that prefix replaced with the local server's URL. The repo's export is
 // not changed.
@@ -47,13 +48,16 @@ const EXAMPLES_DIR = "components/examples";
 // The same header the docs leave out of the Code tab.
 const LICENSE_HEADER = /^(?:\/\/ SPDX-[^\n]*\n)+\n?/u;
 
+// The Code tab's name for an example built on the demo app's own parts.
+const REPO_CODE_TAB = "Repo code";
+
 const EXAMPLE_TITLE = /^examples\/[\w-]+\.tsx$/u;
 
 // A Code tab's title in a built page's HTML, where the page carries the
 // code for every example, shown or not.
 const CODE_TAB_TITLE = /title\\?"\s*:\s*\\?"examples\/(?<file>[\w-]+\.tsx)/gu;
 
-// The example files a reader can copy from each of the six item pages,
+// The example files a reader can copy from each item page,
 // read from the static export, so the expected set follows the pages.
 const examplesOnPages = () =>
   ITEMS.map((item) => {
@@ -189,11 +193,12 @@ const copyFromTab = async (page: Page, name: string) => {
   return { file: path.basename(title), tabLabel, text };
 };
 
-// Every example file on the six item pages, copied once each.
+// Every example file on the item pages, copied once each, and the repo
+// code files, which are not copied into the app.
 const copyExamples = async (
   browser: Browser,
   app: string
-): Promise<CopiedExample[]> => {
+): Promise<{ copied: CopiedExample[]; repoOnly: string[] }> => {
   const context = await browser.newContext();
 
   await context.grantPermissions(["clipboard-read", "clipboard-write"], {
@@ -202,6 +207,7 @@ const copyExamples = async (
 
   const page = await context.newPage();
   const copied: CopiedExample[] = [];
+  const repoOnly: string[] = [];
 
   mkdirSync(path.join(app, EXAMPLES_DIR), { recursive: true });
 
@@ -221,7 +227,11 @@ const copyExamples = async (
       // oxlint-disable-next-line no-await-in-loop -- one Code tab at a time
       const { file, tabLabel, text } = await copyFromTab(page, name);
 
-      if (!copied.some((entry) => entry.file === file)) {
+      if (tabLabel === REPO_CODE_TAB) {
+        if (!repoOnly.includes(file)) {
+          repoOnly.push(file);
+        }
+      } else if (!copied.some((entry) => entry.file === file)) {
         const repoFile = readFileSync(
           path.join(DOCS_APP, "examples", file),
           "utf-8"
@@ -243,7 +253,7 @@ const copyExamples = async (
 
   await context.close();
 
-  return copied;
+  return { copied, repoOnly };
 };
 
 // Imports every copied example, so next build compiles each one.
@@ -299,6 +309,7 @@ test("a new shadcn app installs every item and builds", async ({ browser }) => {
   const stop = await serve(site, LOCAL_REGISTRY_PORT);
   const steps: CommandRun[] = [];
   let copied: CopiedExample[] = [];
+  let repoOnly: string[] = [];
 
   try {
     steps.push(
@@ -346,7 +357,7 @@ test("a new shadcn app installs every item and builds", async ({ browser }) => {
       )
     );
 
-    copied = await copyExamples(browser, app);
+    ({ copied, repoOnly } = await copyExamples(browser, app));
 
     writeFileSync(path.join(app, "app/page.tsx"), PAGE);
     mkdirSync(path.join(app, "app/examples"), { recursive: true });
@@ -363,7 +374,11 @@ test("a new shadcn app installs every item and builds", async ({ browser }) => {
   }
 
   const onPages = examplesOnPages();
-  const expected = [...new Set(onPages.flatMap((entry) => entry.files))];
+
+  const expected = [...new Set(onPages.flatMap((entry) => entry.files))].filter(
+    (file) => !repoOnly.includes(file)
+  );
+
   const copiedFiles = copied.map((entry) => entry.file);
   const missing = expected.filter((file) => !copiedFiles.includes(file));
   const extra = copiedFiles.filter((file) => !expected.includes(file));
@@ -375,6 +390,7 @@ test("a new shadcn app installs every item and builds", async ({ browser }) => {
     localRegistry: LOCAL_REGISTRY,
     missing,
     note: `The export was copied to ${site}. In that copy only, ${PUBLISHED_REGISTRY} was replaced with ${LOCAL_REGISTRY} in ${rewritten.join(", ")}, so registry dependencies also come from the local server.`,
+    repoOnly,
     rewritten,
     steps,
     tempFolder: root,

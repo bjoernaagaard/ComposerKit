@@ -1,31 +1,44 @@
 // SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 // SPDX-License-Identifier: MIT
 
-import {
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  MessageCircleIcon,
-  PanelLeftIcon,
-  PlusIcon,
-} from "lucide-react";
+"use client";
+
+import { MessageCircleIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 import type { KeyboardEvent } from "react";
 
-import { IconButton } from "@/components/ui/icon-button";
+import {
+  useAppShellLabels,
+  useOptionalAppShell,
+} from "@/components/app-shell/app-shell-provider";
+import type { AppShellLabels } from "@/components/app-shell/labels";
 import { Tip } from "@/components/ui/tip";
-import { DirectionSelector } from "@/designs/direction";
 
-export interface Tab {
+export interface AppShellTab {
   id: string;
   title: string;
 }
 
-export const MAIN_PANEL_ID = "main-panel";
-export const SIDEBAR_TOGGLE_ID = "sidebar-toggle";
+export type AppShellTabAppearance = "filled" | "underline";
 
-export type TabAppearance = "filled" | "underline";
+export const TAB_APPEARANCES: AppShellTabAppearance[] = ["filled", "underline"];
 
-export const TAB_APPEARANCES: TabAppearance[] = ["filled", "underline"];
+// The id of a tab's element, so the panel it controls can name it with
+// aria-labelledby. It starts with the panel's id, which comes from useId,
+// so two strips on one page never share an id. A tab id can be any string,
+// so it is encoded: aria-labelledby splits on spaces.
+export const appShellTabId = (panelId: string, tabId: string): string =>
+  `${panelId}-tab-${encodeURIComponent(tabId)}`;
+
+// The tab element for an id. It compares each tab's data-tab-id instead of
+// building a selector, so any string works as an id.
+const findTab = (
+  strip: HTMLElement | null,
+  tabId: string
+): HTMLElement | undefined =>
+  [...(strip?.querySelectorAll<HTMLElement>('[role="tab"]') ?? [])].find(
+    (tab) => tab.dataset.tabId === tabId
+  );
 
 // filled: the open tab is a raised box, the default. Other tabs show hover
 // by text color, because a hover fill would make them look open.
@@ -34,7 +47,7 @@ export const TAB_APPEARANCES: TabAppearance[] = ["filled", "underline"];
 // Forced colors would draw the other tabs' transparent borders, so there
 // they take the background color.
 const TAB_CLASSES: Record<
-  TabAppearance,
+  AppShellTabAppearance,
   { base: string; selected: string; other: string }
 > = {
   filled: {
@@ -50,24 +63,29 @@ const TAB_CLASSES: Record<
   },
 };
 
-export interface TabStripProps {
-  tabs: Tab[];
+export interface AppShellTabsProps {
+  tabs: AppShellTab[];
   activeTabId: string;
   onSelectTab: (id: string) => void;
-  panelId: string;
-  appearance?: TabAppearance;
-  label?: string;
+  // The id of the tab panel the tabs control. Inside an AppShellProvider it
+  // defaults to the main region's id.
+  panelId?: string;
+  appearance?: AppShellTabAppearance;
+  labels?: Partial<AppShellLabels>;
 }
 
-export const TabStrip = ({
+export const AppShellTabs = ({
   tabs,
   activeTabId,
   onSelectTab,
   panelId,
   appearance = "filled",
-  label = "Open chats",
-}: TabStripProps) => {
+  labels,
+}: AppShellTabsProps) => {
   const style = TAB_CLASSES[appearance];
+  const shell = useOptionalAppShell();
+  const text = useAppShellLabels(labels);
+  const panel = panelId ?? shell?.ids.main ?? "";
 
   const list = useRef<HTMLDivElement>(null);
 
@@ -76,7 +94,7 @@ export const TabStrip = ({
   // scrolls; the page stays put.
   useEffect(() => {
     const strip = list.current;
-    const tab = strip?.querySelector(`[data-tab-id="${activeTabId}"]`);
+    const tab = findTab(strip, activeTabId);
 
     if (!strip || !tab) {
       return;
@@ -117,17 +135,15 @@ export const TabStrip = ({
 
     event.preventDefault();
     onSelectTab(next.id);
-    list.current
-      ?.querySelector<HTMLElement>(`[data-tab-id="${next.id}"]`)
-      ?.focus({ preventScroll: true });
+    findTab(list.current, next.id)?.focus({ preventScroll: true });
   };
 
   return (
     <div
-      data-slot="tab-strip"
-      aria-label={label}
+      aria-label={text.tabs}
       className="-m-1 flex min-w-0 [scrollbar-width:thin] items-center gap-2 overflow-x-auto p-1"
       data-appearance={appearance}
+      data-slot="tab-strip"
       ref={list}
       role="tablist"
     >
@@ -137,12 +153,12 @@ export const TabStrip = ({
         return (
           <Tip key={tab.id} label={tab.title}>
             <button
-              data-slot="tab"
-              aria-controls={panelId}
+              aria-controls={panel}
               aria-selected={selected}
-              className={`flex h-(--size-tab-height) w-(--size-tab-width) min-w-24 shrink items-center gap-2 py-1 pl-2.5 text-left text-(length:--text-label-size) leading-(--text-label-leading) transition-colors duration-(--motion-duration) ${style.base} ${selected ? `text-foreground font-(--weight-semibold) ${style.selected}` : `text-muted-foreground font-(--weight-regular) ${style.other}`}`}
+              className={`flex h-(--size-tab-height) w-(--size-tab-width) min-w-24 shrink items-center gap-2 py-1 ps-2.5 text-start text-(length:--text-label-size) leading-(--text-label-leading) transition-colors duration-(--motion-duration) ${style.base} ${selected ? `text-foreground font-(--weight-semibold) ${style.selected}` : `text-muted-foreground font-(--weight-regular) ${style.other}`}`}
+              data-slot="tab"
               data-tab-id={tab.id}
-              id={`tab-${tab.id}`}
+              id={appShellTabId(panel, tab.id)}
               onClick={() => onSelectTab(tab.id)}
               onKeyDown={onKeyDown}
               role="tab"
@@ -153,7 +169,7 @@ export const TabStrip = ({
                 aria-hidden="true"
                 className="size-4 shrink-0"
               />
-              <span className="truncate pr-2">{tab.title}</span>
+              <span className="truncate pe-2">{tab.title}</span>
             </button>
           </Tip>
         );
@@ -161,74 +177,3 @@ export const TabStrip = ({
     </div>
   );
 };
-
-export const TitleBar = ({
-  canGoBack,
-  canGoForward,
-  onBack,
-  onForward,
-  sidebarOpen,
-  onToggleSidebar,
-  tabs,
-  activeTabId,
-  onSelectTab,
-  onNewTab,
-  tabAppearance = "filled",
-}: {
-  canGoBack: boolean;
-  canGoForward: boolean;
-  onBack: () => void;
-  onForward: () => void;
-  sidebarOpen: boolean;
-  onToggleSidebar: () => void;
-  tabs: Tab[];
-  activeTabId: string;
-  onSelectTab: (id: string) => void;
-  onNewTab: () => void;
-  tabAppearance?: TabAppearance;
-}) => (
-  <header
-    data-slot="title-bar"
-    className="flex h-(--size-titlebar) shrink-0 items-center max-md:h-auto max-md:flex-wrap"
-  >
-    <div
-      className={`flex shrink-0 items-center gap-1.5 pl-22 max-md:pl-3 ${sidebarOpen ? "md:w-[calc(var(--size-rail)+var(--size-sidebar))]" : "pr-2"}`}
-    >
-      <IconButton
-        disabled={!canGoBack}
-        icon={ArrowLeftIcon}
-        label="Back"
-        onClick={onBack}
-        kind="small"
-      />
-      <IconButton
-        disabled={!canGoForward}
-        icon={ArrowRightIcon}
-        label="Forward"
-        onClick={onForward}
-        kind="small"
-      />
-      <IconButton
-        aria-expanded={sidebarOpen}
-        icon={PanelLeftIcon}
-        id={SIDEBAR_TOGGLE_ID}
-        label={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
-        onClick={onToggleSidebar}
-        kind="small"
-      />
-    </div>
-    <div className="flex min-w-0 flex-1 items-center gap-2 pr-2 pl-2">
-      <TabStrip
-        activeTabId={activeTabId}
-        appearance={tabAppearance}
-        onSelectTab={onSelectTab}
-        panelId={MAIN_PANEL_ID}
-        tabs={tabs}
-      />
-      <IconButton icon={PlusIcon} label="New tab" onClick={onNewTab} />
-    </div>
-    <div className="flex shrink-0 items-center px-2 max-md:w-full max-md:justify-end max-md:pb-1">
-      <DirectionSelector />
-    </div>
-  </header>
-);

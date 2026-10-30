@@ -5,6 +5,8 @@ import type { ReactElement } from "react";
 
 import { FIXTURES } from "@/states/composer/fixtures";
 
+import { AppShellControlled } from "./app-shell-controlled";
+import { AppShellDemo } from "./app-shell-demo";
 import { ButtonDemo } from "./button-demo";
 import { ButtonRow } from "./button-row";
 import { ComposerLayoutExample } from "./composer-layout";
@@ -32,7 +34,6 @@ import { TipOnIconButtons } from "./tip-icon-buttons";
 export const REPO_ONLY_FILES = new Set([
   "conversation-rows.tsx",
   "mode-toggle.tsx",
-  "tab-strip.tsx",
 ]);
 
 export interface Example {
@@ -47,6 +48,18 @@ export interface Example {
 }
 
 const CATALOG = {
+  "app-shell--controlled": {
+    element: <AppShellControlled />,
+    file: "app-shell-controlled.tsx",
+    label: "open and onOpenChange",
+    note: "The app owns the open state. The cookie saves what the shell shows, so a reload keeps it.",
+  },
+  "app-shell--demo": {
+    element: <AppShellDemo />,
+    file: "app-shell-demo.tsx",
+    label: "AppShellProvider",
+    note: "Pick a destination in the rail, or hide the sidebar with the toggle, Cmd+B or Ctrl+B.",
+  },
   "button--default": {
     element: <ButtonRow variant="default" />,
     file: "button-row.tsx",
@@ -230,13 +243,13 @@ const CATALOG = {
   "title-bar-tabs--filled": {
     element: <TabStripExample appearance="filled" />,
     file: "tab-strip.tsx",
-    label: 'tabAppearance="filled"',
+    label: 'appearance="filled"',
     note: "The open tab is a raised box. The default.",
   },
   "title-bar-tabs--underline": {
     element: <TabStripExample appearance="underline" />,
     file: "tab-strip.tsx",
-    label: 'tabAppearance="underline"',
+    label: 'appearance="underline"',
     note: "No box. A bar sits under the open tab.",
   },
 } satisfies Record<string, Example>;

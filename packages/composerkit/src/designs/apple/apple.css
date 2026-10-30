@@ -153,7 +153,7 @@ html.dark body[data-design="apple"] {
 /* ---------- Content layer: solid, readable, never glass ---------- */
 
 /* The main panel becomes a sheet whose corner meets the window chrome. */
-body[data-design="apple"] main:has(> #main-panel) {
+body[data-design="apple"] [data-slot="main-sheet"] {
   border-inline-start-width: 0;
   border-start-start-radius: 22px;
   box-shadow: var(--apple-sheet);
@@ -337,11 +337,12 @@ body[data-design="apple"]
 }
 
 /* Rail: the current destination is lifted out as a glass lens. */
-body[data-design="apple"] [data-slot="icon-rail"] button {
+body[data-design="apple"] [data-rail-item],
+body[data-design="apple"] [data-slot="rail-footer"] [data-slot="button"] {
   border-radius: 9999px;
 }
 
-body[data-design="apple"] [data-slot="icon-rail"] button[aria-current="page"] {
+body[data-design="apple"] [data-rail-item][aria-current="page"] {
   background: var(--apple-lens);
   box-shadow: var(--apple-rim), var(--apple-lift);
   color: var(--foreground);
@@ -427,9 +428,11 @@ body[data-design="apple"]
     [data-slot="icon-button"],
     [data-slot="tab"]
   ):focus-visible,
+body[data-design="apple"] [data-rail-item]:focus-visible,
 body[data-design="apple"]
-  :is([data-slot="icon-rail"], [data-slot="mode-toggle"])
-  button:focus-visible {
+  [data-slot="rail-footer"]
+  [data-slot="button"]:focus-visible,
+body[data-design="apple"] [data-slot="mode-toggle"] button:focus-visible {
   outline-offset: 2px;
 }
 

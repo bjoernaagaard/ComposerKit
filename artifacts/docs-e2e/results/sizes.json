@@ -771,22 +771,22 @@
     "expected": "44 tall, back and forward 28 x 28 6 apart, sidebar toggle 28 x 28",
     "line": 426,
     "part": "Title bar",
-    "actual": "This part of the playground app shell is not a registry item and no docs example renders it.",
-    "status": "not checked",
-    "where": ""
-  },
-  {
-    "expected": "two 28 x 28 view toggles, 6 apart",
-    "line": 428,
-    "part": "Title bar right side",
-    "actual": "This part of the playground app shell is not a registry item and no docs example renders it.",
-    "status": "not checked",
-    "where": ""
+    "actual": "44 tall, back 28 x 28 and forward 28 x 28 6 apart, sidebar toggle 28 x 28",
+    "status": "pass",
+    "where": "http://127.0.0.1:4330/ [data-example=\"app-shell\"]"
   },
   {
     "expected": "52 wide, 36 x 36 buttons, 8 inset, 44 pitch",
     "line": 429,
     "part": "Icon rail",
+    "actual": "52 wide, buttons 36 x 36, inset 8, pitch 44",
+    "status": "pass",
+    "where": "http://127.0.0.1:4330/ [data-example=\"app-shell\"]"
+  },
+  {
+    "expected": "two 28 x 28 view toggles, 6 apart",
+    "line": 428,
+    "part": "Title bar right side",
     "actual": "This part of the playground app shell is not a registry item and no docs example renders it.",
     "status": "not checked",
     "where": ""
