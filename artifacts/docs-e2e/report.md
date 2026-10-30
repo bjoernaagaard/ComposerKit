@@ -4,7 +4,7 @@
 
 # Docs E2E report
 
-Written by `npm run e2e:docs` on 2026-10-29. It runs against the real static export of apps/docs, served from `apps/docs/out`. Raw results, including the rows that pass, are in `results/`. Page screenshots are in `pages/`.
+Written by `npm run e2e:docs` on 2026-10-30. It runs against the real static export of apps/docs, served from `apps/docs/out`. Raw results, including the rows that pass, are in `results/`. Page screenshots are in `pages/`.
 
 ## 1. Registry files match the published shadcn schema
 
@@ -23,11 +23,11 @@ Schemas fetched at run time from ui.shadcn.com. Validator: ajv 8 (draft-07), str
 
 ## 2. A new app installs every item and the sample data, takes every example from its Code tab, then type checks and builds
 
-The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-GAhENL/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
+The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-C52NGn/site. In that copy only, https://bjoernaagaard.github.io/ComposerKit/r/ was replaced with http://127.0.0.1:4321/r/ in r/button.json, r/composer.json, r/conversation.json, r/menu.json, r/registry.json, r/sample-data.json, r/tip.json, so registry dependencies also come from the local server.
 
 | Command | Folder | Exit code | Seconds |
 | --- | --- | --- | --- |
-| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 17 |
+| npx -y shadcn@latest init -d -y -n consumer --no-monorepo | . | 0 | 16 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/theme.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/button.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/tip.json -y -o | consumer | 0 | 1 |
@@ -35,10 +35,10 @@ The export was copied to /var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/compos
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/composer.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/conversation.json -y -o | consumer | 0 | 1 |
 | npx -y shadcn@latest add http://127.0.0.1:4321/r/sample-data.json -y -o | consumer | 0 | 1 |
-| npx tsc --noEmit | consumer | 0 | 2 |
-| npx next build | consumer | 0 | 5 |
+| npx tsc --noEmit | consumer | 0 | 1 |
+| npx next build | consumer | 0 | 4 |
 
-Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-GAhENL` (outside the repo).
+Temp folder: `/var/folders/sw/93tnyz5n6fj_b6n1rr00gxd80000gn/T/composerkit-e2e-C52NGn` (outside the repo).
 
 ### Examples copied from the Code tab
 
@@ -171,32 +171,69 @@ Baseline: 37 ids, light and dark, in `catalog-before/`. Docs screenshots in `doc
 
 ## 6. Stress
 
-Listed, not gated. 4 rows below still show a flag or a break.
+Listed, not gated. 1 row below still show a flag or a break.
 
-### Every docs example at 320 and 1440 wide
+### Every docs example at 320 and 1440 wide, in each design
 
-One image per example and width, light on the left and dark on the right, in `stress/render/`. A flag is sideways page scroll, a box wider than the window, text cut off with no ellipsis, text over other text, or a control pushed out of view. Content inside a box that scrolls sideways, such as a code block or the tab strip, counts as reachable.
+In the base design, one image per example and width, light on the left and dark on the right, in `stress/render/`. In the other designs each example is inspected in light, and an image is kept only when it has a flag. A flag is sideways page scroll, a box wider than the window, text cut off with no ellipsis, text over other text, a control pushed out of view, or an empty field too narrow for its placeholder. Content inside a box that scrolls sideways, such as a code block or the tab strip, counts as reachable.
 
-| Width | Examples | With a flag |
-| ----- | -------- | ----------- |
-| 320   | 44       | 0           |
-| 1440  | 44       | 0           |
+| Design | Width | Examples | With a flag |
+| ------ | ----- | -------- | ----------- |
+| base   | 320   | 44       | 0           |
+| base   | 1440  | 44       | 0           |
+| apple  | 320   | 44       | 0           |
+| apple  | 1440  | 44       | 0           |
+| glass  | 320   | 44       | 0           |
+| glass  | 1440  | 44       | 0           |
+| taste  | 320   | 44       | 0           |
+| taste  | 1440  | 44       | 0           |
+| emil   | 320   | 44       | 0           |
+| emil   | 1440  | 44       | 0           |
 
-### Keyboard only, every docs page
+### The demo app in every design at 320 and 1440 wide
 
-Tab from the top of the page to the end, then Shift+Tab back, with no mouse events. Each stop is checked for a visible change against its resting look. Every menu trigger and tooltip in the examples is opened, closed with Escape, and checked for focus back on its trigger. The full focus order of each page is in `results/stress-keyboard.json`.
+The playground's home page, with the composer in work mode and in chat mode, inspected in light with the same flags as the examples. Images are light on the left and dark on the right, in `stress/app/`: the base design in both modes and the other designs in work mode.
 
-| Page | Stops | Walk ended | Trap | No visible focus | Not reachable by Tab | Shift+Tab gives the same order | Escape did not return focus |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| / | 33 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /theme | 103 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /button | 103 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /tip | 66 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /menu | 103 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /composer | 325 | Tab left the last control and focus went back to the page | none | none | none | yes | menu on button "Add files and more": closed, focus went to a textarea (16 times) |
-| /conversation | 240 | Tab left the last control and focus went back to the page | none | none | button "Scroll to the newest message" (4 times) | yes | menu on button "Add files and more": closed, focus went to a textarea (4 times) |
-| /sample-data | 34 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
-| /app-shell | 157 | Tab left the last control and focus went back to the page | none | none | none | yes | none |
+| Design | Mode | Width | Flags | Errors | Image                            |
+| ------ | ---- | ----- | ----- | ------ | -------------------------------- |
+| base   | work | 320   | none  | none   | stress/app/base--work--320.png   |
+| base   | chat | 320   | none  | none   | stress/app/base--chat--320.png   |
+| apple  | work | 320   | none  | none   | stress/app/apple--work--320.png  |
+| apple  | chat | 320   | none  | none   | not kept                         |
+| glass  | work | 320   | none  | none   | stress/app/glass--work--320.png  |
+| glass  | chat | 320   | none  | none   | not kept                         |
+| taste  | work | 320   | none  | none   | stress/app/taste--work--320.png  |
+| taste  | chat | 320   | none  | none   | not kept                         |
+| emil   | work | 320   | none  | none   | stress/app/emil--work--320.png   |
+| emil   | chat | 320   | none  | none   | not kept                         |
+| base   | work | 1440  | none  | none   | stress/app/base--work--1440.png  |
+| base   | chat | 1440  | none  | none   | stress/app/base--chat--1440.png  |
+| apple  | work | 1440  | none  | none   | stress/app/apple--work--1440.png |
+| apple  | chat | 1440  | none  | none   | not kept                         |
+| glass  | work | 1440  | none  | none   | stress/app/glass--work--1440.png |
+| glass  | chat | 1440  | none  | none   | not kept                         |
+| taste  | work | 1440  | none  | none   | stress/app/taste--work--1440.png |
+| taste  | chat | 1440  | none  | none   | not kept                         |
+| emil   | work | 1440  | none  | none   | stress/app/emil--work--1440.png  |
+| emil   | chat | 1440  | none  | none   | not kept                         |
+
+### Keyboard only, every docs page and the demo app
+
+Tab from the top of the page to the end, then Shift+Tab back, with no mouse events. Each stop is checked for a visible change against its resting look, and for a focus ring cut off by a box that clips its overflow. Every menu trigger and tooltip in the examples is opened, closed with Escape, and checked for focus back on its trigger. A list that a text field drives, such as the composer's add menu, keeps focus in that field, as spec/functional.md says. The full focus order of each page is in `results/stress-keyboard.json`.
+
+| Page | Stops | Walk ended | Trap | No visible focus | Focus ring cut off | Not reachable by Tab | Shift+Tab gives the same order | Escape did not return focus |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| / | 33 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
+| /theme | 103 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
+| /button | 103 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
+| /tip | 66 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
+| /menu | 103 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
+| /composer | 325 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
+| /conversation | 240 | Tab left the last control and focus went back to the page | none | none | none | button "Scroll to the newest message" (4 times) | yes | none |
+| /sample-data | 34 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
+| /app-shell | 157 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
+| demo app, 320 wide | 27 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
+| demo app, 1440 wide | 159 | Tab left the last control and focus went back to the page | none | none | none | none | yes | none |
 
 ### A 200 character paste into every composer, then Enter
 
@@ -254,8 +291,8 @@ Rendered by the playground's dev-only stress page (`/states/stress`), which pass
 | Part | Label | Width | Flags | Errors | Image |
 | --- | --- | --- | --- | --- | --- |
 | button | demo | 320 | none | none | stress/labels/button--demo--320.png |
-| button | spaces | 320 | page scrolls sideways: page is 1293 wide in a 320 viewport; control out of view: button[button] "Summarize the quarterly infrastructure review fr" spans 16 to 1293 in a 320 viewport | none | stress/labels/button--spaces--320.png |
-| button | word | 320 | page scrolls sideways: page is 1329 wide in a 320 viewport; control out of view: button[button] "https://northwind-industries-holdings.example.co" spans 16 to 1329 in a 320 viewport | none | stress/labels/button--word--320.png |
+| button | spaces | 320 | none | none | stress/labels/button--spaces--320.png |
+| button | word | 320 | none | none | stress/labels/button--word--320.png |
 | button | demo | 1440 | none | none | stress/labels/button--demo--1440.png |
 | button | spaces | 1440 | none | none | stress/labels/button--spaces--1440.png |
 | button | word | 1440 | none | none | stress/labels/button--word--1440.png |
@@ -323,12 +360,12 @@ The Design picker in the docs sidebar footer, on the pages with the most example
 
 | Page | Design | Scheme | axe violations | First frame | Kept after navigation | Console errors |
 | --- | --- | --- | --- | --- | --- | --- |
-| /composer | apple | light | none | pass, 2 of 2 frames | yes | none |
+| /composer | apple | light | none | pass, 1 of 1 frames | yes | none |
 | /composer | glass | light | none | pass, 1 of 1 frames | yes | none |
 | /composer | taste | light | none | pass, 1 of 1 frames | yes | none |
 | /composer | emil | light | none | pass, 1 of 1 frames | yes | none |
 | /conversation | apple | light | none | pass, 2 of 2 frames | yes | none |
-| /conversation | glass | light | none | pass, 1 of 1 frames | yes | none |
+| /conversation | glass | light | none | pass, 2 of 2 frames | yes | none |
 | /conversation | taste | light | none | pass, 2 of 2 frames | yes | none |
 | /conversation | emil | light | none | pass, 2 of 2 frames | yes | none |
 | /app-shell | apple | light | none | pass, 2 of 2 frames | yes | none |
@@ -340,7 +377,7 @@ The Design picker in the docs sidebar footer, on the pages with the most example
 | /composer | taste | dark | none | pass, 1 of 1 frames | yes | none |
 | /composer | emil | dark | none | pass, 1 of 1 frames | yes | none |
 | /conversation | apple | dark | none | pass, 2 of 2 frames | yes | none |
-| /conversation | glass | dark | none | pass, 1 of 1 frames | yes | none |
+| /conversation | glass | dark | none | pass, 2 of 2 frames | yes | none |
 | /conversation | taste | dark | none | pass, 2 of 2 frames | yes | none |
 | /conversation | emil | dark | none | pass, 2 of 2 frames | yes | none |
 | /app-shell | apple | dark | none | pass, 2 of 2 frames | yes | none |
