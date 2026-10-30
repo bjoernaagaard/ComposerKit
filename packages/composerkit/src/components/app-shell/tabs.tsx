@@ -370,32 +370,39 @@ export const AppShellTabs = ({
     reveal(list.current, activeTabId);
   }, [activeTabId]);
 
-  // Focus and selection move to the tab on the right, or on the left for
-  // the last tab. A close from a pointer shrinks the tab out first; one
-  // from the keyboard or the tab menu is instant.
+  // When the open tab closes, focus and selection move to the tab on the
+  // right, or on the left for the last tab. When the focused tab closes,
+  // focus moves there too. Tabs still shrinking out are skipped, since
+  // they are about to go. A close from a pointer shrinks the tab out
+  // first; one from the keyboard or the tab menu is instant.
   const closeTab = (id: string, animate: boolean) => {
-    const index = tabs.findIndex((tab) => tab.id === id);
+    const staying = tabs.filter(
+      (tab) => tab.id === id || !closing.current.has(tab.id)
+    );
+
+    const index = staying.findIndex((tab) => tab.id === id);
 
     if (
       !onCloseTab ||
       index === -1 ||
       closing.current.has(id) ||
-      tabs.length - closing.current.size < 2
+      staying.length < 2
     ) {
       return;
     }
 
     const strip = list.current;
-    const neighbour = tabs[index + 1] ?? tabs[index - 1];
+    const neighbour = staying[index + 1] ?? staying[index - 1];
     const wasOpen = id === activeTabId;
-    const nextOpen = wasOpen ? neighbour?.id : activeTabId;
+    const wasFocused = holdsFocus(findTab(strip, id) ?? null);
+    const nextFocus = wasOpen || wasFocused ? neighbour?.id : activeTabId;
 
     if (wasOpen && neighbour) {
       onSelectTab(neighbour.id);
     }
 
-    if (nextOpen && holdsFocus(strip)) {
-      findTab(strip, nextOpen)?.focus({ preventScroll: true });
+    if (nextFocus && holdsFocus(strip)) {
+      findTab(strip, nextFocus)?.focus({ preventScroll: true });
     }
 
     const item = findItem(strip, id);
@@ -427,21 +434,23 @@ export const AppShellTabs = ({
       return;
     }
 
-    const index = tabs.findIndex((tab) => tab.id === activeTabId);
+    // Tabs still shrinking out can't be opened.
+    const reachable = tabs.filter((tab) => !closing.current.has(tab.id));
+    const index = reachable.findIndex((tab) => tab.id === activeTabId);
 
     let target = -1;
 
     if (event.key === "ArrowLeft") {
-      target = (index - 1 + tabs.length) % tabs.length;
+      target = (index - 1 + reachable.length) % reachable.length;
     } else if (event.key === "ArrowRight") {
-      target = (index + 1) % tabs.length;
+      target = (index + 1) % reachable.length;
     } else if (event.key === "Home") {
       target = 0;
     } else if (event.key === "End") {
-      target = tabs.length - 1;
+      target = reachable.length - 1;
     }
 
-    const next = tabs[target];
+    const next = reachable[target];
 
     if (!next) {
       return;

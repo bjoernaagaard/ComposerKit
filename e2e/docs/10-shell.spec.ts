@@ -876,6 +876,97 @@ test("tabs: Delete closes the focused tab and focuses the one to its right, or t
   expect(await tabIds(page)).toEqual([second]);
 });
 
+test("tabs: Delete on the open tab while another shrinks out opens and focuses the tab that stays", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await newTabButton(page).click();
+  await newTabButton(page).click();
+  await expect(shellTabs(page)).toHaveCount(3);
+
+  const [, second, third] = await tabIds(page);
+
+  await shellTabs(page).first().click();
+  // The second tab shrinks out over 140 ms, and focus stays on the first,
+  // where Delete closes it before the second is gone.
+  await closeButton(page, 1).click();
+  await expect(focusedTab(page)).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("Delete");
+  expect(await tabIds(page)).toEqual([second, third]);
+
+  await expect.poll(() => tabIds(page)).toEqual([third]);
+
+  const tab = shellTabs(page).first();
+  const tabId = await tab.getAttribute("id");
+  const panelId = await tab.getAttribute("aria-controls");
+
+  await expect(tab).toHaveAttribute("aria-selected", "true");
+  await expect(tab).toHaveAttribute("tabindex", "0");
+  await expect(tab).toBeFocused();
+  await expect(page.locator(`[id="${panelId}"]`)).toHaveAttribute(
+    "aria-labelledby",
+    tabId ?? ""
+  );
+});
+
+test("tabs: ArrowRight while the next tab shrinks out skips it and opens the one after", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await newTabButton(page).click();
+  await newTabButton(page).click();
+  await expect(shellTabs(page)).toHaveCount(3);
+
+  const [, second, third] = await tabIds(page);
+
+  await shellTabs(page).first().click();
+  await closeButton(page, 1).click();
+  await page.keyboard.press("ArrowRight");
+  expect(await tabIds(page)).toContain(second);
+
+  await expect.poll(() => tabIds(page)).toHaveLength(2);
+  await expect(focusedTab(page)).toHaveAttribute("data-tab-id", third ?? "");
+  await expect(focusedTab(page)).toHaveAttribute("aria-selected", "true");
+});
+
+test("tabs: a tab pressed and dragged off holds focus without opening, and Delete there focuses the tab to its right", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await newTabButton(page).click();
+  await newTabButton(page).click();
+  await expect(shellTabs(page)).toHaveCount(3);
+
+  const [first, , third] = await tabIds(page);
+
+  await shellTabs(page).first().click();
+
+  // A press on the second tab focuses it, and letting go away from it
+  // cancels the click that would open it.
+  const box = await shellTabs(page).nth(1).boundingBox();
+
+  await page.mouse.move(
+    (box?.x ?? 0) + (box?.width ?? 0) / 2,
+    (box?.y ?? 0) + (box?.height ?? 0) / 2
+  );
+  await page.mouse.down();
+  await page.mouse.move(700, 600, { steps: 4 });
+  await page.mouse.up();
+  await expect(shellTabs(page).nth(1)).toBeFocused();
+  await expect(shellTabs(page).first()).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+
+  await page.keyboard.press("Delete");
+  expect(await tabIds(page)).toEqual([first, third]);
+  await expect(focusedTab(page)).toHaveAttribute("data-tab-id", third ?? "");
+  await expect(shellTabs(page).first()).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+});
+
 test("tabs with a pointer: close buttons show on hover and on the open tab, a click closes one, and so does a middle click", async ({
   page,
 }) => {
@@ -1359,6 +1450,32 @@ test("splitter: in right-to-left layouts, ArrowLeft and a drag to the left widen
   await expectWidth(page, 288);
 
   await dragSplitter(page, -112);
+  await expectWidth(page, 400);
+});
+
+test("splitter: hiding the sidebar mid drag ends the drag, and the cookie and a reload keep the width", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+  await dragSplitter(page, 112, true);
+  await expectWidth(page, 400);
+
+  const shell = page.locator('[data-slot="app-shell"]');
+
+  await page.keyboard.press("ControlOrMeta+b");
+  await expect(sidebar(page)).toBeHidden();
+  await page.mouse.up();
+
+  await expect(shell).not.toHaveAttribute("data-resizing");
+  await expect(page.getByRole("main")).not.toHaveCSS("cursor", "col-resize");
+  await expect.poll(() => savedShell(page)).toEqual(["open=false&width=400"]);
+
+  await page.keyboard.press("ControlOrMeta+b");
+  await expectWidth(page, 400);
+  await expect.poll(() => savedShell(page)).toEqual(["open=true&width=400"]);
+
+  await page.reload();
+  await page.locator('[data-slot="composer"]').first().waitFor();
   await expectWidth(page, 400);
 });
 
