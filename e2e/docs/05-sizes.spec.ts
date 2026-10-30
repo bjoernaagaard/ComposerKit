@@ -8,6 +8,7 @@ import type { Locator, Page } from "@playwright/test";
 
 import { composerParts, example, record, skip } from "./keyboard-support";
 import type { Walked, Where } from "./keyboard-support";
+import { PLAYGROUND_URL } from "./support";
 
 const FILE = "sizes";
 const PX_SUFFIX = /px$/u;
@@ -2023,22 +2024,76 @@ for (const variant of ["pill", "segmented", "underline"]) {
   );
 }
 
-const SHELL_ONLY = [
+// The title bar and the rail render together only in the playground's
+// demo app, which runs the shipped app-shell parts.
+const APP: Where = { example: "app-shell", url: `${PLAYGROUND_URL}/` };
+
+measure(
   {
     expected:
       "44 tall, back and forward 28 x 28 6 apart, sidebar toggle 28 x 28",
     line: 426,
     part: "Title bar",
   },
-  {
-    expected: "two 28 x 28 view toggles, 6 apart",
-    line: 428,
-    part: "Title bar right side",
-  },
+  APP,
+  async (page) => {
+    const bar = page.getByRole("banner");
+    const box = await rect(bar);
+    const back = await rect(bar.getByRole("button", { name: "Back" }));
+    const forward = await rect(bar.getByRole("button", { name: "Forward" }));
+
+    const toggle = await rect(
+      bar.getByRole("button", { name: "Hide sidebar" })
+    );
+
+    const apart = forward.left - back.right;
+
+    return {
+      actual: `${fmt(box.height)} tall, back ${size(back)} and forward ${size(forward)} ${fmt(apart)} apart, sidebar toggle ${size(toggle)}`,
+      pass:
+        near(box.height, 44) &&
+        [back, forward, toggle].every(
+          (button) => near(button.width, 28) && near(button.height, 28)
+        ) &&
+        near(apart, 6),
+    };
+  }
+);
+
+measure(
   {
     expected: "52 wide, 36 x 36 buttons, 8 inset, 44 pitch",
     line: 429,
     part: "Icon rail",
+  },
+  APP,
+  async (page) => {
+    const rail = page.getByRole("navigation", { name: "Main" });
+    const box = await rect(rail);
+    const buttons = await boxesOf(rail.getByRole("button"));
+    const [first, second] = buttons;
+    const inset = (first?.left ?? 0) - box.left;
+    const pitch = (second?.top ?? 0) - (first?.top ?? 0);
+
+    return {
+      actual: `${fmt(box.width)} wide, buttons ${[...new Set(buttons.map(size))].join(", ")}, inset ${fmt(inset)}, pitch ${fmt(pitch)}`,
+      pass:
+        near(box.width, 52) &&
+        buttons.length > 1 &&
+        buttons.every(
+          (button) => near(button.width, 36) && near(button.height, 36)
+        ) &&
+        near(inset, 8) &&
+        near(pitch, 44),
+    };
+  }
+);
+
+const SHELL_ONLY = [
+  {
+    expected: "two 28 x 28 view toggles, 6 apart",
+    line: 428,
+    part: "Title bar right side",
   },
   { expected: "288 wide, 16 pt splitter", line: 430, part: "Sidebar" },
   {

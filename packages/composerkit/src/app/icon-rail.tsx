@@ -39,7 +39,7 @@ export type Destination =
   | "files"
   | "notes";
 
-// The rail shows a rule between the two groups.
+// The demo's destinations. The rail shows a rule between the two groups.
 export const DESTINATIONS: {
   id: Destination;
   label: string;
@@ -55,35 +55,11 @@ export const DESTINATIONS: {
   { group: 2, icon: NotebookPenIcon, id: "notes", label: "Notes" },
 ];
 
-const RailButton = ({
-  label,
-  icon: Glyph,
-  active,
-  onSelect,
-}: {
-  label: string;
-  icon: LucideIcon;
-  active: boolean;
-  onSelect: () => void;
-}) => (
-  <Tip label={label} side="right">
-    <Button
-      aria-current={active ? "page" : undefined}
-      aria-label={label}
-      onClick={onSelect}
-      size="icon-lg"
-      variant="quiet"
-    >
-      <Glyph aria-hidden="true" />
-    </Button>
-  </Tip>
-);
-
 const isScheme = (value: string) =>
   SCHEMES.find((scheme) => scheme.id === value)?.id;
 
 // The avatar at the foot of the rail opens the appearance settings.
-const AppearanceMenu = ({
+export const AppearanceMenu = ({
   conversationLayout,
   onConversationLayoutChange,
 }: {
@@ -149,47 +125,3 @@ const AppearanceMenu = ({
     </MenuRoot>
   );
 };
-
-export const IconRail = ({
-  active,
-  onSelect,
-  conversationLayout,
-  onConversationLayoutChange,
-}: {
-  active: Destination;
-  onSelect: (destination: Destination) => void;
-  conversationLayout: ConversationLayout;
-  onConversationLayoutChange: (layout: ConversationLayout) => void;
-}) => (
-  <nav
-    aria-label="Main"
-    className="flex w-(--size-rail) shrink-0 flex-col items-center pb-1"
-    data-slot="icon-rail"
-  >
-    {/* Destinations scroll when the window is short; the avatar stays put.
-        The scroll box spans the whole rail and the buttons center in it,
-        so a focus ring, or a design's button wider than the token
-        padding leaves, is drawn in full instead of cut or squeezed. When
-        it scrolls, its scroll padding keeps the focused button's ring in
-        view too. */}
-    <div className="flex min-h-0 w-full flex-1 scroll-py-1 flex-col items-center gap-(--space-rail-gap) overflow-x-hidden overflow-y-auto pt-(--space-rail-padding) pb-1">
-      {DESTINATIONS.map((item, index) => (
-        <div className="contents" key={item.id}>
-          {index > 0 && DESTINATIONS[index - 1]?.group !== item.group ? (
-            <hr className="border-input my-px w-5" />
-          ) : null}
-          <RailButton
-            active={active === item.id}
-            icon={item.icon}
-            label={item.label}
-            onSelect={() => onSelect(item.id)}
-          />
-        </div>
-      ))}
-    </div>
-    <AppearanceMenu
-      conversationLayout={conversationLayout}
-      onConversationLayoutChange={onConversationLayoutChange}
-    />
-  </nav>
-);

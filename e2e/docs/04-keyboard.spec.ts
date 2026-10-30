@@ -23,6 +23,7 @@ import {
   textOf,
   walk,
 } from "./keyboard-support";
+import { PLAYGROUND_URL } from "./support";
 
 const COMPOSER = { example: "composer--stacked", url: "/composer" };
 const INLINE = { example: "composer--inline", url: "/composer" };
@@ -1619,6 +1620,73 @@ walk(
     return {
       actual: `focus on ${await focused(page)}, tooltip "${(await tip.count()) > 0 ? await tip.first().textContent() : "none"}"`,
       pass: (await isFocused(button)) && (await tip.count()) > 0,
+    };
+  }
+);
+
+// --- 6. App shell ----------------------------------------------------------
+
+// The whole shell renders only in the playground's demo app, which runs the
+// shipped app-shell parts.
+const APP = { example: "app-shell", url: `${PLAYGROUND_URL}/` };
+
+walk(
+  {
+    context: "App shell, page just loaded",
+    expected:
+      "The first stop is the skip-to-content link. Enter moves focus to the main region.",
+    keys: "Tab, then Enter",
+    line: 438,
+  },
+  APP,
+  async (page) => {
+    await press(page, "Tab");
+
+    const first = await focused(page);
+
+    await press(page, "Enter");
+
+    const inMain = await isFocused(page.getByRole("main"));
+
+    return {
+      actual: `first stop ${first}, after Enter focus on ${await focused(page)}`,
+      pass: first.includes("Skip to content") && inMain,
+    };
+  }
+);
+
+walk(
+  {
+    context: "App shell, wide, sidebar open",
+    expected:
+      "Hides the sidebar at once, with no motion. The same keys show it again.",
+    keys: "Cmd+B (Ctrl+B off Apple platforms)",
+    line: 430,
+  },
+  APP,
+  async (page) => {
+    const sidebar = page.getByRole("complementary", { name: "Sidebar" });
+    const toggle = page.getByRole("button", { name: /sidebar$/u });
+    const keys = (await toggle.getAttribute("aria-keyshortcuts")) ?? "";
+
+    await press(page, keys);
+
+    const hidden = await sidebar.isHidden();
+    const afterHide = await toggle.getAttribute("aria-label");
+
+    await press(page, keys);
+
+    const shown = await sidebar.isVisible();
+    const afterShow = await toggle.getAttribute("aria-label");
+
+    return {
+      actual: `${keys}: sidebar hidden ${hidden}, toggle "${afterHide}"; again: sidebar shown ${shown}, toggle "${afterShow}"`,
+      pass:
+        keys !== "" &&
+        hidden &&
+        afterHide === "Show sidebar" &&
+        shown &&
+        afterShow === "Hide sidebar",
     };
   }
 );
