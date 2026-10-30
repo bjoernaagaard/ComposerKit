@@ -163,11 +163,14 @@ export const IconRail = ({
 }) => (
   <nav
     aria-label="Main"
-    className="flex w-(--size-rail) shrink-0 flex-col items-center px-(--space-rail-padding) pt-(--space-rail-padding) pb-1"
+    className="flex w-(--size-rail) shrink-0 flex-col items-center pb-1"
     data-slot="icon-rail"
   >
-    {/* Destinations scroll when the window is short; the avatar stays put. */}
-    <div className="flex min-h-0 w-full flex-1 flex-col items-center gap-(--space-rail-gap) overflow-x-hidden overflow-y-auto">
+    {/* Destinations scroll when the window is short; the avatar stays put.
+        The scroll box carries the rail's padding, so a focus ring, or a
+        design's button wider than the padding leaves, draws in it instead
+        of being cut at the box's edge. */}
+    <div className="flex min-h-0 w-full flex-1 flex-col items-center gap-(--space-rail-gap) overflow-x-hidden overflow-y-auto px-(--space-rail-padding) pt-(--space-rail-padding)">
       {DESTINATIONS.map((item, index) => (
         <div className="contents" key={item.id}>
           {index > 0 && DESTINATIONS[index - 1]?.group !== item.group ? (
