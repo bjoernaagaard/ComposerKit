@@ -34,7 +34,8 @@ export interface Flag {
     | "wider than the viewport"
     | "clipped text"
     | "overlapping text"
-    | "control out of view";
+    | "control out of view"
+    | "squeezed placeholder";
   detail: string;
 }
 
@@ -48,18 +49,23 @@ export interface Flag {
 export interface RenderRow {
   id: string;
   page: string;
+  design: string;
   width: Width;
   image: string;
   flags: Flag[];
 }
 
+// Escape returns focus to the trigger, except from a list that a text
+// field drives, where focus stayed in the field the whole time and the
+// spec keeps it there.
 export interface EscapeRow {
   stop: string;
   kind: "menu" | "tooltip";
   opened: boolean;
   closed: boolean;
   focusAfter: string;
-  backOnTrigger: boolean;
+  expectedFocus: string;
+  focusAsExpected: boolean;
 }
 
 export interface KeyboardStressRow {
@@ -72,6 +78,17 @@ export interface KeyboardStressRow {
   reverseMatches: boolean;
   reverseDifference: string;
   escapes: EscapeRow[];
+  cutRings: string[];
+}
+
+// The demo app in one design, width and composer mode.
+export interface AppRow {
+  design: string;
+  width: Width;
+  mode: string;
+  image: string | null;
+  flags: Flag[];
+  errors: string[];
 }
 
 export interface PasteRow {
@@ -321,6 +338,38 @@ export const inspect = (page: Page, selector: string): Promise<Flag[]> =>
       }
     }
 
+    // An empty field shows its placeholder on one line. One that is too
+    // narrow for it wraps it, often a few letters to a line.
+    const canvas = document.createElement("canvas").getContext("2d");
+
+    for (const root of roots) {
+      for (const field of root.querySelectorAll<
+        HTMLTextAreaElement | HTMLInputElement
+      >("textarea[placeholder], input[placeholder]")) {
+        if (!(canvas && shown(field)) || field.value !== "") {
+          continue;
+        }
+
+        const style = getComputedStyle(field);
+
+        canvas.font = style.font;
+
+        const needs = canvas.measureText(field.placeholder).width;
+
+        const room =
+          field.clientWidth -
+          Number(style.paddingLeft.replace("px", "")) -
+          Number(style.paddingRight.replace("px", ""));
+
+        if (needs > room + 1) {
+          flags.push({
+            detail: `${describe(field)} needs ${Math.round(needs)} px for "${field.placeholder}" and has ${Math.round(room)}`,
+            kind: "squeezed placeholder",
+          });
+        }
+      }
+    }
+
     const limit = Math.min(textRects.length, 600);
 
     for (let first = 0; first < limit; first += 1) {
@@ -411,6 +460,22 @@ export const openHarness = async (
   }, scheme);
   await page.goto(`${PLAYGROUND_URL}/states/stress?${query}&bare`);
   await page.locator("[data-stress-stage]").waitFor();
+  await page.waitForLoadState("networkidle");
+};
+
+// Opens the demo app, the playground's home page, in a design and color
+// scheme. The design is kept in localStorage under composerkit-design.
+export const openApp = async (page: Page, design: string, scheme: Scheme) => {
+  await page.emulateMedia({ colorScheme: scheme });
+  await page.addInitScript(
+    ({ chosen, colors }) => {
+      localStorage.setItem("composerkit-design", chosen);
+      localStorage.setItem("composerkit-scheme", colors);
+    },
+    { chosen: design, colors: scheme }
+  );
+  await page.goto(`${PLAYGROUND_URL}/`);
+  await page.locator('[data-slot="composer"]').first().waitFor();
   await page.waitForLoadState("networkidle");
 };
 

@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 // SPDX-License-Identifier: MIT
 
-// Stress: every docs example at 320 and 1440 wide in light and dark, a
-// keyboard-only walk of every docs page, a 200 character paste into every
-// composer, 200 character labels in every part that shows one, and the
-// empty states. Each finding has a screenshot under artifacts/docs-e2e/stress.
+// Stress: every docs example at 320 and 1440 wide in light and dark and in
+// each design, the demo app in each design, a keyboard-only walk of every
+// docs page and the demo app, a 200 character paste into every composer,
+// 200 character labels in every part that shows one, and the empty states. Each finding has a screenshot under artifacts/docs-e2e/stress.
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 
@@ -17,11 +17,13 @@ import {
   STRESS,
   WIDTHS,
   inspect,
+  openApp,
   openHarness,
   relative,
   sideBySide,
 } from "./stress-support";
 import type {
+  AppRow,
   EmptyRow,
   EscapeRow,
   Flag,
@@ -30,7 +32,14 @@ import type {
   PasteRow,
   RenderRow,
 } from "./stress-support";
-import { DOCS_URL, PAGES, SCHEMES, appendResult, openPage } from "./support";
+import {
+  DESIGNS,
+  DOCS_URL,
+  PAGES,
+  SCHEMES,
+  appendResult,
+  openPage,
+} from "./support";
 
 const MINUTE = 60_000;
 const HEIGHT = 900;
@@ -98,12 +107,155 @@ for (const width of WIDTHS) {
       }
 
       appendResult("stress-render", {
+        design: "base",
         flags: found.get(id)?.flags ?? [],
         id,
         image: relative(image),
         page: found.get(id)?.page ?? "",
         width,
       } satisfies RenderRow);
+    }
+  });
+}
+
+// The same examples in each design the docs' Design picker offers, in
+// light. An image is kept only for an example with a flag; the designs
+// check (09) has whole-page screenshots of each design in both schemes.
+for (const width of WIDTHS) {
+  test(`every docs example in each design at ${width} wide`, async ({
+    context,
+  }) => {
+    test.setTimeout(15 * MINUTE);
+
+    for (const design of DESIGNS) {
+      // oxlint-disable-next-line no-await-in-loop -- one design at a time
+      const page = await context.newPage();
+
+      // oxlint-disable-next-line no-await-in-loop -- sets up the new tab
+      await page.setViewportSize({ height: HEIGHT, width });
+      // oxlint-disable-next-line no-await-in-loop -- sets up the new tab
+      await page.addInitScript((chosen) => {
+        localStorage.setItem("composerkit-design", chosen);
+      }, design);
+
+      for (const url of PAGES) {
+        // oxlint-disable-next-line no-await-in-loop -- one page at a time in one tab
+        await openPage(page, url, "light");
+
+        // oxlint-disable-next-line no-await-in-loop -- reads this page's examples
+        const ids = await page
+          .locator(EXAMPLE)
+          .evaluateAll((nodes) =>
+            nodes.map((node) => node.dataset.example ?? "")
+          );
+
+        for (const id of ids) {
+          const element = page.locator(exampleSelector(id));
+
+          // oxlint-disable-next-line no-await-in-loop -- scrolls to each example in turn
+          await element.scrollIntoViewIfNeeded();
+
+          // oxlint-disable-next-line no-await-in-loop -- inspects the example in place
+          const flags = await inspect(page, exampleSelector(id));
+
+          const image =
+            flags.length > 0
+              ? path.join(STRESS, "render", `${id}--${design}--${width}.png`)
+              : null;
+
+          if (image) {
+            // oxlint-disable-next-line no-await-in-loop -- one screenshot at a time
+            await element.screenshot({ animations: "disabled", path: image });
+          }
+
+          appendResult("stress-render", {
+            design,
+            flags,
+            id,
+            image: image ? relative(image) : "",
+            page: url,
+            width,
+          } satisfies RenderRow);
+        }
+      }
+
+      // oxlint-disable-next-line no-await-in-loop -- closes this design's tab
+      await page.close();
+    }
+  });
+}
+
+// --- 1b. The demo app in every design, at 320 and 1440 --------------------
+
+// The playground's home page with its sidebar, icon rail, title bar and
+// composer, in both composer modes. Images keep the base design in both
+// modes and the other designs in work mode, light and dark side by side;
+// every combination is inspected.
+const APP_MODES = ["work", "chat"] as const;
+
+for (const width of WIDTHS) {
+  test(`demo app in every design at ${width} wide`, async ({ context }) => {
+    test.setTimeout(10 * MINUTE);
+
+    for (const design of ["base", ...DESIGNS]) {
+      for (const mode of APP_MODES) {
+        const shots = new Map<string, Buffer>();
+        const errors: string[] = [];
+        let flags: Flag[] = [];
+
+        for (const scheme of SCHEMES) {
+          // oxlint-disable-next-line no-await-in-loop -- a fresh tab for each look
+          const page = await context.newPage();
+
+          page.on("pageerror", (error) => errors.push(error.message));
+          // oxlint-disable-next-line no-await-in-loop -- sets up the new tab
+          await page.setViewportSize({ height: HEIGHT, width });
+          // oxlint-disable-next-line no-await-in-loop -- one app page at a time
+          await openApp(page, design, scheme);
+
+          if (mode === "chat") {
+            // oxlint-disable-next-line no-await-in-loop -- switches the composer mode
+            await page
+              .locator('[data-slot="mode-toggle"]')
+              .getByRole("button", { name: "Chat" })
+              .click();
+          }
+
+          // oxlint-disable-next-line no-await-in-loop -- one screenshot at a time
+          shots.set(scheme, await page.screenshot({ animations: "disabled" }));
+
+          if (scheme === "light") {
+            // oxlint-disable-next-line no-await-in-loop -- inspects the app in place
+            flags = await inspect(page, "#root");
+          }
+
+          // oxlint-disable-next-line no-await-in-loop -- closes this look's tab
+          await page.close();
+        }
+
+        const kept = design === "base" || mode === "work";
+        const light = shots.get("light");
+        const dark = shots.get("dark");
+
+        const image = path.join(
+          STRESS,
+          "app",
+          `${design}--${mode}--${width}.png`
+        );
+
+        if (kept && light && dark) {
+          sideBySide(light, dark, image);
+        }
+
+        appendResult("stress-app", {
+          design,
+          errors,
+          flags,
+          image: kept ? relative(image) : null,
+          mode,
+          width,
+        } satisfies AppRow);
+      }
     }
   });
 }
@@ -271,6 +423,47 @@ const openPopups = (page: Page) =>
 const visibleTooltip = (page: Page) =>
   page.locator('[data-slot="tooltip"]:visible').first();
 
+// A text field that kept focus while its list was open, such as the
+// composer's field with the add menu, or null when focus moved into the
+// popup or stayed on the trigger.
+const fieldDrivingList = (page: Page, index: number) =>
+  page.evaluate((stop) => {
+    const element = document.activeElement;
+
+    // A field inside the popup, such as a search dialog's input, is part
+    // of the popup, so Escape still goes back to the trigger.
+    const drives =
+      (element instanceof HTMLTextAreaElement ||
+        element instanceof HTMLInputElement) &&
+      element.closest('[role="dialog"], [role="menu"], [role="listbox"]') ===
+        null;
+
+    if (!drives || element.dataset.stressStop === String(stop)) {
+      return null;
+    }
+
+    element.dataset.stressListField = "";
+
+    return `${element.tagName.toLowerCase()} "${element.getAttribute("aria-label") ?? ""}"`;
+  }, index);
+
+const isListFieldFocused = (page: Page) =>
+  page.evaluate(() => {
+    const element = document.activeElement;
+
+    const focused =
+      element instanceof HTMLElement &&
+      Object.hasOwn(element.dataset, "stressListField");
+
+    for (const field of document.querySelectorAll<HTMLElement>(
+      "[data-stress-list-field]"
+    )) {
+      delete field.dataset.stressListField;
+    }
+
+    return focused;
+  });
+
 // Opens a popup from its focused trigger with Enter, closes it with
 // Escape, and says where focus went. If focus did not come back, the walk
 // puts it back on the trigger so the Tab order carries on from there.
@@ -280,12 +473,14 @@ const escapeMenu = async (page: Page, stop: Stop): Promise<EscapeRow> => {
   await press(page, "Enter");
 
   const opened = await within(async () => (await openPopups(page)) > before);
+  const field = opened ? await fieldDrivingList(page, stop.index) : null;
 
   await press(page, "Escape");
 
   const closed = await within(async () => (await openPopups(page)) <= before);
   const focusAfter = await focusedName(page);
   const backOnTrigger = await isStopFocused(page, stop.index);
+  const stayedInField = field !== null && (await isListFieldFocused(page));
 
   if (!backOnTrigger) {
     await page
@@ -298,9 +493,10 @@ const escapeMenu = async (page: Page, stop: Stop): Promise<EscapeRow> => {
   }
 
   return {
-    backOnTrigger,
     closed,
+    expectedFocus: field ?? "the trigger",
     focusAfter,
+    focusAsExpected: field === null ? backOnTrigger : stayedInField,
     kind: "menu",
     opened,
     stop: stop.name,
@@ -327,9 +523,10 @@ const escapeTooltip = async (
   );
 
   return {
-    backOnTrigger: await isStopFocused(page, stop.index),
     closed,
+    expectedFocus: "the trigger",
     focusAfter: await focusedName(page),
+    focusAsExpected: await isStopFocused(page, stop.index),
     kind: "tooltip",
     opened: true,
     stop: stop.name,
@@ -338,14 +535,103 @@ const escapeTooltip = async (
 
 const MENU_POPUPS = new Set(["menu", "listbox", "true", "dialog"]);
 
-for (const url of PAGES) {
-  test(`keyboard only on ${url}`, async ({ page }) => {
+// Where a box that clips its overflow cuts the focused element's outline,
+// or null. Only an axis that hides its overflow counts. On an axis that
+// scrolls, Tab scrolls the element itself into view, which can leave its
+// ring at the edge until the next stop.
+/* oxlint-disable unicorn/consistent-function-scoping -- page.evaluate sends one function, so its helper lives inside it */
+const cutRing = (page: Page) =>
+  page.evaluate(() => {
+    const element = document.activeElement;
+
+    if (!(element instanceof HTMLElement) || element === document.body) {
+      return null;
+    }
+
+    const pixels = (value: string) => Number(value.replace("px", ""));
+    const style = getComputedStyle(element);
+    const width = pixels(style.outlineWidth);
+
+    if (style.outlineStyle === "none" || !(width > 0)) {
+      return null;
+    }
+
+    const reach = width + pixels(style.outlineOffset);
+    const box = element.getBoundingClientRect();
+
+    // The sides of the ring that fall outside the box's padding edge.
+    const sidesCut = (parent: Element) => {
+      const clip = getComputedStyle(parent);
+      const edge = parent.getBoundingClientRect();
+
+      const hides = (overflow: string) =>
+        overflow === "hidden" || overflow === "clip";
+
+      return [
+        hides(clip.overflowX) &&
+        box.left - reach < edge.left + pixels(clip.borderLeftWidth) - 0.5
+          ? "left"
+          : "",
+        hides(clip.overflowX) &&
+        box.right + reach > edge.right - pixels(clip.borderRightWidth) + 0.5
+          ? "right"
+          : "",
+        hides(clip.overflowY) &&
+        box.top - reach < edge.top + pixels(clip.borderTopWidth) - 0.5
+          ? "top"
+          : "",
+        hides(clip.overflowY) &&
+        box.bottom + reach > edge.bottom - pixels(clip.borderBottomWidth) + 0.5
+          ? "bottom"
+          : "",
+      ].filter(Boolean);
+    };
+
+    for (
+      let parent = element.parentElement;
+      parent && parent !== document.body;
+      parent = parent.parentElement
+    ) {
+      const sides = sidesCut(parent);
+
+      if (sides.length > 0) {
+        const label =
+          element.getAttribute("aria-label") ??
+          element.textContent?.trim().slice(0, 40) ??
+          "";
+
+        return `${element.getAttribute("role") ?? element.tagName.toLowerCase()} "${label}", ${sides.join(" and ")}`;
+      }
+    }
+
+    return null;
+  });
+/* oxlint-enable unicorn/consistent-function-scoping */
+
+// Every docs page, then the demo app at both widths.
+const WALKS = [
+  ...PAGES.map((url) => ({
+    name: url,
+    open: (page: Page) => openPage(page, url, "light"),
+  })),
+  ...WIDTHS.map((width) => ({
+    name: `demo app, ${width} wide`,
+    open: async (page: Page) => {
+      await page.setViewportSize({ height: HEIGHT, width });
+      await openApp(page, "base", "light");
+    },
+  })),
+];
+
+for (const walk of WALKS) {
+  test(`keyboard only on ${walk.name}`, async ({ page }) => {
     test.setTimeout(15 * MINUTE);
-    await openPage(page, url, "light");
+    await walk.open(page);
 
     const stops: Stop[] = [];
     const focusedLooks = new Map<number, string>();
     const escapes: EscapeRow[] = [];
+    const cutRings: string[] = [];
     let end = `stopped after ${MAX_STOPS} stops`;
     let trap: string | null = null;
 
@@ -375,6 +661,13 @@ for (const url of PAGES) {
       stops.push(stop);
       // oxlint-disable-next-line no-await-in-loop -- reads the focused look in place
       focusedLooks.set(index, await lookOfFocused(page));
+
+      // oxlint-disable-next-line no-await-in-loop -- reads the ring in place
+      const cut = await cutRing(page);
+
+      if (cut) {
+        cutRings.push(cut);
+      }
 
       if (stop.popup && MENU_POPUPS.has(stop.popup)) {
         // oxlint-disable-next-line no-await-in-loop -- one popup at a time
@@ -464,10 +757,11 @@ for (const url of PAGES) {
     );
 
     appendResult("stress-keyboard", {
+      cutRings,
       end,
       escapes,
       noIndicator,
-      page: url,
+      page: walk.name,
       reverseDifference:
         firstDifference === -1
           ? ""

@@ -10,16 +10,7 @@
   {
     "data": "spaces",
     "errors": [],
-    "flags": [
-      {
-        "detail": "page is 1293 wide in a 320 viewport",
-        "kind": "page scrolls sideways"
-      },
-      {
-        "detail": "button[button] \"Summarize the quarterly infrastructure review fr\" spans 16 to 1293 in a 320 viewport",
-        "kind": "control out of view"
-      }
-    ],
+    "flags": [],
     "image": "stress/labels/button--spaces--320.png",
     "part": "button",
     "width": 320
@@ -27,16 +18,7 @@
   {
     "data": "word",
     "errors": [],
-    "flags": [
-      {
-        "detail": "page is 1329 wide in a 320 viewport",
-        "kind": "page scrolls sideways"
-      },
-      {
-        "detail": "button[button] \"https://northwind-industries-holdings.example.co\" spans 16 to 1329 in a 320 viewport",
-        "kind": "control out of view"
-      }
-    ],
+    "flags": [],
     "image": "stress/labels/button--word--320.png",
     "part": "button",
     "width": 320

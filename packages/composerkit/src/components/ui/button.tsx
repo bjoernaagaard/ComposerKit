@@ -20,8 +20,10 @@ import { cn } from "@/lib/utils";
 // The keyboard focus ring is 2px, drawn just outside the button, and
 // follows its corners. Buttons with an inset fill are round, so their ring
 // is round too.
+// A button is never wider than its container, so a label from data can
+// end in an ellipsis: wrap it in <span className="truncate">.
 const buttonVariants = cva(
-  "group/button focus-visible:outline-ring aria-invalid:border-destructive relative inline-flex shrink-0 items-center justify-center rounded-full border border-transparent bg-clip-padding font-(--weight-medium) whitespace-nowrap select-none focus-visible:outline-(length:--border-focus-width) focus-visible:outline-offset-(--border-focus-offset) focus-visible:outline-solid disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button focus-visible:outline-ring aria-invalid:border-destructive relative inline-flex max-w-full shrink-0 items-center justify-center rounded-full border border-transparent bg-clip-padding font-(--weight-medium) whitespace-nowrap select-none focus-visible:outline-(length:--border-focus-width) focus-visible:outline-offset-(--border-focus-offset) focus-visible:outline-solid disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     defaultVariants: {
       size: "default",

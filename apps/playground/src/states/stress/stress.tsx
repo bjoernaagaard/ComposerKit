@@ -321,7 +321,12 @@ const renderPart = (part: Part, data: Dataset): ReactNode => {
 
   switch (part) {
     case "button": {
-      return <Button>{data === "empty" ? "" : label}</Button>;
+      // The way the Button docs say to pass a label from data.
+      return (
+        <Button>
+          <span className="truncate">{data === "empty" ? "" : label}</span>
+        </Button>
+      );
     }
 
     case "icon-button": {

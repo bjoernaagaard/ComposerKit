@@ -38,6 +38,16 @@ body[data-design="glass"] [data-slot="preview"] {
 /* The base styles the playground sets on its whole page, kept to the
    previews so the docs chrome stays Fumadocs'. */
 @layer base {
+  /* Fumadocs draws the browser's focus ring outside these parts, where a
+     box that clips its overflow cuts it: the links in the table of
+     contents, the Preview and Code tabs, and the rows of an API table.
+     Their ring is drawn inside them instead. */
+  a[data-active][href^="#"]:focus-visible,
+  [role="tab"]:not([data-slot="preview"] *):focus-visible,
+  [id^="type-table-"] > button:focus-visible {
+    outline-offset: -2px;
+  }
+
   [data-slot="preview"] {
     font-family: var(--font-ui);
     font-size: var(--text-body-size);

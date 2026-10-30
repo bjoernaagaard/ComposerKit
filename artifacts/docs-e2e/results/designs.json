@@ -2,7 +2,7 @@
   {
     "consoleErrors": [],
     "design": "apple",
-    "firstFrames": ["apple", "apple"],
+    "firstFrames": ["apple"],
     "keptAfterNavigation": true,
     "page": "/composer",
     "scheme": "light",
@@ -47,7 +47,7 @@
   {
     "consoleErrors": [],
     "design": "glass",
-    "firstFrames": ["glass"],
+    "firstFrames": ["glass", "glass"],
     "keptAfterNavigation": true,
     "page": "/conversation",
     "scheme": "light",
@@ -155,7 +155,7 @@
   {
     "consoleErrors": [],
     "design": "glass",
-    "firstFrames": ["glass"],
+    "firstFrames": ["glass", "glass"],
     "keptAfterNavigation": true,
     "page": "/conversation",
     "scheme": "dark",
