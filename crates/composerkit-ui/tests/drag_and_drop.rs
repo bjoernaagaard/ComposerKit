@@ -452,10 +452,13 @@ impl TabsApp {
         );
     }
 
+    /// Clicks tab `index`, which opens it and focuses the strip.
+    fn click(&self, index: usize, cx: &mut TestAppContext) {
+        let center = self.tab_center(index, cx);
+        self.drag(center, center, cx);
+    }
+
     fn press(&self, keys: &str, cx: &mut TestAppContext) {
-        let first = self.tab_center(0, cx);
-        // A click on the first tab focuses the strip and opens that tab.
-        self.drag(first, first, cx);
         cx.update_window(self.window, |_, window, cx| {
             window.press(keys, cx);
             window.render_frame(cx);
@@ -467,6 +470,7 @@ impl TabsApp {
 #[gpui_kit::test]
 fn ctrl_shift_arrows_move_the_open_tab_and_stop_at_the_ends(cx: &mut TestAppContext) {
     let app = TabsApp::open(cx);
+    app.click(0, cx);
 
     app.press("ctrl-shift-right", cx);
     assert_eq!(app.order(cx), ["b", "a", "c"]);
