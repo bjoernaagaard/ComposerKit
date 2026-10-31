@@ -242,6 +242,8 @@ pub struct Motion {
     pub tooltip_close_delay_ms: u64,
     /// How long a stopped reply's stop button stays, disabled.
     pub stop_settle_ms: u64,
+    /// How long a finger presses a tab before it can be dragged.
+    pub drag_press_ms: u64,
     /// The control points of the curve that slows to a stop.
     pub ease_out: CubicBezier,
 }

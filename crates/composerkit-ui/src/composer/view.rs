@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 // SPDX-License-Identifier: MIT
 
+use std::path::PathBuf;
 use std::rc::Rc;
 
 use std::time::Duration;
@@ -9,13 +10,15 @@ use gpui_kit::assets::IconName;
 use gpui_kit::component::button::{Button, ButtonVariants as _};
 use gpui_kit::component::{Disableable as _, Icon, Sizable as _, Size};
 use gpui_kit::{
-    AnyElement, App, ElementId, Entity, FocusHandle, InteractiveElement as _, IntoElement,
-    KeyDownEvent, ParentElement as _, RenderOnce, SharedString, StatefulInteractiveElement as _,
-    Styled as _, Window, div, prelude::FluentBuilder as _, px,
+    AnyElement, App, ElementId, Entity, ExternalPaths, FocusHandle, InteractiveElement as _,
+    IntoElement, KeyDownEvent, ParentElement as _, RenderOnce, SharedString,
+    StatefulInteractiveElement as _, Styled as _, TestSupportExt as _, Window, div,
+    prelude::FluentBuilder as _, px,
 };
 
 use super::add_menu::AddMenu;
 use super::attachments::attachment_row;
+use super::controller::PickedFile;
 use super::field::{BuiltField, FieldMeasure, MessageField, Part};
 use super::machine::{AttachmentId, ComposerAction, ComposerState, Phase};
 use super::menus::permission_menu;
@@ -106,7 +109,7 @@ impl ComposerProject {
 
 /// Something the composer asks its owner to do, because it needs more than
 /// the reducer: a network, a timer, a file picker or a microphone.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ComposerRequest {
     /// Send the draft and ready files.
     Submit,
@@ -116,6 +119,10 @@ pub enum ComposerRequest {
     RetryUpload(AttachmentId),
     /// Let the user pick files to attach.
     PickFiles,
+    /// Attach files dropped on the composer or pasted into it, by path.
+    AttachPaths(Rc<[PathBuf]>),
+    /// Attach files that exist only in memory, such as a pasted screenshot.
+    AttachFiles(Rc<[PickedFile]>),
     /// Start or stop dictation.
     ToggleDictation,
 }
@@ -142,9 +149,9 @@ impl Handlers {
         }
     }
 
-    pub(super) fn request(&self, request: ComposerRequest, window: &mut Window, cx: &mut App) {
+    pub(super) fn request(&self, request: &ComposerRequest, window: &mut Window, cx: &mut App) {
         if let Some(on_request) = &self.on_request {
-            on_request(&request, window, cx);
+            on_request(request, window, cx);
         }
     }
 }
@@ -416,7 +423,7 @@ impl Composer {
             let handlers = self.handlers.clone();
             return primary_button("stop", IconName::Square, "Stop sending", cx).on_click(
                 move |_, window, cx| {
-                    handlers.request(ComposerRequest::Stop, window, cx);
+                    handlers.request(&ComposerRequest::Stop, window, cx);
                 },
             );
         }
@@ -445,7 +452,7 @@ impl Composer {
             .tooltip(tooltip)
             .disabled(!ready)
             .on_click(move |event, window, cx| {
-                handlers.request(ComposerRequest::Submit, window, cx);
+                handlers.request(&ComposerRequest::Submit, window, cx);
                 // The button turns disabled, so the keyboard goes back to the
                 // text box. A click hands focus to the owner, or leaves it on
                 // the window, from where typing reaches nothing by accident.
@@ -480,7 +487,7 @@ impl Composer {
                     .text_color(colors.link)
             })
             .on_click(move |_, window, cx| {
-                handlers.request(ComposerRequest::ToggleDictation, window, cx);
+                handlers.request(&ComposerRequest::ToggleDictation, window, cx);
             })
     }
 
@@ -556,7 +563,7 @@ impl Composer {
                     .icon(Icon::new(IconName::RefreshCw))
                     .label("Try again")
                     .on_click(move |_, window, cx| {
-                        handlers.request(ComposerRequest::Submit, window, cx);
+                        handlers.request(&ComposerRequest::Submit, window, cx);
                     }),
             )
     }
@@ -772,6 +779,41 @@ impl Composer {
     }
 }
 
+/// Covers the box while files are dragged over the window, with the same
+/// words as the web. The card underneath keeps the draft from showing
+/// through. Over the box the dashed edge turns solid and takes the ring's
+/// color and a tint of the primary color.
+fn drop_overlay(id: impl Into<ElementId>, radius: f32, cx: &App) -> impl IntoElement {
+    let tokens = composerkit_theme::tokens();
+    let colors = *composerkit_theme::colors(cx);
+    div()
+        .id(id)
+        .test_support()
+        .absolute()
+        .inset_0()
+        .rounded(px(radius))
+        .bg(colors.card)
+        .child(
+            div()
+                .size_full()
+                .flex()
+                .items_center()
+                .justify_center()
+                .rounded(px(radius))
+                .border(px(tokens.border.focus_width))
+                .border_dashed()
+                .border_color(colors.border)
+                .text_color(colors.subtle_foreground)
+                .drag_over::<ExternalPaths>(move |style, _, _, _| {
+                    style
+                        .border_color(colors.ring)
+                        .bg(colors.primary.opacity(0.08))
+                        .text_color(colors.foreground)
+                })
+                .child("Drop files to attach"),
+        )
+}
+
 impl RenderOnce for Composer {
     fn render(self, window: &mut Window, cx: &mut App) -> impl IntoElement {
         let tokens = composerkit_theme::tokens();
@@ -787,6 +829,13 @@ impl RenderOnce for Composer {
         }
 
         let settle = window.use_keyed_state((self.id.clone(), "settle"), cx, |_, _| false);
+        let drop_ready = window.use_keyed_state((self.id.clone(), "drop-ready"), cx, |_, _| false);
+        // gpui ends a file drag, by a drop or by the files leaving the
+        // window, before this frame, so a flag left set is stale.
+        if *drop_ready.read(cx) && !cx.has_active_drag() {
+            drop_ready.update(cx, |ready, _| *ready = false);
+        }
+        let ready = *drop_ready.read(cx);
         let add_menu = self.add_menu(&focus, window, cx);
         let add_list = AddMenu::list_with_announcement(&add_menu, self.id.clone(), cx);
         let controls = self.controls(field, &arrangement, &settle, &add_menu, cx);
@@ -808,6 +857,25 @@ impl RenderOnce for Composer {
             .bg(colors.card)
             .rounded(px(radius))
             .child(surface_probe)
+            // Every composer hears a file drag anywhere in the window, so
+            // each lights up before the files reach it.
+            .on_drag_move::<ExternalPaths>({
+                let drop_ready = drop_ready.clone();
+                move |_, window, cx| {
+                    if !*drop_ready.read(cx) {
+                        drop_ready.update(cx, |ready, _| *ready = true);
+                        window.refresh();
+                    }
+                }
+            })
+            .on_drop({
+                let handlers = self.handlers.clone();
+                move |paths: &ExternalPaths, window, cx| {
+                    drop_ready.update(cx, |ready, _| *ready = false);
+                    let paths = paths.paths().into();
+                    handlers.request(&ComposerRequest::AttachPaths(paths), window, cx);
+                }
+            })
             .capture_key_down(move |event: &KeyDownEvent, window, cx| {
                 if event.keystroke.key == "escape"
                     && let Some(stop) = &stop
@@ -839,7 +907,10 @@ impl RenderOnce for Composer {
                     .rounded(px(radius))
                     .border(px(tokens.border.panel))
                     .border_color(colors.border),
-            );
+            )
+            .when(ready, |surface| {
+                surface.child(drop_overlay((self.id.clone(), "drop-overlay"), radius, cx))
+            });
 
         // Column-reverse so the surface paints after the tray and covers the
         // part of it that tucks underneath.

@@ -210,7 +210,7 @@ impl AddMenu {
                 .act(&ComposerAction::DraftChanged { draft }, window, cx);
         }
         self.handlers
-            .request(ComposerRequest::PickFiles, window, cx);
+            .request(&ComposerRequest::PickFiles, window, cx);
         cx.notify();
     }
 

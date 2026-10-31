@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 use std::collections::HashMap;
+use std::path::PathBuf;
 use std::time::Duration;
 
 use gpui_kit::{
@@ -149,6 +150,8 @@ impl ComposerController {
                 }
             }
             ComposerRequest::PickFiles => Self::pick_files(cx),
+            ComposerRequest::AttachPaths(paths) => Self::add_paths(paths.to_vec(), cx),
+            ComposerRequest::AttachFiles(files) => self.add_files(files.iter().cloned(), cx),
             ComposerRequest::ToggleDictation => {
                 let dictating = !self.state.dictating;
                 self.dispatch(ComposerAction::DictationChanged { dictating }, cx);
@@ -205,6 +208,15 @@ impl ComposerController {
             let Ok(Ok(Some(paths))) = paths.await else {
                 return;
             };
+            this.update(cx, |_, cx| Self::add_paths(paths, cx)).ok();
+        })
+        .detach();
+    }
+
+    /// Attaches the files at `paths`, as if the file picker had chosen them.
+    /// A folder, or a path that is gone, is skipped.
+    fn add_paths(paths: Vec<PathBuf>, cx: &mut Context<Self>) {
+        cx.spawn(async move |this: WeakEntity<Self>, cx: &mut AsyncApp| {
             // Reading sizes can block on a slow disk, so it runs off the UI thread.
             let files: Vec<PickedFile> = cx
                 .background_executor()
@@ -212,15 +224,18 @@ impl ComposerController {
                     paths
                         .iter()
                         .filter_map(|path| {
+                            let metadata = std::fs::metadata(path)
+                                .ok()
+                                .filter(std::fs::Metadata::is_file)?;
                             Some(PickedFile {
                                 name: path.file_name()?.to_string_lossy().into_owned(),
-                                size_bytes: std::fs::metadata(path).ok()?.len(),
+                                size_bytes: metadata.len(),
                             })
                         })
                         .collect()
                 })
                 .await;
-            // The composer may be gone by the time the picker closes.
+            // The composer may be gone by the time the sizes are read.
             this.update(cx, |this, cx| this.add_files(files, cx)).ok();
         })
         .detach();
@@ -327,7 +342,7 @@ impl Composer {
             })
             .on_request(move |request, _, cx| {
                 on_request
-                    .update(cx, |controller, cx| controller.request(*request, cx))
+                    .update(cx, |controller, cx| controller.request(request.clone(), cx))
                     .ok();
             })
     }

@@ -89,7 +89,7 @@ impl Tray {
         let files = tray_button("files", IconName::Files, "Files", cx)
             .disabled(self.sending)
             .on_click(move |_, window, cx| {
-                handlers.request(ComposerRequest::PickFiles, window, cx);
+                handlers.request(&ComposerRequest::PickFiles, window, cx);
             });
         let plugins =
             tray_button("plugins", IconName::Plug, "Tools", cx).dropdown_menu(|menu, _, _| {
