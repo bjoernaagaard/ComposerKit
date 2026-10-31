@@ -2,9 +2,9 @@
 
 The list below describes the changes in each version of the `composerkit` npm package. The shadcn registry on the docs site changes with every merge to `main`, so it has no versions.
 
-## Unreleased
+## 0.1.2 (2026-10-31)
 
-Nothing that 0.1.1 had changes its name or its props.
+Version 0.1.2 adds motion and drag and drop. Nothing that 0.1.1 had changes its name or its props.
 
 - Motion
   - Menus opened with a pointer grow from their trigger, tooltips settle in, and buttons press down slightly under a pointer. Menus and buttons used from the keyboard stay instant.
@@ -13,12 +13,10 @@ Nothing that 0.1.1 had changes its name or its props.
   - When the sidebar opens or closes, the main region slides with a transform instead of animating its width, so the conversation no longer lays out again on every frame.
 - Drag and drop
   - Files dropped on the composer, or pasted into it, attach as if they were picked. The composer shows "Drop files to attach" as soon as files enter the window. Designs style it with `data-drop-ready`, `data-drop-target`, `--drop-zone-fill` and `--drop-zone-border`.
-  - Tabs move with Ctrl+Shift+ArrowLeft and ArrowRight, or with Move left and Move right in the tab menu, and a screen reader hears the tab's new place. The words are in `labels.ts`.
+  - Tabs move when the app passes `onMoveTab` to `AppShellTabs`. People move them with Ctrl+Shift+ArrowLeft and ArrowRight, or with Move left and Move right in the tab menu, and a screen reader hears the tab's new place. The words are in `labels.ts`.
   - Tabs can be dragged with a mouse or pen while the other tabs slide aside, and by touch after a 400 ms press, set by `--motion-drag-press`.
-- Speed
-  - Typing in the chat-app block's home composer re-renders only its tab panel, not the whole shell. A key costs about 6 ms instead of about 44 ms with the CPU slowed 4x.
-- Fixes
-  - The button module starts with `"use client"`, so a Next.js server component can import the shadcn copy.
+
+The shadcn registry got two more changes on the same day, which the npm package doesn't need. Typing in the chat-app block's home composer now re-renders only its tab panel, so a key costs about 6 ms instead of about 44 ms with the CPU slowed 4x. The registry's copy of the button now starts with `"use client"`, which the npm build already added.
 
 ## 0.1.1 (2026-10-30)
 

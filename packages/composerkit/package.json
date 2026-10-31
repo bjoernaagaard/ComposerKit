@@ -1,6 +1,6 @@
 {
   "name": "composerkit",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Composer and conversation components for React, built on Base UI and Tailwind CSS v4",
   "keywords": [
     "base-ui",
