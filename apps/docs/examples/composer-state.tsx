@@ -25,6 +25,7 @@ export const ComposerStateExample = ({ id }: { id: string }) => {
 
   return (
     <Composer
+      acceptDrop={false}
       dispatch={dispatch}
       handlers={{
         ...INERT_HANDLERS,

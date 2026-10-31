@@ -473,6 +473,10 @@
         {
           "path": "src/components/composer/composer.tsx",
           "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/use-file-drop.ts",
+          "type": "registry:ui"
         }
       ]
     },

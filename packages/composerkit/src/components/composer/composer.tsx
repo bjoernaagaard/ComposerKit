@@ -50,6 +50,7 @@ import type { ComposerHandlers } from "@/components/composer/use-composer-contro
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Tip } from "@/components/ui/tip";
+import { useFileDrop } from "@/components/ui/use-file-drop";
 import { cn } from "@/lib/utils";
 
 export type ComposerMode = "chat" | "work";
@@ -159,7 +160,7 @@ const surfaceClasses = ({
   expanded: boolean;
 }): string =>
   cn(
-    "bg-card text-card-foreground inset-ring-border outline-ring relative z-10 rounded-(--radius-composer) shadow-(--shadow-composer) inset-ring-(length:--border-panel) has-[[data-slot=composer-field]:read-only:focus]:outline-(length:--border-focus-width) has-[[data-slot=composer-field]:read-only:focus]:outline-offset-(--border-focus-offset) has-[[data-slot=composer-field]:read-only:focus]:outline-solid data-keyboard-focus:outline-(length:--border-focus-width) data-keyboard-focus:outline-offset-(--border-focus-offset) data-keyboard-focus:outline-solid",
+    "bg-card text-card-foreground inset-ring-border outline-ring relative z-10 rounded-(--radius-composer) shadow-(--shadow-composer) inset-ring-(length:--border-panel) [--drop-zone-border:var(--ring)] [--drop-zone-fill:color-mix(in_srgb,var(--primary)_8%,transparent)] has-[[data-slot=composer-field]:read-only:focus]:outline-(length:--border-focus-width) has-[[data-slot=composer-field]:read-only:focus]:outline-offset-(--border-focus-offset) has-[[data-slot=composer-field]:read-only:focus]:outline-solid data-keyboard-focus:outline-(length:--border-focus-width) data-keyboard-focus:outline-offset-(--border-focus-offset) data-keyboard-focus:outline-solid",
     twoRows
       ? "flex flex-col"
       : "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-(--space-composer-add-gap) px-(--space-composer-footer-padding)",
@@ -213,6 +214,38 @@ const FilePicker = ({
     type="file"
   />
 );
+
+// Covers the box while files are dragged over the window. The chips and
+// the live region tell screen readers what a drop attached, so it stays
+// hidden from them. The card underneath keeps the draft from showing
+// through the tint. Forced colors drop the tint, so the border is Highlight
+// there.
+const DropOverlay = ({ conversation }: { conversation: boolean }) => {
+  const radius = conversation
+    ? "rounded-(--radius-conversation-composer)"
+    : "rounded-(--radius-composer)";
+
+  return (
+    <div
+      aria-hidden="true"
+      className={cn(
+        "bg-card pointer-events-none absolute inset-0 z-20 transition-opacity duration-(--motion-duration) ease-(--motion-ease-out) starting:opacity-0",
+        radius
+      )}
+      data-slot="composer-drop-overlay"
+    >
+      <div
+        className={cn(
+          // oxlint-disable-next-line shadcn/no-arbitrary-values -- Highlight is a forced colors system color, which no token can name
+          "border-border text-subtle-foreground group-data-drop-target/composer:text-foreground flex size-full items-center justify-center border-(length:--border-focus-width) border-dashed text-(length:--text-label-size) leading-(--text-label-leading) group-data-drop-target/composer:border-solid group-data-drop-target/composer:border-(--drop-zone-border) group-data-drop-target/composer:bg-(--drop-zone-fill) forced-colors:border-[Highlight]",
+          radius
+        )}
+      >
+        Drop files to attach
+      </div>
+    </div>
+  );
+};
 
 // Lets the box fill its container, and back. It sits in the top right
 // corner and comes last in the tab order. As a toggle it keeps one name and
@@ -408,7 +441,7 @@ const arrange = ({
 
 const rootClasses = (conversation: boolean, expanded: boolean): string =>
   cn(
-    "@container/composer relative w-full",
+    "group/composer @container/composer relative w-full",
     conversation
       ? "max-w-(--size-message-column)"
       : "max-w-(--size-composer-width)",
@@ -500,6 +533,7 @@ export interface ComposerProps {
   typeToFocus?: boolean;
   addItems?: readonly ComposerAddItem[];
   label?: string;
+  acceptDrop?: boolean;
   onStopReply?: () => void;
   onExpandedChange?: (expanded: boolean) => void;
   replyStatus?: ComposerReplyStatus;
@@ -519,6 +553,16 @@ export interface ComposerProps {
 // rows and the control, whatever the text. addItems adds to what the add
 // button offers. label names the box for screen readers; give each box on
 // a page its own.
+//
+// Files dropped on the composer, or pasted into it, attach through
+// handlers.handleFiles, as if the file picker had chosen them. While it
+// accepts drops, a file dropped anywhere else in the window does nothing.
+// Turn acceptDrop off for a composer that only shows a state. The root
+// carries the drop's state for styling:
+//   data-drop-ready   while a drag that carries files is over the window
+//   data-drop-target  while those files are over the composer
+// --drop-zone-fill and --drop-zone-border on the box color it while files
+// are over it.
 export const Composer = ({
   state,
   dispatch,
@@ -532,6 +576,7 @@ export const Composer = ({
   typeToFocus = false,
   addItems = NO_ADD_ITEMS,
   label = "Message",
+  acceptDrop = true,
   onStopReply,
   onExpandedChange,
   replyStatus,
@@ -545,6 +590,11 @@ export const Composer = ({
   const sending = state.phase === "sending";
   const hardBreak = state.draft.includes("\n");
   const placeholder = placeholderFor(mode, state.dictating);
+
+  const drop = useFileDrop({
+    enabled: acceptDrop,
+    onFiles: handlers.handleFiles,
+  });
 
   const { field, surface, leading, trailing, measure } = useFieldSize({
     draft: state.draft,
@@ -724,10 +774,13 @@ export const Composer = ({
   return (
     <div
       className={rootClasses(conversation, expanded)}
+      data-drop-ready={drop.state.ready ? "" : undefined}
+      data-drop-target={drop.state.over ? "" : undefined}
       data-expanded={expanded ? "" : undefined}
       data-layout={layout}
       data-rows={rows}
       data-slot="composer"
+      {...drop.zoneProps}
     >
       {addMenu.isOpen ? (
         <ComposerAddMenu
@@ -772,6 +825,7 @@ export const Composer = ({
           />
         ) : null}
         {tray("inside")}
+        {drop.state.ready ? <DropOverlay conversation={conversation} /> : null}
         <FilePicker onFiles={handlers.handleFiles} ref={fileInput} />
         <FilePicker
           accept="image/*"
