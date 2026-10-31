@@ -12,7 +12,7 @@ use gpui_kit::{
     App, AppContext as _, Context, DragMoveEvent, ElementId, FocusHandle, FontWeight,
     InteractiveElement as _, IntoElement, KeyDownEvent, MouseButton, ParentElement as _, Pixels,
     Render, RenderOnce, ScrollHandle, SharedString, StatefulInteractiveElement as _, Styled as _,
-    Window, div, prelude::FluentBuilder as _, px,
+    TestSupportExt as _, Window, div, prelude::FluentBuilder as _, px,
 };
 
 /// How the tab strip marks the open tab.
@@ -368,12 +368,14 @@ impl RenderOnce for TabStrip {
                         let focus = focus.clone();
                         movable
                             .aria_description(format!("position {} of {count}", index + 1))
-                            .on_mouse_down(MouseButton::Left, move |_, window, cx| {
-                                // The title bar under the strip moves the
-                                // window from a press. A press on a tab
-                                // starts a tab drag instead, and still
-                                // focuses the strip.
-                                cx.stop_propagation();
+                            // gpui-kit's tab stops a press in the bubble
+                            // phase, which also keeps the title bar from
+                            // moving the window, so the strip hears the
+                            // press while it is captured.
+                            .capture_any_mouse_down(move |event, window, cx| {
+                                if event.button != MouseButton::Left {
+                                    return;
+                                }
                                 window.focus(&focus, cx);
                                 let scrolled = scroll.offset().x;
                                 let rest = (0..count)
@@ -446,6 +448,7 @@ impl RenderOnce for TabStrip {
         let strip_id = self.id.clone();
         div()
             .id((self.id.clone(), "keys"))
+            .test_support()
             .track_focus(&focus)
             .when_some(on_key_down, |strip, handler| strip.on_key_down(handler))
             .when_some(self.on_move, |strip, on_move| {
