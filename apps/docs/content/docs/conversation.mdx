@@ -92,3 +92,7 @@ The conversation is a labelled region, one of the [WAI-ARIA Authoring Practices 
 Tokens that the conversation's files use.
 
 <TokenTable item="conversation" />
+
+### Motion
+
+A message you send fades in and rises `--space-turn-enter-offset` into place over `--motion-turn-enter`. Turns that were there when the view opened stay still, and so do replies, whose text streams in. The jump to the newest message eases in over `--motion-enter` when you scroll away from the end. Under reduced motion they only fade.

@@ -289,6 +289,8 @@ Not observed: an open listbox or combobox other than the add menu, and a non-mod
 | Focus after a mouse click | No ring |  |
 | Disabled | Dimmed icon or fill. It gets no hover feedback. The send and stop control and the history back and forward buttons were seen disabled. |  |
 
+ComposerKit departs from the reference app on purpose here. A press from a pointer scales the control to `--press-scale` (0.97) over `--motion-press` (120 ms). Hover still changes the fill in one frame, and a press from the keyboard doesn't move.
+
 Focus ring measured on the regenerate action: ring pixels at 631 to 633 and 659 to 661 pt (x) for a button at 632 to 659, and 720 to 722 and 748 to 750 pt (y) for a button at 722 to 749. Pixel scan @1x.
 
 ## 4. Menus
@@ -369,6 +371,8 @@ Submenu items are menu items with a checked value of 1 or 0, which is the radio 
 | Submenu | Opens to the right. Its left edge is 5 right of the parent panel. Its first item lines up with the parent item (panel top is 3 above the parent item). 180 wide, items 172 x 29 or 30. | AX frame |
 | Open and close | Fully drawn on the first frame after the click, and gone on the first frame after Escape. No fade or scale. | Frame timing (pixel sampling per frame) |
 
+ComposerKit departs from the reference app on purpose here. Opened with a pointer, the menu fades and grows from `--popup-scale` (0.97) at the trigger over `--motion-popup` (150 ms), and leaves the same way. Opened from the keyboard, and in a submenu, it is drawn in one frame, as measured.
+
 Keyboard and roles:
 
 | Key | Result |
@@ -406,6 +410,8 @@ The trigger (20 x 21) is a pop-up button. It shows only on row hover. The menu w
 | Surface | Raised neutral fill, 1 pt subtle border, large soft shadow | Screenshot |
 | Max width | Not measured. Every tooltip seen was a short single line. |  |
 | Keyboard focus | Yes. A tooltip opens when a button gets keyboard focus. | Screenshot |
+
+ComposerKit departs from the reference app on purpose for the animation row. After the same delay, a tooltip fades and grows from `--popup-scale` over `--motion-tooltip` (125 ms). A tooltip opened by keyboard focus is drawn in one frame, as measured.
 
 ## 6. App shell
 

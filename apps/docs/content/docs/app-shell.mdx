@@ -272,6 +272,7 @@ Design directions style the shell through these hooks instead of its structure:
 | `data-slot="icon-rail"`, `"rail-content"`, `"rail-separator"`, `"rail-footer"`, and `data-rail-item` on each destination | The rail |
 | `data-slot="sidebar-gap"` and `"sidebar-panel"`, with `data-state` (open or closed) | The sidebar's space and its panel |
 | `data-slot="sidebar-splitter"`, with `--shell-splitter-line` for the line's color and `--shell-splitter-offset` to move the line from the sidebar's edge | The splitter |
-| `data-slot="main-sheet"` | The main region |
+| `data-slot="main-sheet"`, and `data-sliding` on the window while it slides beside the sidebar | The main region |
+| `data-slot="main-underlay"` | The main region's color behind it, which fills the strip it hasn't reached yet as it slides |
 | `--shell-sidebar-width` | The room the sidebar takes: its width when it sits beside the main region, otherwise 0 |
 | `--size-sidebar` on `data-slot="app-shell"` | The width someone resized the sidebar to. Until then the root doesn't set it, and the theme's applies |

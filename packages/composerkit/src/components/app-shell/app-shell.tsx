@@ -199,8 +199,9 @@ export interface AppShellSidebarProps extends Omit<
 // The sidebar stays mounted when it is collapsed, so its search, its scroll
 // position and anything else inside it are still there when it opens. A
 // collapsed sidebar is inert. Beside the main region (push), a spacer
-// animates its width while the panel slides in from the rail's edge; a
-// change from the keyboard is instant. On narrow shells it is a modal
+// takes its new width at once while the panel slides in from the rail's
+// edge, and the provider slides the main region along with it; a change
+// from the keyboard is instant. On narrow shells it is a modal
 // drawer instead: see AppShellSidebarDrawer.
 export const AppShellSidebar = ({
   className,
