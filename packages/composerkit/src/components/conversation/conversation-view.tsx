@@ -39,6 +39,12 @@ import type {
   BlockContent,
   Turn,
 } from "@/components/conversation/types";
+import {
+  ENTER_POP,
+  ENTER_RISE,
+  useArrivals,
+  useHasCommitted,
+} from "@/components/ui/arrivals";
 import { IconButton } from "@/components/ui/icon-button";
 import { themePixels } from "@/components/ui/theme-value";
 
@@ -191,6 +197,12 @@ export const ConversationView = ({
   const anchor = useRef<{ id: string; scrolled: boolean } | null>(null);
   const idPrefix = useId();
   const sentCount = useRef(0);
+  // A message you send rises into place. Turns that were there when the
+  // view opened, and replies, whose text streams in, stay still.
+  const arrivals = useArrivals(turns.map((turn) => turn.id));
+  // The jump button eases in when you scroll away from the end, but not if
+  // the view opens away from it.
+  const committed = useHasCommitted();
 
   // useId gives a prefix no caller's turn ids can share, so a reply never
   // streams into the wrong turn.
@@ -544,7 +556,16 @@ export const ConversationView = ({
                 shown === undefined ? turn.blocks : reveal(turn.blocks, shown);
 
               return (
-                <div data-turn-id={turn.id} key={turn.id}>
+                <div
+                  className={ENTER_RISE}
+                  data-entering={
+                    arrivals.has(turn.id) && turn.role === "user"
+                      ? ""
+                      : undefined
+                  }
+                  data-turn-id={turn.id}
+                  key={turn.id}
+                >
                   <TurnView
                     attachments={turn.attachments}
                     blocks={blocks}
@@ -598,7 +619,11 @@ export const ConversationView = ({
         <h2 className="sr-only">New message</h2>
         <div className="relative flex min-h-0 w-full max-w-(--size-message-column) flex-1 flex-col">
           {showJump ? (
-            <div className="pointer-events-none absolute inset-x-0 bottom-[calc(100%+var(--space-jump-offset))] z-10 flex justify-center">
+            <div
+              className={`pointer-events-none absolute inset-x-0 bottom-[calc(100%+var(--space-jump-offset))] z-10 flex justify-center ${ENTER_POP}`}
+              data-entering={committed ? "" : undefined}
+              data-slot="jump-to-end"
+            >
               <IconButton
                 className="pointer-events-auto"
                 icon={ArrowDownIcon}

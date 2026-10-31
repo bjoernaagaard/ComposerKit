@@ -197,7 +197,8 @@
     "titlebarInsetStart": 12,
     "sidebarInset": 0,
     "sheetInset": 0,
-    "drawerBackdrop": 48
+    "drawerBackdrop": 48,
+    "turnEnterOffset": 8
   },
   "border": {
     "hairline": 0.5,
@@ -230,7 +231,7 @@
   },
   "motion": {
     "durationMs": 150,
-    "easeOut": "cubic-bezier(0, 0, 0.2, 1)",
+    "easeOut": "cubic-bezier(0.23, 1, 0.32, 1)",
     "easeEnter": "cubic-bezier(0.19, 1, 0.22, 1)",
     "marqueeDelayMs": 400,
     "marqueeMsPerPixel": 14,
@@ -247,7 +248,15 @@
     "tabExitMs": 140,
     "dragPressMs": 400,
     "reducedFadeMs": 150,
-    "pressScale": 1
+    "pressScale": 0.97,
+    "popupMs": 150,
+    "popupScale": 0.97,
+    "tooltipMs": 125,
+    "pressMs": 120,
+    "enterMs": 150,
+    "enterScale": 0.95,
+    "iconEnterScale": 0.9,
+    "turnEnterMs": 200
   },
   "palette": {
     "neutral": {

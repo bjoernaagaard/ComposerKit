@@ -47,6 +47,7 @@ import type {
   ComposerProject,
 } from "@/components/composer/options";
 import type { ComposerHandlers } from "@/components/composer/use-composer-controller";
+import { useArrivals } from "@/components/ui/arrivals";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Tip } from "@/components/ui/tip";
@@ -290,6 +291,11 @@ const Notices = ({
   handlers: ComposerHandlers;
   onEmptied: () => void;
 }) => {
+  // A file you attach eases in. Files already there when the composer
+  // opened, such as a restored draft's, stay still. This component stays
+  // mounted while the list empties, so the first file of a new batch counts.
+  const arrivals = useArrivals(state.attachments.map((item) => item.id));
+
   if (state.attachments.length === 0 && state.phase !== "failed") {
     return null;
   }
@@ -297,6 +303,7 @@ const Notices = ({
   return (
     <div className="col-span-full">
       <ComposerAttachments
+        arrivals={arrivals}
         attachments={state.attachments}
         dispatch={dispatch}
         onEmptied={onEmptied}

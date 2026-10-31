@@ -623,9 +623,11 @@ export const AppShellTabs = ({
       className="flex min-w-0 items-center gap-2 self-stretch"
       data-slot="tabs"
     >
+      {/* contain-layout keeps a tab growing in or shrinking out from laying
+          out the rest of the title bar on every frame. */}
       <div
         aria-label={text.tabs}
-        className="-m-1 flex min-w-0 [scrollbar-width:thin] items-center gap-2 overflow-x-auto p-1 data-dragging:cursor-grabbing data-dragging:select-none"
+        className="-m-1 flex min-w-0 [scrollbar-width:thin] items-center gap-2 overflow-x-auto p-1 contain-layout data-dragging:cursor-grabbing data-dragging:select-none"
         data-appearance={appearance}
         data-dragging={dragging === null ? undefined : ""}
         data-overflow={overflow}

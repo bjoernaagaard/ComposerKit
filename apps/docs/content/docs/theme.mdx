@@ -88,3 +88,7 @@ No WAI-ARIA Authoring Practices pattern covers a theme. Text and controls follow
 Every token the theme ships, with its light and dark value.
 
 <TokenTable item="theme" />
+
+### Motion
+
+Components own their motion, and a design changes it only through these tokens: durations such as `--motion-popup` and `--motion-press`, scales such as `--popup-scale` and `--press-scale`, and the curves `--motion-ease-out` and `--motion-ease-drawer`. A design that sets a duration to `0ms` or a scale to `1` turns that motion off. Under reduced motion every duration becomes `--motion-reduced-fade`, and travel and scale stop, so only fades remain.

@@ -161,3 +161,7 @@ Design directions style a drop through these hooks:
 | `data-slot="composer"`, with `data-drop-ready` while files are dragged over the window and `data-drop-target` while they are over the composer | The composer |
 | `data-slot="composer-drop-overlay"` | The cover that says "Drop files to attach" |
 | `--drop-zone-fill`, `var(--primary)` at 8% by default, and `--drop-zone-border`, `var(--ring)` by default, on `data-slot="composer-surface"` | The drop zone's tint and border while files are over the composer |
+
+### Motion
+
+A file you attach eases in over `--motion-enter`, from `--enter-scale`. When the round button changes, such as Send turning into Stop, the new icon eases in from `--icon-enter-scale`. Files and the icon the composer opens with stay still, and removing a file takes it away at once. Under reduced motion they only fade.

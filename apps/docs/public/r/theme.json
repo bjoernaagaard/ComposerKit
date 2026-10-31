@@ -256,6 +256,7 @@
       "space-sidebar-inset": "0px",
       "space-sheet-inset": "0px",
       "space-drawer-backdrop": "48px",
+      "space-turn-enter-offset": "8px",
       "space-conversation-composer-padding-y": "10px",
       "border-hairline": "0.5px",
       "border-focus-width": "2px",
@@ -271,7 +272,7 @@
       "shadow-composer-dark-edge": "inset 0px 0px 1px 0px rgba(255, 255, 255, 0.2)",
       "blur-menu": "8px",
       "motion-duration": "150ms",
-      "motion-ease-out": "cubic-bezier(0, 0, 0.2, 1)",
+      "motion-ease-out": "cubic-bezier(0.23, 1, 0.32, 1)",
       "motion-ease-enter": "cubic-bezier(0.19, 1, 0.22, 1)",
       "motion-marquee-delay": "400ms",
       "motion-marquee-ms-per-pixel": "14ms",
@@ -288,7 +289,15 @@
       "motion-tab-exit": "140ms",
       "motion-drag-press": "400ms",
       "motion-reduced-fade": "150ms",
-      "press-scale": "1"
+      "press-scale": "0.97",
+      "motion-popup": "150ms",
+      "popup-scale": "0.97",
+      "motion-tooltip": "125ms",
+      "motion-press": "120ms",
+      "motion-enter": "150ms",
+      "enter-scale": "0.95",
+      "icon-enter-scale": "0.9",
+      "motion-turn-enter": "200ms"
     },
     "dark": {
       "window": "#0a0b0d",

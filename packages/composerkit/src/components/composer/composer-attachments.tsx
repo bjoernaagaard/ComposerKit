@@ -6,6 +6,7 @@ import { useRef } from "react";
 
 import { canRetry, MAX_UPLOAD_BYTES } from "@/components/composer/machine";
 import type { Attachment, ComposerAction } from "@/components/composer/machine";
+import { ENTER_POP } from "@/components/ui/arrivals";
 import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/utils";
 
@@ -47,10 +48,12 @@ export const failureNotice = (attachments: Attachment[]): string =>
 
 const AttachmentChip = ({
   attachment,
+  entering,
   onRemove,
   onRetry,
 }: {
   attachment: Attachment;
+  entering: boolean;
   onRemove: (id: string) => void;
   onRetry: (id: string) => void;
 }) => {
@@ -61,8 +64,11 @@ const AttachmentChip = ({
     <li
       className={cn(
         "flex max-w-full min-w-0 items-center gap-2 rounded-(--radius-control) py-1.5 ps-2 pe-1",
-        failed ? "bg-accent" : "bg-muted"
+        failed ? "bg-accent" : "bg-muted",
+        ENTER_POP
       )}
+      data-entering={entering ? "" : undefined}
+      data-slot="composer-attachment"
     >
       <StatusIcon
         aria-hidden="true"
@@ -118,13 +124,19 @@ const AttachmentChip = ({
 // Removing a file takes its chip, and the focused remove button, away. So
 // focus moves to the next chip's remove button, or the previous one after
 // the last chip, and back to the text field once no files are left.
+const NO_ARRIVALS: ReadonlySet<string> = new Set();
+
+// arrivals names the chips that ease in, from useArrivals in a parent that
+// stays mounted while the list empties and fills again.
 export const ComposerAttachments = ({
   attachments,
+  arrivals = NO_ARRIVALS,
   dispatch,
   onRetry,
   onEmptied,
 }: {
   attachments: Attachment[];
+  arrivals?: ReadonlySet<string>;
   dispatch: (action: ComposerAction) => void;
   onRetry: (id: string) => void;
   onEmptied: () => void;
@@ -164,6 +176,7 @@ export const ComposerAttachments = ({
       {attachments.map((attachment) => (
         <AttachmentChip
           attachment={attachment}
+          entering={arrivals.has(attachment.id)}
           key={attachment.id}
           onRemove={remove}
           onRetry={onRetry}

@@ -32,7 +32,12 @@ import { cn } from "@/lib/utils";
 // the theme's width applies.
 export type AppShellProps = Omit<ComponentProps<"div">, "ref">;
 
-export const AppShell = ({ className, style, ...props }: AppShellProps) => {
+export const AppShell = ({
+  className,
+  style,
+  children,
+  ...props
+}: AppShellProps) => {
   const {
     rootRef,
     isNarrow,
@@ -53,7 +58,7 @@ export const AppShell = ({ className, style, ...props }: AppShellProps) => {
   return (
     <div
       className={cn(
-        "group/shell bg-window text-foreground relative grid h-full min-h-0 grid-cols-[auto_auto_minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)] [--shell-sidebar-width:0px] data-[sidebar=expanded]:data-[sidebar-variant=push]:[--shell-sidebar-width:var(--size-sidebar)]",
+        "group/shell bg-window text-foreground relative grid h-full min-h-0 grid-cols-[auto_auto_minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)] [--shell-sidebar-width:0px] data-sliding:overflow-x-clip data-[sidebar=expanded]:data-[sidebar-variant=push]:[--shell-sidebar-width:var(--size-sidebar)]",
         className
       )}
       data-dragging={dragging ? "" : undefined}
@@ -65,7 +70,17 @@ export const AppShell = ({ className, style, ...props }: AppShellProps) => {
       ref={rootRef}
       style={chosenWidth === null ? style : { ...drawnWidth, ...style }}
       {...props}
-    />
+    >
+      {/* Sits behind the main region in its cell. While the main region
+          slides in beside an opening sidebar, it fills the strip the main
+          region hasn't reached yet in the main region's color. */}
+      <div
+        aria-hidden="true"
+        className="bg-background col-start-3 row-start-2"
+        data-slot="main-underlay"
+      />
+      {children}
+    </div>
   );
 };
 
@@ -157,7 +172,7 @@ const AppShellSidebarDrawer = ({
             // regions and what holds them; aria-modal tells screen readers the
             // whole page behind is out of reach.
             aria-modal="true"
-            className="bg-sidebar absolute inset-y-0 start-0 z-40 col-span-full row-start-2 flex w-[min(var(--size-sidebar),100%-var(--space-drawer-backdrop))] [transform:translateX(var(--drawer-swipe-movement-x))] flex-col ps-(--shell-drawer-inset) shadow-(--shadow-drawer) transition duration-0 ease-(--motion-ease-drawer) outline-none [--shell-drawer-exit:calc(var(--drawer-swipe-strength)*var(--motion-overlay-exit))] [--shell-drawer-inset:env(safe-area-inset-left)] group-data-[input=pointer]/shell:duration-(--motion-overlay-enter) group-data-[input=pointer]/shell:data-ending-style:duration-(--shell-drawer-exit) data-swiping:duration-0 data-swiping:select-none motion-safe:data-ending-style:[transform:translateX(-100%)] motion-safe:data-starting-style:[transform:translateX(-100%)] motion-reduce:data-ending-style:opacity-0 motion-reduce:data-starting-style:opacity-0 rtl:[--shell-drawer-inset:env(safe-area-inset-right)] rtl:motion-safe:data-ending-style:[transform:translateX(100%)] rtl:motion-safe:data-starting-style:[transform:translateX(100%)]"
+            className="bg-sidebar absolute inset-y-0 start-0 z-40 col-span-full row-start-2 flex w-[min(var(--size-sidebar),100%-var(--space-drawer-backdrop))] [transform:translateX(var(--drawer-swipe-movement-x))] flex-col ps-(--shell-drawer-inset) shadow-(--shadow-drawer) duration-0 ease-(--motion-ease-drawer) outline-none [--shell-drawer-exit:calc(var(--drawer-swipe-strength)*var(--motion-overlay-exit))] [--shell-drawer-inset:env(safe-area-inset-left)] group-data-[input=pointer]/shell:duration-(--motion-overlay-enter) group-data-[input=pointer]/shell:data-ending-style:duration-(--shell-drawer-exit) data-swiping:duration-0 data-swiping:select-none motion-safe:data-ending-style:[transform:translateX(-100%)] motion-safe:data-starting-style:[transform:translateX(-100%)] motion-reduce:data-ending-style:opacity-0 motion-reduce:data-starting-style:opacity-0 rtl:[--shell-drawer-inset:env(safe-area-inset-right)] rtl:motion-safe:data-ending-style:[transform:translateX(100%)] rtl:motion-safe:data-starting-style:[transform:translateX(100%)]"
             data-slot="sidebar-panel"
             data-state={openNarrow ? "open" : "closed"}
             data-variant="overlay"
@@ -194,8 +209,9 @@ export interface AppShellSidebarProps extends Omit<
 // The sidebar stays mounted when it is collapsed, so its search, its scroll
 // position and anything else inside it are still there when it opens. A
 // collapsed sidebar is inert. Beside the main region (push), a spacer
-// animates its width while the panel slides in from the rail's edge; a
-// change from the keyboard is instant. On narrow shells it is a modal
+// takes its new width at once while the panel slides in from the rail's
+// edge, and the provider slides the main region along with it; a change
+// from the keyboard is instant. On narrow shells it is a modal
 // drawer instead: see AppShellSidebarDrawer.
 export const AppShellSidebar = ({
   className,
@@ -220,7 +236,7 @@ export const AppShellSidebar = ({
       "aria-label": text.sidebar,
       children: (
         <div
-          className="absolute inset-y-0 start-0 flex w-(--size-sidebar) translate-x-(--shell-sidebar-offset) opacity-0 transition duration-0 ease-(--motion-ease-drawer) [--shell-sidebar-offset:-100%] group-data-[input=pointer]/shell:duration-(--motion-sidebar-exit) group-data-[sidebar=expanded]/shell:translate-x-0 group-data-[sidebar=expanded]/shell:opacity-100 group-data-[input=pointer]/shell:group-data-[sidebar=expanded]/shell:duration-(--motion-sidebar-enter) motion-reduce:translate-none! rtl:[--shell-sidebar-offset:100%]"
+          className="absolute inset-y-0 start-0 flex w-(--size-sidebar) translate-x-(--shell-sidebar-offset) opacity-0 duration-0 ease-(--motion-ease-drawer) [--shell-sidebar-offset:-100%] group-data-[input=pointer]/shell:duration-(--motion-sidebar-exit) group-data-[sidebar=expanded]/shell:translate-x-0 group-data-[sidebar=expanded]/shell:opacity-100 group-data-[input=pointer]/shell:group-data-[sidebar=expanded]/shell:duration-(--motion-sidebar-enter) motion-reduce:translate-none! rtl:[--shell-sidebar-offset:100%]"
           data-slot="sidebar-panel"
           data-state={open ? "open" : "closed"}
           data-variant="push"
@@ -229,7 +245,7 @@ export const AppShellSidebar = ({
         </div>
       ),
       className: cn(
-        "relative z-10 col-start-2 row-start-2 min-h-0 w-(--shell-sidebar-width) transition-all duration-0 ease-(--motion-ease-drawer) [clip-path:inset(-100vh_-100vw_-100vh_0)] group-data-[input=pointer]/shell:duration-(--motion-sidebar-exit) group-data-[input=pointer]/shell:group-data-[sidebar=expanded]/shell:duration-(--motion-sidebar-enter) rtl:[clip-path:inset(-100vh_0_-100vh_-100vw)]",
+        "relative z-10 col-start-2 row-start-2 min-h-0 w-(--shell-sidebar-width) [clip-path:inset(-100vh_-100vw_-100vh_0)] rtl:[clip-path:inset(-100vh_0_-100vh_-100vw)]",
         className
       ),
       "data-slot": "sidebar-gap",
