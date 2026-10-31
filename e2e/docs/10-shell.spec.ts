@@ -8,43 +8,11 @@ import { pathToFileURL } from "node:url";
 import { expect, test } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
 
+import { listenForTransitions, startedTransitions } from "./motion-support";
 import { openApp, openHarness } from "./stress-support";
 import { PLAYGROUND_URL, REPO, openPage, run } from "./support";
 
 const REDUCED_FADE = "0.15s";
-
-// How long the spec listens for transitions after a change: longer than
-// any shell fade, so one that started would be seen.
-const LISTEN_MS = 400;
-
-declare global {
-  interface Window {
-    // The transitions that started since listenForTransitions, each as
-    // "slot property", where slot is the target's data-slot or tag name.
-    shellTransitions?: string[];
-  }
-}
-
-const listenForTransitions = (page: Page) =>
-  page.evaluate(() => {
-    window.shellTransitions = [];
-    document.addEventListener("transitionrun", (event) => {
-      const { target } = event;
-
-      const slot =
-        target instanceof HTMLElement
-          ? (target.dataset.slot ?? target.tagName.toLowerCase())
-          : String(target);
-
-      window.shellTransitions?.push(`${slot} ${event.propertyName}`);
-    });
-  });
-
-const startedTransitions = async (page: Page) => {
-  await page.waitForTimeout(LISTEN_MS);
-
-  return page.evaluate(() => window.shellTransitions ?? []);
-};
 
 const rail = (page: Page) => page.getByRole("navigation", { name: "Main" });
 
