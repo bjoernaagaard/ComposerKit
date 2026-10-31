@@ -5,12 +5,13 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
+import { AxeBuilder } from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import type { Locator, Page } from "@playwright/test";
+import type { Browser, Locator, Page } from "@playwright/test";
 
 import { listenForTransitions, startedTransitions } from "./motion-support";
 import { openApp, openHarness } from "./stress-support";
-import { PLAYGROUND_URL, REPO, openPage, run } from "./support";
+import { DESIGNS, PLAYGROUND_URL, REPO, openPage, run } from "./support";
 
 const REDUCED_FADE = "0.15s";
 
@@ -862,6 +863,9 @@ const tabIds = (page: Page) =>
 
 const focusedTab = (page: Page) => tabStrip(page).locator('[role="tab"]:focus');
 
+const MOVE_AND_CLOSE_KEYS =
+  "Delete Control+Shift+ArrowLeft Control+Shift+ArrowRight";
+
 test("tabs: Delete closes the focused tab and focuses the one to its right, or to its left for the last tab, and the only tab can't close", async ({
   page,
 }) => {
@@ -875,7 +879,7 @@ test("tabs: Delete closes the focused tab and focuses the one to its right, or t
   await shellTabs(page).first().click();
   await expect(shellTabs(page).first()).toHaveAttribute(
     "aria-keyshortcuts",
-    "Delete"
+    MOVE_AND_CLOSE_KEYS
   );
 
   // A key closes the tab at once, with no motion to wait for.
@@ -1211,6 +1215,584 @@ test("tab ids: Delete on the last tab focuses the open tab to its left, also whe
   await expect(tab("[c]")).toHaveCount(0);
   await expect(tab("[]")).toHaveAttribute("aria-selected", "true");
   await expect(tab("[]")).toBeFocused();
+});
+
+const moveAnnouncement = (page: Page) =>
+  page.locator('[data-slot="tabs"]').getByRole("status");
+
+const openThreeTabs = async (page: Page) => {
+  await openApp(page, "base", "light");
+  await newTabButton(page).click();
+  await newTabButton(page).click();
+  await expect(shellTabs(page)).toHaveCount(3);
+
+  return tabIds(page);
+};
+
+test("tabs: move with Ctrl+Shift+ArrowRight puts the first tab second, keeps focus and selection on it, and announces where it went", async ({
+  page,
+}) => {
+  const [first, second, third] = await openThreeTabs(page);
+
+  await shellTabs(page).first().click();
+  await expect(shellTabs(page).first()).toHaveAttribute(
+    "aria-keyshortcuts",
+    MOVE_AND_CLOSE_KEYS
+  );
+  await page.keyboard.press("Control+Shift+ArrowRight");
+
+  expect(await tabIds(page)).toEqual([second, first, third]);
+  await expect(shellTabs(page)).toHaveText(["New chat", "Chat", "New chat"]);
+  await expect(shellTabs(page).nth(1)).toHaveAccessibleName("Chat");
+  await expect(shellTabs(page).nth(1)).toBeFocused();
+  await expect(shellTabs(page).nth(1)).toHaveAttribute("aria-selected", "true");
+  await expect(moveAnnouncement(page)).toHaveText(
+    "Moved Chat to position 2 of 3"
+  );
+});
+
+test("tabs: move stops at either end and never wraps", async ({ page }) => {
+  const [first, second, third] = await openThreeTabs(page);
+
+  await shellTabs(page).last().click();
+  await page.keyboard.press("Control+Shift+ArrowRight");
+  expect(await tabIds(page)).toEqual([first, second, third]);
+  await expect(shellTabs(page).last()).toBeFocused();
+
+  await page.keyboard.press("Home");
+  await page.keyboard.press("Control+Shift+ArrowLeft");
+  expect(await tabIds(page)).toEqual([first, second, third]);
+  await expect(shellTabs(page).first()).toBeFocused();
+  await expect(shellTabs(page).first()).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+  await expect(moveAnnouncement(page)).toHaveText("");
+});
+
+test("tabs: move in right-to-left layouts follows the screen, so Ctrl+Shift+ArrowLeft moves the tab toward the end", async ({
+  page,
+}) => {
+  const [first, second, third] = await openThreeTabs(page);
+
+  await page.evaluate(() => {
+    document.documentElement.dir = "rtl";
+  });
+  await shellTabs(page).first().click();
+
+  await page.keyboard.press("Control+Shift+ArrowLeft");
+  expect(await tabIds(page)).toEqual([second, first, third]);
+  await expect(focusedTab(page)).toHaveAttribute("data-tab-id", first ?? "");
+
+  await page.keyboard.press("Control+Shift+ArrowRight");
+  expect(await tabIds(page)).toEqual([first, second, third]);
+  await expect(focusedTab(page)).toHaveAttribute("data-tab-id", first ?? "");
+  await expect(moveAnnouncement(page)).toHaveText(
+    "Moved Chat to position 1 of 3"
+  );
+});
+
+test("tabs: move from the tab menu on touch: Move left moves the open tab, and is disabled for the first tab", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    hasTouch: true,
+    isMobile: true,
+    viewport: { height: 900, width: 1440 },
+  });
+
+  const page = await context.newPage();
+
+  await openApp(page, "base", "light");
+  await newTabButton(page).tap();
+  await newTabButton(page).tap();
+  await expect(shellTabs(page)).toHaveCount(3);
+
+  const [first, second, third] = await tabIds(page);
+
+  const item = (name: string) =>
+    tabMenu(page).getByRole("menuitem", { exact: true, name });
+
+  await tabMenuButton(page).tap();
+  await expect(item("Move right")).toBeDisabled();
+  await item("Move left").tap();
+
+  expect(await tabIds(page)).toEqual([first, third, second]);
+  await expect(shellTabs(page).nth(1)).toHaveAttribute("aria-selected", "true");
+  await expect(moveAnnouncement(page)).toHaveText(
+    "Moved New chat to position 2 of 3"
+  );
+
+  await shellTabs(page).first().tap();
+  await tabMenuButton(page).tap();
+  await expect(item("Move left")).toBeDisabled();
+  await expect(item("Move right")).toBeEnabled();
+  await context.close();
+});
+
+test("tabs: move keys leave plain arrows selecting and Delete closing", async ({
+  page,
+}) => {
+  const [first, second, third] = await openThreeTabs(page);
+
+  await shellTabs(page).first().click();
+  await page.keyboard.press("Control+Shift+ArrowRight");
+  expect(await tabIds(page)).toEqual([second, first, third]);
+
+  await page.keyboard.press("ArrowRight");
+  await expect(focusedTab(page)).toHaveAttribute("data-tab-id", third ?? "");
+  await expect(focusedTab(page)).toHaveAttribute("aria-selected", "true");
+  expect(await tabIds(page)).toEqual([second, first, third]);
+
+  await page.keyboard.press("Delete");
+  expect(await tabIds(page)).toEqual([second, first]);
+  await expect(focusedTab(page)).toHaveAttribute("data-tab-id", first ?? "");
+  await expect(focusedTab(page)).toHaveAttribute("aria-selected", "true");
+});
+
+test("tabs: move without onMoveTab: the keys do nothing and the tab menu has no move items", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    hasTouch: true,
+    isMobile: true,
+    viewport: { height: 900, width: 1440 },
+  });
+
+  const page = await context.newPage();
+
+  await openHarness(page, "part=tabs&data=demo&fixed", "light");
+
+  const tabs = page.getByRole("tab");
+
+  const ids = () =>
+    tabs.evaluateAll((all) =>
+      all.map((tab) => (tab instanceof HTMLElement ? tab.dataset.tabId : ""))
+    );
+
+  const before = await ids();
+
+  await tabs.first().tap();
+  await expect(tabs.first()).toHaveAttribute("aria-keyshortcuts", "Delete");
+  await page.keyboard.press("Control+Shift+ArrowRight");
+  expect(await ids()).toEqual(before);
+  await expect(tabs.first()).toBeFocused();
+  await expect(tabs.first()).toHaveAttribute("aria-selected", "true");
+
+  await page.getByRole("button", { exact: true, name: "All tabs" }).tap();
+
+  const menu = page.getByRole("menu", { name: "All tabs" });
+
+  await expect(menu.getByRole("menuitemradio")).toHaveCount(3);
+  await expect(menu.getByRole("menuitem", { name: /^Move/u })).toHaveCount(0);
+  await expect(menu.getByRole("menuitem", { name: /^Close/u })).toHaveCount(1);
+  await context.close();
+});
+
+const shellRoot = (page: Page) => page.locator('[data-slot="app-shell"]');
+
+const tabCenter = async (page: Page, index: number) => {
+  const box = await shellTabs(page).nth(index).boundingBox();
+
+  return {
+    x: (box?.x ?? 0) + (box?.width ?? 0) / 2,
+    y: (box?.y ?? 0) + (box?.height ?? 0) / 2,
+  };
+};
+
+// The horizontal distance that carries one tab's center 10 px past
+// another's, which is past that tab's midpoint.
+const pastTab = async (page: Page, from: number, to: number) => {
+  const start = await tabCenter(page, from);
+  const end = await tabCenter(page, to);
+  const dx = end.x - start.x;
+
+  return dx + Math.sign(dx) * 10;
+};
+
+const dragTab = async (
+  page: Page,
+  index: number,
+  dx: number,
+  { hold = false, steps = 8 } = {}
+) => {
+  const { x, y } = await tabCenter(page, index);
+
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x + dx, y, { steps });
+
+  if (!hold) {
+    await page.mouse.up();
+  }
+};
+
+const tabTransforms = (page: Page) =>
+  tabStrip(page)
+    .locator('[data-slot="tab-item"]')
+    .evaluateAll((items) =>
+      items.map((item) =>
+        item instanceof HTMLElement ? item.style.transform : ""
+      )
+    );
+
+test("tabs: drag past the next tab's midpoint moves the tab there, marks the shell while the button is held, keeps it open and announces the move", async ({
+  page,
+}) => {
+  const [first, second, third] = await openThreeTabs(page);
+
+  await shellTabs(page).first().click();
+  await dragTab(page, 0, await pastTab(page, 0, 1), { hold: true });
+
+  await expect(shellRoot(page)).toHaveAttribute("data-dragging", "");
+  await expect(tabStrip(page)).toHaveAttribute("data-dragging", "");
+  expect(await tabIds(page)).toEqual([first, second, third]);
+
+  await page.mouse.up();
+
+  expect(await tabIds(page)).toEqual([second, first, third]);
+  await expect(shellRoot(page)).not.toHaveAttribute("data-dragging");
+  await expect(shellTabs(page).nth(1)).toHaveAccessibleName("Chat");
+  await expect(shellTabs(page).nth(1)).toHaveAttribute("aria-selected", "true");
+  await expect(moveAnnouncement(page)).toHaveText(
+    "Moved Chat to position 2 of 3"
+  );
+  await expect.poll(() => tabTransforms(page)).toEqual(["", "", ""]);
+});
+
+test("tabs: drag shorter than 4 px is a click, so it opens the tab and moves nothing", async ({
+  page,
+}) => {
+  const ids = await openThreeTabs(page);
+
+  await expect(shellTabs(page).last()).toHaveAttribute("aria-selected", "true");
+  await dragTab(page, 0, 3, { steps: 3 });
+
+  await expect(shellTabs(page).first()).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+  await expect(shellRoot(page)).not.toHaveAttribute("data-dragging");
+  expect(await tabIds(page)).toEqual(ids);
+});
+
+test("tabs: drag then Escape while the button is held puts the tab back, and nothing moves or opens", async ({
+  page,
+}) => {
+  const ids = await openThreeTabs(page);
+
+  await dragTab(page, 0, await pastTab(page, 0, 1), { hold: true });
+  await expect(shellRoot(page)).toHaveAttribute("data-dragging", "");
+
+  await page.keyboard.press("Escape");
+  await expect(shellRoot(page)).not.toHaveAttribute("data-dragging");
+  await page.mouse.up();
+
+  expect(await tabIds(page)).toEqual(ids);
+  await expect(shellTabs(page).last()).toHaveAttribute("aria-selected", "true");
+  await expect(moveAnnouncement(page)).toHaveText("");
+  await expect.poll(() => tabTransforms(page)).toEqual(["", "", ""]);
+});
+
+test("tabs: drag toward the start of an overflowing strip at 1024 px scrolls it", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 768, width: 1024 });
+  await openApp(page, "base", "light");
+
+  for (let opened = 1; opened < 10; opened += 1) {
+    // oxlint-disable-next-line no-await-in-loop -- each tab follows the one before
+    await newTabButton(page).click();
+  }
+
+  await expect(shellTabs(page)).toHaveCount(10);
+  await expect(tabStrip(page)).toHaveAttribute("data-overflow", "start");
+  // The last tab scrolls the row to the end once it has grown in.
+  await expect
+    .poll(() =>
+      tabStrip(page).evaluate(
+        (strip) => strip.getAnimations({ subtree: true }).length
+      )
+    )
+    .toBe(0);
+
+  const scrolled = () =>
+    tabStrip(page).evaluate((strip) => Math.abs(strip.scrollLeft));
+
+  const before = await scrolled();
+  const strip = await tabStrip(page).boundingBox();
+  const { x } = await tabCenter(page, 9);
+
+  await dragTab(page, 9, (strip?.x ?? 0) + 4 - x, { hold: true, steps: 24 });
+  await expect.poll(scrolled).toBeLessThan(before - 40);
+
+  await page.keyboard.press("Escape");
+  await page.mouse.up();
+  await expect(shellTabs(page)).toHaveCount(10);
+});
+
+test("tabs: drag in right-to-left layouts moves the tab the way the pointer goes", async ({
+  page,
+}) => {
+  const [first, second, third] = await openThreeTabs(page);
+
+  await page.evaluate(() => {
+    document.documentElement.dir = "rtl";
+  });
+
+  const dx = await pastTab(page, 0, 1);
+
+  expect(dx).toBeLessThan(0);
+  await dragTab(page, 0, dx);
+  expect(await tabIds(page)).toEqual([second, first, third]);
+
+  await dragTab(page, 1, await pastTab(page, 1, 2));
+  expect(await tabIds(page)).toEqual([second, third, first]);
+});
+
+test("tabs: drag lifts the tab with --shadow-menu, and the tabs it passes slide with a transform transition", async ({
+  page,
+}) => {
+  await openThreeTabs(page);
+  await listenForTransitions(page);
+  await dragTab(page, 0, await pastTab(page, 0, 1), { hold: true });
+
+  const shadows = await page.evaluate(() => {
+    const tab = document.querySelector(
+      '[data-slot="tab-item"][data-dragging] [data-slot="tab"]'
+    );
+
+    const probe = document.createElement("div");
+
+    probe.style.boxShadow = "var(--shadow-menu)";
+    tab?.parentElement?.append(probe);
+
+    const expected = getComputedStyle(probe).boxShadow;
+
+    probe.remove();
+
+    return { actual: tab ? getComputedStyle(tab).boxShadow : "", expected };
+  });
+
+  expect(shadows.expected).not.toBe("none");
+  expect(shadows.actual).toBe(shadows.expected);
+
+  const started = await startedTransitions(page);
+
+  await page.mouse.up();
+  expect(started).toContain("tab-item transform");
+});
+
+test("tabs: drag under reduced motion moves the tab, and no tab slides with a transition", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+
+  const [first, second, third] = await openThreeTabs(page);
+
+  await listenForTransitions(page);
+  await dragTab(page, 0, await pastTab(page, 0, 1), { hold: true });
+
+  const started = await startedTransitions(page);
+
+  await page.mouse.up();
+  expect(
+    started.filter((entry) => /transform|translate|scale/u.test(entry))
+  ).toEqual([]);
+  expect(await tabIds(page)).toEqual([second, first, third]);
+});
+
+test("tabs: drag passes axe on the title bar while the tab is held", async ({
+  page,
+}) => {
+  await openThreeTabs(page);
+  await dragTab(page, 0, await pastTab(page, 0, 1), { hold: true });
+  await expect(shellRoot(page)).toHaveAttribute("data-dragging", "");
+
+  const result = await new AxeBuilder({ page })
+    .include('[data-slot="title-bar"]')
+    .analyze();
+
+  await page.mouse.up();
+  expect(result.violations.map((violation) => violation.id)).toEqual([]);
+});
+
+// Longer than --motion-drag-press, so the finger has lifted the tab.
+const PAST_DRAG_PRESS_MS = 450;
+const SHORT_TOUCH_MS = 200;
+
+const openTouchApp = async (
+  browser: Browser,
+  viewport: { height: number; width: number }
+) => {
+  const context = await browser.newContext({
+    hasTouch: true,
+    isMobile: true,
+    viewport,
+  });
+
+  const page = await context.newPage();
+
+  await openApp(page, "base", "light");
+
+  return { context, page };
+};
+
+// A finger through CDP, which can hold still and move, unlike
+// Playwright's tap.
+const fingerDown = async (page: Page, x: number, y: number) => {
+  const cdp = await page.context().newCDPSession(page);
+  let at = x;
+
+  await cdp.send("Input.dispatchTouchEvent", {
+    touchPoints: [{ x, y }],
+    type: "touchStart",
+  });
+
+  return {
+    lift: async () => {
+      await cdp.send("Input.dispatchTouchEvent", {
+        touchPoints: [],
+        type: "touchEnd",
+      });
+      await cdp.detach();
+    },
+    moveBy: async (dx: number, steps = 8) => {
+      const from = at;
+
+      at += dx;
+
+      for (let step = 1; step <= steps; step += 1) {
+        // oxlint-disable-next-line no-await-in-loop -- each move follows the one before
+        await cdp.send("Input.dispatchTouchEvent", {
+          touchPoints: [{ x: from + (dx * step) / steps, y }],
+          type: "touchMove",
+        });
+      }
+    },
+  };
+};
+
+test("tabs: touch drag after a 400 ms press lifts the tab, moves it past the next tab's midpoint, and announces the move", async ({
+  browser,
+}) => {
+  const { context, page } = await openTouchApp(browser, WIDE);
+
+  await newTabButton(page).tap();
+  await newTabButton(page).tap();
+  await expect(shellTabs(page)).toHaveCount(3);
+
+  const [first, second, third] = await tabIds(page);
+  const { x, y } = await tabCenter(page, 0);
+  const dx = await pastTab(page, 0, 1);
+  const finger = await fingerDown(page, x, y);
+
+  await page.waitForTimeout(PAST_DRAG_PRESS_MS);
+  await expect(
+    tabStrip(page).locator('[data-slot="tab-item"]').first()
+  ).toHaveAttribute("data-drag-pressed", "");
+
+  await finger.moveBy(dx);
+  await expect(shellRoot(page)).toHaveAttribute("data-dragging", "");
+  await finger.lift();
+
+  expect(await tabIds(page)).toEqual([second, first, third]);
+  await expect(shellRoot(page)).not.toHaveAttribute("data-dragging");
+  await expect(moveAnnouncement(page)).toHaveText(
+    "Moved Chat to position 2 of 3"
+  );
+  await expect.poll(() => tabTransforms(page)).toEqual(["", "", ""]);
+  await context.close();
+});
+
+test("tabs: touch drag that moves 40 px at once scrolls the strip and moves nothing", async ({
+  browser,
+}) => {
+  const { context, page } = await openTouchApp(browser, {
+    height: 768,
+    width: 1024,
+  });
+
+  for (let opened = 1; opened < 10; opened += 1) {
+    // oxlint-disable-next-line no-await-in-loop -- each tab follows the one before
+    await newTabButton(page).tap();
+  }
+
+  await expect(shellTabs(page)).toHaveCount(10);
+  await expect(tabStrip(page)).toHaveAttribute("data-overflow", "start");
+  await expect
+    .poll(() =>
+      tabStrip(page).evaluate(
+        (strip) => strip.getAnimations({ subtree: true }).length
+      )
+    )
+    .toBe(0);
+
+  const ids = await tabIds(page);
+
+  const scrolled = () =>
+    tabStrip(page).evaluate((strip) => Math.abs(strip.scrollLeft));
+
+  const before = await scrolled();
+  const { x, y } = await tabCenter(page, 8);
+  const finger = await fingerDown(page, x, y);
+
+  await finger.moveBy(40);
+  await finger.lift();
+
+  await expect.poll(scrolled).toBeLessThan(before - 10);
+  expect(await tabIds(page)).toEqual(ids);
+  await expect(shellRoot(page)).not.toHaveAttribute("data-dragging");
+  await expect(tabStrip(page).locator("[data-drag-pressed]")).toHaveCount(0);
+  await context.close();
+});
+
+test("tabs: touch drag held 200 ms and released is a tap, so it opens the tab and moves nothing", async ({
+  browser,
+}) => {
+  const { context, page } = await openTouchApp(browser, WIDE);
+
+  await newTabButton(page).tap();
+  await newTabButton(page).tap();
+  await expect(shellTabs(page)).toHaveCount(3);
+  await expect(shellTabs(page).last()).toHaveAttribute("aria-selected", "true");
+
+  const ids = await tabIds(page);
+  const { x, y } = await tabCenter(page, 0);
+  const finger = await fingerDown(page, x, y);
+
+  await page.waitForTimeout(SHORT_TOUCH_MS);
+  await finger.lift();
+
+  await expect(shellTabs(page).first()).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+  expect(await tabIds(page)).toEqual(ids);
+  await expect(tabStrip(page).locator("[data-drag-pressed]")).toHaveCount(0);
+  await context.close();
+});
+
+test("tabs: touch drag waits --motion-drag-press, 400ms in every design and under reduced motion", async ({
+  page,
+}) => {
+  const dragPress = () =>
+    tabStrip(page)
+      .locator('[data-slot="tab-item"]')
+      .first()
+      .evaluate((item) =>
+        getComputedStyle(item).getPropertyValue("--motion-drag-press").trim()
+      );
+
+  for (const design of DESIGNS) {
+    // oxlint-disable-next-line no-await-in-loop -- one design at a time
+    await openApp(page, design, "light");
+    // oxlint-disable-next-line no-await-in-loop -- one design at a time
+    expect(await dragPress(), design).toBe("400ms");
+  }
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  expect(await dragPress()).toBe("400ms");
 });
 
 test("shortcut in a shadow root: the shell that holds focus toggles, even when it sits inside one", async ({

@@ -36,6 +36,7 @@ import {
   MenuTrigger,
 } from "@/components/ui/menu";
 import { Tip } from "@/components/ui/tip";
+import { useSortable } from "@/components/ui/use-sortable";
 import { cn } from "@/lib/utils";
 
 export interface AppShellTab {
@@ -222,6 +223,87 @@ const shrinkOut = async (item: HTMLElement, remove: () => void) => {
   remove();
 };
 
+// The way a tab moves on screen. In right-to-left layouts left is toward
+// the end of the tabs array.
+type TabSide = "left" | "right";
+
+const isRtl = (element: Element | null): boolean =>
+  element !== null && getComputedStyle(element).direction === "rtl";
+
+// How far a move to that side goes in the tabs array.
+const stepFor = (side: TabSide, rtl: boolean): number =>
+  (side === "right") === rtl ? -1 : 1;
+
+// Ctrl+Shift+ArrowLeft and ArrowRight, with no other modifier.
+const moveSide = (event: KeyboardEvent): TabSide | undefined => {
+  if (!event.ctrlKey || !event.shiftKey || event.altKey || event.metaKey) {
+    return undefined;
+  }
+
+  if (event.key === "ArrowLeft") {
+    return "left";
+  }
+
+  return event.key === "ArrowRight" ? "right" : undefined;
+};
+
+const keyShortcutsFor = (
+  closable: boolean,
+  movable: boolean
+): string | undefined => {
+  const keys = [
+    ...(closable ? ["Delete"] : []),
+    ...(movable ? ["Control+Shift+ArrowLeft", "Control+Shift+ArrowRight"] : []),
+  ];
+
+  return keys.length > 0 ? keys.join(" ") : undefined;
+};
+
+interface OpenTabItemsProps {
+  title: string;
+  text: AppShellLabels;
+  // Whether the open tab already sits at that end.
+  atEnd: (side: TabSide) => boolean;
+  onMove?: (side: TabSide) => void;
+  onClose?: () => void;
+}
+
+// The tab menu's items for the open tab, after the list of every tab.
+const OpenTabItems = ({
+  title,
+  text,
+  atEnd,
+  onMove,
+  onClose,
+}: OpenTabItemsProps) => {
+  if (!onMove && !onClose) {
+    return null;
+  }
+
+  return (
+    <>
+      <MenuSeparator />
+      {onMove ? (
+        <>
+          <MenuItem
+            disabled={atEnd("left")}
+            label={text.moveTabLeft}
+            onSelect={() => onMove("left")}
+          />
+          <MenuItem
+            disabled={atEnd("right")}
+            label={text.moveTabRight}
+            onSelect={() => onMove("right")}
+          />
+        </>
+      ) : null}
+      {onClose ? (
+        <MenuItem label={text.closeTab(title)} onSelect={onClose} />
+      ) : null}
+    </>
+  );
+};
+
 // filled: the open tab is a raised box, the default. Other tabs show hover
 // by text color, because a hover fill would make them look open.
 // underline: no box, a bar sits under the open tab.
@@ -250,6 +332,17 @@ const TAB_CLASSES: Record<
 const CLOSE_BUTTON =
   "text-muted-foreground hover:bg-accent hover:text-foreground absolute end-1 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-(--radius-tab) opacity-0 transition-opacity duration-(--motion-duration) ease-(--motion-ease-out) group-focus-within/tab:opacity-100 group-hover/tab:opacity-100 group-data-selected/tab:opacity-100 pointer-coarse:opacity-100";
 
+// While a tab drags, the others slide aside over the design's motion, and
+// jump under reduced motion. The dragged one follows the pointer at once,
+// lifted above them. A finger's press lifts the tab before it moves, and
+// until then a swipe on the tab scrolls the row. A design restyles the
+// lift with --drag-lift-shadow and --drag-lift-scale.
+const SORTABLE_ITEM =
+  "[--drag-lift-scale:1] [--drag-lift-shadow:var(--shadow-menu)] touch-pan-x select-none [-webkit-touch-callout:none] transition-transform duration-(--motion-duration) ease-(--motion-ease-out) motion-reduce:transition-none data-drag-pressed:z-10 data-drag-pressed:scale-(--drag-lift-scale) data-drag-pressed:touch-none data-dragging:z-10 data-dragging:scale-(--drag-lift-scale) data-dragging:touch-none data-dragging:transition-none";
+
+const LIFTED_TAB =
+  "group-data-drag-pressed/tab:bg-background group-data-dragging/tab:bg-background";
+
 export interface AppShellTabsProps {
   tabs: AppShellTab[];
   activeTabId: string;
@@ -260,6 +353,11 @@ export interface AppShellTabsProps {
   // the last tab. The app then removes the tab. Without it tabs can't
   // close, and the only tab never can.
   onCloseTab?: (id: string) => void;
+  // Moving a tab: dragging it, Ctrl+Shift+ArrowLeft or ArrowRight on the
+  // focused tab, or Move left and Move right in the tab menu. index is the
+  // tab's place after the move, in the tabs array. The app moves the tab in
+  // its own array. Without it tabs can't move.
+  onMoveTab?: (id: string, index: number) => void;
   // Shows a New tab button after the tabs.
   onNewTab?: () => void;
   // The id of the tab panel the tabs control. Inside an AppShellProvider it
@@ -274,6 +372,7 @@ export const AppShellTabs = ({
   activeTabId,
   onSelectTab,
   onCloseTab,
+  onMoveTab,
   onNewTab,
   panelId,
   appearance = "filled",
@@ -284,7 +383,10 @@ export const AppShellTabs = ({
   const text = useAppShellLabels(labels);
   const panel = panelId ?? shell?.ids.main ?? "";
   const closable = onCloseTab !== undefined && tabs.length > 1;
-  const activeTab = tabs.find((tab) => tab.id === activeTabId);
+  const movable = onMoveTab !== undefined && tabs.length > 1;
+  const activeIndex = tabs.findIndex((tab) => tab.id === activeTabId);
+  const activeTab = tabs[activeIndex];
+  const keyShortcuts = keyShortcutsFor(closable, movable);
 
   const list = useRef<HTMLDivElement>(null);
   const [overflow, setOverflow] = useState<AppShellTabsOverflow>();
@@ -293,6 +395,9 @@ export const AppShellTabs = ({
   // The tab ids of the last render, to find the tabs that just opened.
   const known = useRef<Set<string> | null>(null);
   const active = useRef(activeTabId);
+  const [announcement, setAnnouncement] = useState("");
+  // Read when the tab menu opens, for which of its move items to disable.
+  const [menuRtl, setMenuRtl] = useState(false);
 
   const measure = useCallback(() => {
     if (list.current) {
@@ -355,6 +460,48 @@ export const AppShellTabs = ({
     reveal(list.current, activeTabId);
   }, [activeTabId]);
 
+  // React moves the tab's element and puts focus back on it, so focus
+  // stays where it was.
+  const moveTabTo = (id: string, to: number) => {
+    const tab = tabs.find((each) => each.id === id);
+
+    if (!onMoveTab || !tab) {
+      return;
+    }
+
+    onMoveTab(id, to);
+    setAnnouncement(text.movedTab(tab.title, to + 1, tabs.length));
+  };
+
+  // It stops at the ends and never wraps.
+  const moveTab = (id: string, side: TabSide) => {
+    const from = tabs.findIndex((tab) => tab.id === id);
+    const to = from + stepFor(side, isRtl(list.current));
+
+    if (from === -1 || closing.current.has(id) || to < 0 || to >= tabs.length) {
+      return;
+    }
+
+    moveTabTo(id, to);
+  };
+
+  const { dragging, itemProps, listRef } = useSortable({
+    canDrag: (id) => !closing.current.has(id),
+    enabled: movable,
+    ids: tabs.map((tab) => tab.id),
+    onDraggingChange: shell?.setDragging,
+    onMove: moveTabTo,
+    orientation: "horizontal",
+  });
+
+  const stripRef = useCallback(
+    (element: HTMLDivElement | null) => {
+      list.current = element;
+      listRef(element);
+    },
+    [listRef]
+  );
+
   const closeTab = (id: string, animate: boolean) => {
     const staying = tabs.filter(
       (tab) => tab.id === id || !closing.current.has(tab.id)
@@ -402,8 +549,22 @@ export const AppShellTabs = ({
   };
 
   // Arrow keys, Home and End move between tabs, as the WAI-ARIA tabs
-  // pattern expects. Delete closes the focused tab.
+  // pattern expects. Delete closes the focused tab, and Ctrl+Shift with an
+  // arrow moves it.
   const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    const side = moveSide(event);
+
+    if (side) {
+      const id = event.currentTarget.dataset.tabId;
+
+      if (movable && id !== undefined) {
+        event.preventDefault();
+        moveTab(id, side);
+      }
+
+      return;
+    }
+
     if (event.key === "Delete") {
       const id = event.currentTarget.dataset.tabId;
 
@@ -466,11 +627,12 @@ export const AppShellTabs = ({
           out the rest of the title bar on every frame. */}
       <div
         aria-label={text.tabs}
-        className="-m-1 flex min-w-0 [scrollbar-width:thin] items-center gap-2 overflow-x-auto p-1 contain-layout"
+        className="-m-1 flex min-w-0 [scrollbar-width:thin] items-center gap-2 overflow-x-auto p-1 contain-layout data-dragging:cursor-grabbing data-dragging:select-none"
         data-appearance={appearance}
+        data-dragging={dragging === null ? undefined : ""}
         data-overflow={overflow}
         data-slot="tab-strip"
-        ref={list}
+        ref={stripRef}
         role="tablist"
       >
         {tabs.map((tab) => {
@@ -479,19 +641,24 @@ export const AppShellTabs = ({
 
           return (
             <div
-              className="group/tab relative flex w-(--size-tab-width) min-w-24 shrink"
+              className={cn(
+                "group/tab relative flex w-(--size-tab-width) min-w-24 shrink",
+                movable && SORTABLE_ITEM
+              )}
               data-selected={selected}
               data-slot="tab-item"
               key={tab.id}
+              {...(movable ? itemProps(tab.id) : undefined)}
             >
               <Tip label={tab.title}>
                 <button
                   aria-controls={panel}
-                  aria-keyshortcuts={closable ? "Delete" : undefined}
+                  aria-keyshortcuts={keyShortcuts}
                   aria-selected={selected}
                   className={cn(
                     "flex h-(--size-tab-height) w-full min-w-0 items-center gap-2 py-1 ps-2.5 text-start text-(length:--text-label-size) leading-(--text-label-leading) transition-colors duration-(--motion-duration)",
                     closable && "pe-8",
+                    movable && LIFTED_TAB,
                     style.base,
                     selected
                       ? `text-foreground font-(--weight-semibold) ${style.selected}`
@@ -541,7 +708,13 @@ export const AppShellTabs = ({
         <IconButton icon={PlusIcon} label={text.newTab} onClick={onNewTab} />
       ) : null}
       {tabs.length > 0 ? (
-        <MenuRoot>
+        <MenuRoot
+          onOpenChange={(open) => {
+            if (open) {
+              setMenuRtl(isRtl(list.current));
+            }
+          }}
+        >
           <Tip label={text.tabMenu}>
             {/* Shown when tabs are hidden, and always on a touch screen,
                 where it is also the way to close the open tab. */}
@@ -570,17 +743,32 @@ export const AppShellTabs = ({
                 <MenuRadioItem key={tab.id} label={tab.title} value={tab.id} />
               ))}
             </MenuRadioGroup>
-            {closable && activeTab ? (
-              <>
-                <MenuSeparator />
-                <MenuItem
-                  label={text.closeTab(activeTab.title)}
-                  onSelect={() => closeTab(activeTab.id, false)}
-                />
-              </>
+            {activeTab ? (
+              <OpenTabItems
+                atEnd={(side) => {
+                  const to = activeIndex + stepFor(side, menuRtl);
+
+                  return to < 0 || to >= tabs.length;
+                }}
+                onClose={
+                  closable ? () => closeTab(activeTab.id, false) : undefined
+                }
+                onMove={
+                  movable ? (side) => moveTab(activeTab.id, side) : undefined
+                }
+                text={text}
+                title={activeTab.title}
+              />
             ) : null}
           </MenuContent>
         </MenuRoot>
+      ) : null}
+      {onMoveTab ? (
+        // A polite live region through output's status role. An aria-live
+        // attribute would keep the title bar visible to screen readers
+        // behind the modal drawer, which leaves [aria-live] and its
+        // ancestors unhidden.
+        <output className="sr-only">{announcement}</output>
       ) : null}
     </div>
   );

@@ -234,6 +234,19 @@ const newId = (prefix: string): string => {
   return `${prefix}-${nextId}`;
 };
 
+// The list with the tab whose id is id moved to index.
+const moveTo = (
+  list: AppShellTab[],
+  id: string,
+  index: number
+): AppShellTab[] => {
+  const tab = list.find((entry) => entry.id === id);
+
+  return tab
+    ? list.filter((entry) => entry !== tab).toSpliced(index, 0, tab)
+    : list;
+};
+
 type ShellAppProps = Omit<ChatAppProps, "defaultOpen" | "defaultWidth">;
 
 const ShellApp = ({
@@ -424,6 +437,9 @@ const ShellApp = ({
                   setTabs((list) => list.filter((tab) => tab.id !== id));
                   navigate({ tabId: id, type: "close" });
                 }}
+                onMoveTab={(id, index) =>
+                  setTabs((list) => moveTo(list, id, index))
+                }
                 onNewTab={() => {
                   const tab = { id: newId("t"), title: "New chat" };
                   setTabs((list) => [...list, tab]);

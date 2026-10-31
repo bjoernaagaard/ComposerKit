@@ -58,6 +58,7 @@ const Stage = ({ fixture }: { fixture: StateFixture }) => {
 
   return (
     <Composer
+      acceptDrop={false}
       dispatch={dispatch}
       handlers={{
         ...INERT_HANDLERS,

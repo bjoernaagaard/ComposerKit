@@ -246,6 +246,7 @@
     "overlayExitMs": 200,
     "tabEnterMs": 180,
     "tabExitMs": 140,
+    "dragPressMs": 400,
     "reducedFadeMs": 150,
     "pressScale": 0.97,
     "popupMs": 150,

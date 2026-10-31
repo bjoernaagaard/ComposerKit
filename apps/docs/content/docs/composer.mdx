@@ -73,6 +73,14 @@ Each state from `src/states/composer/fixtures.ts`, drawn by the real composer wi
 
 <ComposerStatePreviews />
 
+### Drop and paste files
+
+Drop files from the desktop on the composer, or paste them into it, and they attach as if the file picker had chosen them. They go through `handlers.handleFiles`, so the 25 MB limit applies and nothing attaches while a message is sending.
+
+As soon as a drag that carries files enters the window, every composer on the page shows "Drop files to attach" over its box. Over the composer, the box takes the drop zone's color. A file dropped anywhere else does nothing, so the browser doesn't leave the app to open it. Dragging selected text into the field, and pasting text, work as before.
+
+Pass `acceptDrop={false}` to a composer that only shows a state, as the states above do.
+
 ## API reference
 
 ### Composer
@@ -145,6 +153,14 @@ The text field is a multi-line text box; the add menu follows the [combobox patt
 Tokens that the composer's files use.
 
 <TokenTable item="composer" />
+
+Design directions style a drop through these hooks:
+
+| Hook | On |
+| --- | --- |
+| `data-slot="composer"`, with `data-drop-ready` while files are dragged over the window and `data-drop-target` while they are over the composer | The composer |
+| `data-slot="composer-drop-overlay"` | The cover that says "Drop files to attach" |
+| `--drop-zone-fill`, `var(--primary)` at 8% by default, and `--drop-zone-border`, `var(--ring)` by default, on `data-slot="composer-surface"` | The drop zone's tint and border while files are over the composer |
 
 ### Motion
 

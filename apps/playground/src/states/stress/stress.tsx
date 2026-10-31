@@ -12,7 +12,8 @@
 // a fragment around an empty list, or a radio group with no items.
 // ?tabs= sets how many tabs the tab strip opens with, and each ?id= gives
 // it a tab with that id instead, titled with the id in brackets, so
-// ?id=a&id=&id=c opens [a], [] and [c]. The row-title part shows one row,
+// ?id=a&id=&id=c opens [a], [] and [c]. ?fixed leaves out onMoveTab, so
+// the tabs can't move. The row-title part shows one row,
 // 288 px wide, whose title follows the Row title field.
 import { CopyIcon } from "lucide-react";
 import { useId, useState } from "react";
@@ -213,6 +214,21 @@ const TAB_COUNT = Number(params.get("tabs")) || 3;
 
 const GIVEN_TAB_IDS = params.getAll("id");
 
+const TABS_MOVE = !params.has("fixed");
+
+// The list with the tab whose id is id moved to index.
+const moveTo = (
+  list: AppShellTab[],
+  id: string,
+  index: number
+): AppShellTab[] => {
+  const tab = list.find((entry) => entry.id === id);
+
+  return tab
+    ? list.filter((entry) => entry !== tab).toSpliced(index, 0, tab)
+    : list;
+};
+
 // Tab ids may be any string, so each carries a space and a lone surrogate,
 // which no encoding step may choke on.
 const stressTabs = (data: Dataset): AppShellTab[] => {
@@ -249,6 +265,11 @@ const TabsPart = ({ data }: { data: Dataset }) => {
         labels={{ tabs: "Stress tabs" }}
         onCloseTab={(id) =>
           setTabs((list) => list.filter((tab) => tab.id !== id))
+        }
+        onMoveTab={
+          TABS_MOVE
+            ? (id, index) => setTabs((list) => moveTo(list, id, index))
+            : undefined
         }
         onSelectTab={setActive}
         panelId={panelId}

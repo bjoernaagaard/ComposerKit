@@ -289,6 +289,7 @@
           "motion-overlay-exit": "200ms",
           "motion-tab-enter": "180ms",
           "motion-tab-exit": "140ms",
+          "motion-drag-press": "400ms",
           "motion-reduced-fade": "150ms",
           "press-scale": "0.97",
           "motion-popup": "150ms",
@@ -660,10 +661,24 @@
           "cursor": "inherit",
           "transition": "none !important"
         },
+        "[data-slot=\"tab-item\"]:is([data-dragging], [data-drag-pressed]) [data-slot=\"tab\"]": {
+          "box-shadow": "var(--drag-lift-shadow)"
+        },
+        "[data-slot=\"app-shell\"][data-dragging]": {
+          "cursor": "grabbing",
+          "-webkit-user-select": "none",
+          "user-select": "none"
+        },
+        "[data-slot=\"app-shell\"][data-dragging] *": {
+          "cursor": "inherit"
+        },
         "@media (forced-colors: active)": {
           "[data-slot=\"sidebar-splitter\"]:is(:hover, :focus-visible)::after, [data-slot=\"app-shell\"][data-resizing] [data-slot=\"sidebar-splitter\"]::after": {
             "background-color": "Highlight",
             "forced-color-adjust": "none"
+          },
+          "[data-slot=\"tab-item\"]:is([data-dragging], [data-drag-pressed]) [data-slot=\"tab\"]": {
+            "outline": "var(--border-focus-width) solid Highlight"
           }
         }
       }

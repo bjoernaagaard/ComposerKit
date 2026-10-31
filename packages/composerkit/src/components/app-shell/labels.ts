@@ -29,6 +29,12 @@ export interface AppShellLabels {
   tabMenu: string;
   // The tab menu's item that closes the open tab, such as "Close Notes".
   closeTab: (title: string) => string;
+  // The tab menu's items that move the open tab one place.
+  moveTabLeft: string;
+  moveTabRight: string;
+  // What a screen reader hears after a tab moves, such as
+  // "Moved Notes to position 2 of 4".
+  movedTab: (title: string, position: number, count: number) => string;
 }
 
 export const APP_SHELL_LABELS: AppShellLabels = {
@@ -36,6 +42,10 @@ export const APP_SHELL_LABELS: AppShellLabels = {
   closeTab: (title) => `Close ${title}`,
   forward: "Forward",
   hideSidebar: "Hide sidebar",
+  moveTabLeft: "Move left",
+  moveTabRight: "Move right",
+  movedTab: (title, position, count) =>
+    `Moved ${title} to position ${position} of ${count}`,
   newTab: "New tab",
   rail: "Main",
   resizeSidebar: "Resize sidebar",

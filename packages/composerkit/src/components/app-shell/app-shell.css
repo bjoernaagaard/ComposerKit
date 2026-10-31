@@ -123,11 +123,37 @@
   transition: none !important;
 }
 
-/* Forced colors drop the splitter line's color, so it is Highlight there. */
+/* The dragged tab lifts with --drag-lift-shadow, which tabs.tsx sets to
+   --shadow-menu on each tab item for a design to change. A finger's long
+   press lifts it before it moves. */
+[data-slot="tab-item"]:is([data-dragging], [data-drag-pressed])
+  [data-slot="tab"] {
+  box-shadow: var(--drag-lift-shadow);
+}
+
+/* Unlike a resize, a tab drag keeps transitions on, because the other
+   tabs slide aside to open the dragged tab's place. */
+[data-slot="app-shell"][data-dragging] {
+  cursor: grabbing;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+[data-slot="app-shell"][data-dragging] * {
+  cursor: inherit;
+}
+
+/* Forced colors drop the splitter line's color and the dragged tab's
+   shadow, so both are Highlight there. */
 @media (forced-colors: active) {
   [data-slot="sidebar-splitter"]:is(:hover, :focus-visible)::after,
   [data-slot="app-shell"][data-resizing] [data-slot="sidebar-splitter"]::after {
     background-color: Highlight;
     forced-color-adjust: none;
+  }
+
+  [data-slot="tab-item"]:is([data-dragging], [data-drag-pressed])
+    [data-slot="tab"] {
+    outline: var(--border-focus-width) solid Highlight;
   }
 }

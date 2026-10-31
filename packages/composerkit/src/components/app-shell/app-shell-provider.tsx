@@ -136,6 +136,10 @@ export interface AppShellContextValue {
   // when the drag ends.
   resizing: boolean;
   setResizing: (resizing: boolean) => void;
+  // A pointer is dragging a tab. AppShell marks its root with
+  // data-dragging, which keeps transitions on, so the other tabs slide.
+  dragging: boolean;
+  setDragging: (dragging: boolean) => void;
   // Toggles open, or openNarrow when narrow.
   toggleSidebar: () => void;
   // Closes the narrow drawer and moves focus to the main region, for a
@@ -279,6 +283,7 @@ export const AppShellProvider = ({
   const [ownOpen, setOwnOpen] = useState(defaultOpen);
   const [narrowOpen, setNarrowOpen] = useState(false);
   const [resizing, setResizing] = useState(false);
+  const [dragging, setDragging] = useState(false);
 
   const [widthPx, setWidthPx] = useState<number | null>(() =>
     defaultWidth === undefined ? null : clampSidebarWidth(defaultWidth)
@@ -543,6 +548,7 @@ export const AppShellProvider = ({
     return {
       chosenWidth: widthPx,
       closeNarrowAndFocusMain,
+      dragging,
       ids: {
         main: `${base}main`,
         sidebar: `${base}sidebar`,
@@ -563,6 +569,7 @@ export const AppShellProvider = ({
       },
       resizing,
       rootRef: setRoot,
+      setDragging,
       setOpen,
       setOpenNarrow,
       setRailSlot,
@@ -581,6 +588,7 @@ export const AppShellProvider = ({
     apple,
     base,
     closeNarrowAndFocusMain,
+    dragging,
     input,
     isNarrow,
     labelOverrides,
