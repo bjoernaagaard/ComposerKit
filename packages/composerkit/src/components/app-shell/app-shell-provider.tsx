@@ -9,6 +9,7 @@ import {
   useCallback,
   useEffect,
   useId,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -22,13 +23,69 @@ import { writeShellCookie } from "@/components/app-shell/persist";
 import { SIDEBAR_WIDTH } from "@/components/app-shell/sidebar-width";
 import { markInput, useInputModality } from "@/components/ui/input-modality";
 import type { InputModality } from "@/components/ui/input-modality";
-import { pixelsOf } from "@/components/ui/theme-value";
+import { millisecondsOf, pixelsOf } from "@/components/ui/theme-value";
 
 // The shell is narrow below 48rem of its own width, not the window's, so a
 // shell inside a docs page or a split view follows the room it has.
 const NARROW_REM = 48;
 const FALLBACK_REM_PX = 16;
 const DEFAULT_SHORTCUT = "b";
+
+const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
+const SLIDE = "app-shell-main-slide";
+
+// Slides the main region from where it sat before the sidebar opened or
+// closed to where it sits now. width is how far the sidebar moved it. A
+// slide still running is taken over from where it is, so fast toggles
+// reverse without a jump. While it runs the shell clips sideways, so the
+// main region moving past the edge adds no scrollbar.
+const slideMain = (
+  main: HTMLElement,
+  root: HTMLElement,
+  open: boolean,
+  width: number
+) => {
+  const style = getComputedStyle(main);
+
+  const duration = millisecondsOf(
+    style.getPropertyValue(
+      open ? "--motion-sidebar-enter" : "--motion-sidebar-exit"
+    )
+  );
+
+  if (!(duration > 0)) {
+    return;
+  }
+
+  const running = main.getAnimations().find((item) => item.id === SLIDE);
+  const at = running ? pixelsOf(style.translate.split(" ")[0] ?? "") : 0;
+
+  running?.cancel();
+
+  const toward = style.direction === "rtl" ? -1 : 1;
+  const from = (Number.isNaN(at) ? 0 : at) + (open ? -width : width) * toward;
+
+  const settle = () => {
+    if (!main.getAnimations().some((item) => item.id === SLIDE)) {
+      delete root.dataset.sliding;
+    }
+  };
+
+  root.dataset.sliding = "";
+
+  const slide = main.animate(
+    [{ translate: `${from}px 0` }, { translate: "0 0" }],
+    {
+      duration,
+      easing:
+        style.getPropertyValue("--motion-ease-drawer").trim() || "ease-out",
+      id: SLIDE,
+    }
+  );
+
+  slide.addEventListener("finish", settle);
+  slide.addEventListener("cancel", settle);
+};
 
 const clampSidebarWidth = (px: number): number =>
   Math.round(Math.min(SIDEBAR_WIDTH.max, Math.max(SIDEBAR_WIDTH.min, px)));
@@ -314,6 +371,36 @@ export const AppShellProvider = ({
   );
 
   const width = widthPx ?? drawnWidth;
+
+  // On a pointer toggle the main region takes its new width at once, so its
+  // text wraps once, and then slides from where it was, beside the
+  // sidebar's own slide. Animating the width instead would lay the main
+  // region out again on every frame. The keyboard, a drag of the splitter
+  // and reduced motion leave it still.
+  const slidFor = useRef(open);
+
+  useLayoutEffect(() => {
+    if (slidFor.current === open) {
+      return;
+    }
+
+    slidFor.current = open;
+
+    const main = mainRef.current;
+    const root = rootElementRef.current;
+
+    if (
+      !(main && root) ||
+      isNarrow ||
+      input !== "pointer" ||
+      resizing ||
+      window.matchMedia(REDUCED_MOTION).matches
+    ) {
+      return;
+    }
+
+    slideMain(main, root, open, width);
+  }, [input, isNarrow, open, resizing, width]);
 
   // A sidebar that closes around the focused control would drop focus to
   // the page, so focus moves to the toggle first.

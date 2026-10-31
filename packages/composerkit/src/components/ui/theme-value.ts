@@ -25,9 +25,9 @@ export const themePixels = (name: string, fallback: number): number => {
   return Number.isNaN(amount) ? fallback : amount;
 };
 
-// A time such as --motion-tooltip-delay: 200ms, in milliseconds.
-export const themeMilliseconds = (name: string, fallback: number): number => {
-  const value = read(name);
+// "200ms" or "0.2s" as 200. Anything else is NaN.
+export const millisecondsOf = (time: string): number => {
+  const value = time.trim();
 
   if (MILLISECONDS.test(value)) {
     return Number(value.replace(MILLISECONDS, ""));
@@ -37,5 +37,12 @@ export const themeMilliseconds = (name: string, fallback: number): number => {
     return Number(value.replace(SECONDS, "")) * MS_PER_SECOND;
   }
 
-  return fallback;
+  return Number.NaN;
+};
+
+// A time such as --motion-tooltip-delay: 200ms, in milliseconds.
+export const themeMilliseconds = (name: string, fallback: number): number => {
+  const amount = millisecondsOf(read(name));
+
+  return Number.isNaN(amount) ? fallback : amount;
 };

@@ -31,7 +31,12 @@ import { cn } from "@/lib/utils";
 // the theme's width applies.
 export type AppShellProps = Omit<ComponentProps<"div">, "ref">;
 
-export const AppShell = ({ className, style, ...props }: AppShellProps) => {
+export const AppShell = ({
+  className,
+  style,
+  children,
+  ...props
+}: AppShellProps) => {
   const { rootRef, isNarrow, open, openNarrow, input, resizing, chosenWidth } =
     useAppShell();
 
@@ -44,7 +49,7 @@ export const AppShell = ({ className, style, ...props }: AppShellProps) => {
   return (
     <div
       className={cn(
-        "group/shell bg-window text-foreground relative grid h-full min-h-0 grid-cols-[auto_auto_minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)] [--shell-sidebar-width:0px] data-[sidebar=expanded]:data-[sidebar-variant=push]:[--shell-sidebar-width:var(--size-sidebar)]",
+        "group/shell bg-window text-foreground relative grid h-full min-h-0 grid-cols-[auto_auto_minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)] [--shell-sidebar-width:0px] data-sliding:overflow-x-clip data-[sidebar=expanded]:data-[sidebar-variant=push]:[--shell-sidebar-width:var(--size-sidebar)]",
         className
       )}
       data-input={input}
@@ -55,7 +60,17 @@ export const AppShell = ({ className, style, ...props }: AppShellProps) => {
       ref={rootRef}
       style={chosenWidth === null ? style : { ...drawnWidth, ...style }}
       {...props}
-    />
+    >
+      {/* Sits behind the main region in its cell. While the main region
+          slides in beside an opening sidebar, it fills the strip the main
+          region hasn't reached yet in the main region's color. */}
+      <div
+        aria-hidden="true"
+        className="bg-background col-start-3 row-start-2"
+        data-slot="main-underlay"
+      />
+      {children}
+    </div>
   );
 };
 
@@ -219,7 +234,7 @@ export const AppShellSidebar = ({
         </div>
       ),
       className: cn(
-        "relative z-10 col-start-2 row-start-2 min-h-0 w-(--shell-sidebar-width) transition-all duration-0 ease-(--motion-ease-drawer) [clip-path:inset(-100vh_-100vw_-100vh_0)] group-data-[input=pointer]/shell:duration-(--motion-sidebar-exit) group-data-[input=pointer]/shell:group-data-[sidebar=expanded]/shell:duration-(--motion-sidebar-enter) rtl:[clip-path:inset(-100vh_0_-100vh_-100vw)]",
+        "relative z-10 col-start-2 row-start-2 min-h-0 w-(--shell-sidebar-width) [clip-path:inset(-100vh_-100vw_-100vh_0)] rtl:[clip-path:inset(-100vh_0_-100vh_-100vw)]",
         className
       ),
       "data-slot": "sidebar-gap",
