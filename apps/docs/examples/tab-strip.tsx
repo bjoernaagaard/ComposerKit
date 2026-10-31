@@ -12,9 +12,23 @@ import type {
 } from "@/components/app-shell/tabs";
 import { SAMPLE_CONVERSATIONS } from "@/content/sample";
 
+// The list with the tab whose id is id moved to index.
+const moveTo = (
+  list: AppShellTab[],
+  id: string,
+  index: number
+): AppShellTab[] => {
+  const tab = list.find((entry) => entry.id === id);
+
+  return tab
+    ? list.filter((entry) => entry !== tab).toSpliced(index, 0, tab)
+    : list;
+};
+
 // Title bar tabs with the panel they control. Left and Right move between
-// tabs, Delete or a tab's close button closes it, and New tab opens one.
-// When the tabs don't fit, a menu button lists them all.
+// tabs, Delete or a tab's close button closes it, Ctrl+Shift with Left
+// or Right moves it, and New tab opens one. When the tabs don't fit, a
+// menu button lists them all.
 export const TabStripExample = ({
   appearance,
 }: {
@@ -41,6 +55,7 @@ export const TabStripExample = ({
         onCloseTab={(id) =>
           setTabs((list) => list.filter((tab) => tab.id !== id))
         }
+        onMoveTab={(id, index) => setTabs((list) => moveTo(list, id, index))}
         onNewTab={() => {
           const tab = {
             id: `new ${opened + 1}`,

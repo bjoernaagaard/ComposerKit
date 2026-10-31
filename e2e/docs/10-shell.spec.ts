@@ -831,6 +831,9 @@ const tabIds = (page: Page) =>
 
 const focusedTab = (page: Page) => tabStrip(page).locator('[role="tab"]:focus');
 
+const MOVE_AND_CLOSE_KEYS =
+  "Delete Control+Shift+ArrowLeft Control+Shift+ArrowRight";
+
 test("tabs: Delete closes the focused tab and focuses the one to its right, or to its left for the last tab, and the only tab can't close", async ({
   page,
 }) => {
@@ -844,7 +847,7 @@ test("tabs: Delete closes the focused tab and focuses the one to its right, or t
   await shellTabs(page).first().click();
   await expect(shellTabs(page).first()).toHaveAttribute(
     "aria-keyshortcuts",
-    "Delete"
+    MOVE_AND_CLOSE_KEYS
   );
 
   // A key closes the tab at once, with no motion to wait for.
@@ -1180,6 +1183,178 @@ test("tab ids: Delete on the last tab focuses the open tab to its left, also whe
   await expect(tab("[c]")).toHaveCount(0);
   await expect(tab("[]")).toHaveAttribute("aria-selected", "true");
   await expect(tab("[]")).toBeFocused();
+});
+
+const moveAnnouncement = (page: Page) =>
+  page.locator('[data-slot="tabs"]').getByRole("status");
+
+const openThreeTabs = async (page: Page) => {
+  await openApp(page, "base", "light");
+  await newTabButton(page).click();
+  await newTabButton(page).click();
+  await expect(shellTabs(page)).toHaveCount(3);
+
+  return tabIds(page);
+};
+
+test("tabs: move with Ctrl+Shift+ArrowRight puts the first tab second, keeps focus and selection on it, and announces where it went", async ({
+  page,
+}) => {
+  const [first, second, third] = await openThreeTabs(page);
+
+  await shellTabs(page).first().click();
+  await expect(shellTabs(page).first()).toHaveAttribute(
+    "aria-keyshortcuts",
+    MOVE_AND_CLOSE_KEYS
+  );
+  await page.keyboard.press("Control+Shift+ArrowRight");
+
+  expect(await tabIds(page)).toEqual([second, first, third]);
+  await expect(shellTabs(page)).toHaveText(["New chat", "Chat", "New chat"]);
+  await expect(shellTabs(page).nth(1)).toHaveAccessibleName("Chat");
+  await expect(shellTabs(page).nth(1)).toBeFocused();
+  await expect(shellTabs(page).nth(1)).toHaveAttribute("aria-selected", "true");
+  await expect(moveAnnouncement(page)).toHaveText(
+    "Moved Chat to position 2 of 3"
+  );
+});
+
+test("tabs: move stops at either end and never wraps", async ({ page }) => {
+  const [first, second, third] = await openThreeTabs(page);
+
+  await shellTabs(page).last().click();
+  await page.keyboard.press("Control+Shift+ArrowRight");
+  expect(await tabIds(page)).toEqual([first, second, third]);
+  await expect(shellTabs(page).last()).toBeFocused();
+
+  await page.keyboard.press("Home");
+  await page.keyboard.press("Control+Shift+ArrowLeft");
+  expect(await tabIds(page)).toEqual([first, second, third]);
+  await expect(shellTabs(page).first()).toBeFocused();
+  await expect(shellTabs(page).first()).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+  await expect(moveAnnouncement(page)).toHaveText("");
+});
+
+test("tabs: move in right-to-left layouts follows the screen, so Ctrl+Shift+ArrowLeft moves the tab toward the end", async ({
+  page,
+}) => {
+  const [first, second, third] = await openThreeTabs(page);
+
+  await page.evaluate(() => {
+    document.documentElement.dir = "rtl";
+  });
+  await shellTabs(page).first().click();
+
+  await page.keyboard.press("Control+Shift+ArrowLeft");
+  expect(await tabIds(page)).toEqual([second, first, third]);
+  await expect(focusedTab(page)).toHaveAttribute("data-tab-id", first ?? "");
+
+  await page.keyboard.press("Control+Shift+ArrowRight");
+  expect(await tabIds(page)).toEqual([first, second, third]);
+  await expect(focusedTab(page)).toHaveAttribute("data-tab-id", first ?? "");
+  await expect(moveAnnouncement(page)).toHaveText(
+    "Moved Chat to position 1 of 3"
+  );
+});
+
+test("tabs: move from the tab menu on touch: Move left moves the open tab, and is disabled for the first tab", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    hasTouch: true,
+    isMobile: true,
+    viewport: { height: 900, width: 1440 },
+  });
+
+  const page = await context.newPage();
+
+  await openApp(page, "base", "light");
+  await newTabButton(page).tap();
+  await newTabButton(page).tap();
+  await expect(shellTabs(page)).toHaveCount(3);
+
+  const [first, second, third] = await tabIds(page);
+
+  const item = (name: string) =>
+    tabMenu(page).getByRole("menuitem", { exact: true, name });
+
+  await tabMenuButton(page).tap();
+  await expect(item("Move right")).toBeDisabled();
+  await item("Move left").tap();
+
+  expect(await tabIds(page)).toEqual([first, third, second]);
+  await expect(shellTabs(page).nth(1)).toHaveAttribute("aria-selected", "true");
+  await expect(moveAnnouncement(page)).toHaveText(
+    "Moved New chat to position 2 of 3"
+  );
+
+  await shellTabs(page).first().tap();
+  await tabMenuButton(page).tap();
+  await expect(item("Move left")).toBeDisabled();
+  await expect(item("Move right")).toBeEnabled();
+  await context.close();
+});
+
+test("tabs: move keys leave plain arrows selecting and Delete closing", async ({
+  page,
+}) => {
+  const [first, second, third] = await openThreeTabs(page);
+
+  await shellTabs(page).first().click();
+  await page.keyboard.press("Control+Shift+ArrowRight");
+  expect(await tabIds(page)).toEqual([second, first, third]);
+
+  await page.keyboard.press("ArrowRight");
+  await expect(focusedTab(page)).toHaveAttribute("data-tab-id", third ?? "");
+  await expect(focusedTab(page)).toHaveAttribute("aria-selected", "true");
+  expect(await tabIds(page)).toEqual([second, first, third]);
+
+  await page.keyboard.press("Delete");
+  expect(await tabIds(page)).toEqual([second, first]);
+  await expect(focusedTab(page)).toHaveAttribute("data-tab-id", first ?? "");
+  await expect(focusedTab(page)).toHaveAttribute("aria-selected", "true");
+});
+
+test("tabs: move without onMoveTab: the keys do nothing and the tab menu has no move items", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    hasTouch: true,
+    isMobile: true,
+    viewport: { height: 900, width: 1440 },
+  });
+
+  const page = await context.newPage();
+
+  await openHarness(page, "part=tabs&data=demo&fixed", "light");
+
+  const tabs = page.getByRole("tab");
+
+  const ids = () =>
+    tabs.evaluateAll((all) =>
+      all.map((tab) => (tab instanceof HTMLElement ? tab.dataset.tabId : ""))
+    );
+
+  const before = await ids();
+
+  await tabs.first().tap();
+  await expect(tabs.first()).toHaveAttribute("aria-keyshortcuts", "Delete");
+  await page.keyboard.press("Control+Shift+ArrowRight");
+  expect(await ids()).toEqual(before);
+  await expect(tabs.first()).toBeFocused();
+  await expect(tabs.first()).toHaveAttribute("aria-selected", "true");
+
+  await page.getByRole("button", { exact: true, name: "All tabs" }).tap();
+
+  const menu = page.getByRole("menu", { name: "All tabs" });
+
+  await expect(menu.getByRole("menuitemradio")).toHaveCount(3);
+  await expect(menu.getByRole("menuitem", { name: /^Move/u })).toHaveCount(0);
+  await expect(menu.getByRole("menuitem", { name: /^Close/u })).toHaveCount(1);
+  await context.close();
 });
 
 test("shortcut in a shadow root: the shell that holds focus toggles, even when it sits inside one", async ({
