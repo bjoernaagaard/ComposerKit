@@ -24,7 +24,9 @@ use gpui_kit::component::tab::{Tab, TabBar};
 use gpui_kit::component::{
     ActiveTheme as _, Selectable as _, Sizable as _, TitleBar as KitTitleBar,
 };
-use gpui_kit::{AnyWindowHandle, App, Entity, Subscription};
+use gpui_kit::{
+    AnyElement, AnyWindowHandle, App, Empty, Entity, StyleRefinement, Subscription, WeakEntity,
+};
 use gpui_kit::{
     AppContext as _, Context, FontWeight, InteractiveElement as _, IntoElement, KeyBinding,
     ParentElement as _, Render, SharedString, StatefulInteractiveElement as _, Styled, Window,
@@ -80,6 +82,8 @@ pub(crate) struct Catalog {
     tab_appearance: TabAppearance,
     sidebar: SidebarVisibility,
     pub(crate) composers: Entity<ComposerSection>,
+    home: Entity<HomeSection>,
+    parts: CatalogParts,
     pub(crate) conversation: Entity<ConversationView>,
     destination: Destination,
     pub(crate) mode: Mode,
@@ -103,7 +107,13 @@ impl Catalog {
         focus.focus(window, cx);
         let composers = cx.new(ComposerSection::new);
         let live = composers.read(cx).live.clone();
-        cx.observe(&live, |_, _, cx| cx.notify()).detach();
+        let home = cx.new(|cx| HomeSection::new(live, cx));
+        let catalog = cx.entity();
+        let parts = CatalogParts {
+            title_bar: cx.new(|cx| CatalogPart::new(&catalog, Self::title_bar, cx)),
+            rail: cx.new(|cx| CatalogPart::new(&catalog, Self::rail, cx)),
+            sidebar: cx.new(|cx| CatalogPart::new(&catalog, Self::sidebar, cx)),
+        };
 
         Self {
             tabs: CHATS[..3]
@@ -116,6 +126,8 @@ impl Catalog {
             tab_appearance: TabAppearance::default(),
             sidebar: SidebarVisibility::Shown,
             composers,
+            home,
+            parts,
             conversation: cx.new(|cx| ConversationView::new(sample_turns(), cx)),
             destination: Destination::default(),
             mode: Mode::default(),
@@ -169,7 +181,17 @@ impl Catalog {
         cx.notify();
     }
 
-    fn title_bar(&self, cx: &mut Context<Self>) -> TitleBar {
+    fn rail(&mut self, _: &mut Window, cx: &mut Context<Self>) -> AnyElement {
+        IconRail::new("rail")
+            .active(self.destination)
+            .on_select(cx.listener(|this, destination: &Destination, _, cx| {
+                this.destination = *destination;
+                cx.notify();
+            }))
+            .into_any_element()
+    }
+
+    fn title_bar(&mut self, _: &mut Window, cx: &mut Context<Self>) -> AnyElement {
         let tabs = TabStrip::new("tabs", self.tabs.clone())
             .active(self.active_tab.clone())
             .appearance(self.tab_appearance)
@@ -215,9 +237,10 @@ impl Catalog {
                     cx.notify();
                 }),
             ))
+            .into_any_element()
     }
 
-    fn sidebar(&self, cx: &mut Context<Self>) -> impl IntoElement {
+    fn sidebar(&mut self, _: &mut Window, cx: &mut Context<Self>) -> AnyElement {
         let tokens = composerkit_theme::tokens();
         let row = |&(id, title, detail): &(&'static str, &'static str, &'static str),
                    cx: &mut Context<Self>| {
@@ -302,6 +325,7 @@ impl Catalog {
                     )
                     .children(recents),
             )
+            .into_any_element()
     }
 
     fn options(&self, cx: &mut Context<Self>) -> impl IntoElement {
@@ -424,8 +448,72 @@ impl Catalog {
                     .rounded(px(tokens.radius.tray))
                     .border(px(tokens.border.hairline))
                     .border_color(colors.border)
-                    .child(self.conversation.clone()),
+                    .child(
+                        self.conversation
+                            .clone()
+                            .cached(StyleRefinement::default().size_full()),
+                    ),
             )
+    }
+}
+
+/// The parts of the catalog with a size of their own, which typing in a
+/// composer leaves as they are.
+struct CatalogParts {
+    title_bar: Entity<CatalogPart>,
+    rail: Entity<CatalogPart>,
+    sidebar: Entity<CatalogPart>,
+}
+
+/// A part of the catalog that one of its methods draws. It is drawn again
+/// only when the catalog changes, so typing in a composer leaves it alone.
+struct CatalogPart {
+    catalog: WeakEntity<Catalog>,
+    render: fn(&mut Catalog, &mut Window, &mut Context<Catalog>) -> AnyElement,
+    _changes: Subscription,
+}
+
+impl CatalogPart {
+    fn new(
+        catalog: &Entity<Catalog>,
+        render: fn(&mut Catalog, &mut Window, &mut Context<Catalog>) -> AnyElement,
+        cx: &mut Context<Self>,
+    ) -> Self {
+        Self {
+            catalog: catalog.downgrade(),
+            render,
+            _changes: cx.observe(catalog, |_, _, cx| cx.notify()),
+        }
+    }
+}
+
+impl Render for CatalogPart {
+    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        let render = self.render;
+        self.catalog
+            .update(cx, |catalog, cx| render(catalog, window, cx))
+            .unwrap_or_else(|_| Empty.into_any_element())
+    }
+}
+
+/// The home screen, drawn again when the live composer it shares changes.
+struct HomeSection {
+    live: Entity<ComposerController>,
+    _changes: Subscription,
+}
+
+impl HomeSection {
+    fn new(live: Entity<ComposerController>, cx: &mut Context<Self>) -> Self {
+        Self {
+            _changes: cx.observe(&live, |_, _, cx| cx.notify()),
+            live,
+        }
+    }
+}
+
+impl Render for HomeSection {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        home_view(&self.live, false, cx)
     }
 }
 
@@ -434,6 +522,7 @@ const CONVERSATION_HEIGHT: f32 = 720.;
 
 impl Render for Catalog {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        let size = &composerkit_theme::tokens().size;
         div()
             .track_focus(&self.focus)
             .on_action(|_: &FocusNext, window, cx| window.focus_next(cx))
@@ -443,22 +532,30 @@ impl Render for Catalog {
             .size_full()
             .bg(cx.theme().title_bar)
             .text_color(cx.theme().foreground)
-            .child(self.title_bar(cx))
+            .child(
+                self.parts
+                    .title_bar
+                    .clone()
+                    .cached(StyleRefinement::default().w_full().h(px(size.titlebar))),
+            )
             .child(
                 div()
                     .flex()
                     .flex_1()
                     .min_h_0()
                     .child(
-                        IconRail::new("rail")
-                            .active(self.destination)
-                            .on_select(cx.listener(|this, destination: &Destination, _, cx| {
-                                this.destination = *destination;
-                                cx.notify();
-                            })),
+                        self.parts
+                            .rail
+                            .clone()
+                            .cached(StyleRefinement::default().w(px(size.rail)).h_full()),
                     )
                     .when(self.sidebar == SidebarVisibility::Shown, |body| {
-                        body.child(self.sidebar(cx))
+                        body.child(
+                            self.parts
+                                .sidebar
+                                .clone()
+                                .cached(StyleRefinement::default().w(px(size.sidebar)).h_full()),
+                        )
                     })
                     .child(
                         div()
@@ -467,11 +564,13 @@ impl Render for Catalog {
                             .h_full()
                             .overflow_y_scroll()
                             .bg(cx.theme().background)
-                            .child(div().h(px(CONVERSATION_HEIGHT)).child(home_view(
-                                &self.composers.read(cx).live,
-                                false,
-                                cx,
-                            )))
+                            .child(
+                                self.home.clone().cached(
+                                    StyleRefinement::default()
+                                        .w_full()
+                                        .h(px(CONVERSATION_HEIGHT)),
+                                ),
+                            )
                             .child(self.options(cx))
                             .child(self.composers.clone())
                             .child(self.conversation_section(cx)),

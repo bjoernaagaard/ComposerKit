@@ -73,8 +73,10 @@ impl FieldState {
                 self.handlers
                     .act(&ComposerAction::DraftChanged { draft }, window, cx);
                 // The lines the text wraps to are known once it is laid out,
-                // so the composer looks again on the next frame.
-                window.on_next_frame(|window, _| window.refresh());
+                // so the composer looks again on the next frame. Notifying
+                // this state redraws only the view that shows the composer,
+                // where a window refresh would redraw every cached view too.
+                cx.on_next_frame(window, |_, _, cx| cx.notify());
             }
             InputEvent::PressEnter { shift: false, .. } => {
                 self.handlers.request(&ComposerRequest::Submit, window, cx);
