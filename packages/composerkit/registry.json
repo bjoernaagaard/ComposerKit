@@ -495,6 +495,10 @@
         {
           "path": "src/components/ui/arrivals.ts",
           "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/use-file-drop.ts",
+          "type": "registry:component"
         }
       ]
     },
@@ -594,6 +598,10 @@
         {
           "path": "src/components/ui/input-modality.ts",
           "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/use-sortable.ts",
+          "type": "registry:component"
         }
       ],
       "css": {
