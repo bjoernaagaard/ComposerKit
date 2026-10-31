@@ -2,6 +2,24 @@
 
 The list below describes the changes in each version of the `composerkit` npm package. The shadcn registry on the docs site changes with every merge to `main`, so it has no versions.
 
+## Unreleased
+
+Nothing that 0.1.1 had changes its name or its props.
+
+- Motion
+  - Menus opened with a pointer grow from their trigger, tooltips settle in, and buttons press down slightly under a pointer. Menus and buttons used from the keyboard stay instant.
+  - A sent message, an attached file, the Stop icon and the jump-to-latest button ease in. Under reduced motion they only fade.
+  - New tokens set the timing and scale: `--motion-popup`, `--motion-tooltip`, `--motion-press`, `--motion-enter`, `--motion-turn-enter`, `--popup-scale`, `--enter-scale` and `--icon-enter-scale`. `--motion-ease-out` is now `cubic-bezier(0.23, 1, 0.32, 1)`, and `--press-scale` is `0.97`.
+  - When the sidebar opens or closes, the main region slides with a transform instead of animating its width, so the conversation no longer lays out again on every frame.
+- Drag and drop
+  - Files dropped on the composer, or pasted into it, attach as if they were picked. The composer shows "Drop files to attach" as soon as files enter the window. Designs style it with `data-drop-ready`, `data-drop-target`, `--drop-zone-fill` and `--drop-zone-border`.
+  - Tabs move with Ctrl+Shift+ArrowLeft and ArrowRight, or with Move left and Move right in the tab menu, and a screen reader hears the tab's new place. The words are in `labels.ts`.
+  - Tabs can be dragged with a mouse or pen while the other tabs slide aside, and by touch after a 400 ms press, set by `--motion-drag-press`.
+- Speed
+  - Typing in the chat-app block's home composer re-renders only its tab panel, not the whole shell. A key costs about 6 ms instead of about 44 ms with the CPU slowed 4x.
+- Fixes
+  - The button module starts with `"use client"`, so a Next.js server component can import the shadcn copy.
+
 ## 0.1.1 (2026-10-30)
 
 Version 0.1.1 adds the app shell and the chat sidebar, and it makes the components work in right-to-left pages. Nothing that 0.1.0 had changes its name or its props.
