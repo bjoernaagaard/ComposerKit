@@ -246,9 +246,11 @@
     "tabEnterMs": 180,
     "tabExitMs": 140,
     "reducedFadeMs": 150,
-    "pressScale": 1,
+    "pressScale": 0.97,
     "popupMs": 150,
-    "popupScale": 0.97
+    "popupScale": 0.97,
+    "tooltipMs": 125,
+    "pressMs": 120
   },
   "palette": {
     "neutral": {

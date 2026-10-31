@@ -63,6 +63,9 @@ body[data-design="glass"] {
      should take. The menu itself owns the transition. */
   --motion-popup: 250ms;
   --popup-scale: 0.92;
+  /* Tooltips settle a little slower, and a press sinks a little deeper. */
+  --motion-tooltip: 200ms;
+  --press-scale: 0.95;
   --motion-ease-out: cubic-bezier(0.25, 1, 0.5, 1);
   --motion-ease-enter: linear(
     0,
@@ -388,7 +391,7 @@ body[data-design="glass"]
   background: var(--card);
   box-shadow: var(--glass-rim), var(--glass-lift);
   transition-property: translate, scale;
-  transition-duration: 460ms, 160ms;
+  transition-duration: 250ms, var(--motion-press);
   transition-timing-function: var(--motion-ease-enter), ease-out;
 }
 
@@ -497,7 +500,6 @@ body[data-design="glass"] [data-slot="tooltip"] {
   box-shadow: var(--glass-rim), var(--glass-lift);
   color: var(--foreground);
   font-weight: var(--weight-medium);
-  transform-origin: var(--transform-origin);
 }
 
 /* ---------- Buttons ---------- */
@@ -505,7 +507,7 @@ body[data-design="glass"] [data-slot="tooltip"] {
 body[data-design="glass"] :is([data-slot="button"], [data-slot="icon-button"]) {
   transition-property: background-color, color, scale, box-shadow;
   transition-duration:
-    var(--motion-duration), var(--motion-duration), 120ms,
+    var(--motion-duration), var(--motion-duration), var(--motion-press),
     var(--motion-duration);
   transition-timing-function: ease-out;
 }
@@ -567,46 +569,11 @@ body[data-design="glass"] [data-slot="mode-toggle"] button:focus-visible {
 /* ---------- Motion, opt in ---------- */
 
 @media (prefers-reduced-motion: no-preference) {
-  /* Press feedback lands on pointer-down. */
-  body[data-design="glass"]
-    :is(
-      [data-slot="button"],
-      [data-slot="icon-button"],
-      [data-slot="composer-primary"]
-    ):active:not(:disabled, [aria-disabled="true"]) {
-    scale: 0.95;
-  }
-
   /* The lens swells while a segment is held, then settles on release. */
   body[data-design="glass"]
     [data-slot="mode-toggle-track"]:has(button:active)
     [data-slot="mode-toggle-thumb"] {
     scale: 1.05 1.1;
-  }
-
-  /* A tooltip arrives as a material: it sharpens and grows out of its trigger. */
-  body[data-design="glass"] [data-slot="tooltip"][data-open] {
-    animation: glass-materialize 240ms var(--motion-ease-enter) backwards;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  body[data-design="glass"] [data-slot="tooltip"][data-open] {
-    animation: glass-fade 120ms ease-out both;
-  }
-}
-
-@keyframes glass-materialize {
-  from {
-    opacity: 0;
-    scale: 0.92;
-    filter: blur(6px);
-  }
-}
-
-@keyframes glass-fade {
-  from {
-    opacity: 0;
   }
 }
 

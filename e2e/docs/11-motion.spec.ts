@@ -163,3 +163,114 @@ for (const design of ["apple", "glass", "emil", "taste"]) {
     expect(opening).toContain("menu scale");
   });
 }
+
+const copyButton = (page: Page) =>
+  page
+    .getByRole("main")
+    .getByRole("button", { exact: true, name: "Copy" })
+    .first();
+
+const sliding = (started: string[], slot: string) =>
+  started.filter((entry) => entry.startsWith(`${slot} `));
+
+test("tooltip: resting the pointer on a button fades and scales its tooltip in", async ({
+  page,
+}) => {
+  await openChat(page, "base");
+  await listenForTransitions(page);
+  await copyButton(page).hover();
+  await expect(page.locator('[data-slot="tooltip"]')).toBeVisible();
+
+  const opening = await startedTransitions(page);
+
+  expect(opening).toContain("tooltip opacity");
+  expect(opening).toContain("tooltip scale");
+});
+
+test("tooltip: focus from the keyboard shows the tooltip with no motion", async ({
+  page,
+}) => {
+  await openChat(page, "base");
+  await copyButton(page).focus();
+  await page.keyboard.press("Shift+Tab");
+  await listenForTransitions(page);
+  await page.keyboard.press("Tab");
+  await expect(page.locator('[data-slot="tooltip"]')).toBeVisible();
+
+  expect(sliding(await startedTransitions(page), "tooltip")).toEqual([]);
+});
+
+test("press: a mouse press scales the button, and hover changes its fill at once", async ({
+  page,
+}) => {
+  await openChat(page, "base");
+  await listenForTransitions(page);
+  await copyButton(page).hover();
+
+  const hovering = await startedTransitions(page);
+
+  expect(sliding(hovering, "icon-button")).toEqual([]);
+
+  await listenForTransitions(page);
+  await page.mouse.down();
+
+  const pressing = await startedTransitions(page);
+
+  await page.mouse.up();
+  expect(pressing).toContain("icon-button scale");
+});
+
+test("press: Space on a focused button doesn't move it", async ({ page }) => {
+  await openChat(page, "base");
+  await copyButton(page).focus();
+  await page.keyboard.press("Shift");
+  await listenForTransitions(page);
+  await page.keyboard.down("Space");
+
+  const pressing = await startedTransitions(page);
+
+  await page.keyboard.up("Space");
+  expect(sliding(pressing, "icon-button")).toEqual([]);
+});
+
+test("press and tooltip under reduced motion: a press doesn't move, and a tooltip only fades", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await openChat(page, "base");
+  await listenForTransitions(page);
+  await copyButton(page).hover();
+  await expect(page.locator('[data-slot="tooltip"]')).toBeVisible();
+
+  const showing = await startedTransitions(page);
+
+  expect(showing).toContain("tooltip opacity");
+  expect(showing).not.toContain("tooltip scale");
+
+  await listenForTransitions(page);
+  await page.mouse.down();
+
+  const pressing = await startedTransitions(page);
+
+  await page.mouse.up();
+  expect(sliding(pressing, "icon-button")).toEqual([]);
+});
+
+for (const design of ["base", "apple", "glass", "emil", "taste"]) {
+  test(`mode toggle in ${design}: the thumb slides in 250 ms or less`, async ({
+    page,
+  }) => {
+    await openApp(page, design, "light");
+
+    const durations = await page
+      .locator('[data-slot="mode-toggle-thumb"]')
+      .first()
+      .evaluate((node) =>
+        getComputedStyle(node)
+          .transitionDuration.split(",")
+          .map((part) => Number(part.trim().replace("s", "")) * 1000)
+      );
+
+    expect(Math.max(...durations)).toBeLessThanOrEqual(250);
+  });
+}

@@ -104,6 +104,8 @@
         "--motion-tab-enter": "var(--motion-reduced-fade) !important",
         "--motion-tab-exit": "var(--motion-reduced-fade) !important",
         "--motion-popup": "var(--motion-reduced-fade) !important",
+        "--motion-tooltip": "var(--motion-reduced-fade) !important",
+        "--motion-press": "var(--motion-reduced-fade) !important",
         "transition-property": "opacity, color, background-color, border-color, outline-color, text-decoration-color, fill, stroke !important",
         "transition-delay": "0s !important"
       }

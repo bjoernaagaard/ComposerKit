@@ -287,9 +287,11 @@
   --motion-tab-enter: 180ms;
   --motion-tab-exit: 140ms;
   --motion-reduced-fade: 150ms;
-  --press-scale: 1;
+  --press-scale: 0.97;
   --motion-popup: 150ms;
   --popup-scale: 0.97;
+  --motion-tooltip: 125ms;
+  --motion-press: 120ms;
 }
 
 .dark {

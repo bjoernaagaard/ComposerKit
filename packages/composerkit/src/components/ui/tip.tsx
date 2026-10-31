@@ -12,6 +12,18 @@ const FALLBACK_DELAY_MS = 200;
 const FALLBACK_CLOSE_DELAY_MS = 0;
 const FALLBACK_OFFSET = 2;
 
+// After its delay a tooltip fades and grows a little from the control, and
+// leaves the same way, quickly, because people see it many times a day.
+// Base UI marks one opened by keyboard focus with data-instant, so focus
+// shows it in one frame. The scale sits behind motion-safe, so under
+// reduced motion it only fades, even in an app without the kit's
+// stylesheet.
+const TIP_MOTION =
+  "origin-(--transform-origin) transition-[opacity,scale] duration-(--motion-tooltip) ease-(--motion-ease-out) " +
+  "data-starting-style:opacity-0 data-ending-style:opacity-0 " +
+  "motion-safe:data-starting-style:scale-(--popup-scale) motion-safe:data-ending-style:scale-(--popup-scale) " +
+  "data-instant:transition-none";
+
 // Every tooltip waits the full delay, even right after another one closed,
 // and closes as soon as the pointer leaves. Base UI's Tooltip.Provider
 // opens a neighbour at once while a group is active, so there is no group:
@@ -55,7 +67,7 @@ export const Tip = ({ label, side = "bottom", children }: TipProps) => (
         }
       >
         <Tooltip.Popup
-          className="bg-popover text-popover-foreground border-border z-50 flex h-(--size-tooltip-height) max-w-[min(--spacing(80),var(--available-width))] items-center rounded-(--radius-tooltip) border-(length:--border-panel) px-(--space-tooltip-padding-x) text-(length:--text-caption-size) leading-(--text-caption-leading) shadow-(--shadow-menu)"
+          className={`${TIP_MOTION} bg-popover text-popover-foreground border-border z-50 flex h-(--size-tooltip-height) max-w-[min(--spacing(80),var(--available-width))] items-center rounded-(--radius-tooltip) border-(length:--border-panel) px-(--space-tooltip-padding-x) text-(length:--text-caption-size) leading-(--text-caption-leading) shadow-(--shadow-menu)`}
           data-slot="tooltip"
         >
           <span className="min-w-0 truncate">{label}</span>

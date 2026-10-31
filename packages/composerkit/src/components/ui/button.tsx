@@ -5,6 +5,7 @@ import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva } from "class-variance-authority";
 import type { VariantProps } from "class-variance-authority";
 
+import { useInputModality } from "@/components/ui/input-modality";
 import { cn } from "@/lib/utils";
 
 // shadcn's base button, sized and colored from the ComposerKit tokens.
@@ -19,12 +20,18 @@ import { cn } from "@/lib/utils";
 // forced colors the fill is gone and the bar is Highlight. inset is quiet with
 // its fill drawn inside the hit area, in the shape the size gives it, so a
 // round fill can sit in a slightly wider button.
-// Hover and press look the same and change within a frame, without a fade.
+// Hover changes within a frame, without a fade. A press from a pointer
+// shrinks the button to --press-scale over --motion-press, and only scale
+// moves, so the fill still changes at once. From the keyboard, and under
+// reduced motion, a press doesn't move.
 // The keyboard focus ring is 2px, drawn just outside the button, and
 // follows its corners. Buttons with an inset fill are round, so their ring
 // is round too.
 // A button is never wider than its container, so a label from data can
 // end in an ellipsis: wrap it in <span className="truncate">.
+const PRESS_MOTION =
+  "transition-[scale] duration-(--motion-press) ease-(--motion-ease-out) motion-safe:in-data-[input=pointer]:active:not-disabled:not-aria-disabled:scale-(--press-scale)";
+
 const buttonVariants = cva(
   "group/button focus-visible:outline-ring aria-invalid:border-destructive relative inline-flex max-w-full shrink-0 items-center justify-center rounded-full border border-transparent bg-clip-padding font-(--weight-medium) whitespace-nowrap select-none focus-visible:outline-(length:--border-focus-width) focus-visible:outline-offset-(--border-focus-offset) focus-visible:outline-solid disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
@@ -101,14 +108,19 @@ const Button = ({
   variant = "default",
   size = "default",
   ...props
-}: ButtonProps) => (
-  <ButtonPrimitive
-    className={cn(buttonVariants({ className, size, variant }))}
-    data-size={size}
-    data-slot="button"
-    data-variant={variant}
-    {...props}
-  />
-);
+}: ButtonProps) => {
+  // Keeps <html data-input> current, which the press reads.
+  useInputModality();
+
+  return (
+    <ButtonPrimitive
+      className={cn(PRESS_MOTION, buttonVariants({ className, size, variant }))}
+      data-size={size}
+      data-slot="button"
+      data-variant={variant}
+      {...props}
+    />
+  );
+};
 
 export { Button, buttonVariants };

@@ -96,6 +96,8 @@ body[data-design="taste"] {
   --motion-duration: 120ms;
   --motion-ease-out: cubic-bezier(0.2, 0, 0, 1);
   --motion-ease-enter: cubic-bezier(0.2, 0, 0, 1);
+  /* Paper doesn't shrink: a press is a tone step, not movement. */
+  --press-scale: 1;
 }
 
 /* Focus stays the shared ring; the ledger only squares its offset. */
