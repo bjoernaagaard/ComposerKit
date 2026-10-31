@@ -286,6 +286,7 @@
       "motion-overlay-exit": "200ms",
       "motion-tab-enter": "180ms",
       "motion-tab-exit": "140ms",
+      "motion-drag-press": "400ms",
       "motion-reduced-fade": "150ms",
       "press-scale": "1"
     },

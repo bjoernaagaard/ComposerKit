@@ -288,6 +288,7 @@
           "motion-overlay-exit": "200ms",
           "motion-tab-enter": "180ms",
           "motion-tab-exit": "140ms",
+          "motion-drag-press": "400ms",
           "motion-reduced-fade": "150ms",
           "press-scale": "1"
         },
@@ -623,7 +624,7 @@
           "cursor": "inherit",
           "transition": "none !important"
         },
-        "[data-slot=\"tab-item\"][data-dragging] [data-slot=\"tab\"]": {
+        "[data-slot=\"tab-item\"]:is([data-dragging], [data-drag-pressed]) [data-slot=\"tab\"]": {
           "box-shadow": "var(--drag-lift-shadow)"
         },
         "[data-slot=\"app-shell\"][data-dragging]": {
@@ -639,7 +640,7 @@
             "background-color": "Highlight",
             "forced-color-adjust": "none"
           },
-          "[data-slot=\"tab-item\"][data-dragging] [data-slot=\"tab\"]": {
+          "[data-slot=\"tab-item\"]:is([data-dragging], [data-drag-pressed]) [data-slot=\"tab\"]": {
             "outline": "var(--border-focus-width) solid Highlight"
           }
         }

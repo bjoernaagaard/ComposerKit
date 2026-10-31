@@ -334,12 +334,14 @@ const CLOSE_BUTTON =
 
 // While a tab drags, the others slide aside over the design's motion, and
 // jump under reduced motion. The dragged one follows the pointer at once,
-// lifted above them. A design restyles the lift with --drag-lift-shadow
-// and --drag-lift-scale.
+// lifted above them. A finger's press lifts the tab before it moves, and
+// until then a swipe on the tab scrolls the row. A design restyles the
+// lift with --drag-lift-shadow and --drag-lift-scale.
 const SORTABLE_ITEM =
-  "[--drag-lift-scale:1] [--drag-lift-shadow:var(--shadow-menu)] transition-transform duration-(--motion-duration) ease-(--motion-ease-out) motion-reduce:transition-none data-dragging:z-10 data-dragging:scale-(--drag-lift-scale) data-dragging:transition-none";
+  "[--drag-lift-scale:1] [--drag-lift-shadow:var(--shadow-menu)] touch-pan-x select-none [-webkit-touch-callout:none] transition-transform duration-(--motion-duration) ease-(--motion-ease-out) motion-reduce:transition-none data-drag-pressed:z-10 data-drag-pressed:scale-(--drag-lift-scale) data-drag-pressed:touch-none data-dragging:z-10 data-dragging:scale-(--drag-lift-scale) data-dragging:touch-none data-dragging:transition-none";
 
-const LIFTED_TAB = "group-data-dragging/tab:bg-background";
+const LIFTED_TAB =
+  "group-data-drag-pressed/tab:bg-background group-data-dragging/tab:bg-background";
 
 export interface AppShellTabsProps {
   tabs: AppShellTab[];

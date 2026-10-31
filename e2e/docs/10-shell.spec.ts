@@ -7,10 +7,10 @@ import { pathToFileURL } from "node:url";
 
 import { AxeBuilder } from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import type { Locator, Page } from "@playwright/test";
+import type { Browser, Locator, Page } from "@playwright/test";
 
 import { openApp, openHarness } from "./stress-support";
-import { PLAYGROUND_URL, REPO, openPage, run } from "./support";
+import { DESIGNS, PLAYGROUND_URL, REPO, openPage, run } from "./support";
 
 const REDUCED_FADE = "0.15s";
 
@@ -1584,6 +1584,184 @@ test("tabs: drag passes axe on the title bar while the tab is held", async ({
 
   await page.mouse.up();
   expect(result.violations.map((violation) => violation.id)).toEqual([]);
+});
+
+// Longer than --motion-drag-press, so the finger has lifted the tab.
+const PAST_DRAG_PRESS_MS = 450;
+const SHORT_TOUCH_MS = 200;
+
+const openTouchApp = async (
+  browser: Browser,
+  viewport: { height: number; width: number }
+) => {
+  const context = await browser.newContext({
+    hasTouch: true,
+    isMobile: true,
+    viewport,
+  });
+
+  const page = await context.newPage();
+
+  await openApp(page, "base", "light");
+
+  return { context, page };
+};
+
+// A finger through CDP, which can hold still and move, unlike
+// Playwright's tap.
+const fingerDown = async (page: Page, x: number, y: number) => {
+  const cdp = await page.context().newCDPSession(page);
+  let at = x;
+
+  await cdp.send("Input.dispatchTouchEvent", {
+    touchPoints: [{ x, y }],
+    type: "touchStart",
+  });
+
+  return {
+    lift: async () => {
+      await cdp.send("Input.dispatchTouchEvent", {
+        touchPoints: [],
+        type: "touchEnd",
+      });
+      await cdp.detach();
+    },
+    moveBy: async (dx: number, steps = 8) => {
+      const from = at;
+
+      at += dx;
+
+      for (let step = 1; step <= steps; step += 1) {
+        // oxlint-disable-next-line no-await-in-loop -- each move follows the one before
+        await cdp.send("Input.dispatchTouchEvent", {
+          touchPoints: [{ x: from + (dx * step) / steps, y }],
+          type: "touchMove",
+        });
+      }
+    },
+  };
+};
+
+test("tabs: touch drag after a 400 ms press lifts the tab, moves it past the next tab's midpoint, and announces the move", async ({
+  browser,
+}) => {
+  const { context, page } = await openTouchApp(browser, WIDE);
+
+  await newTabButton(page).tap();
+  await newTabButton(page).tap();
+  await expect(shellTabs(page)).toHaveCount(3);
+
+  const [first, second, third] = await tabIds(page);
+  const { x, y } = await tabCenter(page, 0);
+  const dx = await pastTab(page, 0, 1);
+  const finger = await fingerDown(page, x, y);
+
+  await page.waitForTimeout(PAST_DRAG_PRESS_MS);
+  await expect(
+    tabStrip(page).locator('[data-slot="tab-item"]').first()
+  ).toHaveAttribute("data-drag-pressed", "");
+
+  await finger.moveBy(dx);
+  await expect(shellRoot(page)).toHaveAttribute("data-dragging", "");
+  await finger.lift();
+
+  expect(await tabIds(page)).toEqual([second, first, third]);
+  await expect(shellRoot(page)).not.toHaveAttribute("data-dragging");
+  await expect(moveAnnouncement(page)).toHaveText(
+    "Moved Chat to position 2 of 3"
+  );
+  await expect.poll(() => tabTransforms(page)).toEqual(["", "", ""]);
+  await context.close();
+});
+
+test("tabs: touch drag that moves 40 px at once scrolls the strip and moves nothing", async ({
+  browser,
+}) => {
+  const { context, page } = await openTouchApp(browser, {
+    height: 768,
+    width: 1024,
+  });
+
+  for (let opened = 1; opened < 10; opened += 1) {
+    // oxlint-disable-next-line no-await-in-loop -- each tab follows the one before
+    await newTabButton(page).tap();
+  }
+
+  await expect(shellTabs(page)).toHaveCount(10);
+  await expect(tabStrip(page)).toHaveAttribute("data-overflow", "start");
+  await expect
+    .poll(() =>
+      tabStrip(page).evaluate(
+        (strip) => strip.getAnimations({ subtree: true }).length
+      )
+    )
+    .toBe(0);
+
+  const ids = await tabIds(page);
+
+  const scrolled = () =>
+    tabStrip(page).evaluate((strip) => Math.abs(strip.scrollLeft));
+
+  const before = await scrolled();
+  const { x, y } = await tabCenter(page, 8);
+  const finger = await fingerDown(page, x, y);
+
+  await finger.moveBy(40);
+  await finger.lift();
+
+  await expect.poll(scrolled).toBeLessThan(before - 10);
+  expect(await tabIds(page)).toEqual(ids);
+  await expect(shellRoot(page)).not.toHaveAttribute("data-dragging");
+  await expect(tabStrip(page).locator("[data-drag-pressed]")).toHaveCount(0);
+  await context.close();
+});
+
+test("tabs: touch drag held 200 ms and released is a tap, so it opens the tab and moves nothing", async ({
+  browser,
+}) => {
+  const { context, page } = await openTouchApp(browser, WIDE);
+
+  await newTabButton(page).tap();
+  await newTabButton(page).tap();
+  await expect(shellTabs(page)).toHaveCount(3);
+  await expect(shellTabs(page).last()).toHaveAttribute("aria-selected", "true");
+
+  const ids = await tabIds(page);
+  const { x, y } = await tabCenter(page, 0);
+  const finger = await fingerDown(page, x, y);
+
+  await page.waitForTimeout(SHORT_TOUCH_MS);
+  await finger.lift();
+
+  await expect(shellTabs(page).first()).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+  expect(await tabIds(page)).toEqual(ids);
+  await expect(tabStrip(page).locator("[data-drag-pressed]")).toHaveCount(0);
+  await context.close();
+});
+
+test("tabs: touch drag waits --motion-drag-press, 400ms in every design and under reduced motion", async ({
+  page,
+}) => {
+  const dragPress = () =>
+    tabStrip(page)
+      .locator('[data-slot="tab-item"]')
+      .first()
+      .evaluate((item) =>
+        getComputedStyle(item).getPropertyValue("--motion-drag-press").trim()
+      );
+
+  for (const design of DESIGNS) {
+    // oxlint-disable-next-line no-await-in-loop -- one design at a time
+    await openApp(page, design, "light");
+    // oxlint-disable-next-line no-await-in-loop -- one design at a time
+    expect(await dragPress(), design).toBe("400ms");
+  }
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  expect(await dragPress()).toBe("400ms");
 });
 
 test("shortcut in a shadow root: the shell that holds focus toggles, even when it sits inside one", async ({

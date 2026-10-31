@@ -99,8 +99,10 @@
 }
 
 /* The dragged tab lifts with --drag-lift-shadow, which tabs.tsx sets to
-   --shadow-menu on each tab item for a design to change. */
-[data-slot="tab-item"][data-dragging] [data-slot="tab"] {
+   --shadow-menu on each tab item for a design to change. A finger's long
+   press lifts it before it moves. */
+[data-slot="tab-item"]:is([data-dragging], [data-drag-pressed])
+  [data-slot="tab"] {
   box-shadow: var(--drag-lift-shadow);
 }
 
@@ -125,7 +127,8 @@
     forced-color-adjust: none;
   }
 
-  [data-slot="tab-item"][data-dragging] [data-slot="tab"] {
+  [data-slot="tab-item"]:is([data-dragging], [data-drag-pressed])
+    [data-slot="tab"] {
     outline: var(--border-focus-width) solid Highlight;
   }
 }
