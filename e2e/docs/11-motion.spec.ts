@@ -274,3 +274,123 @@ for (const design of ["base", "apple", "glass", "emil", "taste"]) {
     expect(Math.max(...durations)).toBeLessThanOrEqual(250);
   });
 }
+
+const field = (page: Page) =>
+  page.getByRole("main").locator('[data-slot="composer-field"]');
+
+const turnMotion = (started: string[]) =>
+  started.filter((entry) => /^(?:div|article|turn) /u.test(entry));
+
+test("turns: opening a chat moves none of its turns", async ({ page }) => {
+  await openApp(page, "base", "light");
+  await listenForTransitions(page);
+  await page
+    .getByRole("complementary", { name: "Sidebar" })
+    .getByRole("button", { exact: true, name: SAMPLE_CHAT })
+    .click();
+  await page.locator('[data-slot="turn"]').first().waitFor();
+
+  expect(turnMotion(await startedTransitions(page))).toEqual([]);
+  await expect(page.locator("[data-turn-id][data-entering]")).toHaveCount(0);
+});
+
+test("turns: a sent message rises in, and the reply doesn't move", async ({
+  page,
+}) => {
+  await openChat(page, "base");
+
+  const before = await page.locator("[data-turn-id]").count();
+
+  await field(page).fill("Does the retry give up?");
+  await listenForTransitions(page);
+  await field(page).press("Enter");
+  await expect(page.locator("[data-turn-id]")).toHaveCount(before + 2);
+
+  const started = turnMotion(await startedTransitions(page));
+
+  expect(started.toSorted()).toEqual(["div opacity", "div translate"]);
+
+  const entering = page.locator("[data-turn-id][data-entering]");
+
+  await expect(entering).toHaveCount(1);
+  await expect(entering.locator('[data-slot="turn"]')).toContainText(
+    "Does the retry give up?"
+  );
+});
+
+test("turns under reduced motion: a sent message only fades in", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await openChat(page, "base");
+  await field(page).fill("Does the retry give up?");
+  await listenForTransitions(page);
+  await field(page).press("Enter");
+
+  expect(turnMotion(await startedTransitions(page))).toEqual(["div opacity"]);
+});
+
+test("chips: an attached file eases in, and removing it doesn't move anything", async ({
+  page,
+}) => {
+  await openChat(page, "base");
+  await listenForTransitions(page);
+  await page
+    .getByRole("main")
+    .locator('input[type="file"]')
+    .first()
+    .setInputFiles({
+      buffer: Buffer.from("notes"),
+      mimeType: "text/plain",
+      name: "notes.txt",
+    });
+
+  const chip = page.locator('[data-slot="composer-attachment"]');
+
+  await expect(chip).toHaveCount(1);
+
+  const adding = await startedTransitions(page);
+
+  expect(sliding(adding, "composer-attachment")).toEqual([
+    "composer-attachment opacity",
+    "composer-attachment scale",
+  ]);
+
+  await listenForTransitions(page);
+  await chip.getByRole("button", { name: /^Remove/u }).click();
+  await expect(chip).toHaveCount(0);
+  expect(
+    sliding(await startedTransitions(page), "composer-attachment")
+  ).toEqual([]);
+});
+
+test("send to stop: the stop icon eases in after a message is sent", async ({
+  page,
+}) => {
+  await openChat(page, "base");
+  await field(page).fill("Does the retry give up?");
+  await listenForTransitions(page);
+  await field(page).press("Enter");
+
+  const started = await startedTransitions(page);
+
+  expect(started).toContain("svg opacity");
+  expect(started).toContain("svg scale");
+});
+
+test("jump: scrolling away from the end eases the jump button in", async ({
+  page,
+}) => {
+  await openChat(page, "base");
+  await expect(page.locator('[data-slot="jump-to-end"]')).toHaveCount(0);
+  await listenForTransitions(page);
+  await page
+    .locator('[data-slot="message-scroller"]')
+    .evaluate((node) => node.scrollTo({ top: 0 }));
+  await expect(page.locator('[data-slot="jump-to-end"]')).toBeVisible();
+
+  const started = await startedTransitions(page);
+
+  expect(started).toContain("jump-to-end opacity");
+  expect(started).toContain("jump-to-end scale");
+});

@@ -258,6 +258,7 @@
           "space-sidebar-inset": "0px",
           "space-sheet-inset": "0px",
           "space-drawer-backdrop": "48px",
+          "space-turn-enter-offset": "8px",
           "space-conversation-composer-padding-y": "10px",
           "border-hairline": "0.5px",
           "border-focus-width": "2px",
@@ -293,7 +294,11 @@
           "motion-popup": "150ms",
           "popup-scale": "0.97",
           "motion-tooltip": "125ms",
-          "motion-press": "120ms"
+          "motion-press": "120ms",
+          "motion-enter": "150ms",
+          "enter-scale": "0.95",
+          "icon-enter-scale": "0.9",
+          "motion-turn-enter": "200ms"
         },
         "theme": {
           "color-window": "var(--window)",
@@ -485,6 +490,10 @@
         {
           "path": "src/components/composer/composer.tsx",
           "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/arrivals.ts",
+          "type": "registry:ui"
         }
       ]
     },
@@ -520,6 +529,10 @@
         {
           "path": "src/components/conversation/conversation-view.tsx",
           "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/arrivals.ts",
+          "type": "registry:ui"
         }
       ]
     },
@@ -621,6 +634,8 @@
             "--motion-popup": "var(--motion-reduced-fade) !important",
             "--motion-tooltip": "var(--motion-reduced-fade) !important",
             "--motion-press": "var(--motion-reduced-fade) !important",
+            "--motion-enter": "var(--motion-reduced-fade) !important",
+            "--motion-turn-enter": "var(--motion-reduced-fade) !important",
             "transition-property": "opacity, color, background-color, border-color, outline-color, text-decoration-color, fill, stroke !important",
             "transition-delay": "0s !important"
           }

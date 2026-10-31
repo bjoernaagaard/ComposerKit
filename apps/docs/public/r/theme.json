@@ -256,6 +256,7 @@
       "space-sidebar-inset": "0px",
       "space-sheet-inset": "0px",
       "space-drawer-backdrop": "48px",
+      "space-turn-enter-offset": "8px",
       "space-conversation-composer-padding-y": "10px",
       "border-hairline": "0.5px",
       "border-focus-width": "2px",
@@ -291,7 +292,11 @@
       "motion-popup": "150ms",
       "popup-scale": "0.97",
       "motion-tooltip": "125ms",
-      "motion-press": "120ms"
+      "motion-press": "120ms",
+      "motion-enter": "150ms",
+      "enter-scale": "0.95",
+      "icon-enter-scale": "0.9",
+      "motion-turn-enter": "200ms"
     },
     "dark": {
       "window": "#0a0b0d",

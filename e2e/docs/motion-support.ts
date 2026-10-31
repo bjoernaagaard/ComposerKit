@@ -22,7 +22,7 @@ export const listenForTransitions = (page: Page) =>
       const { target } = event;
 
       const slot =
-        target instanceof HTMLElement
+        target instanceof HTMLElement || target instanceof SVGElement
           ? (target.dataset.slot ?? target.tagName.toLowerCase())
           : String(target);
 

@@ -83,6 +83,8 @@
     --motion-popup: var(--motion-reduced-fade) !important;
     --motion-tooltip: var(--motion-reduced-fade) !important;
     --motion-press: var(--motion-reduced-fade) !important;
+    --motion-enter: var(--motion-reduced-fade) !important;
+    --motion-turn-enter: var(--motion-reduced-fade) !important;
     transition-property:
       opacity, color, background-color, border-color, outline-color,
       text-decoration-color, fill, stroke !important;

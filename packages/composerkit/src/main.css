@@ -66,6 +66,8 @@
     --motion-popup: var(--motion-reduced-fade) !important;
     --motion-tooltip: var(--motion-reduced-fade) !important;
     --motion-press: var(--motion-reduced-fade) !important;
+    --motion-enter: var(--motion-reduced-fade) !important;
+    --motion-turn-enter: var(--motion-reduced-fade) !important;
     --tw-enter-translate-x: 0 !important;
     --tw-enter-translate-y: 0 !important;
     --tw-enter-scale: 1 !important;

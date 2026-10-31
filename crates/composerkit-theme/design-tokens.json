@@ -197,7 +197,8 @@
     "titlebarInsetStart": 12,
     "sidebarInset": 0,
     "sheetInset": 0,
-    "drawerBackdrop": 48
+    "drawerBackdrop": 48,
+    "turnEnterOffset": 8
   },
   "border": {
     "hairline": 0.5,
@@ -250,7 +251,11 @@
     "popupMs": 150,
     "popupScale": 0.97,
     "tooltipMs": 125,
-    "pressMs": 120
+    "pressMs": 120,
+    "enterMs": 150,
+    "enterScale": 0.95,
+    "iconEnterScale": 0.9,
+    "turnEnterMs": 200
   },
   "palette": {
     "neutral": {
