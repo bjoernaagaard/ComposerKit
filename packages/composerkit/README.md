@@ -38,7 +38,7 @@ composerkit/
 ├── components/app-shell/app-shell               # AppShell, AppShellSkipLink, AppShellSidebar and AppShellMain
 ├── components/app-shell/title-bar               # the title bar, back and forward, and the sidebar toggle
 ├── components/app-shell/rail                    # the rail of destinations
-├── components/app-shell/tabs                    # the title bar's closable tabs
+├── components/app-shell/tabs                    # the title bar's tabs, which people can close and move
 ├── components/app-shell/splitter                # the splitter that resizes the sidebar
 ├── components/app-shell/persist                 # readShellCookie, which reads the saved layout
 ├── components/chat-sidebar/chat-sidebar         # ChatSidebar, the list of chats and projects
@@ -109,7 +109,7 @@ The conversation view fills its container, so give the container a height. The `
 
 ## Lay out a chat app
 
-The app shell is a set of parts that share their state through `AppShellProvider`. Leave out the parts you don't need, such as the tabs or the rail. Cmd+B on a Mac, or Ctrl+B elsewhere, shows and hides the sidebar, and on narrow widths the sidebar becomes a drawer with the rail inside it. The chat sidebar goes inside `AppShellSidebar`. Your app owns the chats and gets a callback for each change.
+The app shell is a set of parts that share their state through `AppShellProvider`. Leave out the parts you don't need, such as the tabs or the rail. When you pass `onMoveTab` to the tabs, people can move a tab by dragging it, with Ctrl+Shift+ArrowLeft and ArrowRight, or from the tab menu, and your app puts the tab at the new index in its own list. Cmd+B on a Mac, or Ctrl+B elsewhere, shows and hides the sidebar, and on narrow widths the sidebar becomes a drawer with the rail inside it. The chat sidebar goes inside `AppShellSidebar`. Your app owns the chats and gets a callback for each change.
 
 The rail items take an icon from `lucide-react`. The package depends on it, but add it to your app's dependencies too, so your imports don't rely on the package's.
 
