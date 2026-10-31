@@ -1,6 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 // SPDX-License-Identifier: MIT
 
+// The press reads the last input type from a hook, so a server component
+// can render the button only as a client component.
+"use client";
+
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva } from "class-variance-authority";
 import type { VariantProps } from "class-variance-authority";

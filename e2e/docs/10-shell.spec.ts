@@ -264,6 +264,23 @@ test("pointer: a click on the sidebar toggle slides the sidebar and the main reg
   );
 });
 
+test("keyboard mid slide: Meta+B or Control+B during a pointer slide stops it, and the main region sits where it belongs", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+
+  const main = page.getByRole("main");
+  const resting = await main.boundingBox();
+  const keys = await hideToggle(page).getAttribute("aria-keyshortcuts");
+
+  await hideToggle(page).click();
+  await page.keyboard.press(keys ?? "");
+
+  expect(await mainSlides(page)).toBe(0);
+  await expect(sidebar(page)).toBeVisible();
+  expect(await main.boundingBox()).toEqual(resting);
+});
+
 test("pointer: four fast clicks on the sidebar toggle leave one slide running and end where they started", async ({
   page,
 }) => {

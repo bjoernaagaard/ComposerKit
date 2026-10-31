@@ -396,6 +396,14 @@ export const AppShellProvider = ({
       resizing ||
       window.matchMedia(REDUCED_MOTION).matches
     ) {
+      // A slide left from an earlier pointer toggle would now aim at the
+      // wrong place, so the main region jumps to where it sits.
+      for (const item of main?.getAnimations() ?? []) {
+        if (item.id === SLIDE) {
+          item.cancel();
+        }
+      }
+
       return;
     }
 
