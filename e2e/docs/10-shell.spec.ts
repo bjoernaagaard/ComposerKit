@@ -1202,6 +1202,12 @@ test("resize: a drawer open when the shell goes wide is closed when it turns nar
   await expect(page.getByRole("main")).toBeFocused();
 });
 
+// The drawer's swipe distance as an element computes it.
+const swipeOf = (element: Locator) =>
+  element.evaluate((node) =>
+    getComputedStyle(node).getPropertyValue("--drawer-swipe-movement-x")
+  );
+
 test("touch: a 220 px swipe toward the leading edge closes the drawer", async ({
   browser,
 }) => {
@@ -1239,6 +1245,11 @@ test("touch: a 220 px swipe toward the leading edge closes the drawer", async ({
       type: "touchMove",
     });
   }
+
+  // Mid swipe, only the drawer holds the swipe distance. A chat row
+  // doesn't inherit it, so the rows aren't restyled on each move.
+  expect(await swipeOf(drawer(page))).not.toBe("0px");
+  expect(await swipeOf(drawer(page).getByRole("listitem").first())).toBe("0px");
 
   await cdp.send("Input.dispatchTouchEvent", {
     touchPoints: [],

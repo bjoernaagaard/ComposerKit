@@ -25,6 +25,26 @@
   );
 }
 
+/* Base UI writes the drawer's swipe distance on its popup on every pointer
+   move. Left to inherit, the change restyles every chat row in the drawer
+   each frame, so a long list drags slower. Only the popup reads it. */
+@property --drawer-swipe-movement-x {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* The sidebar's panel slides and fades: the pushed one with translate, the
+   drawer with transform, which follows a swipe. Naming only those keeps any
+   other style change on it from animating. */
+[data-slot="sidebar-panel"][data-variant="push"] {
+  transition-property: translate, opacity;
+}
+
+[data-slot="sidebar-panel"][data-variant="overlay"] {
+  transition-property: transform, opacity;
+}
+
 /* A tab row that hides tabs fades out at each end that hides them, so the
    cut reads as more to scroll to. data-overflow names those ends in
    reading order. */

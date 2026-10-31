@@ -607,6 +607,17 @@
         "[data-slot=\"title-bar-nav\"]": {
           "padding-inline-start": "max(var(--space-titlebar-inset-start), env(titlebar-area-x, 0px))"
         },
+        "@property --drawer-swipe-movement-x": {
+          "syntax": "\"<length>\"",
+          "inherits": "false",
+          "initial-value": "0px"
+        },
+        "[data-slot=\"sidebar-panel\"][data-variant=\"push\"]": {
+          "transition-property": "translate, opacity"
+        },
+        "[data-slot=\"sidebar-panel\"][data-variant=\"overlay\"]": {
+          "transition-property": "transform, opacity"
+        },
         "[data-slot=\"tab-strip\"][data-overflow=\"end\"]": {
           "mask-image": "linear-gradient(to right, #000 calc(100% - var(--space-fade-end)), transparent)"
         },
@@ -696,6 +707,9 @@
         }
       ],
       "css": {
+        "[data-slot=\"section-chevron\"]": {
+          "transition-property": "rotate, opacity"
+        },
         "@media (hover: hover)": {
           "[data-slot=\"row-actions\"]": {
             "opacity": "0",

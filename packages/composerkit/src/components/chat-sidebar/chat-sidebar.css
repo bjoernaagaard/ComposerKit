@@ -5,6 +5,11 @@
    screen can do, hover or touch, and on reduced motion, so they are rules
    here rather than classes on the parts. */
 
+/* A section's chevron turns and fades, and nothing else on it animates. */
+[data-slot="section-chevron"] {
+  transition-property: rotate, opacity;
+}
+
 @media (hover: hover) {
   [data-slot="row-actions"] {
     opacity: 0;

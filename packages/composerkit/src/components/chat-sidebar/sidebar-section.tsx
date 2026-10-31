@@ -45,7 +45,8 @@ export const SidebarSection = ({
           {title}
           <ChevronDownIcon
             aria-hidden="true"
-            className={`size-3.5 opacity-0 transition duration-(--motion-duration) group-focus-within/heading:opacity-100 group-hover/heading:opacity-100 ${open ? "" : "-rotate-90 opacity-100"}`}
+            data-slot="section-chevron"
+            className={`size-3.5 opacity-0 duration-(--motion-duration) group-focus-within/heading:opacity-100 group-hover/heading:opacity-100 ${open ? "" : "-rotate-90 opacity-100"}`}
           />
         </button>
         {actions ? (
