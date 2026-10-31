@@ -4,11 +4,12 @@
 use gpui_kit::component::Sizable as _;
 use gpui_kit::component::input::{InputEvent, Textarea, TextareaState};
 use gpui_kit::{
-    AnyElement, App, AppContext as _, Context, Div, ElementId, Entity, FocusHandle, Focusable as _,
-    Font, IntoElement, ParentElement as _, Pixels, SharedString, Styled as _, Subscription,
-    TextRun, Window, canvas, px,
+    AnyElement, App, AppContext as _, ClipboardEntry, ClipboardItem, Context, Div, ElementId,
+    Entity, FocusHandle, Focusable as _, Font, IntoElement, ParentElement as _, Pixels,
+    SharedString, Styled as _, Subscription, TextRun, Window, canvas, px,
 };
 
+use super::controller::PickedFile;
 use super::machine::ComposerAction;
 use super::view::{ComposerLayout, ComposerRequest, Handlers};
 
@@ -76,7 +77,7 @@ impl FieldState {
                 window.on_next_frame(|window, _| window.refresh());
             }
             InputEvent::PressEnter { shift: false, .. } => {
-                self.handlers.request(ComposerRequest::Submit, window, cx);
+                self.handlers.request(&ComposerRequest::Submit, window, cx);
             }
             InputEvent::PressEnter { shift: true, .. } | InputEvent::Focus | InputEvent::Blur => {}
         }
@@ -267,9 +268,14 @@ impl MessageField {
             && room.is_some_and(|room| one_line_width(&self.draft, font, window) > room);
 
         let focus = input.read(cx).focus_handle(cx);
+        let paste_state = state.clone();
         // The extra-small size has no padding of its own, so the box's
         // height is the text's, as on the web.
         let textarea = Textarea::new(&input)
+            .on_paste(move |item, window, cx| {
+                let handlers = paste_state.read(cx).handlers.clone();
+                paste_attachments(item, &handlers, window, cx)
+            })
             .xsmall()
             .appearance(false)
             .readonly(self.sending)
@@ -284,6 +290,43 @@ impl MessageField {
             state,
         }
     }
+}
+
+/// Copied files attach instead of pasting their names, and so does a copied
+/// image with no text beside it, such as a screenshot. Returns whether it
+/// took the paste. Text pastes as before.
+fn paste_attachments(
+    item: &ClipboardItem,
+    handlers: &Handlers,
+    window: &mut Window,
+    cx: &mut App,
+) -> bool {
+    let entries = item.entries();
+    let has_text = entries
+        .iter()
+        .any(|entry| matches!(entry, ClipboardEntry::String(_)));
+    let mut paths = Vec::new();
+    let mut images = Vec::new();
+    for entry in entries {
+        match entry {
+            ClipboardEntry::ExternalPaths(external) => paths.extend_from_slice(external.paths()),
+            ClipboardEntry::Image(image) if !has_text => images.push(PickedFile {
+                name: format!("Pasted image.{}", image.format.extension()),
+                size_bytes: u64::try_from(image.bytes.len()).unwrap_or(u64::MAX),
+            }),
+            ClipboardEntry::Image(_) | ClipboardEntry::String(_) => {}
+        }
+    }
+    if paths.is_empty() && images.is_empty() {
+        return false;
+    }
+    if !paths.is_empty() {
+        handlers.request(&ComposerRequest::AttachPaths(paths.into()), window, cx);
+    }
+    if !images.is_empty() {
+        handlers.request(&ComposerRequest::AttachFiles(images.into()), window, cx);
+    }
+    true
 }
 
 /// How many rows the text shows once it sits on its own row, before it

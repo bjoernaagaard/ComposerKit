@@ -81,7 +81,7 @@ fn attachment_card(attachment: &Attachment, handlers: &Handlers, cx: &App) -> Ca
             .tooltip(label.clone())
             .accessibility_label(label)
             .on_click(move |_, window, cx| {
-                handlers.request(ComposerRequest::RetryUpload(id), window, cx);
+                handlers.request(&ComposerRequest::RetryUpload(id), window, cx);
             })
     });
     let remove = {
