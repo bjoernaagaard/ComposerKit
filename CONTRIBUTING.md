@@ -4,7 +4,7 @@ Thank you for helping with ComposerKit. The guide below explains how to set up t
 
 ## Set up the repository
 
-You need Bun 1.4.4, the version in `packageManager` in `package.json`, which the CI also uses. The Rust crates also need Rust 1.99 or later, but you only need Rust if you change the crates.
+You need Bun 1.4.4, the version in `packageManager` in `package.json`. The Rust crates also need Rust 1.99 or later, but you only need Rust if you change the crates.
 
 ```bash
 git clone https://github.com/bjoernaagaard/ComposerKit.git
@@ -31,7 +31,7 @@ The library folder holds more than the components that ship. The files in `compo
 ```text
 packages/composerkit/
 ├── registry.json          # the shadcn registry items and the files in each one
-├── public/r/              # the built registry, which the Pages workflow publishes
+├── public/r/              # the built registry
 ├── src/
 │   ├── components/        # ships in the registry and the npm package
 │   │   ├── ui/            # button, icon button, tip, menu
@@ -72,11 +72,11 @@ flowchart LR
     tokens --> rust["composerkit-theme crate"]
 ```
 
-The Pages workflow fails when the committed files in `packages/composerkit/public/r` don't match `registry.json`. Run `bun run registry:build` and commit the result whenever you change a component or `registry.json`.
+Run `bun run registry:build` and commit the result whenever you change a component or `registry.json`, so the committed files in `packages/composerkit/public/r` match the source.
 
 ## Check your change
 
-Run the checks below before you open a pull request. The CI runs the linter, the format check and the type check, and builds the package and the demo app. It doesn't run the end to end tests, so run them yourself. The end to end run takes a few minutes.
+Run the checks below before you open a pull request. Nothing runs them for you. The end to end run takes a few minutes.
 
 1. Run `bun run check` to lint and check the formatting. Run `bun run fix` to fix most problems.
 2. Run `bun run typecheck` to check the types in every workspace.
