@@ -14,9 +14,16 @@ publish.workspace = true
 composerkit-theme.workspace = true
 gpui-kit.workspace = true
 
+[features]
+profiler = ["gpui-kit/profiler"]
+
 [lints]
 workspace = true
 
 [dev-dependencies]
 gpui-kit = { workspace = true, features = ["test-support"] }
 image = { version = "0.25.10", default-features = false }
+
+[[example]]
+name = "frame_budget"
+required-features = ["profiler"]

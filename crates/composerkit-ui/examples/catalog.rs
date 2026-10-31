@@ -24,12 +24,12 @@ use gpui_kit::component::tab::{Tab, TabBar};
 use gpui_kit::component::{
     ActiveTheme as _, Selectable as _, Sizable as _, TitleBar as KitTitleBar,
 };
+use gpui_kit::{AnyWindowHandle, App, Entity, Subscription};
 use gpui_kit::{
     AppContext as _, Context, FontWeight, InteractiveElement as _, IntoElement, KeyBinding,
     ParentElement as _, Render, SharedString, StatefulInteractiveElement as _, Styled, Window,
     actions, div, prelude::FluentBuilder as _, px,
 };
-use gpui_kit::{Entity, Subscription};
 
 // GPUI leaves Tab unbound, so each app wires focus traversal itself.
 actions!(catalog, [FocusNext, FocusPrevious]);
@@ -72,17 +72,17 @@ const CHATS: [(&str, &str, &str); 14] = [
     ("c14", "Debug the websocket that drops after an hour", "3d"),
 ];
 
-struct Catalog {
+pub(crate) struct Catalog {
     tabs: Vec<ChatTab>,
     active_tab: SharedString,
     active_chat: SharedString,
     density: RowDensity,
     tab_appearance: TabAppearance,
     sidebar: SidebarVisibility,
-    composers: Entity<ComposerSection>,
-    conversation: Entity<ConversationView>,
+    pub(crate) composers: Entity<ComposerSection>,
+    pub(crate) conversation: Entity<ConversationView>,
     destination: Destination,
-    mode: Mode,
+    pub(crate) mode: Mode,
     mode_appearance: ModeToggleAppearance,
     projects: Vec<Project>,
     adding_project: bool,
@@ -481,6 +481,11 @@ impl Render for Catalog {
 }
 
 fn main() {
+    run(|_, _, _| {});
+}
+
+/// Opens the catalog window, then hands it to `opened`.
+pub(crate) fn run(opened: impl FnOnce(AnyWindowHandle, Entity<Catalog>, &mut App) + 'static) {
     gpui_kit::application()
         .with_assets(composerkit_ui::Assets)
         .run(|cx| {
@@ -490,18 +495,20 @@ fn main() {
                 KeyBinding::new("tab", FocusNext, None),
                 KeyBinding::new("shift-tab", FocusPrevious, None),
             ]);
-            gpui_kit::open_window(KitTitleBar::window_options(), cx, |window, cx| {
-                cx.new(|cx| Catalog::new(window, cx))
-            })
-            .expect("failed to open the catalog window");
+            let (window, catalog) =
+                gpui_kit::open_window(KitTitleBar::window_options(), cx, |window, cx| {
+                    cx.new(|cx| Catalog::new(window, cx))
+                })
+                .expect("failed to open the catalog window");
+            opened(window, catalog, cx);
         });
 }
 
 /// The composer in every layout: one driven by a simulated controller, and
 /// one showing each named state from the web demo's fixtures.
-struct ComposerSection {
+pub(crate) struct ComposerSection {
     layout: ComposerLayout,
-    live: Entity<ComposerController>,
+    pub(crate) live: Entity<ComposerController>,
     last_sent: Option<SharedString>,
     fixtures: Vec<ComposerFixture>,
     active_fixture: usize,
