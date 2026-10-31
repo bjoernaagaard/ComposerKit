@@ -19,8 +19,15 @@ import {
   NotebookPenIcon,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { useCallback, useId, useReducer, useState } from "react";
-import type { ReactNode } from "react";
+import {
+  useCallback,
+  useId,
+  useImperativeHandle,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
+import type { ReactNode, Ref } from "react";
 
 import {
   AppShell,
@@ -177,6 +184,72 @@ const ConversationMain = ({
   );
 };
 
+interface HomeComposerHandle {
+  // Sets the home composer to work in the project, for a chat started from
+  // the project in the sidebar.
+  startProjectChat: (projectId: string) => void;
+}
+
+// The open tab's page. It stays mounted while the tab moves between pages,
+// so it owns the home composer and its mode: a draft and its attachments
+// wait here while another page is open, and a keystroke re-renders only
+// this panel, not the rest of the shell.
+const TabPanel = ({
+  id,
+  labelledBy,
+  projects,
+  onSent,
+  ref,
+  children,
+}: {
+  id: string;
+  labelledBy: string;
+  projects: Project[];
+  onSent: (sent: ComposerState) => void;
+  ref: Ref<HomeComposerHandle>;
+  // The open page, or nothing for home.
+  children: ReactNode;
+}) => {
+  const [mode, setMode] = useState<ComposerMode>("work");
+
+  const { dispatch, handlers, state } = useComposerController(
+    onSent,
+    initialComposer(COMPOSER_OPTIONS, DEFAULT_CHOICES)
+  );
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      startProjectChat: (projectId) => {
+        setMode("work");
+        dispatch({ projectId, type: "projectChanged" });
+      },
+    }),
+    [dispatch]
+  );
+
+  return (
+    <div
+      aria-labelledby={labelledBy}
+      className="h-full"
+      id={id}
+      role="tabpanel"
+    >
+      {children ?? (
+        <HomeView
+          composer={state}
+          dispatch={dispatch}
+          handlers={handlers}
+          mode={mode}
+          onModeChange={setMode}
+          options={COMPOSER_OPTIONS}
+          projects={projects}
+        />
+      )}
+    </div>
+  );
+};
+
 const SidebarHeader = () => (
   <>
     <MenuRoot>
@@ -266,8 +339,7 @@ const ShellApp = ({
   const [histories, navigate] = useReducer(tabHistoriesReducer, { t1: START });
   const history = histories[activeTabId] ?? START;
   const view = history.entries[history.index] ?? HOME;
-
-  const [mode, setMode] = useState<ComposerMode>("work");
+  const homeComposer = useRef<HomeComposerHandle>(null);
 
   const [conversations, setConversations] =
     useState<Conversation[]>(SAMPLE_CONVERSATIONS);
@@ -302,11 +374,6 @@ const ShellApp = ({
       `Sent. “${conversation.title}” is now at the top of Recent.`
     );
   }, []);
-
-  const composer = useComposerController(
-    onSent,
-    initialComposer(COMPOSER_OPTIONS, DEFAULT_CHOICES)
-  );
 
   // A choice made in the narrow drawer, in the rail or the chat sidebar,
   // closes it and moves focus to the page it opened. Those parts do that
@@ -380,17 +447,7 @@ const ShellApp = ({
       ? DESTINATIONS.find((item) => item.id === view.id)?.label
       : undefined;
 
-  let main = (
-    <HomeView
-      composer={composer.state}
-      dispatch={composer.dispatch}
-      handlers={composer.handlers}
-      mode={mode}
-      onModeChange={setMode}
-      options={COMPOSER_OPTIONS}
-      projects={projects}
-    />
-  );
+  let main: ReactNode = null;
 
   if (view.kind === "conversation") {
     main = (
@@ -495,8 +552,7 @@ const ShellApp = ({
               onNewChat={newChat}
               onOpenConversation={openConversation}
               onStartProjectChat={(projectId) => {
-                setMode("work");
-                composer.dispatch({ projectId, type: "projectChanged" });
+                homeComposer.current?.startProjectChat(projectId);
                 newChat();
               }}
               onTogglePin={(id) => {
@@ -512,14 +568,15 @@ const ShellApp = ({
           </AppShellSidebar>
           <AppShellSplitter />
           <AppShellMain render={embedded ? <div /> : undefined}>
-            <div
-              aria-labelledby={appShellTabId(panelId, activeTabId)}
-              className="h-full"
+            <TabPanel
               id={panelId}
-              role="tabpanel"
+              labelledBy={appShellTabId(panelId, activeTabId)}
+              onSent={onSent}
+              projects={projects}
+              ref={homeComposer}
             >
               {main}
-            </div>
+            </TabPanel>
             <div ref={setPopupLayer} />
           </AppShellMain>
           <p aria-live="polite" className="sr-only">
