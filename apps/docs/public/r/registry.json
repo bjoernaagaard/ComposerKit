@@ -568,6 +568,10 @@
         {
           "path": "src/components/app-shell/labels.ts",
           "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/use-sortable.ts",
+          "type": "registry:ui"
         }
       ],
       "css": {
@@ -619,10 +623,24 @@
           "cursor": "inherit",
           "transition": "none !important"
         },
+        "[data-slot=\"tab-item\"][data-dragging] [data-slot=\"tab\"]": {
+          "box-shadow": "var(--drag-lift-shadow)"
+        },
+        "[data-slot=\"app-shell\"][data-dragging]": {
+          "cursor": "grabbing",
+          "-webkit-user-select": "none",
+          "user-select": "none"
+        },
+        "[data-slot=\"app-shell\"][data-dragging] *": {
+          "cursor": "inherit"
+        },
         "@media (forced-colors: active)": {
           "[data-slot=\"sidebar-splitter\"]:is(:hover, :focus-visible)::after, [data-slot=\"app-shell\"][data-resizing] [data-slot=\"sidebar-splitter\"]::after": {
             "background-color": "Highlight",
             "forced-color-adjust": "none"
+          },
+          "[data-slot=\"tab-item\"][data-dragging] [data-slot=\"tab\"]": {
+            "outline": "var(--border-focus-width) solid Highlight"
           }
         }
       }

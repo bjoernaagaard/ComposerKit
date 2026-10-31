@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
+import { AxeBuilder } from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
 
@@ -1355,6 +1356,234 @@ test("tabs: move without onMoveTab: the keys do nothing and the tab menu has no 
   await expect(menu.getByRole("menuitem", { name: /^Move/u })).toHaveCount(0);
   await expect(menu.getByRole("menuitem", { name: /^Close/u })).toHaveCount(1);
   await context.close();
+});
+
+const shellRoot = (page: Page) => page.locator('[data-slot="app-shell"]');
+
+const tabCenter = async (page: Page, index: number) => {
+  const box = await shellTabs(page).nth(index).boundingBox();
+
+  return {
+    x: (box?.x ?? 0) + (box?.width ?? 0) / 2,
+    y: (box?.y ?? 0) + (box?.height ?? 0) / 2,
+  };
+};
+
+// The horizontal distance that carries one tab's center 10 px past
+// another's, which is past that tab's midpoint.
+const pastTab = async (page: Page, from: number, to: number) => {
+  const start = await tabCenter(page, from);
+  const end = await tabCenter(page, to);
+  const dx = end.x - start.x;
+
+  return dx + Math.sign(dx) * 10;
+};
+
+const dragTab = async (
+  page: Page,
+  index: number,
+  dx: number,
+  { hold = false, steps = 8 } = {}
+) => {
+  const { x, y } = await tabCenter(page, index);
+
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x + dx, y, { steps });
+
+  if (!hold) {
+    await page.mouse.up();
+  }
+};
+
+const tabTransforms = (page: Page) =>
+  tabStrip(page)
+    .locator('[data-slot="tab-item"]')
+    .evaluateAll((items) =>
+      items.map((item) =>
+        item instanceof HTMLElement ? item.style.transform : ""
+      )
+    );
+
+test("tabs: drag past the next tab's midpoint moves the tab there, marks the shell while the button is held, keeps it open and announces the move", async ({
+  page,
+}) => {
+  const [first, second, third] = await openThreeTabs(page);
+
+  await shellTabs(page).first().click();
+  await dragTab(page, 0, await pastTab(page, 0, 1), { hold: true });
+
+  await expect(shellRoot(page)).toHaveAttribute("data-dragging", "");
+  await expect(tabStrip(page)).toHaveAttribute("data-dragging", "");
+  expect(await tabIds(page)).toEqual([first, second, third]);
+
+  await page.mouse.up();
+
+  expect(await tabIds(page)).toEqual([second, first, third]);
+  await expect(shellRoot(page)).not.toHaveAttribute("data-dragging");
+  await expect(shellTabs(page).nth(1)).toHaveAccessibleName("Chat");
+  await expect(shellTabs(page).nth(1)).toHaveAttribute("aria-selected", "true");
+  await expect(moveAnnouncement(page)).toHaveText(
+    "Moved Chat to position 2 of 3"
+  );
+  await expect.poll(() => tabTransforms(page)).toEqual(["", "", ""]);
+});
+
+test("tabs: drag shorter than 4 px is a click, so it opens the tab and moves nothing", async ({
+  page,
+}) => {
+  const ids = await openThreeTabs(page);
+
+  await expect(shellTabs(page).last()).toHaveAttribute("aria-selected", "true");
+  await dragTab(page, 0, 3, { steps: 3 });
+
+  await expect(shellTabs(page).first()).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+  await expect(shellRoot(page)).not.toHaveAttribute("data-dragging");
+  expect(await tabIds(page)).toEqual(ids);
+});
+
+test("tabs: drag then Escape while the button is held puts the tab back, and nothing moves or opens", async ({
+  page,
+}) => {
+  const ids = await openThreeTabs(page);
+
+  await dragTab(page, 0, await pastTab(page, 0, 1), { hold: true });
+  await expect(shellRoot(page)).toHaveAttribute("data-dragging", "");
+
+  await page.keyboard.press("Escape");
+  await expect(shellRoot(page)).not.toHaveAttribute("data-dragging");
+  await page.mouse.up();
+
+  expect(await tabIds(page)).toEqual(ids);
+  await expect(shellTabs(page).last()).toHaveAttribute("aria-selected", "true");
+  await expect(moveAnnouncement(page)).toHaveText("");
+  await expect.poll(() => tabTransforms(page)).toEqual(["", "", ""]);
+});
+
+test("tabs: drag toward the start of an overflowing strip at 1024 px scrolls it", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 768, width: 1024 });
+  await openApp(page, "base", "light");
+
+  for (let opened = 1; opened < 10; opened += 1) {
+    // oxlint-disable-next-line no-await-in-loop -- each tab follows the one before
+    await newTabButton(page).click();
+  }
+
+  await expect(shellTabs(page)).toHaveCount(10);
+  await expect(tabStrip(page)).toHaveAttribute("data-overflow", "start");
+  // The last tab scrolls the row to the end once it has grown in.
+  await expect
+    .poll(() =>
+      tabStrip(page).evaluate(
+        (strip) => strip.getAnimations({ subtree: true }).length
+      )
+    )
+    .toBe(0);
+
+  const scrolled = () =>
+    tabStrip(page).evaluate((strip) => Math.abs(strip.scrollLeft));
+
+  const before = await scrolled();
+  const strip = await tabStrip(page).boundingBox();
+  const { x } = await tabCenter(page, 9);
+
+  await dragTab(page, 9, (strip?.x ?? 0) + 4 - x, { hold: true, steps: 24 });
+  await expect.poll(scrolled).toBeLessThan(before - 40);
+
+  await page.keyboard.press("Escape");
+  await page.mouse.up();
+  await expect(shellTabs(page)).toHaveCount(10);
+});
+
+test("tabs: drag in right-to-left layouts moves the tab the way the pointer goes", async ({
+  page,
+}) => {
+  const [first, second, third] = await openThreeTabs(page);
+
+  await page.evaluate(() => {
+    document.documentElement.dir = "rtl";
+  });
+
+  const dx = await pastTab(page, 0, 1);
+
+  expect(dx).toBeLessThan(0);
+  await dragTab(page, 0, dx);
+  expect(await tabIds(page)).toEqual([second, first, third]);
+
+  await dragTab(page, 1, await pastTab(page, 1, 2));
+  expect(await tabIds(page)).toEqual([second, third, first]);
+});
+
+test("tabs: drag lifts the tab with --shadow-menu, and the tabs it passes slide with a transform transition", async ({
+  page,
+}) => {
+  await openThreeTabs(page);
+  await listenForTransitions(page);
+  await dragTab(page, 0, await pastTab(page, 0, 1), { hold: true });
+
+  const shadows = await page.evaluate(() => {
+    const tab = document.querySelector(
+      '[data-slot="tab-item"][data-dragging] [data-slot="tab"]'
+    );
+
+    const probe = document.createElement("div");
+
+    probe.style.boxShadow = "var(--shadow-menu)";
+    tab?.parentElement?.append(probe);
+
+    const expected = getComputedStyle(probe).boxShadow;
+
+    probe.remove();
+
+    return { actual: tab ? getComputedStyle(tab).boxShadow : "", expected };
+  });
+
+  expect(shadows.expected).not.toBe("none");
+  expect(shadows.actual).toBe(shadows.expected);
+
+  const started = await startedTransitions(page);
+
+  await page.mouse.up();
+  expect(started).toContain("tab-item transform");
+});
+
+test("tabs: drag under reduced motion moves the tab, and no tab slides with a transition", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+
+  const [first, second, third] = await openThreeTabs(page);
+
+  await listenForTransitions(page);
+  await dragTab(page, 0, await pastTab(page, 0, 1), { hold: true });
+
+  const started = await startedTransitions(page);
+
+  await page.mouse.up();
+  expect(
+    started.filter((entry) => /transform|translate|scale/u.test(entry))
+  ).toEqual([]);
+  expect(await tabIds(page)).toEqual([second, first, third]);
+});
+
+test("tabs: drag passes axe on the title bar while the tab is held", async ({
+  page,
+}) => {
+  await openThreeTabs(page);
+  await dragTab(page, 0, await pastTab(page, 0, 1), { hold: true });
+  await expect(shellRoot(page)).toHaveAttribute("data-dragging", "");
+
+  const result = await new AxeBuilder({ page })
+    .include('[data-slot="title-bar"]')
+    .analyze();
+
+  await page.mouse.up();
+  expect(result.violations.map((violation) => violation.id)).toEqual([]);
 });
 
 test("shortcut in a shadow root: the shell that holds focus toggles, even when it sits inside one", async ({

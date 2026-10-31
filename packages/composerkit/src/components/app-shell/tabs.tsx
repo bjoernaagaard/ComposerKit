@@ -36,6 +36,7 @@ import {
   MenuTrigger,
 } from "@/components/ui/menu";
 import { Tip } from "@/components/ui/tip";
+import { useSortable } from "@/components/ui/use-sortable";
 import { cn } from "@/lib/utils";
 
 export interface AppShellTab {
@@ -331,6 +332,15 @@ const TAB_CLASSES: Record<
 const CLOSE_BUTTON =
   "text-muted-foreground hover:bg-accent hover:text-foreground absolute end-1 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-(--radius-tab) opacity-0 transition-opacity duration-(--motion-duration) ease-(--motion-ease-out) group-focus-within/tab:opacity-100 group-hover/tab:opacity-100 group-data-selected/tab:opacity-100 pointer-coarse:opacity-100";
 
+// While a tab drags, the others slide aside over the design's motion, and
+// jump under reduced motion. The dragged one follows the pointer at once,
+// lifted above them. A design restyles the lift with --drag-lift-shadow
+// and --drag-lift-scale.
+const SORTABLE_ITEM =
+  "[--drag-lift-scale:1] [--drag-lift-shadow:var(--shadow-menu)] transition-transform duration-(--motion-duration) ease-(--motion-ease-out) motion-reduce:transition-none data-dragging:z-10 data-dragging:scale-(--drag-lift-scale) data-dragging:transition-none";
+
+const LIFTED_TAB = "group-data-dragging/tab:bg-background";
+
 export interface AppShellTabsProps {
   tabs: AppShellTab[];
   activeTabId: string;
@@ -448,26 +458,47 @@ export const AppShellTabs = ({
     reveal(list.current, activeTabId);
   }, [activeTabId]);
 
-  // It stops at the ends and never wraps. React moves the tab's element
-  // and puts focus back on it, so focus stays where it was.
-  const moveTab = (id: string, side: TabSide) => {
-    const from = tabs.findIndex((tab) => tab.id === id);
-    const tab = tabs[from];
-    const to = from + stepFor(side, isRtl(list.current));
+  // React moves the tab's element and puts focus back on it, so focus
+  // stays where it was.
+  const moveTabTo = (id: string, to: number) => {
+    const tab = tabs.find((each) => each.id === id);
 
-    if (
-      !onMoveTab ||
-      !tab ||
-      closing.current.has(id) ||
-      to < 0 ||
-      to >= tabs.length
-    ) {
+    if (!onMoveTab || !tab) {
       return;
     }
 
     onMoveTab(id, to);
     setAnnouncement(text.movedTab(tab.title, to + 1, tabs.length));
   };
+
+  // It stops at the ends and never wraps.
+  const moveTab = (id: string, side: TabSide) => {
+    const from = tabs.findIndex((tab) => tab.id === id);
+    const to = from + stepFor(side, isRtl(list.current));
+
+    if (from === -1 || closing.current.has(id) || to < 0 || to >= tabs.length) {
+      return;
+    }
+
+    moveTabTo(id, to);
+  };
+
+  const { dragging, itemProps, listRef } = useSortable({
+    canDrag: (id) => !closing.current.has(id),
+    enabled: movable,
+    ids: tabs.map((tab) => tab.id),
+    onDraggingChange: shell?.setDragging,
+    onMove: moveTabTo,
+    orientation: "horizontal",
+  });
+
+  const stripRef = useCallback(
+    (element: HTMLDivElement | null) => {
+      list.current = element;
+      listRef(element);
+    },
+    [listRef]
+  );
 
   const closeTab = (id: string, animate: boolean) => {
     const staying = tabs.filter(
@@ -592,11 +623,12 @@ export const AppShellTabs = ({
     >
       <div
         aria-label={text.tabs}
-        className="-m-1 flex min-w-0 [scrollbar-width:thin] items-center gap-2 overflow-x-auto p-1"
+        className="-m-1 flex min-w-0 [scrollbar-width:thin] items-center gap-2 overflow-x-auto p-1 data-dragging:cursor-grabbing data-dragging:select-none"
         data-appearance={appearance}
+        data-dragging={dragging === null ? undefined : ""}
         data-overflow={overflow}
         data-slot="tab-strip"
-        ref={list}
+        ref={stripRef}
         role="tablist"
       >
         {tabs.map((tab) => {
@@ -605,10 +637,14 @@ export const AppShellTabs = ({
 
           return (
             <div
-              className="group/tab relative flex w-(--size-tab-width) min-w-24 shrink"
+              className={cn(
+                "group/tab relative flex w-(--size-tab-width) min-w-24 shrink",
+                movable && SORTABLE_ITEM
+              )}
               data-selected={selected}
               data-slot="tab-item"
               key={tab.id}
+              {...(movable ? itemProps(tab.id) : undefined)}
             >
               <Tip label={tab.title}>
                 <button
@@ -618,6 +654,7 @@ export const AppShellTabs = ({
                   className={cn(
                     "flex h-(--size-tab-height) w-full min-w-0 items-center gap-2 py-1 ps-2.5 text-start text-(length:--text-label-size) leading-(--text-label-leading) transition-colors duration-(--motion-duration)",
                     closable && "pe-8",
+                    movable && LIFTED_TAB,
                     style.base,
                     selected
                       ? `text-foreground font-(--weight-semibold) ${style.selected}`

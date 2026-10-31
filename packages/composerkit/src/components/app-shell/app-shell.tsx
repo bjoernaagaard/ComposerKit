@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 //   data-sidebar-variant  push (beside the main region) or overlay (narrow)
 //   data-input            pointer or keyboard, the last input type
 //   data-resizing         while a pointer drags the splitter
+//   data-dragging         while a pointer drags a tab
 // --shell-sidebar-width is the room the sidebar takes: its width when it
 // is expanded beside the main region, and 0 otherwise. A width the person
 // chose with the splitter is drawn as --size-sidebar here, so until then
@@ -32,8 +33,16 @@ import { cn } from "@/lib/utils";
 export type AppShellProps = Omit<ComponentProps<"div">, "ref">;
 
 export const AppShell = ({ className, style, ...props }: AppShellProps) => {
-  const { rootRef, isNarrow, open, openNarrow, input, resizing, chosenWidth } =
-    useAppShell();
+  const {
+    rootRef,
+    isNarrow,
+    open,
+    openNarrow,
+    input,
+    resizing,
+    dragging,
+    chosenWidth,
+  } = useAppShell();
 
   const expanded = isNarrow ? openNarrow : open;
 
@@ -47,6 +56,7 @@ export const AppShell = ({ className, style, ...props }: AppShellProps) => {
         "group/shell bg-window text-foreground relative grid h-full min-h-0 grid-cols-[auto_auto_minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)] [--shell-sidebar-width:0px] data-[sidebar=expanded]:data-[sidebar-variant=push]:[--shell-sidebar-width:var(--size-sidebar)]",
         className
       )}
+      data-dragging={dragging ? "" : undefined}
       data-input={input}
       data-resizing={resizing ? "" : undefined}
       data-sidebar={expanded ? "expanded" : "collapsed"}
