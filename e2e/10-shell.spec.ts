@@ -242,22 +242,20 @@ test("pointer: a click on the sidebar toggle slides the sidebar and the main reg
   await listenForTransitions(page);
   await hideToggle(page).click();
 
-  expect(await mainSlides(page)).toBe(1);
-
   const closing = await startedTransitions(page);
 
   await expect(sidebar(page)).toBeHidden();
+  expect(closing.filter((entry) => entry === "main slide")).toHaveLength(1);
   expect(closing).toContain("sidebar-panel translate");
   expect(closing).not.toContain("sidebar-gap width");
 
   await listenForTransitions(page);
   await showToggle(page).click();
 
-  expect(await mainSlides(page)).toBe(1);
-
   const opening = await startedTransitions(page);
 
   await expect(sidebar(page)).toBeVisible();
+  expect(opening.filter((entry) => entry === "main slide")).toHaveLength(1);
   expect(opening).toContain("sidebar-panel translate");
   expect(opening).not.toContain("sidebar-gap width");
   await expect(page.locator('[data-slot="app-shell"]')).not.toHaveAttribute(

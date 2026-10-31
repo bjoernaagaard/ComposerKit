@@ -17,7 +17,15 @@ declare global {
 
 export const listenForTransitions = (page: Page) =>
   page.evaluate(() => {
+    const listening = window.shellTransitions !== undefined;
+
     window.shellTransitions = [];
+
+    // Later calls only clear the log, so each start is recorded once.
+    if (listening) {
+      return;
+    }
+
     document.addEventListener("transitionrun", (event) => {
       const { target } = event;
 
@@ -27,6 +35,19 @@ export const listenForTransitions = (page: Page) =>
           : String(target);
 
       window.shellTransitions?.push(`${slot} ${event.propertyName}`);
+    });
+    // The main region slides with the Web Animations API, which fires no
+    // event. The shell marks the slide with data-sliding when it starts.
+    new MutationObserver((records) => {
+      for (const record of records) {
+        if (record.oldValue === null) {
+          window.shellTransitions?.push("main slide");
+        }
+      }
+    }).observe(document.body, {
+      attributeFilter: ["data-sliding"],
+      attributeOldValue: true,
+      subtree: true,
     });
   });
 
