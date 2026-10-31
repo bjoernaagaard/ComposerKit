@@ -8,43 +8,11 @@ import { pathToFileURL } from "node:url";
 import { expect, test } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
 
+import { listenForTransitions, startedTransitions } from "./motion-support";
 import { openApp, openHarness } from "./stress-support";
 import { PLAYGROUND_URL, REPO, openPage, run } from "./support";
 
 const REDUCED_FADE = "0.15s";
-
-// How long the spec listens for transitions after a change: longer than
-// any shell fade, so one that started would be seen.
-const LISTEN_MS = 400;
-
-declare global {
-  interface Window {
-    // The transitions that started since listenForTransitions, each as
-    // "slot property", where slot is the target's data-slot or tag name.
-    shellTransitions?: string[];
-  }
-}
-
-const listenForTransitions = (page: Page) =>
-  page.evaluate(() => {
-    window.shellTransitions = [];
-    document.addEventListener("transitionrun", (event) => {
-      const { target } = event;
-
-      const slot =
-        target instanceof HTMLElement
-          ? (target.dataset.slot ?? target.tagName.toLowerCase())
-          : String(target);
-
-      window.shellTransitions?.push(`${slot} ${event.propertyName}`);
-    });
-  });
-
-const startedTransitions = async (page: Page) => {
-  await page.waitForTimeout(LISTEN_MS);
-
-  return page.evaluate(() => window.shellTransitions ?? []);
-};
 
 const rail = (page: Page) => page.getByRole("navigation", { name: "Main" });
 
@@ -171,7 +139,11 @@ test("theme switch: picking the other scheme starts no transitions", async ({
     "data-shell-frame-transitions",
     "0"
   );
-  expect(await startedTransitions(page)).toEqual([]);
+  // The click also closes the Appearance menu, which a pointer closes with
+  // motion. Nothing else may move.
+  const started = await startedTransitions(page);
+
+  expect(started.filter((entry) => !entry.startsWith("menu "))).toEqual([]);
   await expect(page.locator("html")).not.toHaveAttribute(
     "data-theme-switching"
   );
@@ -185,6 +157,18 @@ const hideToggle = (page: Page) =>
 
 const showToggle = (page: Page) =>
   page.getByRole("button", { name: "Show sidebar" });
+
+// The slides running on the main region, which the shell plays with the
+// Web Animations API rather than a CSS transition.
+const mainSlides = (page: Page) =>
+  page
+    .getByRole("main")
+    .evaluate(
+      (node) =>
+        node
+          .getAnimations()
+          .filter((item) => item.id === "app-shell-main-slide").length
+    );
 
 const sidebarMotion = (started: string[]) =>
   started.filter((entry) => entry.startsWith("sidebar-"));
@@ -235,6 +219,7 @@ test("shortcut: Meta+B, or Control+B off Apple platforms, hides and shows the si
 
   await listenForTransitions(page);
   await page.keyboard.press(keys ?? "");
+  expect(await mainSlides(page)).toBe(0);
 
   await expect(sidebar(page)).toBeHidden();
   await expect(showToggle(page)).toHaveAttribute("aria-expanded", "false");
@@ -242,33 +227,78 @@ test("shortcut: Meta+B, or Control+B off Apple platforms, hides and shows the si
 
   await listenForTransitions(page);
   await page.keyboard.press(keys ?? "");
+  expect(await mainSlides(page)).toBe(0);
 
   await expect(sidebar(page)).toBeVisible();
   await expect(hideToggle(page)).toHaveAttribute("aria-expanded", "true");
   expect(await startedTransitions(page)).toEqual([]);
 });
 
-test("pointer: a click on the sidebar toggle slides the sidebar out and back", async ({
+test("pointer: a click on the sidebar toggle slides the sidebar and the main region out and back, with no width animation", async ({
   page,
 }) => {
   await openApp(page, "base", "light");
   await listenForTransitions(page);
   await hideToggle(page).click();
 
+  expect(await mainSlides(page)).toBe(1);
+
   const closing = await startedTransitions(page);
 
   await expect(sidebar(page)).toBeHidden();
-  expect(closing).toContain("sidebar-gap width");
   expect(closing).toContain("sidebar-panel translate");
+  expect(closing).not.toContain("sidebar-gap width");
 
   await listenForTransitions(page);
   await showToggle(page).click();
 
+  expect(await mainSlides(page)).toBe(1);
+
   const opening = await startedTransitions(page);
 
   await expect(sidebar(page)).toBeVisible();
-  expect(opening).toContain("sidebar-gap width");
   expect(opening).toContain("sidebar-panel translate");
+  expect(opening).not.toContain("sidebar-gap width");
+  await expect(page.locator('[data-slot="app-shell"]')).not.toHaveAttribute(
+    "data-sliding"
+  );
+});
+
+test("keyboard mid slide: Meta+B or Control+B during a pointer slide stops it, and the main region sits where it belongs", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+
+  const main = page.getByRole("main");
+  const resting = await main.boundingBox();
+  const keys = await hideToggle(page).getAttribute("aria-keyshortcuts");
+
+  await hideToggle(page).click();
+  await page.keyboard.press(keys ?? "");
+
+  expect(await mainSlides(page)).toBe(0);
+  await expect(sidebar(page)).toBeVisible();
+  expect(await main.boundingBox()).toEqual(resting);
+});
+
+test("pointer: four fast clicks on the sidebar toggle leave one slide running and end where they started", async ({
+  page,
+}) => {
+  await openApp(page, "base", "light");
+
+  const main = page.getByRole("main");
+  const resting = await main.boundingBox();
+
+  for (let click = 0; click < 4; click += 1) {
+    // oxlint-disable-next-line no-await-in-loop -- each click follows the one before
+    await page
+      .getByRole("button", { name: /^(?:Hide|Show) sidebar$/u })
+      .click();
+  }
+
+  expect(await mainSlides(page)).toBeLessThanOrEqual(1);
+  await expect.poll(() => mainSlides(page)).toBe(0);
+  expect(await main.boundingBox()).toEqual(resting);
 });
 
 test("reload: a hidden sidebar is still hidden on the first frame", async ({
@@ -365,6 +395,7 @@ test("reduced motion: the sidebar toggle fades the sidebar and does not slide it
   expect(
     started.filter((entry) => /translate|transform|width/u.test(entry))
   ).toEqual([]);
+  expect(await mainSlides(page)).toBe(0);
 });
 
 // The shell as an app gets it: the npm package, the docs site, which loads
@@ -1230,6 +1261,12 @@ test("resize: a drawer open when the shell goes wide is closed when it turns nar
   await expect(page.getByRole("main")).toBeFocused();
 });
 
+// The drawer's swipe distance as an element computes it.
+const swipeOf = (element: Locator) =>
+  element.evaluate((node) =>
+    getComputedStyle(node).getPropertyValue("--drawer-swipe-movement-x")
+  );
+
 test("touch: a 220 px swipe toward the leading edge closes the drawer", async ({
   browser,
 }) => {
@@ -1267,6 +1304,11 @@ test("touch: a 220 px swipe toward the leading edge closes the drawer", async ({
       type: "touchMove",
     });
   }
+
+  // Mid swipe, only the drawer holds the swipe distance. A chat row
+  // doesn't inherit it, so the rows aren't restyled on each move.
+  expect(await swipeOf(drawer(page))).not.toBe("0px");
+  expect(await swipeOf(drawer(page).getByRole("listitem").first())).toBe("0px");
 
   await cdp.send("Input.dispatchTouchEvent", {
     touchPoints: [],

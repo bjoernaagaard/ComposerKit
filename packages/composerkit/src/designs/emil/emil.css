@@ -53,39 +53,11 @@ body[data-design="emil"] [data-slot="composer-tray"] {
 body[data-design="emil"] [data-slot="menu"] {
   border: 1px solid var(--border);
   background: var(--card);
-  transform-origin: var(--transform-origin);
 }
 
 body[data-design="emil"] [data-slot="tooltip"] {
   border-radius: 5px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  body[data-design="emil"][data-emil-input="pointer"] [data-slot="button"],
-  body[data-design="emil"][data-emil-input="pointer"]
-    [data-slot="icon-button"] {
-    transition:
-      transform 120ms cubic-bezier(0.23, 1, 0.32, 1),
-      color 100ms,
-      background-color 100ms;
-  }
-
-  body[data-design="emil"][data-emil-input="pointer"]
-    [data-slot="button"]:active:not(:disabled):not([aria-disabled="true"]),
-  body[data-design="emil"][data-emil-input="pointer"]
-    [data-slot="icon-button"]:active:not(:disabled):not(
-      [aria-disabled="true"]
-    ) {
-    transform: scale(0.97);
-  }
-
-  body[data-design="emil"][data-emil-input="pointer"] [data-slot="menu"] {
-    transition:
-      opacity 150ms cubic-bezier(0.23, 1, 0.32, 1),
-      transform 150ms cubic-bezier(0.23, 1, 0.32, 1);
-    @starting-style {
-      opacity: 0;
-      transform: scale(0.97);
-    }
-  }
-}
+/* Menus, tooltips and the button press use the kit's motion tokens, whose
+   base values are this design's, so it sets no motion of its own. */

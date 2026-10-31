@@ -80,6 +80,13 @@ body[data-design="apple"] {
 
   /* A critically damped spring (response 0.35s), sampled for CSS. */
   --motion-duration: 180ms;
+  /* Menus grow from further back than the base, at the longest a dropdown
+     should take. The menu itself owns the transition. */
+  --motion-popup: 250ms;
+  --popup-scale: 0.94;
+  /* Tooltips settle a little slower, and a press sinks a little deeper. */
+  --motion-tooltip: 200ms;
+  --press-scale: 0.96;
   --motion-ease-out: cubic-bezier(0.25, 1, 0.5, 1);
   --motion-ease-enter: linear(
     0,
@@ -404,7 +411,7 @@ body[data-design="apple"]
   background: var(--apple-lens);
   box-shadow: var(--apple-rim), var(--shadow-toggle-thumb);
   transition-property: translate, scale;
-  transition-duration: 420ms, 160ms;
+  transition-duration: 250ms, var(--motion-press);
   transition-timing-function: var(--motion-ease-enter), ease-out;
 }
 
@@ -419,7 +426,6 @@ body[data-design="apple"] [data-slot="menu"] {
   background: var(--apple-glass-thick);
   backdrop-filter: var(--apple-glass-filter);
   box-shadow: var(--apple-rim), var(--shadow-menu);
-  transform-origin: var(--transform-origin);
 }
 
 /* Tooltips: a small glass capsule with ink text instead of an inverted slab. */
@@ -430,14 +436,14 @@ body[data-design="apple"] [data-slot="tooltip"] {
   box-shadow: var(--apple-rim), var(--apple-lift);
   color: var(--foreground);
   font-weight: var(--weight-medium);
-  transform-origin: var(--transform-origin);
 }
 
 /* ---------- Buttons ---------- */
 
 body[data-design="apple"] [data-slot="button"] {
   transition-property: background-color, color, scale;
-  transition-duration: var(--motion-duration), var(--motion-duration), 120ms;
+  transition-duration:
+    var(--motion-duration), var(--motion-duration), var(--motion-press);
   transition-timing-function: ease-out;
 }
 
@@ -453,7 +459,8 @@ body[data-design="apple"] [data-slot="button"][data-variant="outline"] {
 
 body[data-design="apple"] [data-slot="icon-button"] {
   transition-property: background-color, color, scale;
-  transition-duration: var(--motion-duration), var(--motion-duration), 120ms;
+  transition-duration:
+    var(--motion-duration), var(--motion-duration), var(--motion-press);
   transition-timing-function: ease-out;
 }
 
@@ -497,61 +504,11 @@ body[data-design="apple"] [data-slot="mode-toggle"] button:focus-visible {
 /* ---------- Motion, opt in ---------- */
 
 @media (prefers-reduced-motion: no-preference) {
-  /* Press feedback lands on pointer-down. */
-  body[data-design="apple"]
-    :is(
-      [data-slot="button"],
-      [data-slot="icon-button"],
-      [data-slot="composer-primary"]
-    ):active:not(:disabled, [aria-disabled="true"]) {
-    scale: 0.96;
-  }
-
   /* The lens swells slightly while a segment is held, then settles on release. */
   body[data-design="apple"]
     [data-slot="mode-toggle-track"]:has(button:active)
     [data-slot="mode-toggle-thumb"] {
     scale: 1.04 1.08;
-  }
-
-  /* Menus and tooltips materialize from their trigger and leave the same way. */
-  body[data-design="apple"] [data-slot="menu"][data-open] {
-    animation: apple-materialize 340ms var(--motion-ease-enter) both;
-  }
-
-  body[data-design="apple"] [data-slot="menu"][data-closed] {
-    animation: apple-dematerialize 140ms ease-out both;
-  }
-
-  body[data-design="apple"] [data-slot="tooltip"][data-open] {
-    animation: apple-materialize 220ms var(--motion-ease-enter) both;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  body[data-design="apple"] [data-slot="menu"][data-open],
-  body[data-design="apple"] [data-slot="tooltip"][data-open] {
-    animation: apple-fade 120ms ease-out both;
-  }
-}
-
-@keyframes apple-materialize {
-  from {
-    opacity: 0;
-    scale: 0.94;
-  }
-}
-
-@keyframes apple-dematerialize {
-  to {
-    opacity: 0;
-    scale: 0.97;
-  }
-}
-
-@keyframes apple-fade {
-  from {
-    opacity: 0;
   }
 }
 

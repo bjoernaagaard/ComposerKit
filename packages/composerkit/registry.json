@@ -258,6 +258,7 @@
           "space-sidebar-inset": "0px",
           "space-sheet-inset": "0px",
           "space-drawer-backdrop": "48px",
+          "space-turn-enter-offset": "8px",
           "space-conversation-composer-padding-y": "10px",
           "border-hairline": "0.5px",
           "border-focus-width": "2px",
@@ -273,7 +274,7 @@
           "shadow-composer-dark-edge": "inset 0px 0px 1px 0px rgba(255, 255, 255, 0.2)",
           "blur-menu": "8px",
           "motion-duration": "150ms",
-          "motion-ease-out": "cubic-bezier(0, 0, 0.2, 1)",
+          "motion-ease-out": "cubic-bezier(0.23, 1, 0.32, 1)",
           "motion-ease-enter": "cubic-bezier(0.19, 1, 0.22, 1)",
           "motion-marquee-delay": "400ms",
           "motion-marquee-ms-per-pixel": "14ms",
@@ -289,7 +290,15 @@
           "motion-tab-enter": "180ms",
           "motion-tab-exit": "140ms",
           "motion-reduced-fade": "150ms",
-          "press-scale": "1"
+          "press-scale": "0.97",
+          "motion-popup": "150ms",
+          "popup-scale": "0.97",
+          "motion-tooltip": "125ms",
+          "motion-press": "120ms",
+          "motion-enter": "150ms",
+          "enter-scale": "0.95",
+          "icon-enter-scale": "0.9",
+          "motion-turn-enter": "200ms"
         },
         "theme": {
           "color-window": "var(--window)",
@@ -358,6 +367,10 @@
         {
           "path": "src/components/ui/icon-button.tsx",
           "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/input-modality.ts",
+          "type": "registry:ui"
         }
       ]
     },
@@ -412,6 +425,10 @@
         },
         {
           "path": "src/components/ui/popup-layer.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/input-modality.ts",
           "type": "registry:ui"
         }
       ]
@@ -473,6 +490,10 @@
         {
           "path": "src/components/composer/composer.tsx",
           "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/arrivals.ts",
+          "type": "registry:ui"
         }
       ]
     },
@@ -508,6 +529,10 @@
         {
           "path": "src/components/conversation/conversation-view.tsx",
           "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/arrivals.ts",
+          "type": "registry:ui"
         }
       ]
     },
@@ -564,6 +589,10 @@
         {
           "path": "src/components/app-shell/labels.ts",
           "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/input-modality.ts",
+          "type": "registry:ui"
         }
       ],
       "css": {
@@ -577,6 +606,17 @@
         },
         "[data-slot=\"title-bar-nav\"]": {
           "padding-inline-start": "max(var(--space-titlebar-inset-start), env(titlebar-area-x, 0px))"
+        },
+        "@property --drawer-swipe-movement-x": {
+          "syntax": "\"<length>\"",
+          "inherits": "false",
+          "initial-value": "0px"
+        },
+        "[data-slot=\"sidebar-panel\"][data-variant=\"push\"]": {
+          "transition-property": "translate, opacity"
+        },
+        "[data-slot=\"sidebar-panel\"][data-variant=\"overlay\"]": {
+          "transition-property": "transform, opacity"
         },
         "[data-slot=\"tab-strip\"][data-overflow=\"end\"]": {
           "mask-image": "linear-gradient(to right, #000 calc(100% - var(--space-fade-end)), transparent)"
@@ -602,6 +642,11 @@
             "--motion-overlay-exit": "var(--motion-reduced-fade) !important",
             "--motion-tab-enter": "var(--motion-reduced-fade) !important",
             "--motion-tab-exit": "var(--motion-reduced-fade) !important",
+            "--motion-popup": "var(--motion-reduced-fade) !important",
+            "--motion-tooltip": "var(--motion-reduced-fade) !important",
+            "--motion-press": "var(--motion-reduced-fade) !important",
+            "--motion-enter": "var(--motion-reduced-fade) !important",
+            "--motion-turn-enter": "var(--motion-reduced-fade) !important",
             "transition-property": "opacity, color, background-color, border-color, outline-color, text-decoration-color, fill, stroke !important",
             "transition-delay": "0s !important"
           }
@@ -662,6 +707,9 @@
         }
       ],
       "css": {
+        "[data-slot=\"section-chevron\"]": {
+          "transition-property": "rotate, opacity"
+        },
         "@media (hover: hover)": {
           "[data-slot=\"row-actions\"]": {
             "opacity": "0",

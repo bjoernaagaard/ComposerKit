@@ -11,6 +11,7 @@ import type { MouseEvent } from "react";
 
 import { canSend, isUploading } from "@/components/composer/machine";
 import type { ComposerState } from "@/components/composer/machine";
+import { ENTER_ICON, useHasCommitted } from "@/components/ui/arrivals";
 import { Button } from "@/components/ui/button";
 import { Tip } from "@/components/ui/tip";
 
@@ -29,10 +30,12 @@ const LABEL = {
 const StopButton = ({
   label,
   waiting,
+  entering,
   onStop,
 }: {
   label: string;
   waiting: boolean;
+  entering: boolean;
   onStop: (() => void) | undefined;
 }) => (
   <Tip label={label} side="top">
@@ -46,16 +49,24 @@ const StopButton = ({
       variant="solid"
     >
       {waiting ? (
-        <CircleIcon aria-hidden="true" className="size-3.5" />
+        <CircleIcon
+          aria-hidden="true"
+          className={`size-3.5 ${ENTER_ICON}`}
+          data-entering={entering ? "" : undefined}
+        />
       ) : (
-        <SquareIcon aria-hidden="true" className="size-3.5 fill-current" />
+        <SquareIcon
+          aria-hidden="true"
+          className={`size-3.5 fill-current ${ENTER_ICON}`}
+          data-entering={entering ? "" : undefined}
+        />
       )}
     </Button>
   </Tip>
 );
 
 // Voice chat is left to the app, so the button says it isn't available.
-const VoiceButton = () => (
+const VoiceButton = ({ entering }: { entering: boolean }) => (
   <Tip label="Voice chat isn’t available here" side="top">
     <Button
       aria-disabled="true"
@@ -64,16 +75,22 @@ const VoiceButton = () => (
       size="icon-composer"
       variant="solid"
     >
-      <AudioLinesIcon aria-hidden="true" className="size-4" />
+      <AudioLinesIcon
+        aria-hidden="true"
+        className={`size-4 ${ENTER_ICON}`}
+        data-entering={entering ? "" : undefined}
+      />
     </Button>
   </Tip>
 );
 
 const SendButton = ({
   state,
+  entering,
   onSend,
 }: {
   state: ComposerState;
+  entering: boolean;
   onSend: (event: MouseEvent<HTMLButtonElement>) => void;
 }) => {
   const ready = canSend(state);
@@ -92,7 +109,11 @@ const SendButton = ({
         size="icon-composer"
         variant="solid"
       >
-        <ArrowUpIcon aria-hidden="true" className="size-3.5" />
+        <ArrowUpIcon
+          aria-hidden="true"
+          className={`size-3.5 ${ENTER_ICON}`}
+          data-entering={entering ? "" : undefined}
+        />
       </Button>
     </Tip>
   );
@@ -123,9 +144,14 @@ export const PrimaryAction = ({
   onStopSending: () => void;
   onSend: (event: MouseEvent<HTMLButtonElement>) => void;
 }) => {
+  // An icon that replaces another, such as Stop after Send, eases in. The
+  // icon the composer opens with stays still.
+  const entering = useHasCommitted();
+
   if (onStopReply || settling) {
     return (
       <StopButton
+        entering={entering}
         label={LABEL.stop}
         onStop={onStopReply}
         waiting={replyStatus === "waiting"}
@@ -136,6 +162,7 @@ export const PrimaryAction = ({
   if (state.phase === "sending") {
     return (
       <StopButton
+        entering={entering}
         label={LABEL.stopSending}
         onStop={onStopSending}
         waiting={false}
@@ -144,8 +171,8 @@ export const PrimaryAction = ({
   }
 
   if (!(hasContent(state) || conversation)) {
-    return <VoiceButton />;
+    return <VoiceButton entering={entering} />;
   }
 
-  return <SendButton onSend={onSend} state={state} />;
+  return <SendButton entering={entering} onSend={onSend} state={state} />;
 };

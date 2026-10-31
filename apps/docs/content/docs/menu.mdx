@@ -131,3 +131,7 @@ The trigger is a menu button with `aria-haspopup` and `aria-expanded`. The panel
 Tokens that the menu's files use.
 
 <TokenTable item="menu" />
+
+### Motion
+
+A menu opened with a pointer fades in and grows from `--popup-scale` at the side of its trigger over `--motion-popup`, and leaves the same way. A click partway through reverses it from where it is. A menu opened from the keyboard, and every submenu, is drawn in one frame. Under reduced motion it only fades, at `--motion-reduced-fade`. The menu reads `data-input` on `<html>`, which it keeps current while it is mounted, to tell a pointer from the keyboard.

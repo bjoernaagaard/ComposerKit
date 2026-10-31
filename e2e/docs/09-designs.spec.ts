@@ -58,7 +58,8 @@ interface DesignRow {
 }
 
 // Runs before any page script. Records the design on every frame until
-// the load event, from the first frame that shows the docs page.
+// the load event, from the first frame that shows the docs page. A page
+// can finish loading before its first frame, so it records at least one.
 const recordFrames = () => {
   const frames: (string | null)[] = [];
   let loaded = false;
@@ -69,7 +70,7 @@ const recordFrames = () => {
   });
 
   const frame = () => {
-    if (loaded) {
+    if (loaded && frames.length > 0) {
       return;
     }
 
@@ -138,8 +139,8 @@ for (const scheme of SCHEMES) {
         if (design === "emil") {
           await page.locator("#nd-page h1").first().click();
           await expect
-            .soft(page.locator("body"))
-            .toHaveAttribute("data-emil-input", "pointer");
+            .soft(page.locator("html"))
+            .toHaveAttribute("data-input", "pointer");
         }
 
         await page.evaluate(() => {
