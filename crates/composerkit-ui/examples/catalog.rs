@@ -173,7 +173,20 @@ impl Catalog {
         let tabs = TabStrip::new("tabs", self.tabs.clone())
             .active(self.active_tab.clone())
             .appearance(self.tab_appearance)
-            .on_select(cx.listener(|this, id: &SharedString, _, cx| this.open_chat(id, cx)));
+            .on_select(cx.listener(|this, id: &SharedString, _, cx| this.open_chat(id, cx)))
+            .on_move({
+                let view = cx.entity().downgrade();
+                move |id, to, _, cx| {
+                    view.update(cx, |this, cx| {
+                        if let Some(from) = this.tabs.iter().position(|tab| &tab.id == id) {
+                            let tab = this.tabs.remove(from);
+                            this.tabs.insert(to.min(this.tabs.len()), tab);
+                            cx.notify();
+                        }
+                    })
+                    .ok();
+                }
+            });
 
         TitleBar::new(tabs)
             .sidebar_toggle(
