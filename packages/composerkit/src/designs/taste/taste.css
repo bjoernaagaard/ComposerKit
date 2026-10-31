@@ -653,17 +653,6 @@ html.dark body[data-design="taste"] [data-slot="mode-toggle-track"] {
   }
 }
 
-/* Reduced motion: no travel, no scale. State is still carried by     */
-/* fill, weight, glyphs and words, never by the animation.            */
-@media (prefers-reduced-motion: reduce) {
-  body[data-design="taste"] *,
-  body[data-design="taste"] *::before,
-  body[data-design="taste"] *::after {
-    transition-duration: 0.01ms !important;
-    transition-delay: 0s !important;
-  }
-}
-
 @media (max-width: 480px) {
   body[data-design="taste"] [data-slot="composer-controls"] {
     flex-wrap: wrap;

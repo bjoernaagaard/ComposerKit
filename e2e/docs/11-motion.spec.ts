@@ -6,7 +6,11 @@
 import { expect, test } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
 
-import { listenForTransitions, startedTransitions } from "./motion-support";
+import {
+  listenForTransitions,
+  settleMotion,
+  startedTransitions,
+} from "./motion-support";
 import { openApp } from "./stress-support";
 
 const REDUCED_FADE = "0.15s";
@@ -72,10 +76,10 @@ test("menu: a click outside closes the menu with opacity and scale", async ({
   await openChat(page, "base");
   await moreButton(page).click();
   await expect(moreMenu(page)).toBeVisible();
-  await page.waitForTimeout(300);
+  await settleMotion(moreMenu(page));
 
   await listenForTransitions(page);
-  await page.mouse.click(4, 600);
+  await page.mouse.click(900, 150);
 
   const closing = await startedTransitions(page);
 

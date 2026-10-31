@@ -7,6 +7,7 @@ import { CheckIcon, ChevronRightIcon } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
 import type { ComponentProps, ReactNode } from "react";
 
+import { useInputModality } from "@/components/ui/input-modality";
 import { usePopupLayer } from "@/components/ui/popup-layer";
 import { themePixels } from "@/components/ui/theme-value";
 import { cn } from "@/lib/utils";
@@ -68,9 +69,21 @@ const FALLBACK_PADDING = 4;
 const FALLBACK_SUBMENU_GAP = 5;
 const FALLBACK_SUBMENU_ALIGN = -3;
 
-// The panel opens and closes in one frame, with no fade or scale.
+// A submenu opens and closes in one frame, so a pointer sweeping past its
+// trigger never waits on it.
 const POPUP =
   "group/menu bg-popover text-popover-foreground border-border z-50 max-h-(--available-height) max-w-(--available-width) overflow-y-auto overscroll-contain border-(length:--border-panel) p-(--space-menu-padding) shadow-(--shadow-menu) backdrop-blur-(--blur-menu) outline-none";
+
+// A menu opened by a pointer fades and grows from the trigger's side, and
+// leaves the same way. Transitions rather than keyframes let a second click
+// reverse it from where it is. From the keyboard it opens in one frame. The
+// scale sits behind motion-safe, so under reduced motion it only fades,
+// even in an app without the kit's stylesheet.
+const POPUP_MOTION =
+  "origin-(--transform-origin) transition-[opacity,scale] duration-(--motion-popup) ease-(--motion-ease-out) " +
+  "data-starting-style:opacity-0 data-ending-style:opacity-0 " +
+  "motion-safe:data-starting-style:scale-(--popup-scale) motion-safe:data-ending-style:scale-(--popup-scale) " +
+  "in-data-[input=keyboard]:transition-none";
 
 export interface MenuContentProps {
   children: ReactNode;
@@ -194,30 +207,42 @@ export const MenuContent = ({
   density = "regular",
   finalFocus,
   emptyLabel = "Nothing to show",
-}: MenuContentProps) => (
-  <Menu.Portal container={usePopupLayer()}>
-    <Menu.Positioner
-      align={align}
-      alignOffset={alignOffset}
-      className="isolate z-50 outline-none"
-      collisionPadding={8}
-      positionMethod="fixed"
-      side={side}
-      sideOffset={() => themePixels("--space-menu-offset", FALLBACK_OFFSET)}
-    >
-      <Menu.Popup
-        aria-label={label}
-        className={cn(POPUP, POPUP_DENSITY[density], POPUP_WIDTH[width])}
-        data-density={density}
-        data-slot="menu"
-        finalFocus={finalFocus}
+}: MenuContentProps) => {
+  const layer = usePopupLayer();
+
+  // Keeps <html data-input> current, which the motion classes read.
+  useInputModality();
+
+  return (
+    <Menu.Portal container={layer}>
+      <Menu.Positioner
+        align={align}
+        alignOffset={alignOffset}
+        className="isolate z-50 outline-none"
+        collisionPadding={8}
+        positionMethod="fixed"
+        side={side}
+        sideOffset={() => themePixels("--space-menu-offset", FALLBACK_OFFSET)}
       >
-        {children}
-        <EmptyItem label={emptyLabel} />
-      </Menu.Popup>
-    </Menu.Positioner>
-  </Menu.Portal>
-);
+        <Menu.Popup
+          aria-label={label}
+          className={cn(
+            POPUP,
+            POPUP_MOTION,
+            POPUP_DENSITY[density],
+            POPUP_WIDTH[width]
+          )}
+          data-density={density}
+          data-slot="menu"
+          finalFocus={finalFocus}
+        >
+          {children}
+          <EmptyItem label={emptyLabel} />
+        </Menu.Popup>
+      </Menu.Positioner>
+    </Menu.Portal>
+  );
+};
 
 // Items under a line of muted text that is not an item, such as when a
 // message was sent. The arrow keys skip the line, and it names the group,

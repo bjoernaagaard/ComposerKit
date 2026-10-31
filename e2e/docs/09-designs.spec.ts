@@ -138,8 +138,8 @@ for (const scheme of SCHEMES) {
         if (design === "emil") {
           await page.locator("#nd-page h1").first().click();
           await expect
-            .soft(page.locator("body"))
-            .toHaveAttribute("data-emil-input", "pointer");
+            .soft(page.locator("html"))
+            .toHaveAttribute("data-input", "pointer");
         }
 
         await page.evaluate(() => {

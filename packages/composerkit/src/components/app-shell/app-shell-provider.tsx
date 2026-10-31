@@ -20,6 +20,8 @@ import { APP_SHELL_LABELS } from "@/components/app-shell/labels";
 import type { AppShellLabels } from "@/components/app-shell/labels";
 import { writeShellCookie } from "@/components/app-shell/persist";
 import { SIDEBAR_WIDTH } from "@/components/app-shell/sidebar-width";
+import { markInput, useInputModality } from "@/components/ui/input-modality";
+import type { InputModality } from "@/components/ui/input-modality";
 import { pixelsOf } from "@/components/ui/theme-value";
 
 // The shell is narrow below 48rem of its own width, not the window's, so a
@@ -31,7 +33,7 @@ const DEFAULT_SHORTCUT = "b";
 const clampSidebarWidth = (px: number): number =>
   Math.round(Math.min(SIDEBAR_WIDTH.max, Math.max(SIDEBAR_WIDTH.min, px)));
 
-export type AppShellInput = "pointer" | "keyboard";
+export type AppShellInput = InputModality;
 
 export interface AppShellProviderProps {
   // The sidebar's open state on wide layouts, when the app owns it.
@@ -225,7 +227,7 @@ export const AppShellProvider = ({
     defaultWidth === undefined ? null : clampSidebarWidth(defaultWidth)
   );
 
-  const [input, setInput] = useState<AppShellInput>("pointer");
+  const input = useInputModality();
   // AppShell hands over its root element during the commit. The state
   // change renders again before the first paint, so the first frame is
   // measured.
@@ -398,21 +400,6 @@ export const AppShellProvider = ({
     toggleLatest.current = toggleSidebar;
   }, [toggleSidebar]);
 
-  // The last input type, read before any handler runs, so a change made
-  // from the keyboard is drawn without motion.
-  useEffect(() => {
-    const onPointer = () => setInput("pointer");
-    const onKey = () => setInput("keyboard");
-
-    window.addEventListener("pointerdown", onPointer, true);
-    window.addEventListener("keydown", onKey, true);
-
-    return () => {
-      window.removeEventListener("pointerdown", onPointer, true);
-      window.removeEventListener("keydown", onKey, true);
-    };
-  }, []);
-
   useEffect(() => {
     if (!shortcut) {
       return;
@@ -443,7 +430,7 @@ export const AppShellProvider = ({
       }
 
       event.preventDefault();
-      setInput("keyboard");
+      markInput("keyboard");
       toggleLatest.current();
     };
 

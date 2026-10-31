@@ -80,6 +80,10 @@ body[data-design="apple"] {
 
   /* A critically damped spring (response 0.35s), sampled for CSS. */
   --motion-duration: 180ms;
+  /* Menus grow from further back than the base, at the longest a dropdown
+     should take. The menu itself owns the transition. */
+  --motion-popup: 250ms;
+  --popup-scale: 0.94;
   --motion-ease-out: cubic-bezier(0.25, 1, 0.5, 1);
   --motion-ease-enter: linear(
     0,
@@ -419,7 +423,6 @@ body[data-design="apple"] [data-slot="menu"] {
   background: var(--apple-glass-thick);
   backdrop-filter: var(--apple-glass-filter);
   box-shadow: var(--apple-rim), var(--shadow-menu);
-  transform-origin: var(--transform-origin);
 }
 
 /* Tooltips: a small glass capsule with ink text instead of an inverted slab. */
@@ -514,22 +517,13 @@ body[data-design="apple"] [data-slot="mode-toggle"] button:focus-visible {
     scale: 1.04 1.08;
   }
 
-  /* Menus and tooltips materialize from their trigger and leave the same way. */
-  body[data-design="apple"] [data-slot="menu"][data-open] {
-    animation: apple-materialize 340ms var(--motion-ease-enter) both;
-  }
-
-  body[data-design="apple"] [data-slot="menu"][data-closed] {
-    animation: apple-dematerialize 140ms ease-out both;
-  }
-
+  /* Tooltips materialize from their trigger. */
   body[data-design="apple"] [data-slot="tooltip"][data-open] {
     animation: apple-materialize 220ms var(--motion-ease-enter) both;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body[data-design="apple"] [data-slot="menu"][data-open],
   body[data-design="apple"] [data-slot="tooltip"][data-open] {
     animation: apple-fade 120ms ease-out both;
   }
@@ -539,13 +533,6 @@ body[data-design="apple"] [data-slot="mode-toggle"] button:focus-visible {
   from {
     opacity: 0;
     scale: 0.94;
-  }
-}
-
-@keyframes apple-dematerialize {
-  to {
-    opacity: 0;
-    scale: 0.97;
   }
 }
 

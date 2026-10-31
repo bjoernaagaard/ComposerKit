@@ -271,7 +271,7 @@
       "shadow-composer-dark-edge": "inset 0px 0px 1px 0px rgba(255, 255, 255, 0.2)",
       "blur-menu": "8px",
       "motion-duration": "150ms",
-      "motion-ease-out": "cubic-bezier(0, 0, 0.2, 1)",
+      "motion-ease-out": "cubic-bezier(0.23, 1, 0.32, 1)",
       "motion-ease-enter": "cubic-bezier(0.19, 1, 0.22, 1)",
       "motion-marquee-delay": "400ms",
       "motion-marquee-ms-per-pixel": "14ms",
@@ -287,7 +287,9 @@
       "motion-tab-enter": "180ms",
       "motion-tab-exit": "140ms",
       "motion-reduced-fade": "150ms",
-      "press-scale": "1"
+      "press-scale": "1",
+      "motion-popup": "150ms",
+      "popup-scale": "0.97"
     },
     "dark": {
       "window": "#0a0b0d",

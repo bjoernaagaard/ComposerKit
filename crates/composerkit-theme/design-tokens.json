@@ -230,7 +230,7 @@
   },
   "motion": {
     "durationMs": 150,
-    "easeOut": "cubic-bezier(0, 0, 0.2, 1)",
+    "easeOut": "cubic-bezier(0.23, 1, 0.32, 1)",
     "easeEnter": "cubic-bezier(0.19, 1, 0.22, 1)",
     "marqueeDelayMs": 400,
     "marqueeMsPerPixel": 14,
@@ -246,7 +246,9 @@
     "tabEnterMs": 180,
     "tabExitMs": 140,
     "reducedFadeMs": 150,
-    "pressScale": 1
+    "pressScale": 1,
+    "popupMs": 150,
+    "popupScale": 0.97
   },
   "palette": {
     "neutral": {

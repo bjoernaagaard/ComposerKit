@@ -273,7 +273,7 @@
           "shadow-composer-dark-edge": "inset 0px 0px 1px 0px rgba(255, 255, 255, 0.2)",
           "blur-menu": "8px",
           "motion-duration": "150ms",
-          "motion-ease-out": "cubic-bezier(0, 0, 0.2, 1)",
+          "motion-ease-out": "cubic-bezier(0.23, 1, 0.32, 1)",
           "motion-ease-enter": "cubic-bezier(0.19, 1, 0.22, 1)",
           "motion-marquee-delay": "400ms",
           "motion-marquee-ms-per-pixel": "14ms",
@@ -289,7 +289,9 @@
           "motion-tab-enter": "180ms",
           "motion-tab-exit": "140ms",
           "motion-reduced-fade": "150ms",
-          "press-scale": "1"
+          "press-scale": "1",
+          "motion-popup": "150ms",
+          "popup-scale": "0.97"
         },
         "theme": {
           "color-window": "var(--window)",
@@ -358,6 +360,10 @@
         {
           "path": "src/components/ui/icon-button.tsx",
           "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/input-modality.ts",
+          "type": "registry:ui"
         }
       ]
     },
@@ -412,6 +418,10 @@
         },
         {
           "path": "src/components/ui/popup-layer.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/input-modality.ts",
           "type": "registry:ui"
         }
       ]
@@ -564,6 +574,10 @@
         {
           "path": "src/components/app-shell/labels.ts",
           "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/input-modality.ts",
+          "type": "registry:ui"
         }
       ],
       "css": {
@@ -602,6 +616,7 @@
             "--motion-overlay-exit": "var(--motion-reduced-fade) !important",
             "--motion-tab-enter": "var(--motion-reduced-fade) !important",
             "--motion-tab-exit": "var(--motion-reduced-fade) !important",
+            "--motion-popup": "var(--motion-reduced-fade) !important",
             "transition-property": "opacity, color, background-color, border-color, outline-color, text-decoration-color, fill, stroke !important",
             "transition-delay": "0s !important"
           }

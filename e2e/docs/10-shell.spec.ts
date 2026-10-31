@@ -139,7 +139,11 @@ test("theme switch: picking the other scheme starts no transitions", async ({
     "data-shell-frame-transitions",
     "0"
   );
-  expect(await startedTransitions(page)).toEqual([]);
+  // The click also closes the Appearance menu, which a pointer closes with
+  // motion. Nothing else may move.
+  const started = await startedTransitions(page);
+
+  expect(started.filter((entry) => !entry.startsWith("menu "))).toEqual([]);
   await expect(page.locator("html")).not.toHaveAttribute(
     "data-theme-switching"
   );

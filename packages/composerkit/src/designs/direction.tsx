@@ -5,8 +5,6 @@
 
 import { useSyncExternalStore } from "react";
 
-import { installEmilInteractions } from "./emil/interactions";
-
 const DIRECTIONS = ["base", "apple", "glass", "taste", "emil"] as const;
 
 type Direction = (typeof DIRECTIONS)[number];
@@ -26,20 +24,11 @@ const readDirection = (): Direction => {
 // Every mounted selector, so they all follow a change made by any of them.
 const listeners = new Set<() => void>();
 
-let cleanup: (() => void) | undefined;
-
 const applyDirection = (direction: Direction) => {
-  cleanup?.();
-  cleanup = undefined;
-
   if (direction === "base") {
     delete document.body.dataset.design;
   } else {
     document.body.dataset.design = direction;
-
-    if (direction === "emil") {
-      cleanup = installEmilInteractions(document.body);
-    }
   }
 
   for (const listener of listeners) {
