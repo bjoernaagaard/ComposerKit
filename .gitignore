@@ -1,3 +1,14 @@
+# AI
+.agents
+.scratch
+.audit/
+
+# e2e output (keep the catalog baseline)
+artifacts/*
+!artifacts/docs-e2e/
+artifacts/docs-e2e/*
+!artifacts/docs-e2e/catalog-before/
+
 # Dependencies
 node_modules/
 .pnpm-store/
