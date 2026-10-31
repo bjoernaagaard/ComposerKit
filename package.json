@@ -2,7 +2,7 @@
   "name": "composerkit-workspace",
   "version": "0.1.0",
   "private": true,
-  "description": "ComposerKit library, playground and docs",
+  "description": "ComposerKit library and playground",
   "license": "MIT",
   "workspaces": [
     "packages/*",
@@ -10,29 +10,26 @@
   ],
   "type": "module",
   "scripts": {
-    "dev": "npm run dev --workspace @composerkit/playground",
-    "build": "npm run build --workspace @composerkit/playground",
-    "docs:dev": "npm run dev --workspace @composerkit/docs",
-    "docs:build": "npm run build --workspace @composerkit/docs",
-    "registry:build": "npm run registry:build --workspace composerkit",
-    "e2e:docs": "playwright test --config e2e/docs/playwright.config.ts",
+    "dev": "bun run --filter @composerkit/playground dev",
+    "build": "bun run --filter @composerkit/playground build",
+    "registry:build": "bun run --filter composerkit registry:build",
+    "e2e": "playwright test --config e2e/playwright.config.ts",
     "check": "ultracite check",
     "fix": "ultracite fix",
-    "typecheck": "npm run typecheck --workspaces --if-present && tsc --noEmit --project e2e",
+    "typecheck": "bun run --filter \"*\" typecheck && tsc --noEmit --project e2e",
     "prepare": "lefthook install"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.64.1",
     "@shadcn/lint": "^0.2.3",
+    "@types/node": "^26.6.6",
     "@types/pngjs": "^6.0.5",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "lefthook": "^2.2.2",
-    "next-validate-link": "^1.6.7",
     "oxfmt": "^0.74.0",
     "oxlint": "^1.90.0",
-    "pixelmatch": "^8.0.0",
     "playwright": "^1.64.1",
     "pngjs": "^7.0.0",
     "postcss": "^8.5.32",
@@ -40,5 +37,6 @@
     "shadcn": "^4.23.0",
     "typescript": "^7.0.2",
     "ultracite": "^8.1.0"
-  }
+  },
+  "packageManager": "bun@1.4.4"
 }

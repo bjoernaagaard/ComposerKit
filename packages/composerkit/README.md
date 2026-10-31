@@ -4,7 +4,7 @@ composerkit is a set of React components for chat apps. It has a message box, ca
 
 ![A short chat in the conversation view, with a draft in the composer at the bottom](https://raw.githubusercontent.com/bjoernaagaard/ComposerKit/main/.github/assets/conversation.png)
 
-The docs site has a live example, the API and the keyboard support for each component, at <https://bjoernaagaard.github.io/ComposerKit/>. The same components are also a shadcn registry, so you can copy the source into your app instead of installing the package. The [GitHub repository](https://github.com/bjoernaagaard/ComposerKit) explains both options.
+You can try every component together in the [demo app](https://bjoernaagaard.github.io/ComposerKit/playground/). The same components are also a shadcn registry, so you can copy the source into your app instead of installing the package. The [GitHub repository](https://github.com/bjoernaagaard/ComposerKit) explains both options.
 
 ## Install
 
@@ -50,7 +50,7 @@ composerkit/
 └── lib/utils                                    # cn, which joins class names
 ```
 
-The docs examples use the shadcn import paths. Each module in the package has the same path as its source file, so you can change an import from the docs by replacing `@/` with `composerkit/`.
+The shadcn registry items use the shadcn import paths. Each module in the package has the same path as its source file, so you can change an import from a registry item by replacing `@/` with `composerkit/`.
 
 ```diff
 -import { Composer } from "@/components/composer/composer";
@@ -293,7 +293,7 @@ To change a color or a size, set its variable after the import. Put the rule out
 }
 ```
 
-The [theme page](https://bjoernaagaard.github.io/ComposerKit/theme/) in the docs lists every variable, and each component page lists the variables that the component uses.
+`theme/tokens.css` in the package lists every variable.
 
 ## Next.js and React Server Components
 

@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+# SPDX-License-Identifier: MIT
+
+# Scripts and the tools they start run on Bun, including CLIs whose
+# shebang names node.
+[run]
+bun = true

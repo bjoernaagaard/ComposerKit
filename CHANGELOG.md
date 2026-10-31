@@ -1,6 +1,6 @@
 # Changelog
 
-The list below describes the changes in each version of the `composerkit` npm package. The shadcn registry on the docs site changes with every merge to `main`, so it has no versions.
+The list below describes the changes in each version of the `composerkit` npm package. The shadcn registry, which the Pages workflow publishes, changes with every merge to `main`, so it has no versions.
 
 ## 0.1.2 (2026-10-31)
 

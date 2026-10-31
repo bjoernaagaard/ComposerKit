@@ -1,18 +1,18 @@
 # Releasing ComposerKit
 
-The shadcn registry and the npm package each have their own release. The shadcn registry is part of the docs site, so the Pages workflow publishes it every time a change merges to `main`. The npm package only changes when a maintainer publishes a new version by hand, with the steps below.
+The shadcn registry and the npm package each have their own release. The Pages workflow publishes the shadcn registry every time a change merges to `main`. The npm package only changes when a maintainer publishes a new version by hand, with the steps below.
 
 ## What a release runs
 
-`npm publish` builds the package before it uploads it, because the package's `prepack` script runs the build. You don't need to build the package yourself first.
+`bun publish` builds the package before it uploads it, because the package's `prepack` script runs the build. You don't need to build the package yourself first.
 
 ```text
-npm publish --workspace composerkit
+bun publish
   prepack
-    npm run build
+    bun run build
       vite build                    # writes dist/**/*.js, one module per source file
       tsc -p tsconfig.build.json    # writes dist/**/*.d.ts
-      node scripts/finish-dist.ts   # makes type imports relative, copies styles.css and theme/tokens.css
+      bun scripts/finish-dist.ts    # makes type imports relative, copies styles.css and theme/tokens.css
   packs dist, package.json, README.md and LICENSE
   uploads the package to the npm registry
 ```
@@ -25,7 +25,9 @@ A change breaks apps when it removes or renames a module, an export or a prop, o
 
 ## Publish a version
 
-You need an npm account with permission to publish `composerkit`. Run `npm whoami` to check that you are logged in, and run `npm login` if you aren't.
+You need an npm account with permission to publish `composerkit`. On <https://www.npmjs.com>, open Access Tokens and create a granular token that can publish `composerkit`. Keep it in your shell as `NPM_TOKEN`, out of the repository. Step 5 hands it to `bun publish`, which reads `NPM_CONFIG_TOKEN`.
+
+Run every step from the root of the repository. The package commands run in a subshell, so the shell stays at the root.
 
 1. Update `main`, and check that the working tree is clean.
 
@@ -39,10 +41,8 @@ You need an npm account with permission to publish `composerkit`. Run `npm whoam
 
    ```bash
    git switch -c release/0.2.0
-   npm version 0.2.0 --workspace composerkit --no-git-tag-version
+   (cd packages/composerkit && bun pm pkg set version=0.2.0)
    ```
-
-   For the first release, the package already has the version 0.1.0, so skip the `npm version` command.
 
 3. In `CHANGELOG.md`, give the new version a heading, or replace "unreleased" in its heading with the date. Check that the list describes every change since the last release. Then commit the version, the lockfile and the changelog, and open a pull request. Merge it after the checks pass.
 
@@ -51,13 +51,13 @@ You need an npm account with permission to publish `composerkit`. Run `npm whoam
    ```bash
    git switch main
    git pull
-   npm pack --workspace composerkit --dry-run
+   (cd packages/composerkit && bun pm pack --dry-run)
    ```
 
-5. Publish the package. If your account uses two factor authentication, npm asks you to confirm with your second factor.
+5. Publish the package. If your account uses two factor authentication, Bun opens the npm page that asks for your second factor.
 
    ```bash
-   npm publish --workspace composerkit
+   (cd packages/composerkit && NPM_CONFIG_TOKEN="$NPM_TOKEN" bun publish)
    ```
 
 6. Tag the release, and create a GitHub release with the changelog entry as its notes.
@@ -68,20 +68,20 @@ You need an npm account with permission to publish `composerkit`. Run `npm whoam
    gh release create composerkit@0.2.0 --title "composerkit 0.2.0" --notes "<the changelog entry>"
    ```
 
-7. Check the result. Run `npm view composerkit version` to see the new version, and open <https://www.npmjs.com/package/composerkit> to see the README. When you publish with two factor authentication, npm may also publish a placeholder version named `0.0.0-stage`. The placeholder is harmless, because the `latest` tag points at the real version.
+7. Check the result. Run `bun info composerkit version` to see the new version, and open <https://www.npmjs.com/package/composerkit> to see the README. When you publish with two factor authentication, the npm registry may also publish a placeholder version named `0.0.0-stage`. The placeholder is harmless, because the `latest` tag points at the real version.
 
 ## Test the package in an app before you publish
 
 You can install the package into a separate app before you publish it, to check that the imports, the types and the styles work outside the repository. The steps below pack the package into a file and install the file.
 
 ```bash
-npm pack --workspace composerkit --pack-destination /tmp
+(cd packages/composerkit && bun pm pack --destination /tmp)
 cd path/to/a/vite-or-next-app
-npm install /tmp/composerkit-0.2.0.tgz
+bun add /tmp/composerkit-0.2.0.tgz
 ```
 
 Then import `composerkit/styles.css` after Tailwind, and render the example from the package README. The app's type check and build should pass, and the conversation should show the theme's colors in light and dark.
 
 ## Undo a release
 
-npm lets you unpublish a version only in a few cases, such as within 72 hours of publishing it, and you can never publish the same version number again. To fix a broken release, publish a new patch version with the fix. To warn users away from the broken version, run `npm deprecate composerkit@0.2.0 "Use 0.2.1 instead"`.
+The npm registry lets you unpublish a version only in a few cases, such as within 72 hours of publishing it, and you can never publish the same version number again. To fix a broken release, publish a new patch version with the fix.

@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "composerkit": "*",
+    "composerkit": "workspace:*",
+    "lucide-react": "^1.63.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },

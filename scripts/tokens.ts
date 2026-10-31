@@ -5,14 +5,14 @@
 // variables. It writes them to packages/composerkit/src/theme/tokens.css and
 // to the cssVars of the "theme" item in packages/composerkit/registry.json, so
 // both always match the token file. It also writes the color role names to
-// packages/composerkit/src/content/color-roles.ts, for the docs palette
-// example, and the sidebar's widths to
+// packages/composerkit/src/content/color-roles.ts, for the sample data
+// item, and the sidebar's widths to
 // packages/composerkit/src/components/app-shell/sidebar-width.ts, for the
 // splitter. The Rust theme crate compiles in the same file. It also copies
 // the rules in app-shell.css and chat-sidebar.css into the css of their
-// registry items, so npm run registry:build runs it first.
+// registry items, so bun run registry:build runs it first.
 //
-//   node scripts/tokens.ts
+//   bun scripts/tokens.ts
 
 import { readFileSync, writeFileSync } from "node:fs";
 

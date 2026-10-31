@@ -844,7 +844,7 @@
       "name": "sample-data",
       "type": "registry:item",
       "title": "Sample data",
-      "description": "The sample options, projects, chats, conversation turns, composer states and color roles that the docs examples import. Add it to run an example exactly as the docs show it.",
+      "description": "The sample options, projects, chats, conversation turns, composer states and color roles that the demo app uses. Add it to run the components with the same data as the demo app.",
       "dependencies": [
         "lucide-react"
       ],

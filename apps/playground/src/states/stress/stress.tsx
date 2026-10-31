@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 // SPDX-License-Identifier: MIT
 
-// Dev-only stress harness for the docs E2E (e2e/docs/08-stress.spec.ts and
-// 10-shell.spec.ts).
+// Dev-only stress harness for the E2E (e2e/08-stress.spec.ts and
+// e2e/10-shell.spec.ts).
 // Each part gets its data through its own props, the way an app would pass
 // it: the demo data, a 200 character label with spaces, the same length as
 // one unbroken word, or nothing at all. ?part= picks the part and ?data=
@@ -413,7 +413,6 @@ const renderPart = (part: Part, data: Dataset): ReactNode => {
 
   switch (part) {
     case "button": {
-      // The way the Button docs say to pass a label from data.
       return (
         <Button>
           <span className="truncate">{data === "empty" ? "" : label}</span>
