@@ -8,7 +8,7 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 
-import { openPage, writeResult } from "./support";
+import { DOCS_SCHEME_KEY, openPage, writeResult } from "../support";
 
 const CPU_SLOWDOWN = 4;
 const BUDGET_MS = 16;
@@ -63,7 +63,7 @@ const round = (ms: number) => Math.round(ms * 100) / 100;
 test(`typing ${TYPED.length} characters in the home composer with the CPU slowed ${CPU_SLOWDOWN}x takes at most ${BUDGET_MS} ms of main-thread work per key at the median`, async ({
   page,
 }) => {
-  await openPage(page, "/chat-app", "light");
+  await openPage(page, "/chat-app", "light", DOCS_SCHEME_KEY);
 
   const field = page.locator(
     '[data-slot="home-view"] [data-slot="composer-field"]'

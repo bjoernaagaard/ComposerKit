@@ -1,6 +1,6 @@
 # Releasing ComposerKit
 
-The shadcn registry and the npm package each have their own release. The shadcn registry is part of the docs site, so the Pages workflow publishes it every time a change merges to `main`. The npm package only changes when a maintainer publishes a new version by hand, with the steps below.
+The shadcn registry and the npm package each have their own release. The shadcn registry is the set of files in `packages/composerkit/public/r`, and it changes whenever they change. The npm package only changes when a maintainer publishes a new version by hand, with the steps below.
 
 ## What a release runs
 
@@ -27,6 +27,8 @@ A change breaks apps when it removes or renames a module, an export or a prop, o
 
 You need an npm account with permission to publish `composerkit`. Run `npm whoami` to check that you are logged in, and run `npm login` if you aren't.
 
+Run every step from the root of the repository.
+
 1. Update `main`, and check that the working tree is clean.
 
    ```bash
@@ -41,8 +43,6 @@ You need an npm account with permission to publish `composerkit`. Run `npm whoam
    git switch -c release/0.2.0
    npm version 0.2.0 --workspace composerkit --no-git-tag-version
    ```
-
-   For the first release, the package already has the version 0.1.0, so skip the `npm version` command.
 
 3. In `CHANGELOG.md`, give the new version a heading, or replace "unreleased" in its heading with the date. Check that the list describes every change since the last release. Then commit the version, the lockfile and the changelog, and open a pull request. Merge it after the checks pass.
 
@@ -68,7 +68,7 @@ You need an npm account with permission to publish `composerkit`. Run `npm whoam
    gh release create composerkit@0.2.0 --title "composerkit 0.2.0" --notes "<the changelog entry>"
    ```
 
-7. Check the result. Run `npm view composerkit version` to see the new version, and open <https://www.npmjs.com/package/composerkit> to see the README. When you publish with two factor authentication, npm may also publish a placeholder version named `0.0.0-stage`. The placeholder is harmless, because the `latest` tag points at the real version.
+7. Check the result. Run `npm view composerkit version` to see the new version, and open <https://www.npmjs.com/package/composerkit> to see the README. When you publish with two factor authentication, the npm registry may also publish a placeholder version named `0.0.0-stage`. The placeholder is harmless, because the `latest` tag points at the real version.
 
 ## Test the package in an app before you publish
 
@@ -84,4 +84,4 @@ Then import `composerkit/styles.css` after Tailwind, and render the example from
 
 ## Undo a release
 
-npm lets you unpublish a version only in a few cases, such as within 72 hours of publishing it, and you can never publish the same version number again. To fix a broken release, publish a new patch version with the fix. To warn users away from the broken version, run `npm deprecate composerkit@0.2.0 "Use 0.2.1 instead"`.
+The npm registry lets you unpublish a version only in a few cases, such as within 72 hours of publishing it, and you can never publish the same version number again. To fix a broken release, publish a new patch version with the fix. To warn users away from the broken version, run `npm deprecate composerkit@0.2.0 "Use 0.2.1 instead"`.

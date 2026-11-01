@@ -16,11 +16,12 @@ import {
   ARTIFACTS,
   DESIGNS,
   DESIGN_PAGES,
+  DOCS_SCHEME_KEY,
   SCHEMES,
   appendResult,
   openPage,
-} from "./support";
-import type { Scheme } from "./support";
+} from "../support";
+import type { Scheme } from "../support";
 
 const SHOTS = path.join(ARTIFACTS, "designs");
 
@@ -105,7 +106,7 @@ for (const scheme of SCHEMES) {
           errors.push(error.message);
         });
 
-        await openPage(page, url, scheme);
+        await openPage(page, url, scheme, DOCS_SCHEME_KEY);
         await page.getByLabel("Design direction").selectOption(design);
         await expect(page.locator("body")).toHaveAttribute(
           "data-design",

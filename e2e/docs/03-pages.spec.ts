@@ -12,14 +12,15 @@ import { expect, test } from "@playwright/test";
 
 import {
   ARTIFACTS,
+  DOCS_SCHEME_KEY,
   ITEMS,
   PAGES,
   SCHEMES,
   SECTIONS,
   appendResult,
   openPage,
-} from "./support";
-import type { Scheme } from "./support";
+} from "../support";
+import type { Scheme } from "../support";
 
 const SHOTS = path.join(ARTIFACTS, "pages");
 
@@ -38,7 +39,7 @@ interface AxeRow {
 for (const scheme of SCHEMES) {
   for (const url of PAGES) {
     test(`axe ${url} ${scheme}`, async ({ page }) => {
-      await openPage(page, url, scheme);
+      await openPage(page, url, scheme, DOCS_SCHEME_KEY);
       mkdirSync(SHOTS, { recursive: true });
       await page.screenshot({
         path: path.join(
@@ -70,7 +71,7 @@ for (const scheme of SCHEMES) {
 
 for (const item of ITEMS) {
   test(`/${item} has the eight sections in order`, async ({ page }) => {
-    await openPage(page, `/${item}`, "light");
+    await openPage(page, `/${item}`, "light", DOCS_SCHEME_KEY);
 
     // Page sections only: headings inside live previews belong to examples.
     const headings = await page.locator("#nd-page h2").evaluateAll((nodes) =>

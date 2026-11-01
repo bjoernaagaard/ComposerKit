@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "composerkit",
-  "homepage": "https://github.com/bjoernaagaard/ComposerKit",
+  "homepage": "https://github.com/Snestra/ComposerKit",
   "items": [
     {
       "name": "theme",
@@ -357,8 +357,8 @@
       ],
       "registryDependencies": [
         "utils",
-        "https://bjoernaagaard.github.io/ComposerKit/r/theme.json",
-        "https://bjoernaagaard.github.io/ComposerKit/r/tip.json"
+        "https://snestra.github.io/ComposerKit/r/theme.json",
+        "https://snestra.github.io/ComposerKit/r/tip.json"
       ],
       "files": [
         {
@@ -385,7 +385,7 @@
       ],
       "registryDependencies": [
         "utils",
-        "https://bjoernaagaard.github.io/ComposerKit/r/theme.json"
+        "https://snestra.github.io/ComposerKit/r/theme.json"
       ],
       "files": [
         {
@@ -413,7 +413,7 @@
       ],
       "registryDependencies": [
         "utils",
-        "https://bjoernaagaard.github.io/ComposerKit/r/theme.json"
+        "https://snestra.github.io/ComposerKit/r/theme.json"
       ],
       "files": [
         {
@@ -446,10 +446,10 @@
       ],
       "registryDependencies": [
         "utils",
-        "https://bjoernaagaard.github.io/ComposerKit/r/theme.json",
-        "https://bjoernaagaard.github.io/ComposerKit/r/button.json",
-        "https://bjoernaagaard.github.io/ComposerKit/r/menu.json",
-        "https://bjoernaagaard.github.io/ComposerKit/r/tip.json"
+        "https://snestra.github.io/ComposerKit/r/theme.json",
+        "https://snestra.github.io/ComposerKit/r/button.json",
+        "https://snestra.github.io/ComposerKit/r/menu.json",
+        "https://snestra.github.io/ComposerKit/r/tip.json"
       ],
       "files": [
         {
@@ -495,6 +495,10 @@
         {
           "path": "src/components/ui/arrivals.ts",
           "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/use-file-drop.ts",
+          "type": "registry:component"
         }
       ]
     },
@@ -509,10 +513,10 @@
       ],
       "registryDependencies": [
         "utils",
-        "https://bjoernaagaard.github.io/ComposerKit/r/theme.json",
-        "https://bjoernaagaard.github.io/ComposerKit/r/button.json",
-        "https://bjoernaagaard.github.io/ComposerKit/r/tip.json",
-        "https://bjoernaagaard.github.io/ComposerKit/r/composer.json"
+        "https://snestra.github.io/ComposerKit/r/theme.json",
+        "https://snestra.github.io/ComposerKit/r/button.json",
+        "https://snestra.github.io/ComposerKit/r/tip.json",
+        "https://snestra.github.io/ComposerKit/r/composer.json"
       ],
       "files": [
         {
@@ -549,10 +553,10 @@
       ],
       "registryDependencies": [
         "utils",
-        "https://bjoernaagaard.github.io/ComposerKit/r/theme.json",
-        "https://bjoernaagaard.github.io/ComposerKit/r/button.json",
-        "https://bjoernaagaard.github.io/ComposerKit/r/tip.json",
-        "https://bjoernaagaard.github.io/ComposerKit/r/menu.json"
+        "https://snestra.github.io/ComposerKit/r/theme.json",
+        "https://snestra.github.io/ComposerKit/r/button.json",
+        "https://snestra.github.io/ComposerKit/r/tip.json",
+        "https://snestra.github.io/ComposerKit/r/menu.json"
       ],
       "files": [
         {
@@ -594,6 +598,10 @@
         {
           "path": "src/components/ui/input-modality.ts",
           "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/use-sortable.ts",
+          "type": "registry:component"
         }
       ],
       "css": {
@@ -695,9 +703,9 @@
       ],
       "registryDependencies": [
         "utils",
-        "https://bjoernaagaard.github.io/ComposerKit/r/app-shell.json",
-        "https://bjoernaagaard.github.io/ComposerKit/r/menu.json",
-        "https://bjoernaagaard.github.io/ComposerKit/r/tip.json"
+        "https://snestra.github.io/ComposerKit/r/app-shell.json",
+        "https://snestra.github.io/ComposerKit/r/menu.json",
+        "https://snestra.github.io/ComposerKit/r/tip.json"
       ],
       "files": [
         {
@@ -801,11 +809,11 @@
       ],
       "registryDependencies": [
         "utils",
-        "https://bjoernaagaard.github.io/ComposerKit/r/app-shell.json",
-        "https://bjoernaagaard.github.io/ComposerKit/r/chat-sidebar.json",
-        "https://bjoernaagaard.github.io/ComposerKit/r/composer.json",
-        "https://bjoernaagaard.github.io/ComposerKit/r/conversation.json",
-        "https://bjoernaagaard.github.io/ComposerKit/r/sample-data.json"
+        "https://snestra.github.io/ComposerKit/r/app-shell.json",
+        "https://snestra.github.io/ComposerKit/r/chat-sidebar.json",
+        "https://snestra.github.io/ComposerKit/r/composer.json",
+        "https://snestra.github.io/ComposerKit/r/conversation.json",
+        "https://snestra.github.io/ComposerKit/r/sample-data.json"
       ],
       "files": [
         {
@@ -844,13 +852,13 @@
       "name": "sample-data",
       "type": "registry:item",
       "title": "Sample data",
-      "description": "The sample options, projects, chats, conversation turns, composer states and color roles that the docs examples import. Add it to run an example exactly as the docs show it.",
+      "description": "The sample options, projects, chats, conversation turns, composer states and color roles that the demo app uses. Add it to run the components with the same data as the demo app.",
       "dependencies": [
         "lucide-react"
       ],
       "registryDependencies": [
-        "https://bjoernaagaard.github.io/ComposerKit/r/composer.json",
-        "https://bjoernaagaard.github.io/ComposerKit/r/conversation.json"
+        "https://snestra.github.io/ComposerKit/r/composer.json",
+        "https://snestra.github.io/ComposerKit/r/conversation.json"
       ],
       "files": [
         {

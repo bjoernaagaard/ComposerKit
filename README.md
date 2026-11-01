@@ -4,7 +4,7 @@ ComposerKit is a set of React components for chat apps. It has a message box, ca
 
 ![A short chat in the conversation view, with a draft in the composer at the bottom](.github/assets/conversation.png)
 
-The docs site has a live example, the API and the keyboard support for each component, at <https://bjoernaagaard.github.io/ComposerKit/>. You can also try the [demo app](https://bjoernaagaard.github.io/ComposerKit/playground/), which puts all of the components together.
+You can try the [demo app](https://snestra.github.io/ComposerKit/playground/), which puts all of the components together.
 
 ## Install
 
@@ -22,14 +22,14 @@ You can add ComposerKit to an app with the shadcn CLI or with npm. The shadcn CL
 Your app needs shadcn with Tailwind CSS v4, which `npx shadcn@latest init` sets up. The fastest start is the chat-app block, which adds a whole chat app as one page at `app/chat/page.tsx`, with the app shell, the chat sidebar, the composer and the conversation. Edit it to use your own chats and replies.
 
 ```bash
-npx shadcn@latest add https://bjoernaagaard.github.io/ComposerKit/r/chat-app.json
+npx shadcn@latest add https://snestra.github.io/ComposerKit/r/chat-app.json
 ```
 
 You can also add only the items you want. Each item brings the items it needs, so the composer also adds the theme, the button, the menu and the tip.
 
 ```bash
-npx shadcn@latest add https://bjoernaagaard.github.io/ComposerKit/r/composer.json
-npx shadcn@latest add https://bjoernaagaard.github.io/ComposerKit/r/conversation.json
+npx shadcn@latest add https://snestra.github.io/ComposerKit/r/composer.json
+npx shadcn@latest add https://snestra.github.io/ComposerKit/r/conversation.json
 ```
 
 ### Install from npm
@@ -47,7 +47,7 @@ npm install composerkit
 
 The stylesheet adds the ComposerKit theme in light and dark, and it tells Tailwind to scan the components for the classes they use. Add the `dark` class to an element, such as `<html>`, to show the dark theme inside it.
 
-The examples in the docs use the shadcn import paths. Each source file is also a module in the npm package, at the same path, so you can change an import by replacing `@/` with `composerkit/`.
+The registry items use the shadcn import paths. Each source file is also a module in the npm package, at the same path, so you can change an import by replacing `@/` with `composerkit/`.
 
 ```diff
 -import { Composer } from "@/components/composer/composer";
@@ -106,20 +106,18 @@ The conversation view fills its container, so give the container a height. The `
 
 ## Components
 
-Each component has its own page in the docs, with examples, the props, the keyboard support and the theme tokens it uses.
-
 | Component | What it is | Module path |
 | --- | --- | --- |
-| [Theme](https://bjoernaagaard.github.io/ComposerKit/theme/) | The colors, sizes, type and motion, in light and dark | `styles.css`, npm only |
-| [Button](https://bjoernaagaard.github.io/ComposerKit/button/) | Text buttons, and icon buttons that show their name in a tip | `components/ui/button`, `components/ui/icon-button` |
-| [Tip](https://bjoernaagaard.github.io/ComposerKit/tip/) | A short label that shows on hover and keyboard focus | `components/ui/tip` |
-| [Menu](https://bjoernaagaard.github.io/ComposerKit/menu/) | A dropdown menu with items, choices and submenus | `components/ui/menu` |
-| [Composer](https://bjoernaagaard.github.io/ComposerKit/composer/) | The message box with attachments, model and access menus, and send. Files dropped on it or pasted into it attach too. | `components/composer/composer` |
-| [Conversation](https://bjoernaagaard.github.io/ComposerKit/conversation/) | An open chat with its turns and the composer below | `components/conversation/conversation-view` |
-| [App shell](https://bjoernaagaard.github.io/ComposerKit/app-shell/) | The window around an app: a title bar with tabs that people can move, a rail, a sidebar that remembers its state, and the main region | `components/app-shell/app-shell-provider`, `components/app-shell/app-shell` and one module for each other part |
-| [Chat sidebar](https://bjoernaagaard.github.io/ComposerKit/chat-sidebar/) | The chat list in the sidebar: New chat, search, pinned chats, projects, recent chats, and archive with undo | `components/chat-sidebar/chat-sidebar` and one module for each other part |
+| Theme | The colors, sizes, type and motion, in light and dark | `styles.css`, npm only |
+| Button | Text buttons, and icon buttons that show their name in a tip | `components/ui/button`, `components/ui/icon-button` |
+| Tip | A short label that shows on hover and keyboard focus | `components/ui/tip` |
+| Menu | A dropdown menu with items, choices and submenus | `components/ui/menu` |
+| Composer | The message box with attachments, model and access menus, and send. Files dropped on it or pasted into it attach too. | `components/composer/composer` |
+| Conversation | An open chat with its turns and the composer below | `components/conversation/conversation-view` |
+| App shell | The window around an app: a title bar with tabs that people can move, a rail, a sidebar that remembers its state, and the main region | `components/app-shell/app-shell-provider`, `components/app-shell/app-shell` and one module for each other part |
+| Chat sidebar | The chat list in the sidebar: New chat, search, pinned chats, projects, recent chats, and archive with undo | `components/chat-sidebar/chat-sidebar` and one module for each other part |
 
-The module paths are the same after `@/` in a shadcn app and after `composerkit/` in the npm package. The registry also has the [chat app](https://bjoernaagaard.github.io/ComposerKit/chat-app/) block, which puts the components together on one page, and a [sample data](https://bjoernaagaard.github.io/ComposerKit/sample-data/) item, which holds the data that the docs examples import. The npm package doesn't include the chat app or the sample data.
+The module paths are the same after `@/` in a shadcn app and after `composerkit/` in the npm package. The registry also has the chat app block, which puts the components together on one page, and a sample data item, which holds the data that the demo app uses. The npm package doesn't include the chat app or the sample data.
 
 ## How the composer state works
 
@@ -179,16 +177,16 @@ The hook doesn't upload files to a server. It moves each file's progress bar on 
 The repository holds the components, the docs site and the demo app. It also holds a Rust version of the components for apps built with GPUI, the Rust UI framework that the Zed editor uses.
 
 ```text
-packages/composerkit/   # the components, the registry source and the npm package
+packages/composerkit/   # the components, the registry and the npm package
 apps/
-├── docs/               # the docs site (Next.js and Fumadocs), with the built registry in public/r
+├── docs/               # the docs site (Next.js and Fumadocs)
 └── playground/         # the demo app and the composer state harness (Vite)
 crates/
 ├── composerkit-theme/  # the design tokens and a theme for gpui-kit apps
 └── composerkit-ui/     # the same components for gpui-kit apps, in Rust
 spec/functional.md      # how the reference app looks and behaves, measured by hand
 scripts/                # turns the design tokens into CSS variables
-e2e/docs/               # Playwright checks for the docs site and the registry
+e2e/                    # Playwright checks for the registry, a new shadcn app, the docs and the demo app
 ```
 
 ## Contributing and releases

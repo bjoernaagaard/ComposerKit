@@ -3,7 +3,7 @@
 
 // How crates/composerkit-theme/design-tokens.json maps to shadcn's CSS
 // variables. scripts/tokens.ts writes the result to tokens.css and
-// registry.json, and the docs list it on each component page.
+// registry.json.
 
 export type Scheme = "light" | "dark";
 

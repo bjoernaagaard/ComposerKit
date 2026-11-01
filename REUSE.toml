@@ -5,7 +5,6 @@ version = 1
 path = [
   "**/*.json",
   "**/*.lock",
-  "package-lock.json",
   "**/*.png",
   "**/*.svg",
   "**/*.md",

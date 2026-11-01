@@ -11,15 +11,15 @@
     "shadcn",
     "tailwindcss"
   ],
-  "homepage": "https://bjoernaagaard.github.io/ComposerKit/",
+  "homepage": "https://github.com/Snestra/ComposerKit#readme",
   "bugs": {
-    "url": "https://github.com/bjoernaagaard/ComposerKit/issues"
+    "url": "https://github.com/Snestra/ComposerKit/issues"
   },
   "license": "MIT",
   "author": "Bjørn Aagaard",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bjoernaagaard/ComposerKit.git",
+    "url": "git+https://github.com/Snestra/ComposerKit.git",
     "directory": "packages/composerkit"
   },
   "files": [
@@ -44,7 +44,7 @@
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json && node scripts/finish-dist.ts",
     "prepack": "npm run build",
-    "registry:build": "node ../../scripts/tokens.ts && shadcn build --output ../../apps/docs/public/r",
+    "registry:build": "node ../../scripts/tokens.ts && shadcn build",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

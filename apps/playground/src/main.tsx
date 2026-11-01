@@ -20,7 +20,7 @@ import { AppearanceMenu } from "./appearance-menu";
 import { readConversationLayout, saveConversationLayout } from "./saved-layout";
 import { ComposerStates } from "./states/composer/composer-states";
 
-// The stress harness is for the docs E2E only. In a production build the
+// The stress harness is for the E2E only. In a production build the
 // condition is false, so the bundler drops the import.
 const Stress = import.meta.env.DEV
   ? lazy(async () => {
@@ -70,12 +70,11 @@ if (!root) {
   throw new Error("index.html is missing the #root element");
 }
 
-// /states/composer is the state-machine harness for the composer. The
-// component catalog now lives in the docs site (apps/docs). Routes match the
-// end of the path, because GitHub Pages serves the harness both under the
-// playground's base (/ComposerKit/playground/states/composer/) and at its
-// older link outside it (/ComposerKit/states/composer/). Pages also adds a
-// trailing slash to each route.
+// /states/composer is the state-machine harness for the composer. Routes
+// match the end of the path, because GitHub Pages serves the harness both
+// under the playground's base (/ComposerKit/playground/states/composer/) and
+// at its older link outside it (/ComposerKit/states/composer/). Pages also
+// adds a trailing slash to each route.
 const TRAILING_SLASH = /\/$/u;
 
 const path = window.location.pathname.replace(TRAILING_SLASH, "");

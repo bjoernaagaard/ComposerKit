@@ -4,6 +4,6 @@
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 
 export const baseOptions = (): BaseLayoutProps => ({
-  githubUrl: "https://github.com/bjoernaagaard/ComposerKit",
+  githubUrl: "https://github.com/Snestra/ComposerKit",
   nav: { title: "ComposerKit" },
 });

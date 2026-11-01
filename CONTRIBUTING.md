@@ -4,10 +4,10 @@ Thank you for helping with ComposerKit. The guide below explains how to set up t
 
 ## Set up the repository
 
-You need Node.js 26, which is the version the CI uses, and npm. The Rust crates also need Rust 1.99 or later, but you only need Rust if you change the crates.
+You need Node.js 26 and npm. The Rust crates also need Rust 1.99 or later, but you only need Rust if you change the crates.
 
 ```bash
-git clone https://github.com/bjoernaagaard/ComposerKit.git
+git clone https://github.com/Snestra/ComposerKit.git
 cd ComposerKit
 npm ci
 ```
@@ -28,11 +28,12 @@ Most changes start in the demo app or the docs site, because both of them load t
 
 ## Where the code lives
 
-The library folder holds more than the components that ship. The files in `components/` and `lib/` go into both the registry and the npm package. The other folders hold the demo app and the sample data that the docs examples use.
+The library folder holds more than the components that ship. The files in `components/` and `lib/` go into both the registry and the npm package. The other folders hold the demo app and the sample data.
 
 ```text
 packages/composerkit/
 ├── registry.json          # the shadcn registry items and the files in each one
+├── public/r/              # the built registry
 ├── src/
 │   ├── components/        # ships in the registry and the npm package
 │   │   ├── ui/            # button, icon button, tip, menu
@@ -42,14 +43,14 @@ packages/composerkit/
 │   ├── theme/tokens.css   # ships in the npm package, generated from the design tokens
 │   ├── styles.css         # ships in the npm package only
 │   ├── content/           # sample data, ships as the registry's sample-data item
-│   ├── states/            # composer states for the docs and the harness, also in sample-data
+│   ├── states/            # composer states for the harness, also in sample-data
 │   ├── app/               # the demo app shell, which doesn't ship
 │   └── designs/           # other looks for the demo app, which don't ship
 ├── vite.config.ts         # builds the npm package
 └── scripts/finish-dist.ts # fixes the type imports and copies the CSS after the build
 ```
 
-The components import each other with the `@/` alias, such as `@/components/ui/button`. Keep the alias, because the shadcn CLI rewrites it to the alias of the app that installs the item. The npm build turns it into relative paths.
+The components import each other with the `@/` alias, such as `@/components/ui/button`. Keep the alias, because the shadcn CLI rewrites it to the alias of the app that installs the item. The package build turns it into relative paths.
 
 ## How the theme files are made
 
@@ -69,20 +70,20 @@ flowchart LR
     script --> registry["registry.json, theme item"]
     script --> roles["src/content/color-roles.ts"]
     registry --> build["npm run registry:build"]
-    build --> public["apps/docs/public/r/*.json"]
+    build --> public["public/r/*.json"]
     tokens --> rust["composerkit-theme crate"]
 ```
 
-The Pages workflow fails when the committed files in `apps/docs/public/r` don't match `registry.json`. Run `npm run registry:build` and commit the result whenever you change a component or `registry.json`.
+Run `npm run registry:build` and commit the result whenever you change a component or `registry.json`, so the committed files in `packages/composerkit/public/r` match the source.
 
 ## Check your change
 
-Run the checks below before you open a pull request. The CI runs the linter, the format check and the type check, and builds the package, the docs site and the demo app. It doesn't run the end to end tests, so run them yourself. The end to end run takes a few minutes.
+Run the checks below before you open a pull request. Nothing runs them for you. The end to end run takes a few minutes.
 
 1. Run `npm run check` to lint and check the formatting. Run `npm run fix` to fix most problems.
 2. Run `npm run typecheck` to check the types in every workspace.
 3. Run `npm pack --workspace composerkit --dry-run` to build the npm package and list the files it would publish.
-4. Run `npm run e2e:docs` to build the docs site and check every page with Playwright. The run writes a report to `artifacts/docs-e2e/report.md`.
+4. Run `npm run e2e` to check the registry, a new shadcn app, the docs site and the demo app with Playwright. The run writes a report to `artifacts/e2e/report.md`.
 
 If you change the Rust crates, also run `cargo clippy --all-targets`. To see every native component, run `cargo run --example catalog --package composerkit-ui`.
 
@@ -99,4 +100,4 @@ Pull request titles follow the Conventional Commits format, with the area of the
 
 ## Ask a question or report a bug
 
-Open an issue at <https://github.com/bjoernaagaard/ComposerKit/issues>. For a bug, say which component it is, what you did, and what you expected to happen. A link to a page in the docs or the demo app that shows the bug helps the most.
+Open an issue at <https://github.com/Snestra/ComposerKit/issues>. For a bug, say which component it is, what you did, and what you expected to happen. A link to a page in the demo app that shows the bug helps the most.

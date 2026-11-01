@@ -11,8 +11,8 @@ import path from "node:path";
 import { expect, test } from "@playwright/test";
 import { scanURLs, validateFiles } from "next-validate-link";
 
-import { DOCS_APP, EXPORT_DIR, readResult, writeResult } from "./support";
-import type { CommandRun } from "./support";
+import { DOCS_APP, EXPORT_DIR, readResult, writeResult } from "../support";
+import type { CommandRun } from "../support";
 
 const CONTENT = path.join(DOCS_APP, "content/docs");
 const ID = /\sid="(?<id>[^"]+)"/gu;

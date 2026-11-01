@@ -27,11 +27,9 @@ import { ThemeDemo } from "./theme-demo";
 import { TipDemo } from "./tip-demo";
 import { TipOnIconButtons } from "./tip-icon-buttons";
 
-// Every live example in the docs, by name. Names that match an id in
-// artifacts/docs-e2e/catalog-before/manifest.json are the old catalog's
-// variants and the composer states from src/states/composer/fixtures.ts;
-// the E2E finds each one by its data-example attribute. Labels and notes
-// are the captions the catalog printed. file is shown on the Code tab.
+// Every live example in the docs, by name. Some names are the composer
+// states from src/states/composer/fixtures.ts. Each preview carries its
+// name in a data-example attribute. file is shown on the Code tab.
 
 export interface Example {
   element: ReactElement;

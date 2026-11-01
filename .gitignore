@@ -3,15 +3,11 @@
 .scratch
 .audit/
 
-# e2e output (keep the catalog baseline)
-artifacts/*
-!artifacts/docs-e2e/
-artifacts/docs-e2e/*
-!artifacts/docs-e2e/catalog-before/
+# e2e output
+artifacts/
 
 # Dependencies
 node_modules/
-.pnpm-store/
 
 # Build and tool output
 dist/
@@ -26,8 +22,6 @@ coverage/
 # Logs
 *.log
 logs/
-npm-debug.log*
-pnpm-debug.log*
 
 # Secrets: values live in Bitwarden Secrets Manager, never in the repo
 .env
