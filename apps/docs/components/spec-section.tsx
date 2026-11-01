@@ -10,7 +10,7 @@ import defaultMdxComponents from "fumadocs-ui/mdx";
 
 const SPEC_FILE = "spec/functional.md";
 const SPEC_PATH = path.resolve(process.cwd(), "../..", SPEC_FILE);
-const SPEC_URL = `https://github.com/bjoernaagaard/ComposerKit/blob/main/${SPEC_FILE}`;
+const SPEC_URL = `https://github.com/Snestra/ComposerKit/blob/main/${SPEC_FILE}`;
 
 const HEADING = /^(?<marks>#{2,3}) (?<title>.+)$/u;
 

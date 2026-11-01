@@ -7,7 +7,7 @@ Thank you for helping with ComposerKit. The guide below explains how to set up t
 You need Node.js 26 and npm. The Rust crates also need Rust 1.99 or later, but you only need Rust if you change the crates.
 
 ```bash
-git clone https://github.com/bjoernaagaard/ComposerKit.git
+git clone https://github.com/Snestra/ComposerKit.git
 cd ComposerKit
 npm ci
 ```
@@ -100,4 +100,4 @@ Pull request titles follow the Conventional Commits format, with the area of the
 
 ## Ask a question or report a bug
 
-Open an issue at <https://github.com/bjoernaagaard/ComposerKit/issues>. For a bug, say which component it is, what you did, and what you expected to happen. A link to a page in the demo app that shows the bug helps the most.
+Open an issue at <https://github.com/Snestra/ComposerKit/issues>. For a bug, say which component it is, what you did, and what you expected to happen. A link to a page in the demo app that shows the bug helps the most.

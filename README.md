@@ -4,7 +4,7 @@ ComposerKit is a set of React components for chat apps. It has a message box, ca
 
 ![A short chat in the conversation view, with a draft in the composer at the bottom](.github/assets/conversation.png)
 
-You can try the [demo app](https://bjoernaagaard.github.io/ComposerKit/playground/), which puts all of the components together.
+You can try the [demo app](https://snestra.github.io/ComposerKit/playground/), which puts all of the components together.
 
 ## Install
 
@@ -22,14 +22,14 @@ You can add ComposerKit to an app with the shadcn CLI or with npm. The shadcn CL
 Your app needs shadcn with Tailwind CSS v4, which `npx shadcn@latest init` sets up. The fastest start is the chat-app block, which adds a whole chat app as one page at `app/chat/page.tsx`, with the app shell, the chat sidebar, the composer and the conversation. Edit it to use your own chats and replies.
 
 ```bash
-npx shadcn@latest add https://bjoernaagaard.github.io/ComposerKit/r/chat-app.json
+npx shadcn@latest add https://snestra.github.io/ComposerKit/r/chat-app.json
 ```
 
 You can also add only the items you want. Each item brings the items it needs, so the composer also adds the theme, the button, the menu and the tip.
 
 ```bash
-npx shadcn@latest add https://bjoernaagaard.github.io/ComposerKit/r/composer.json
-npx shadcn@latest add https://bjoernaagaard.github.io/ComposerKit/r/conversation.json
+npx shadcn@latest add https://snestra.github.io/ComposerKit/r/composer.json
+npx shadcn@latest add https://snestra.github.io/ComposerKit/r/conversation.json
 ```
 
 ### Install from npm

@@ -9,11 +9,11 @@
   ],
   "registryDependencies": [
     "utils",
-    "https://bjoernaagaard.github.io/ComposerKit/r/app-shell.json",
-    "https://bjoernaagaard.github.io/ComposerKit/r/chat-sidebar.json",
-    "https://bjoernaagaard.github.io/ComposerKit/r/composer.json",
-    "https://bjoernaagaard.github.io/ComposerKit/r/conversation.json",
-    "https://bjoernaagaard.github.io/ComposerKit/r/sample-data.json"
+    "https://snestra.github.io/ComposerKit/r/app-shell.json",
+    "https://snestra.github.io/ComposerKit/r/chat-sidebar.json",
+    "https://snestra.github.io/ComposerKit/r/composer.json",
+    "https://snestra.github.io/ComposerKit/r/conversation.json",
+    "https://snestra.github.io/ComposerKit/r/sample-data.json"
   ],
   "files": [
     {

@@ -2,9 +2,9 @@
 
 composerkit is a set of React components for chat apps. It has a message box, called the composer, and a conversation view that shows the chat above the composer. It also has an app shell for the window around them, a chat sidebar that lists the chats, and the buttons, menus and tooltips that the other components use. The components are built on [Base UI](https://base-ui.com) and styled with Tailwind CSS v4.
 
-![A short chat in the conversation view, with a draft in the composer at the bottom](https://raw.githubusercontent.com/bjoernaagaard/ComposerKit/main/.github/assets/conversation.png)
+![A short chat in the conversation view, with a draft in the composer at the bottom](https://raw.githubusercontent.com/Snestra/ComposerKit/main/.github/assets/conversation.png)
 
-You can try every component together in the [demo app](https://bjoernaagaard.github.io/ComposerKit/playground/). The same components are also a shadcn registry, so you can copy the source into your app instead of installing the package. The [GitHub repository](https://github.com/bjoernaagaard/ComposerKit) explains both options.
+You can try every component together in the [demo app](https://snestra.github.io/ComposerKit/playground/). The same components are also a shadcn registry, so you can copy the source into your app instead of installing the package. The [GitHub repository](https://github.com/Snestra/ComposerKit) explains both options.
 
 ## Install
 

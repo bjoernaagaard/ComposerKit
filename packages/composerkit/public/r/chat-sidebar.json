@@ -10,9 +10,9 @@
   ],
   "registryDependencies": [
     "utils",
-    "https://bjoernaagaard.github.io/ComposerKit/r/app-shell.json",
-    "https://bjoernaagaard.github.io/ComposerKit/r/menu.json",
-    "https://bjoernaagaard.github.io/ComposerKit/r/tip.json"
+    "https://snestra.github.io/ComposerKit/r/app-shell.json",
+    "https://snestra.github.io/ComposerKit/r/menu.json",
+    "https://snestra.github.io/ComposerKit/r/tip.json"
   ],
   "files": [
     {

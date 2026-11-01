@@ -41,8 +41,7 @@ export const CONSUMER_URL = `http://127.0.0.1:${CONSUMER_PORT}`;
 export const PLAYGROUND_PORT = PORT_BASE + 10;
 export const PLAYGROUND_URL = `http://127.0.0.1:${PLAYGROUND_PORT}`;
 
-export const PUBLISHED_REGISTRY =
-  "https://bjoernaagaard.github.io/ComposerKit/r/";
+export const PUBLISHED_REGISTRY = "https://snestra.github.io/ComposerKit/r/";
 
 export const ITEMS = [
   "theme",

@@ -10,8 +10,8 @@
   ],
   "registryDependencies": [
     "utils",
-    "https://bjoernaagaard.github.io/ComposerKit/r/theme.json",
-    "https://bjoernaagaard.github.io/ComposerKit/r/tip.json"
+    "https://snestra.github.io/ComposerKit/r/theme.json",
+    "https://snestra.github.io/ComposerKit/r/tip.json"
   ],
   "files": [
     {

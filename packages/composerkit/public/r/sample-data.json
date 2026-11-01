@@ -7,8 +7,8 @@
     "lucide-react"
   ],
   "registryDependencies": [
-    "https://bjoernaagaard.github.io/ComposerKit/r/composer.json",
-    "https://bjoernaagaard.github.io/ComposerKit/r/conversation.json"
+    "https://snestra.github.io/ComposerKit/r/composer.json",
+    "https://snestra.github.io/ComposerKit/r/conversation.json"
   ],
   "files": [
     {
