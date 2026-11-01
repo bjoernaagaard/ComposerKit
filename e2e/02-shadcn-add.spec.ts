@@ -237,7 +237,7 @@ test("a new shadcn app installs every item and builds", async ({ browser }) => {
   try {
     steps.push(
       await run(
-        "bunx",
+        "npx",
         [
           "shadcn@latest",
           "init",
@@ -256,7 +256,7 @@ test("a new shadcn app installs every item and builds", async ({ browser }) => {
 
       // oxlint-disable-next-line no-await-in-loop -- each add builds on the one before
       const added = await run(
-        "bunx",
+        "npx",
         ["shadcn@latest", "add", url, "-y", "-o"],
         app
       );
@@ -266,7 +266,7 @@ test("a new shadcn app installs every item and builds", async ({ browser }) => {
 
     steps.push(
       await run(
-        "bunx",
+        "npx",
         [
           "shadcn@latest",
           "add",
@@ -280,8 +280,8 @@ test("a new shadcn app installs every item and builds", async ({ browser }) => {
 
     writeFileSync(path.join(app, "app/page.tsx"), PAGE);
     steps.push(
-      await run("bunx", ["tsc", "--noEmit"], app),
-      await run("bunx", ["next", "build"], app)
+      await run("npx", ["tsc", "--noEmit"], app),
+      await run("npx", ["next", "build"], app)
     );
 
     if (steps.every((step) => step.exitCode === 0)) {

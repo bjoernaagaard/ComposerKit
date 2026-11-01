@@ -10,9 +10,9 @@
 // packages/composerkit/src/components/app-shell/sidebar-width.ts, for the
 // splitter. The Rust theme crate compiles in the same file. It also copies
 // the rules in app-shell.css and chat-sidebar.css into the css of their
-// registry items, so bun run registry:build runs it first.
+// registry items, so npm run registry:build runs it first.
 //
-//   bun scripts/tokens.ts
+//   node scripts/tokens.ts
 
 import { readFileSync, writeFileSync } from "node:fs";
 

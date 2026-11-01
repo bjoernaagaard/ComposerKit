@@ -42,9 +42,9 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "vite build && tsc -p tsconfig.build.json && bun scripts/finish-dist.ts",
-    "prepack": "bun run build",
-    "registry:build": "bun ../../scripts/tokens.ts && shadcn build",
+    "build": "vite build && tsc -p tsconfig.build.json && node scripts/finish-dist.ts",
+    "prepack": "npm run build",
+    "registry:build": "node ../../scripts/tokens.ts && shadcn build",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

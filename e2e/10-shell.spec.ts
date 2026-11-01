@@ -408,8 +408,8 @@ const savedShell = async (page: Page) => {
 
 test('npm package: persist.js has no "use client", so a server component can call readShellCookie', async () => {
   const build = await run(
-    "bun",
-    ["run", "--filter", "composerkit", "build"],
+    "npm",
+    ["run", "build", "--workspace", "composerkit"],
     REPO
   );
 

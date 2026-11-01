@@ -338,7 +338,7 @@ export const writeReport = (): void => {
     "<!-- SPDX-License-Identifier: MIT -->",
     "",
     "# E2E report",
-    `Written by \`bun run e2e\` on ${new Date().toISOString().slice(0, 10)}. It runs against the playground's dev server and the registry in \`packages/composerkit/public/r\`. Raw results, including the rows that pass, are in \`results/\`.`,
+    `Written by \`npm run e2e\` on ${new Date().toISOString().slice(0, 10)}. It runs against the playground's dev server and the registry in \`packages/composerkit/public/r\`. Raw results, including the rows that pass, are in \`results/\`.`,
     ...checkOne(schema),
     ...checkTwo(shadcn),
     ...checkThree(keyboard, sizes),

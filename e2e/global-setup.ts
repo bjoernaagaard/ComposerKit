@@ -14,7 +14,7 @@ const globalSetup = async () => {
   rmSync(RESULTS, { force: true, recursive: true });
   mkdirSync(RESULTS, { recursive: true });
 
-  const registry = await run("bun", ["run", "registry:build"], REPO);
+  const registry = await run("npm", ["run", "registry:build"], REPO);
 
   if (registry.exitCode !== 0) {
     throw new Error(`registry:build failed:\n${registry.outputTail}`);

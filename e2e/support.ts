@@ -202,7 +202,7 @@ export const serveNextApp = (app: string, port: number) =>
 // The playground's Vite dev server, for the dev-only stress harness.
 export const servePlayground = () =>
   startServer(
-    path.join(PLAYGROUND, "node_modules/.bin/vite"),
+    path.join(REPO, "node_modules/.bin/vite"),
     ["--port", String(PLAYGROUND_PORT), "--strictPort", "--host", "127.0.0.1"],
     PLAYGROUND,
     PLAYGROUND_PORT

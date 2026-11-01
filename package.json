@@ -10,13 +10,13 @@
   ],
   "type": "module",
   "scripts": {
-    "dev": "bun run --filter @composerkit/playground dev",
-    "build": "bun run --filter @composerkit/playground build",
-    "registry:build": "bun run --filter composerkit registry:build",
+    "dev": "npm run dev --workspace @composerkit/playground",
+    "build": "npm run build --workspace @composerkit/playground",
+    "registry:build": "npm run registry:build --workspace composerkit",
     "e2e": "playwright test --config e2e/playwright.config.ts",
     "check": "ultracite check",
     "fix": "ultracite fix",
-    "typecheck": "bun run --filter \"*\" typecheck && tsc --noEmit --project e2e",
+    "typecheck": "npm run typecheck --workspaces --if-present && tsc --noEmit --project e2e",
     "prepare": "lefthook install"
   },
   "devDependencies": {
@@ -37,6 +37,5 @@
     "shadcn": "^4.23.0",
     "typescript": "^7.0.2",
     "ultracite": "^8.1.0"
-  },
-  "packageManager": "bun@1.4.4"
+  }
 }

@@ -7,7 +7,7 @@
 // imports are copied in, so a new layer's stylesheet ships once styles.css
 // imports it.
 //
-//   bun scripts/finish-dist.ts
+//   node scripts/finish-dist.ts
 
 import {
   copyFileSync,

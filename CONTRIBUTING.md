@@ -4,15 +4,15 @@ Thank you for helping with ComposerKit. The guide below explains how to set up t
 
 ## Set up the repository
 
-You need Bun 1.4.4, the version in `packageManager` in `package.json`. The Rust crates also need Rust 1.99 or later, but you only need Rust if you change the crates.
+You need Node.js 26 and npm. The Rust crates also need Rust 1.99 or later, but you only need Rust if you change the crates.
 
 ```bash
 git clone https://github.com/bjoernaagaard/ComposerKit.git
 cd ComposerKit
-bun install
+npm ci
 ```
 
-The repository is a Bun workspace, so `bun install` installs the packages for the library and the demo app at once. Every script runs on Bun, because `bunfig.toml` sets `run.bun`. The install also sets up a Git pre-commit hook with Lefthook. The hook runs `ultracite fix` on the files you commit, stages the fixes, and stops the commit when a problem is left that it can't fix.
+The repository is an npm workspace, so `npm ci` installs the packages for the library and the demo app at once. It also installs a Git pre-commit hook with Lefthook. The hook runs `ultracite fix` on the files you commit, stages the fixes, and stops the commit when a problem is left that it can't fix.
 
 ## Run the apps
 
@@ -20,9 +20,9 @@ Most changes start in the demo app, because it loads the components straight fro
 
 | Command | What it does |
 | --- | --- |
-| `bun run dev` | Starts the demo app at <http://localhost:5173>. The composer state harness is at `/states/composer`. |
-| `bun run build` | Builds the demo app into `apps/playground/dist`. |
-| `bun run --filter composerkit build` | Builds the npm package into `packages/composerkit/dist`. |
+| `npm run dev` | Starts the demo app at <http://localhost:5173>. The composer state harness is at `/states/composer`. |
+| `npm run build` | Builds the demo app into `apps/playground/dist`. |
+| `npm run build --workspace composerkit` | Builds the npm package into `packages/composerkit/dist`. |
 
 ## Where the code lives
 
@@ -55,33 +55,33 @@ The components import each other with the `@/` alias, such as `@/components/ui/b
 The colors, sizes and motion values live in one file, `crates/composerkit-theme/design-tokens.json`. Don't edit the files made from it by hand. Change the token file instead, and then run the script that writes the other files.
 
 ```bash
-bun scripts/tokens.ts
-bun run registry:build
+node scripts/tokens.ts
+npm run registry:build
 ```
 
 The diagram below shows which files each step writes.
 
 ```mermaid
 flowchart LR
-    tokens["design-tokens.json"] --> script["bun scripts/tokens.ts"]
+    tokens["design-tokens.json"] --> script["node scripts/tokens.ts"]
     script --> css["src/theme/tokens.css"]
     script --> registry["registry.json, theme item"]
     script --> roles["src/content/color-roles.ts"]
-    registry --> build["bun run registry:build"]
+    registry --> build["npm run registry:build"]
     build --> public["public/r/*.json"]
     tokens --> rust["composerkit-theme crate"]
 ```
 
-Run `bun run registry:build` and commit the result whenever you change a component or `registry.json`, so the committed files in `packages/composerkit/public/r` match the source.
+Run `npm run registry:build` and commit the result whenever you change a component or `registry.json`, so the committed files in `packages/composerkit/public/r` match the source.
 
 ## Check your change
 
 Run the checks below before you open a pull request. Nothing runs them for you. The end to end run takes a few minutes.
 
-1. Run `bun run check` to lint and check the formatting. Run `bun run fix` to fix most problems.
-2. Run `bun run typecheck` to check the types in every workspace.
-3. Run `bun pm pack --dry-run` in `packages/composerkit` to build the npm package and list the files it would publish.
-4. Run `bun run e2e` to check the registry, a new shadcn app and the demo app with Playwright. The run writes a report to `artifacts/e2e/report.md`.
+1. Run `npm run check` to lint and check the formatting. Run `npm run fix` to fix most problems.
+2. Run `npm run typecheck` to check the types in every workspace.
+3. Run `npm pack --workspace composerkit --dry-run` to build the npm package and list the files it would publish.
+4. Run `npm run e2e` to check the registry, a new shadcn app and the demo app with Playwright. The run writes a report to `artifacts/e2e/report.md`.
 
 If you change the Rust crates, also run `cargo clippy --all-targets`. To see every native component, run `cargo run --example catalog --package composerkit-ui`.
 

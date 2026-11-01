@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Bjørn Aagaard
 // SPDX-License-Identifier: MIT
 
-// The E2E: bun run e2e. Spec files run side by side, and the tests inside
+// The E2E: npm run e2e. Spec files run side by side, and the tests inside
 // one file run in order, against the playground and the registry. The run
 // writes artifacts/e2e/report.md, and each test's duration to
 // test-results/e2e-timings.json.

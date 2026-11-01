@@ -45,8 +45,8 @@ const table = (rows: SizeRow[]) =>
 
 test("every component's gzip size is within 5% of its baseline", async () => {
   const build = await run(
-    "bun",
-    ["run", "--filter", "composerkit", "build"],
+    "npm",
+    ["run", "build", "--workspace", "composerkit"],
     REPO
   );
 
