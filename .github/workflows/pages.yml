@@ -1,0 +1,67 @@
+# SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+# SPDX-License-Identifier: MIT
+
+# Publishes the docs site, the demo and the shadcn registry to GitHub Pages.
+# The docs are at https://snestra.github.io/ComposerKit/, the demo under
+# /playground and the registry under /r, so
+# `npx shadcn add https://snestra.github.io/ComposerKit/r/composer.json`
+# works. It only deploys: it runs on pushes to main and by hand, never on
+# pull requests. The build fails if the committed registry is out of date.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: npm
+      - run: npm ci
+      - run: npm run registry:build
+      - name: Registry matches registry.json
+        run: git diff --exit-code -- packages/composerkit/public/r
+      # The docs export is the site root.
+      - run: npm run docs:build
+        env:
+          NEXT_PUBLIC_BASE_PATH: /ComposerKit
+      - run: npm run build --workspace @composerkit/playground -- --base=/ComposerKit/playground/
+      # Pages has no rewrites, so each demo route gets its own copy of the
+      # page. /states/composer is the older link to the composer harness.
+      - name: Add the registry under /r and the demo under /playground
+        run: |
+          cp -R packages/composerkit/public/r apps/docs/out/r
+          cp -R apps/playground/dist apps/docs/out/playground
+          for route in playground/states/composer states/composer; do
+            mkdir -p "apps/docs/out/$route"
+            cp apps/playground/dist/index.html "apps/docs/out/$route/index.html"
+          done
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: apps/docs/out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

@@ -74,7 +74,7 @@ flowchart LR
     tokens --> rust["composerkit-theme crate"]
 ```
 
-Run `npm run registry:build` and commit the result whenever you change a component or `registry.json`, so the committed files in `packages/composerkit/public/r` match the source.
+Run `npm run registry:build` and commit the result whenever you change a component or `registry.json`, so the committed files in `packages/composerkit/public/r` match the source. The Pages workflow fails when they don't.
 
 ## Check your change
 

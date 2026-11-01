@@ -1,6 +1,6 @@
 # Releasing ComposerKit
 
-The shadcn registry and the npm package each have their own release. The shadcn registry is the set of files in `packages/composerkit/public/r`, and it changes whenever they change. The npm package only changes when a maintainer publishes a new version by hand, with the steps below.
+The shadcn registry and the npm package each have their own release. The Pages workflow publishes the shadcn registry, with the docs site and the demo app, every time a change merges to `main`. The npm package only changes when a maintainer publishes a new version by hand, with the steps below.
 
 ## What a release runs
 
