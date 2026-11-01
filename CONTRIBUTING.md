@@ -12,16 +12,18 @@ cd ComposerKit
 npm ci
 ```
 
-The repository is an npm workspace, so `npm ci` installs the packages for the library and the demo app at once. It also installs a Git pre-commit hook with Lefthook. The hook runs `ultracite fix` on the files you commit, stages the fixes, and stops the commit when a problem is left that it can't fix.
+The repository is an npm workspace, so `npm ci` installs the packages for the library, the docs site and the demo app at once. It also installs a Git pre-commit hook with Lefthook. The hook runs `ultracite fix` on the files you commit, stages the fixes, and stops the commit when a problem is left that it can't fix.
 
 ## Run the apps
 
-Most changes start in the demo app, because it loads the components straight from `packages/composerkit/src`. A change to a component shows up in the app when you save the file.
+Most changes start in the demo app or the docs site, because both of them load the components straight from `packages/composerkit/src`. A change to a component shows up in both apps when you save the file.
 
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Starts the demo app at <http://localhost:5173>. The composer state harness is at `/states/composer`. |
+| `npm run docs:dev` | Starts the docs site at <http://localhost:3000>. |
 | `npm run build` | Builds the demo app into `apps/playground/dist`. |
+| `npm run docs:build` | Builds the docs site as static files into `apps/docs/out`. |
 | `npm run build --workspace composerkit` | Builds the npm package into `packages/composerkit/dist`. |
 
 ## Where the code lives
@@ -81,7 +83,7 @@ Run the checks below before you open a pull request. Nothing runs them for you. 
 1. Run `npm run check` to lint and check the formatting. Run `npm run fix` to fix most problems.
 2. Run `npm run typecheck` to check the types in every workspace.
 3. Run `npm pack --workspace composerkit --dry-run` to build the npm package and list the files it would publish.
-4. Run `npm run e2e` to check the registry, a new shadcn app and the demo app with Playwright. The run writes a report to `artifacts/e2e/report.md`.
+4. Run `npm run e2e` to check the registry, a new shadcn app, the docs site and the demo app with Playwright. The run writes a report to `artifacts/e2e/report.md`.
 
 If you change the Rust crates, also run `cargo clippy --all-targets`. To see every native component, run `cargo run --example catalog --package composerkit-ui`.
 

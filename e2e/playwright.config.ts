@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 // The E2E: npm run e2e. Spec files run side by side, and the tests inside
-// one file run in order, against the playground and the registry. The run
+// one file run in order, against the docs, the playground and the registry.
+// The specs in docs/ run against the docs' static export. The run
 // writes artifacts/e2e/report.md, and each test's duration to
 // test-results/e2e-timings.json.
 import { availableParallelism } from "node:os";
@@ -10,7 +11,7 @@ import path from "node:path";
 
 import { defineConfig } from "@playwright/test";
 
-import { PLAYGROUND_URL, REPO } from "./support";
+import { DOCS_URL, PLAYGROUND_URL, REPO } from "./support";
 
 const MINUTE = 60_000;
 
@@ -25,6 +26,10 @@ export default defineConfig({
   globalSetup: "./global-setup.ts",
   // Installs and next build in a temp app take minutes.
   globalTimeout: 60 * MINUTE,
+  projects: [
+    { name: "docs", testDir: "docs", use: { baseURL: DOCS_URL } },
+    { name: "playground", testIgnore: "docs/**" },
+  ],
   reporter: [
     ["list"],
     ["json", { outputFile: path.join(REPO, "test-results/e2e-timings.json") }],

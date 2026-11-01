@@ -174,17 +174,19 @@ The hook doesn't upload files to a server. It moves each file's progress bar on 
 
 ## Repository layout
 
-The repository holds the components and the demo app. It also holds a Rust version of the components for apps built with GPUI, the Rust UI framework that the Zed editor uses.
+The repository holds the components, the docs site and the demo app. It also holds a Rust version of the components for apps built with GPUI, the Rust UI framework that the Zed editor uses.
 
 ```text
 packages/composerkit/   # the components, the registry and the npm package
-apps/playground/        # the demo app and the composer state harness (Vite)
+apps/
+├── docs/               # the docs site (Next.js and Fumadocs)
+└── playground/         # the demo app and the composer state harness (Vite)
 crates/
 ├── composerkit-theme/  # the design tokens and a theme for gpui-kit apps
 └── composerkit-ui/     # the same components for gpui-kit apps, in Rust
 spec/functional.md      # how the reference app looks and behaves, measured by hand
 scripts/                # turns the design tokens into CSS variables
-e2e/                    # Playwright checks for the registry, a new shadcn app and the demo app
+e2e/                    # Playwright checks for the registry, a new shadcn app, the docs and the demo app
 ```
 
 ## Contributing and releases

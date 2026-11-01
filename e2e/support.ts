@@ -15,6 +15,8 @@ import type { Page } from "@playwright/test";
 export const REPO = fileURLToPath(new URL("../", import.meta.url));
 export const REGISTRY_DIR = path.join(REPO, "packages/composerkit/public/r");
 const PLAYGROUND = path.join(REPO, "apps/playground");
+export const DOCS_APP = path.join(REPO, "apps/docs");
+export const EXPORT_DIR = path.join(DOCS_APP, "out");
 export const ARTIFACTS = path.join(REPO, "artifacts/e2e");
 export const RESULTS = path.join(ARTIFACTS, "results");
 
@@ -31,6 +33,8 @@ const portSlot = [...REPO].reduce(
 
 const PORT_BASE = 4320 + portSlot * PORT_STEP;
 
+export const DOCS_PORT = PORT_BASE;
+export const DOCS_URL = `http://127.0.0.1:${DOCS_PORT}`;
 export const LOCAL_REGISTRY_PORT = PORT_BASE + 1;
 export const CONSUMER_PORT = PORT_BASE + 2;
 export const CONSUMER_URL = `http://127.0.0.1:${CONSUMER_PORT}`;
@@ -52,13 +56,36 @@ export const ITEMS = [
   "chat-app",
 ] as const;
 
+// Every docs page. sample-data is a registry item with a short page of its
+// own, not a component, so it is not in ITEMS and has no eight sections.
+export const PAGES = ["/", ...ITEMS.map((item) => `/${item}`), "/sample-data"];
+
+export const SECTIONS = [
+  "Install",
+  "Demo",
+  "Anatomy",
+  "Examples",
+  "API reference",
+  "Keyboard",
+  "Accessibility",
+  "Theming",
+];
+
 export const SCHEMES = ["light", "dark"] as const;
 
 export type Scheme = (typeof SCHEMES)[number];
 
-// The design directions the playground's appearance menu offers besides
-// base.
+// The design directions the playground's appearance menu and the docs'
+// Design picker offer besides base, and the docs pages with the most
+// ComposerKit examples to see them on.
 export const DESIGNS = ["apple", "glass", "taste", "emil"] as const;
+
+export const DESIGN_PAGES = [
+  "/composer",
+  "/conversation",
+  "/app-shell",
+  "/chat-app",
+];
 
 export const writeResult = <T extends object>(name: string, data: T): void => {
   mkdirSync(RESULTS, { recursive: true });
@@ -84,14 +111,26 @@ export const appendResult = <T extends object>(name: string, row: T): void => {
   writeResult(name, [...(readResult<T[]>(name) ?? []), row]);
 };
 
-// Opens a playground page in a color scheme. The playground keeps the
-// scheme in localStorage under composerkit-scheme and puts the dark class
-// on <html>, which the library's tokens also key on.
-export const openPage = async (page: Page, url: string, scheme: Scheme) => {
+// The localStorage key that holds the color scheme. The playground uses
+// its own key, and the docs use next-themes, which reads "theme".
+const PLAYGROUND_SCHEME_KEY = "composerkit-scheme";
+export const DOCS_SCHEME_KEY = "theme";
+
+// Opens a page in a color scheme. Both apps put the dark class on <html>,
+// which the library's tokens also key on.
+export const openPage = async (
+  page: Page,
+  url: string,
+  scheme: Scheme,
+  schemeKey = PLAYGROUND_SCHEME_KEY
+) => {
   await page.emulateMedia({ colorScheme: scheme });
-  await page.addInitScript((value) => {
-    localStorage.setItem("composerkit-scheme", value);
-  }, scheme);
+  await page.addInitScript(
+    ({ key, value }) => {
+      localStorage.setItem(key, value);
+    },
+    { key: schemeKey, value: scheme }
+  );
   await page.goto(url);
   await page.waitForLoadState("networkidle");
 

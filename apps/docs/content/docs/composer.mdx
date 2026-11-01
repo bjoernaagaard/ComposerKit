@@ -1,0 +1,167 @@
+---
+# SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+# SPDX-License-Identifier: MIT
+title: Composer
+description: The message box. Text, attachments, the add menu, model and access menus, and the send button.
+full: true
+---
+
+## Install
+
+```bash
+npx shadcn@latest add https://bjoernaagaard.github.io/ComposerKit/r/composer.json
+```
+
+This adds `components/composer/`, with the theme, the button, the menu and the tip.
+
+The examples below also import sample data: options, projects and chats. To run one exactly as the Code tab shows it, add that too:
+
+```bash title="Add the sample data"
+npx shadcn@latest add https://bjoernaagaard.github.io/ComposerKit/r/sample-data.json
+```
+
+[Sample data](/sample-data) lists the files it adds and where they go.
+
+## Demo
+
+<ComponentPreview name="composer--demo" />
+
+## Anatomy
+
+State lives in your component. `useComposerController` gives you the state and the handlers for sending, uploads and dictation; the composer only draws them.
+
+```tsx title="Anatomy"
+import { Composer } from "@/components/composer/composer";
+import { initialComposer } from "@/components/composer/machine";
+import { useComposerController } from "@/components/composer/use-composer-controller";
+
+const composer = useComposerController(
+  onSend,
+  initialComposer(options, choices)
+);
+
+<Composer
+  state={composer.state}
+  dispatch={composer.dispatch}
+  handlers={composer.handlers}
+  mode="work"
+  options={options}
+  projects={projects}
+/>;
+// data-slot="composer"
+//   data-slot="composer-surface"   the form: text field, add, model, dictate, send
+//   data-slot="composer-tray"      the Work tray, inside or under the form
+```
+
+## Examples
+
+### Inline
+
+<ComponentPreview name="composer--inline" />
+
+### Roomy
+
+<ComponentPreview name="composer--roomy" />
+
+### Stacked
+
+<ComponentPreview name="composer--stacked" />
+
+### States
+
+Each state from `src/states/composer/fixtures.ts`, drawn by the real composer with handlers that do nothing, so pending states hold still.
+
+<ComposerStatePreviews />
+
+### Drop and paste files
+
+Drop files from the desktop on the composer, or paste them into it, and they attach as if the file picker had chosen them. They go through `handlers.handleFiles`, so the 25 MB limit applies and nothing attaches while a message is sending.
+
+As soon as a drag that carries files enters the window, every composer on the page shows "Drop files to attach" over its box. Over the composer, the box takes the drop zone's color. A file dropped anywhere else does nothing, so the browser doesn't leave the app to open it. Dragging selected text into the field, and pasting text, work as before.
+
+Pass `acceptDrop={false}` to a composer that only shows a state, as the states above do.
+
+## API reference
+
+### Composer
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/composer/composer.tsx"
+  name="ComposerProps"
+/>
+
+### ComposerState
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/composer/machine.ts"
+  name="ComposerState"
+/>
+
+### ComposerHandlers
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/composer/use-composer-controller.ts"
+  name="ComposerHandlers"
+/>
+
+### ComposerOptions
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/composer/options.ts"
+  name="ComposerOptions"
+/>
+
+### ComposerAddItem
+
+<AutoTypeTable
+  path="../../packages/composerkit/src/components/composer/composer-add-menu.tsx"
+  name="ComposerAddItem"
+/>
+
+## Keyboard
+
+<SpecSection section="1. Composer > Keyboard" />
+
+### Type to focus
+
+<SpecSection section="1. Composer > Type-to-focus scope" />
+
+### Focus after actions
+
+<SpecSection section="1. Composer > Focus after actions" />
+
+### Add menu
+
+The add menu keeps focus in the text field and moves a highlight, as in the [WAI-ARIA Authoring Practices combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).
+
+<SpecSection section="4. Menus > A. Add menu (composer)" />
+
+### Model picker
+
+The model picker is a [menu button](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/).
+
+<SpecSection section="4. Menus > B. Model picker" />
+
+## Accessibility
+
+<SpecSection section="1. Composer > Accessibility" />
+
+The text field is a multi-line text box; the add menu follows the [combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) and the model and access pickers the [menu button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/).
+
+## Theming
+
+Tokens that the composer's files use.
+
+<TokenTable item="composer" />
+
+Design directions style a drop through these hooks:
+
+| Hook | On |
+| --- | --- |
+| `data-slot="composer"`, with `data-drop-ready` while files are dragged over the window and `data-drop-target` while they are over the composer | The composer |
+| `data-slot="composer-drop-overlay"` | The cover that says "Drop files to attach" |
+| `--drop-zone-fill`, `var(--primary)` at 8% by default, and `--drop-zone-border`, `var(--ring)` by default, on `data-slot="composer-surface"` | The drop zone's tint and border while files are over the composer |
+
+### Motion
+
+A file you attach eases in over `--motion-enter`, from `--enter-scale`. When the round button changes, such as Send turning into Stop, the new icon eases in from `--icon-enter-scale`. Files and the icon the composer opens with stay still, and removing a file takes it away at once. Under reduced motion they only fade.

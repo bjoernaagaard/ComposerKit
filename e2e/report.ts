@@ -47,6 +47,45 @@ interface SpecResult {
   part?: string;
 }
 
+interface Violation {
+  id: string;
+  nodes: number;
+}
+
+interface AxeResult {
+  page: string;
+  scheme: string;
+  violations: Violation[];
+}
+
+interface SectionsResult {
+  page: string;
+  ok: boolean;
+  headings: string[];
+}
+
+interface LinksResult {
+  broken: { file: string; line: number; url: string; reason: string }[];
+  files: string[];
+  urls: string[];
+}
+
+interface DesignResult extends AxeResult {
+  design: string;
+  firstFrames: (string | null)[];
+  keptAfterNavigation: boolean;
+  consoleErrors: string[];
+}
+
+interface TypingResult {
+  budgetMs: number;
+  cpuSlowdown: number;
+  keys: number;
+  medianMs: number;
+  p95Ms: number;
+  maxMs: number;
+}
+
 const MISSING = "No result. The spec did not run or stopped early.";
 
 // Table cells: pipes and line breaks would break the Markdown table.
@@ -320,6 +359,113 @@ const mismatchList = (keyboard: SpecResult[], sizes: SpecResult[]) => {
   ];
 };
 
+const violationText = (violations: Violation[]) =>
+  violations.length === 0
+    ? "none"
+    : violations
+        .map((violation) => `${violation.id} (${violation.nodes})`)
+        .join(", ");
+
+const linkVerdict = (links: LinksResult | undefined) => {
+  if (!links) {
+    return "did not run";
+  }
+
+  return links.broken.length === 0
+    ? "no broken links"
+    : `${links.broken.length} broken`;
+};
+
+const docsSection = (docs: {
+  build: CommandRun | undefined;
+  axe: AxeResult[];
+  sections: SectionsResult[];
+  links: LinksResult | undefined;
+  designs: DesignResult[];
+  typing: TypingResult | undefined;
+}) => [
+  "## Docs site",
+  table(
+    ["Step", "Result", "Detail"],
+    [
+      [
+        docs.build?.command ?? "npm run docs:build",
+        docs.build ? `exit ${docs.build.exitCode}` : "did not run",
+        docs.build ? `${docs.build.seconds} s` : "",
+      ],
+      [
+        "next-validate-link on content/docs/*.mdx",
+        linkVerdict(docs.links),
+        docs.links
+          ? `${docs.links.files.length} files, ${docs.links.urls.length} known URLs`
+          : "",
+      ],
+      [
+        "Typing in the chat app's home composer",
+        docs.typing
+          ? verdict(docs.typing.medianMs <= docs.typing.budgetMs)
+          : "did not run",
+        docs.typing
+          ? `${docs.typing.keys} keys at ${docs.typing.cpuSlowdown}x CPU slowdown: median ${docs.typing.medianMs} ms, p95 ${docs.typing.p95Ms} ms, max ${docs.typing.maxMs} ms`
+          : "",
+      ],
+    ]
+  ),
+  ...(docs.links && docs.links.broken.length > 0
+    ? [
+        table(
+          ["File", "Line", "URL", "Reason"],
+          docs.links.broken.map((entry) => [
+            entry.file,
+            entry.line,
+            entry.url,
+            entry.reason,
+          ])
+        ),
+      ]
+    : []),
+  "### axe-core on every page, every rule axe runs by default",
+  docs.axe.length === 0
+    ? MISSING
+    : table(
+        ["Page", "Scheme", "Violations"],
+        docs.axe.map((row) => [
+          row.page,
+          row.scheme,
+          violationText(row.violations),
+        ])
+      ),
+  "### Page sections in order",
+  docs.sections.length === 0
+    ? MISSING
+    : table(
+        ["Page", "Result", "Headings found"],
+        docs.sections.map((row) => [
+          row.page,
+          verdict(row.ok),
+          row.headings.join(", "),
+        ])
+      ),
+  "### Design picker",
+  docs.designs.length === 0
+    ? MISSING
+    : table(
+        ["Page", "Design", "Scheme", "First frames", "Kept", "Errors", "axe"],
+        docs.designs.map((row) => [
+          row.page,
+          row.design,
+          row.scheme,
+          verdict(
+            row.firstFrames.length > 0 &&
+              row.firstFrames.every((frame) => frame === row.design)
+          ),
+          verdict(row.keptAfterNavigation),
+          row.consoleErrors.length,
+          violationText(row.violations),
+        ])
+      ),
+];
+
 export const writeReport = (): void => {
   const schema = readResult<SchemaResult>("registry-schema");
   const shadcn = readResult<ShadcnResult>("shadcn-add");
@@ -338,9 +484,17 @@ export const writeReport = (): void => {
     "<!-- SPDX-License-Identifier: MIT -->",
     "",
     "# E2E report",
-    `Written by \`npm run e2e\` on ${new Date().toISOString().slice(0, 10)}. It runs against the playground's dev server and the registry in \`packages/composerkit/public/r\`. Raw results, including the rows that pass, are in \`results/\`.`,
+    `Written by \`npm run e2e\` on ${new Date().toISOString().slice(0, 10)}. It runs against the docs' static export, the playground's dev server and the registry in \`packages/composerkit/public/r\`. Raw results, including the rows that pass, are in \`results/\`.`,
     ...checkOne(schema),
     ...checkTwo(shadcn),
+    ...docsSection({
+      axe: readResult<AxeResult[]>("axe") ?? [],
+      build: readResult<CommandRun>("build"),
+      designs: readResult<DesignResult[]>("designs") ?? [],
+      links: readResult<LinksResult>("links"),
+      sections: readResult<SectionsResult[]>("sections") ?? [],
+      typing: readResult<TypingResult>("typing-budget"),
+    }),
     ...checkThree(keyboard, sizes),
     ...stressSection(stress),
     ...mismatchList(keyboard, sizes),

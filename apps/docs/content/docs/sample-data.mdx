@@ -1,0 +1,26 @@
+---
+# SPDX-FileCopyrightText: 2026 Bjørn Aagaard
+# SPDX-License-Identifier: MIT
+title: Sample data
+description: The options, projects, chats, conversation turns, composer states and color roles that the docs examples import. It is data, not a component.
+---
+
+The examples on the component pages import sample data, so they show something real. This item installs that data where the imports look for it, so an example you copy from a Code tab compiles as it is. It is not a component and has no API of its own.
+
+## Install
+
+```bash
+npx shadcn@latest add https://bjoernaagaard.github.io/ComposerKit/r/sample-data.json
+```
+
+## What it contains
+
+Read from `packages/composerkit/registry.json` when the site is built.
+
+<SampleDataFiles />
+
+## Pages whose examples need it
+
+Each page below has examples that import one of these files. The [Chat app](/chat-app) installs it as well, because its page runs on the sample data.
+
+<SampleDataPages />
